@@ -67,7 +67,7 @@ create table cliente ( -- tabela do cliente
 create table servico (
 	ser_id int auto_increment primary key, -- id do serviço
     ser_pro int not null,-- id do profissional na tabela serviço
-    ser_clinpro int null,
+    ser_clin int null,
     ser_nome varchar(100) not null,-- nome do serviço
     ser_tipo varchar(50),-- tipo do serviço --
     ser_desc text,-- descrição do serviço
@@ -76,7 +76,8 @@ create table servico (
     ser_val decimal(10,2), -- valor do seviço
     ser_stat varchar(8),-- status do serviço -- se uma podologa deixar de fazer um serviço dar soft delete para manter o relatorio e atentimento sem dar problema
     ser_dia int null,-- dias em que a podóloga realiza tal serviço 0 = domingo 1 = segunda
-    constraint fk_ser_pro foreign key (ser_pro) references profissional(pro_id)on delete cascade on update cascade
+    ser_loc int null, -- id da localização
+    foreign key (ser_pro) references profissional(pro_id)on delete cascade on update cascade
 );
 
 create table permissoes (-- tabela que vai estar os tipos de permissoes que tem
@@ -88,31 +89,33 @@ create table profissional_clinica (-- essa tabela relaciona o profissional com a
     pc_id int auto_increment primary key, -- id dessa tabela
     pc_pro int not null, -- id do profissional nessa tabela
     pc_clin int not null, -- id da clinica nessa tabela
-    constraint fk_pc_pro foreign key (pc_pro) references profissional(pro_id) on delete cascade on update cascade,
-    constraint fk_pc_clin foreign key (pc_clin) references clinica(clin_id) on delete cascade on update cascade
+    foreign key (pc_pro) references profissional(pro_id) on delete cascade on update cascade,
+    foreign key (pc_clin) references clinica(clin_id) on delete cascade on update cascade
 );
 
 create table menu_permissao ( -- tabela que vai associar as permissoes e clinicas e seus associados
 	mnperm_id int auto_increment primary key, -- id dessa tabela
     mnperm_perm int null, -- id da permissão nessa tabela
     mnperm_pc int null, -- id da associção nessa tabela
-    constraint fk_mnperm_perm foreign key (mnperm_perm) references permissoes(perm_id) on delete cascade on update cascade,
-	constraint fk_mnperm_pc foreign key (mnperm_pc) references profissional_clinica(pc_id) on delete set null on update cascade
+    foreign key (mnperm_perm) references permissoes(perm_id) on delete cascade on update cascade,
+	foreign key (mnperm_pc) references profissional_clinica(pc_id) on delete set null on update cascade
 );
 
-create table localizacao (-- crie essa tabela pra fazer um 1vn com as salas
+create table localizacao (-- criei essa tabela pra fazer um 1vn com as salas
 	loc_id int auto_increment primary key, -- id dessa tabela
-    loc_pro int not null, -- id do profissional nessa tabela
+    loc_pro int null, -- id do profissional nessa tabela
     loc_clin int null,   -- id da clinica nessa tabela
+    loc_nome varchar(90), -- nome da localização
     loc_tipo enum('clin','casa','domi'), -- tipo de localização: clinica, casa, à domicíolio
-    constraint fk_loc_pro foreign key (loc_pro) references profissional(pro_id) on delete cascade on update cascade,
-    constraint fk_loc_clin foreign key (loc_clin) references clinica(clin_id) on delete cascade on update cascade
+    foreign key (loc_pro) references profissional(pro_id) on delete cascade on update cascade,
+    foreign key (loc_clin) references clinica(clin_id) on delete cascade on update cascade
 );
 
 create table sala (-- crie essa tabela para controlar o agendamento de forma que não aja um agendamento na mesma sala no mesmo horario
 	sala_id int auto_increment primary key,-- id dessa tabela
     sala_loc int not null, -- id da localização nessa tabela
-    constraint fk_sala_loc foreign key (sala_loc) references localizacao(loc_id) on delete cascade on update cascade
+    sala_nome varchar(90), -- nome da sala
+    foreign key (sala_loc) references localizacao(loc_id) on delete cascade on update cascade
 ); -- não tem status pq eu só vou usar para verificar no agendamento se já tem gente usando esssa sala
 
 create table relatorio (-- como queremos guardar os relatorios e que as clinicas possam acessar ela então criamos uma tabela pra isso
@@ -122,16 +125,16 @@ create table relatorio (-- como queremos guardar os relatorios e que as clinicas
     dt_relatorio datetime, -- data do relatorio
     ttl_atendimentos int, -- total de atentimentos
     ttl_gnh decimal(10,2), -- ganho. Provavelmente vou ter que acrecentrar coisas 
-    constraint fk_rel_pro foreign key (rel_pro) references profissional(pro_id) on delete set null on update cascade,
-    constraint fk_rel_clin foreign key (rel_clin) references clinica(clin_id) on delete set null on update cascade
+    foreign key (rel_pro) references profissional(pro_id) on delete set null on update cascade,
+    foreign key (rel_clin) references clinica(clin_id) on delete set null on update cascade
 );
 
 create table hr_servico ( -- para cada dia em que a podologa trabralhar vai ter um horario de inicio e terminio e vai servir tbm pra verificar se o horario corresponde ao horario livre
     hrser_id int auto_increment primary key,-- id dessa tabela
     hrser_pro int null,-- id do profissional nessa tabela
     hrser_clin int null,
-    hrser_hora_inic time not null, -- horario do inicio do trabalho 
-    hrser_hora_term time not null, -- horario do termino do trabalho 
+    hrser_hrini time not null, -- horario do inicio do trabalho 
+    hrser_hrterm time not null, -- horario do termino do trabalho 
     hrser_dia int, -- dias de trabalho 0 = domingo 1 = segunda ...
     foreign key (hrser_pro) references profissional(pro_id) on delete cascade
 );
@@ -153,15 +156,15 @@ create table agenda (-- aqui vai estar os horarios das consultas
     agnd_cli int not null,-- id do cliente nessa tabela
     agnd_clin int null,-- id da clinica
     agnd_ser int not null,-- id do servico nessa tabela
-    /*agnd_sala int not null,-- id da sala nessa tabela*/
+    agnd_sala int not null,-- id da sala nessa tabela
     agnd_dt date, -- data da consulta
     agnd_hrIni time,-- data de inicio da consulta
     agnd_hrTerm time, -- data de termino da consulta
-    constraint fk_agnd_pro foreign key (agnd_pro) references profissional(pro_id),
-	constraint fk_agnd_cli foreign key (agnd_cli) references cliente(cli_id),
-	constraint fk_agnd_clin foreign key (agnd_clin) references clinica(clin_id),
-    constraint fk_agnd_ser foreign key (agnd_ser) references servico(ser_id)
-    /*constraint fk_agnd_sal foreign key (agnd_sala) references sala(sala_id)*/ 
+    foreign key (agnd_pro) references profissional(pro_id),
+	foreign key (agnd_cli) references cliente(cli_id),
+	foreign key (agnd_clin) references clinica(clin_id),
+    foreign key (agnd_ser) references servico(ser_id),
+    foreign key (agnd_sala) references sala(sala_id)
 );
 
 create table atendimento ( -- esse vai salvar pra fazer o relatorio e mander no historico -- basicamente depois da consulta vai salvar aqui para poder calcular os relatorio
@@ -171,13 +174,13 @@ create table atendimento ( -- esse vai salvar pra fazer o relatorio e mander no 
 	atd_cli int, -- id do cliente nessa tabela
     atd_ser int not null,-- id do servico nessa tabela
     atd_stat enum('atentido','desmarcado','não compareceu'), -- status do atentimento para gerar relatorios
-	constraint fk_atd_pro foreign key (atd_pro) references profissional(pro_id) on delete set null, 
-	constraint fk_atd_agn foreign key (atd_agnd) references agenda(agnd_id) on delete set null, 
-	constraint fk_atd_cli foreign key (atd_cli) references cliente(cli_id) on delete set null,
-    constraint fk_atd_ser foreign key (atd_ser) references servico(ser_id)  on delete cascade
+	foreign key (atd_pro) references profissional(pro_id) on delete set null, 
+	foreign key (atd_agnd) references agenda(agnd_id) on delete set null, 
+	foreign key (atd_cli) references cliente(cli_id) on delete set null,
+    foreign key (atd_ser) references servico(ser_id)  on delete cascade
 );
 
-select * from profissional;
+select * from cliente;
 
 /*INSERT INTO servico (ser_id, ser_pro, ser_nome, ser_tipo, ser_desc, ser_dur, ser_inter, ser_val, ser_stat, ser_dia) VALUES (0, 1, 'mao de pão', 'mãos', 'sua mão vira pão', 30, 10, 50.20, 'ativado', 0);
 INSERT INTO hr_servico (hrser_id, hrser_pro, hrser_hora_inic, hrser_hora_term, hrser_dia) VALUES (0, 1, '08:00:00','18:00:00','1');

@@ -24,7 +24,7 @@ class profissional extends usuario {
             'cxfoto',
             $dtNas,
             date('Y-m-d H:i:s'),
-            null, #PAULO
+            null,
             "desativo",
             $CPF,
             $CEP,
@@ -73,6 +73,51 @@ class profissional extends usuario {
                 'erro' => 'Erro no banco: ' . $e->getMessage()
             ];
         }
+    }
+    
+    public function hrServico($pro,$clin,$inicio,$termino,$dia) {
+        $camposStr =  "
+        'hrser_id',
+        'hrser_pro',
+        'hrser_clin',
+        'hrser_hora_inic',
+        'hrser_hora_term',
+        'hrser_dia' ";
+        $dados = [0,$pro,$clin,$inicio,$termino,$dia];
+        try {
+            $cadastrar = new DBQuery('hr_servico', $camposStr, 'hrser_id');
+            $cadastrar->insert($dados);
+            return ['sucesso' => true];
+        }
+        catch (\Exception $e) {
+            return [
+                'sucesso' => false,
+                'mensagem' => $e->getMessage()
+            ];
+        };
+    }
+    
+    public function hrExcecao($pro,$dia,$trabalho,$inicio,$termino,$desc) {
+        $camposStr =  " 
+            'hr_excecao_id',
+            'hr_excecao_pro',
+            'hr_excecao_dia',
+            'hr_excecao_trab',
+            'hr_excecao_ini',
+            'hr_excecao_term',
+            'hr_excecao_desc'";
+        $dados = [0,$pro,$dia,$trabalho,$inicio,$termino,$desc];
+        try {
+            $cadastrar = new DBQuery('hr_excecao', $camposStr, 'hr_excecao_id');
+            $cadastrar->insert($dados);
+            return ['sucesso' => true];
+        }
+        catch (\Exception $e) {
+            return [
+                'sucesso' => false,
+                'mensagem' => $e->getMessage()
+            ];
+        };
     }
 }
 ?>

@@ -23,7 +23,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $cliente = new cliente('cliente', $campos, $campos[0]);
-        $resultado = $cliente->Cadastrarcliente($_POST['nome'], $_POST['email'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['CEP'],$_POST['telefone'],$_POST['genero'],$_POST['registro']);
+        $resultado = $cliente->Cadastrarcliente($_POST['nome'], $_POST['email'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['telefone'],$_POST['genero']);
         echo json_encode($resultado);
         exit;
         

@@ -1,6 +1,6 @@
 <?php
 use models\profissional;
-use models\servicos;
+use models\busca;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -31,23 +31,33 @@ switch ($acao){
         exit;
         
     case "ReGerarCodigo":
-        $campospro = [$campos[2], $campos[7]];
-        $profissional = new profissional('profissional',$campospro,$campospro[0]);
+        $camposPro = [$campos[2], $campos[7]];
+        $profissional = new profissional('profissional',$camposPro,$camposPro[0]);
         $resultado = $profissional->GerarCodigo($_POST['email']);
         echo json_encode($resultado);
         exit;
 
     case "ativar":
-        $campospro = [$campos[2], $campos[7],$campos[11]];
-        $profissional = new profissional('profissional', $campospro, $campospro[0]);
+        $camposPro = [$campos[2], $campos[7],$campos[11]];
+        $profissional = new profissional('profissional', $camposPro, $camposPro[0]);
         $resultado = $profissional->Ativar($_POST['email'], $_POST['cod']);
         echo json_encode($resultado);
         exit;
         
     case "login":
-        $campospro = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[11]];
-        $profissional = new profissional('profissional', $campospro, $campospro[2]);
+        $camposPro = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[11]];
+        $profissional = new profissional('profissional', $camposPro, $camposPro[2]);
         $resultado = $profissional->Login($_POST['email'],$_POST['senha']);
+        echo json_encode($resultado);
+        exit;
+    case "atribuirHrServico":
+        $profissional = new profissional('profissional', $campos, $campos[0]);
+        $resultado = $profissional->hrServico($_SESSION['usuario']['idUsuario'], $_POST['clinica'] ?? 0, $_POST['inicio'], $_POST['termino'], $_POST['dia']);
+        echo json_encode($resultado);
+        exit;
+    case 'aribuirHrExcecao':
+        $profissional = new profissional('profissional', $campos, $campos[0]);
+        $resultado = $profissional->hrExcecao($_SESSION['usuario']['idUsuario'], $_POST['dia'], $_POST['trabalho'], $_POST['inicio'], $_POST['termino'], $_POST['descricao']);
         echo json_encode($resultado);
         exit;
     case "MostrarConsulta":
@@ -57,9 +67,22 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case "PegarPerfil":
-        $campospro = [$campos[0],$campos[1],$campos[5]];
-        $profissional = new profissional('profissional', $campospro, $campospro[0]);
-        $servico = new servicos();
+        $camposPro = [$campos[0],$campos[1],$campos[5]];
+        $camposSer = ['ser_id',
+            'ser_pro',
+            'ser_clin',
+            'ser_nome',
+            'ser_tipo',
+            'ser_desc',
+            'ser_dur',
+            'ser_inter',
+            'ser_val',
+            'ser_stat',
+            'ser_dia',
+            'ser_loc'];
+        $profissional = new profissional('profissional', $camposPro, $camposPro[0]);
+        $busca = new busca('servico',$camposSer,$camposSer[0]);
+        
         
         $properfil = $profissional->PegarPerfil();
         if ($properfil['sucesso'] === false) {
@@ -79,7 +102,7 @@ switch ($acao){
             exit;
         }
         
-        $proSer = $servico->MeusServicos();
+        $proSer = $busca->MeusServicos();
         if ($proSer['sucesso'] === false) {
             echo json_encode([
                 "sucesso" => false,

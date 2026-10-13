@@ -6,7 +6,6 @@ use core\database\DBQuery;
 use core\utils\CodeGenerator;
 use core\utils\Mail;
 use core\database\Where;
-use PDO;
 
 class usuario {
     private $table = '';
@@ -40,7 +39,7 @@ class usuario {
         $generator = new CodeGenerator();
         $cod = $generator->run(6);
         $dados = [$email,$cod];
-        /*$assunto = 'codigo de validação';
+        $assunto = 'codigo de validação';
          $body = "!DOCTYPE html>
          <html lang='pt-BR'>
          <head>
@@ -50,15 +49,15 @@ class usuario {
          <body>
          <p> seu codigo é: ".$cod."</p>
          </body>
-         </html>";*/
+         </html>";
         
         try {
             $camposStr = implode(',', $this->campos);
             $codigo = new DBQuery($this->table, $camposStr, $this->primary);
             $codigo->update($dados);
             return ['sucesso' => true];
-            /*$email = new Mail($dados[2], $assunto, $body);
-             $email ->send();*/
+            $email = new Mail($dados[2], $assunto, $body);
+             $email ->send();
         }catch (\Exception $e) {
             return [
                 'sucesso' => false,
@@ -75,7 +74,7 @@ class usuario {
         $where->addCondition('AND', $this->campos[1], '=',$cod);
         $where = $where->build();
         $codigo = $codigo->selectWhere($where);
-        $resultado = $codigo->fetch(PDO::FETCH_ASSOC);
+        $resultado = $codigo->fetch(\PDO::FETCH_ASSOC);
         if (!$resultado) {
              return [
                 'sucesso' => false,
@@ -116,7 +115,7 @@ class usuario {
             $where = $where->build();
             
             $resultado = $login->selectWhere($where);
-            $usuario = $resultado->fetch(PDO::FETCH_ASSOC);
+            $usuario = $resultado->fetch(\PDO::FETCH_ASSOC);
             
             
         } catch (\Exception $e) {
@@ -173,14 +172,14 @@ class usuario {
         $agenda->addJoin('INNER', 'agnd_ser', $servico, 'ser_id');
         
         $where = new Where();
-        $where->addCondition('AND', $this->campos, '=', $_SESSION[$this->table]['id']);
+        $where->addCondition('AND', $this->campos, '=', $_SESSION[$this->table]['idUsuario']);
         
         try {
             $resultado = $agenda->selectFiltered($where);
             if ($resultado) {
                 return [
                     'sucesso' => true,
-                    'dados' => $resultado->fetchAll(PDO::FETCH_ASSOC)
+                    'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
                 ];
             } else {
                 return ['sucesso' => false,

@@ -70,6 +70,12 @@
 	"servico": {
 		"path": "app/controllers/Servicocontroller.php"
 	},
+	"busca": {
+		    	"path": "app/controllers/buscacontroller.php",
+				"sessionKey": [{"idUsuario": false}], 
+				"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
+				"errorPath" : "app/views/erro.php"
+			},
 	"infoServico": {
 		"path": "app/views/infoServico.php",
 		"sessionKey": [{"idUsuario": false}],
@@ -103,9 +109,9 @@
 		"errorPath": "app/views/erro.php"
 	},
 	"teste": {
-			    	"path": "app/views/teste.html",
-					"sessionKey": [{"idUsuario": false}], 
-					"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-					"errorPath" : "app/views/erro.php"
+    	"path": "app/views/teste.php",
+		"sessionKey": [{"idUsuario": false}], 
+		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
+		"errorPath" : "app/views/erro.php"
 	}
 }

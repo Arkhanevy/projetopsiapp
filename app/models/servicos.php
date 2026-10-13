@@ -8,6 +8,7 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
     private $camposServ =[
         'ser_id',
         'ser_pro',
+        'ser_clin',
         'ser_nome',
         'ser_tipo',
         'ser_desc',
@@ -15,17 +16,19 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
         'ser_inter',
         'ser_val',
         'ser_stat',
-        'ser_dia'
+        'ser_dia',
+        'ser_loc'
     ];//campos do servico
     private $pimarykey =['ser_id'];
     private $table = 'servico';
     private $valser = ''; // nem sei se vou usar
     
-    public function cadastrar($id,$pro,$nome,$tipo,$desc,$dur,$inter,$val,$stat,$dia) {
+    public function cadastrar($id,$pro,$clin,$nome,$tipo,$desc,$dur,$inter,$val,$dia,$loc) {
         $camposServ = implode(',',$this->camposServ); // isso é só pra enviar no formato que o banco de dados pede, necessario?pode ser que não, assunto para depois
         $dados =[
-            0,
-            $_SESSION['profissional']['id'],
+            $id,
+            $pro,
+            $clin,
             $nome,
             $tipo,
             $desc,
@@ -33,7 +36,8 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
             $inter,
             $val,
             'ativo',
-            $dia
+            $dia,
+            $loc
         ];
         try {
             $cadastrar = new DBQuery($this->table, $camposServ,$this->pimarykey );
@@ -50,112 +54,8 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
             return "Erro no banco: " . $e->getMessage();
         };
     }
-    public function Mostrarservico(){//tá porco mas não tô fazendo a parte de pesquisa ainda é só pra o agendamento que estou fazendo agr possa funcionar
-        try {
-            $camposServ = [
-                $this->camposServ[0],
-                $this->camposServ[1],
-                $this->camposServ[2],
-                $this->camposServ[3],
-                $this->camposServ[4],
-                $this->camposServ[5],
-                $this->camposServ[8]
-            ];
-            
-            $camposServ = implode(',',$this->camposServ);
-            $mostrar = new DBQuery($this->table, $camposServ,$this->pimarykey );
-            $resultado = $mostrar->select();
-            
-            if ($resultado) {
-                return [
-                    'sucesso' => true,
-                    'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
-                ];
-            }else {
-                return [
-                    'sucesso' => false,
-                    'erro' => 'Erro ao resgatar informação'
-                ];
-            }
-        } catch (\InvalidArgumentException $e) {
-            return [
-                'sucesso' => false,
-                'erro' => 'Erro de validação: ' . $e->getMessage()
-            ];
-        } catch (\Exception $e) {
-            return [
-                'sucesso' => false,
-                'erro' => 'Erro no banco: ' . $e->getMessage()
-            ];
-        }
-    }
     
-    public function MostrarDetalhes($id) {
-        $camposServ = implode(',',$this->camposServ); 
-            try {
-                $mostrar = new DBQuery($this->table, $camposServ,$this->pimarykey );
-                $where = new Where();
-                $where->addCondition('AND', 'ser_id', '=',$id);
-                $where = $where->build();
-                $resultado = $mostrar->selectWhere($where);
-                
-                if ($resultado) {
-                    return [
-                        'sucesso' => true,
-                        'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
-                    ];
-                }else {
-                    return [
-                        'sucesso' => false,
-                        'erro' => 'Erro ao resgatar informação'
-                    ];
-                }
-            } catch (\InvalidArgumentException $e) {
-                return [
-                    'sucesso' => false,
-                    'erro' => 'Erro de validação: ' . $e->getMessage()
-                ];
-            } catch (\Exception $e) {
-                return [
-                    'sucesso' => false,
-                    'erro' => 'Erro no banco: ' . $e->getMessage()
-                ];
-            }
-    }
-    
-    public function MeusServicos() {
-        $camposServ = implode(',',$this->camposServ);
-        try {
-            $mostrar = new DBQuery($this->table, $camposServ,$this->pimarykey );
-            $where = new Where();
-            $where->addCondition('AND', 'ser_pro', '=',$_SESSION['profissional']['id']);
-            $where = $where->build();
-            $resultado = $mostrar->selectWhere($where);
-            
-            if ($resultado) {
-                return [
-                    'sucesso' => true,
-                    'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
-                ];
-            }else {
-                return [
-                    'sucesso' => false,
-                    'erro' => 'Erro ao resgatar informação'
-                ];
-            }
-        } catch (\InvalidArgumentException $e) {
-            return [
-                'sucesso' => false,
-                'erro' => 'Erro de validação: ' . $e->getMessage()
-            ];
-        } catch (\Exception $e) {
-            return [
-                'sucesso' => false,
-                'erro' => 'Erro no banco: ' . $e->getMessage()
-            ];
-        }
-    }
-       private function GetDiaTrabalho($pro){
+    private function GetDiaTrabalho($pro){
            try {
                $mostrar = new DBQuery('hr_servico', 'hrser_dia','hrser_pro' );// pega os dias que trabalha
                $where = new Where();
@@ -174,11 +74,12 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                return "Erro no banco: " . $e->getMessage();
            }
        }
-       private function GetExcecaotrabalho($pro) {
+   
+    private function GetExcecaotrabalho($pro) {
            try {
                $mostrar = new DBQuery('hr_excecao', 'hr_excecao_dia,hr_excecao_ini','hr_excecao_pro' );//pega os dias de exeção
                $where = new Where();
-               $where->addCondition('AND', 'hr_exececao_pro', '=', $pro);
+               $where->addCondition('AND', 'hr_excecao_pro', '=', $pro);
                $where = $where->build();
                $resultado = $mostrar->selectWhere($where);
                
@@ -193,7 +94,8 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                return "Erro no banco: " . $e->getMessage();
            }
        }
-       private function dias($ano,$mes,$dia){
+   
+    private function dias($ano,$mes,$dia){
            $data = new \DateTime("$ano-$mes-$dia");//volta uma lista dos dias
            $ultimoDia = $data->format('t');
            $dias = [];
@@ -207,7 +109,8 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
            }
            return $dias;
        }
-       private function PegarPeriodo($dia) {
+    
+    private function PegarPeriodo($dia) {
            try {
                $dsem = new \DateTime($dia);
                $dsem = $dsem->format('w');
@@ -240,28 +143,83 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                    return "Erro no banco: " . $e->getMessage();
                };
         }
-        private function Agenda($dia){
-            try {
-                $mostrar = new DBQuery('agenda', 'agnd_hrIni,agnd_hrTerm','agnd_dt' );
-                $where = new Where();
-                $where->addCondition('AND', 'agnd_dt', '=', $dia);
-                $where = $where->build();
+    
+    private function Agenda($dia,$pro){
+        $mostrar = new DBQuery('agenda', 'agnd_hrIni,agnd_hrTerm,agnd_id','agnd_dt' );
+        $where = new Where();
+        $where->addCondition('AND', 'agnd_dt', '=', $dia);
+        $where->addCondition('AND', 'agnd_pro', '=', $pro);
+        $where = $where->build();
+        try {
+            $resultado = $mostrar->selectWhere($where);
+            
+            if ($resultado) {
+                $resultado = $resultado->fetchAll(\PDO::FETCH_ASSOC);
+                return $resultado;
+                
+            } else {
+                return "erro ao resgatar a informação";
+            }
+        } catch (\InvalidArgumentException $e) {
+            return "Erro de validação: " . $e->getMessage();
+        } catch (\Exception $e) {
+            return "Erro no banco: " . $e->getMessage();
+        };
+    }
+    
+    private function SalasAgendadas($inicio,$termino,$dia){
+        $mostrar = new DBQuery('agenda', 'agnd_sala','agnd_dt' );
+        $where = new Where();
+        $where->addCondition('AND', 'agnd_hrIni', '<', $termino);
+        $where->addCondition('AND', 'agnd_hrTerm', '>', $inicio);
+        $where->addCondition('AND', 'agnd_dt', '=', $dia);
+        $where = $where->build();
+        try {
+            $resultado = $mostrar->selectWhere($where);
+            
+            if ($resultado) {
+                $resultado = $resultado->fetchAll(\PDO::FETCH_ASSOC);
+                return ['sucesso' => true,
+                        'dados' => $resultado];
+                
+            } else {
+                return ['sucesso' => false,
+                        'msg' => "erro ao resgatar a informação"];
+            }
+        } catch (\InvalidArgumentException $e) {
+            return  ['sucesso' => false,
+                     'msg' => "Erro de validação: " . $e->getMessage()];
+        } catch (\Exception $e) {
+            return  ['sucesso' => false,
+                     'msg' => "Erro no banco: " . $e->getMessage()];
+        };
+    }
+        
+    private function pegarSalas($loc){
+            $mostrar = new DBQuery('sala','sala_id,sala_nome','sala_loc');
+            $where = new Where();
+            $where->addCondition('AND', 'sala_loc','=', $loc);
+            $where = $where->build();
+            try{
                 $resultado = $mostrar->selectWhere($where);
                 
                 if ($resultado) {
-                    return $resultado->fetchAll(\PDO::FETCH_ASSOC);
-                    
-                } else {
-                    return "erro ao resgatar a informação";
+                    return ['sucesso' => true,
+                            'dados' =>$resultado->fetchAll(\PDO::FETCH_ASSOC)];
+                }else {
+                    return ['sucesso' => false,
+                            'msg' => 'Erro ao resgatar informação'];
                 }
             } catch (\InvalidArgumentException $e) {
-                return "Erro de validação: " . $e->getMessage();
+                return ['sucesso' => false,
+                        'msg' => 'Erro de validação: ' . $e->getMessage()];
             } catch (\Exception $e) {
-                return "Erro no banco: " . $e->getMessage();
-            };
+                return ['sucesso' => false,
+                        'msg' => 'Erro no banco: ' . $e->getMessage()];
+            }
         }
         
-        public function MostrarDatas($id,$pro,$ano,$mes,$dia) {
+    public function MostrarDatas($id,$pro,$ano,$mes,$dia) {
             $hrser = $this->GetDiaTrabalho($pro);
             $exce = $this->GetExcecaotrabalho($pro);
             $dias = $this->dias($ano,$mes,$dia);
@@ -324,9 +282,9 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
             }
         }
         
-        public function PegarHoraVaga($dia,$dur,$inter){
+    public function PegarHoraVaga($dia,$dur,$inter,$pro){
             $periodo = $this->PegarPeriodo($dia);
-            $agenda = $this->Agenda($dia);
+            $agenda = $this->Agenda($dia,$pro);
             $agenda = array_map(fn($e) => [
                 'agnd_hrIni' => substr($e['agnd_hrIni'], 0, 5),
                 'agnd_hrTerm' => substr($e['agnd_hrTerm'], 0, 5)
@@ -390,22 +348,43 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                         ]);
                     }
         }
-        public function agendar($pro,$cli,$ser,/*$sala,*/$dia,$inicio,$termino) {
+    
+    public function sala($inicio,$termino,$loc,$dia) {
+        $salas = $this->pegarSalas($loc);
+        if (!$salas['sucesso']) {
+            return $salas; 
+        }
+        $salas = $salas['dados'];
+        
+        $salasOcupadas = $this->SalasAgendadas($inicio, $termino, $dia);
+        if (!$salasOcupadas['sucesso']) {
+            return $salasOcupadas;
+        }
+        $idsOcupados = array_column($salasOcupadas['dados'], 'agnd_sala');
+
+        $salasLivres = array_values(array_filter( $salas,fn($s) => !in_array($s['sala_id'], $idsOcupados)));
+        
+        return ['sucesso' => true,
+                'dados' => $salasLivres];     
+        }
+    
+    public function agendar($pro, $cli, $ser, $sala, $dia, $inicio, $termino) {
             $camposagnd ="
                 agnd_id,
                 agnd_pro,
                 agnd_cli,
                 agnd_ser,
+                agnd_sala,
                 agnd_dt,
                 agnd_hrIni,
-                agnd_hrTerm
-            "; /*agnd_sala,*/
+                agnd_hrTerm"
+                ;
             $dados =[
                 0,
                 $pro,
                 $cli,
                 $ser,
-                /*$sala,*/
+                $sala,
                 $dia,
                 $inicio,
                 $termino
