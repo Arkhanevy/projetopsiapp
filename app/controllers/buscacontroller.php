@@ -44,7 +44,7 @@ if ($tipo === 'clinica') {
     $primary = $campos[0];
 }
 switch ($acao){
-    case "mostrarservico":
+    case "busca":
         if ($tipo === 'servico') {
             $campos = [
                 $campos[0],
