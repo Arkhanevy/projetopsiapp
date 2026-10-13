@@ -60,6 +60,7 @@ switch ($acao){
         $resultado = $profissional->hrExcecao($_SESSION['usuario']['idUsuario'], $_POST['dia'], $_POST['trabalho'], $_POST['inicio'], $_POST['termino'], $_POST['descricao']);
         echo json_encode($resultado);
         exit;
+        
     case "MostrarConsulta":
         $campo = 'agnd_pro';
         $profissional = new profissional('profissional', $campo, $campo);
