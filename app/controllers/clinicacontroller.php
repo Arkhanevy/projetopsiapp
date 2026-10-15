@@ -1,6 +1,7 @@
 
 <?php
 use models\clinica;
+use models\profissional;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -77,6 +78,24 @@ switch ($acao){
         echo json_encode([
             'sucesso' => true,
             'dados1' => $clinperfil['dados']
+        ]);
+        exit;
+    case 'contato':
+        $camposPro = ['pro_id','pro_nome','pro_tel'];
+        
+        $condicao = ['agnd_pro','agnd_clin'];
+        $id = 1;//$_SESSION['usuario']['idUsuario'];
+        
+        $profissional = new profissional('profissional', $camposPro, $camposPro[0]);
+        
+        $contPro = $profissional->contatoProCli($condicao, $id);
+        if ($contPro['sucesso'] === false){
+            echo json_encode($contPro);
+        };
+        
+        echo json_encode([
+            "sucesso" => true,
+            "dados1" => $contPro['dados']
         ]);
         exit;
 }

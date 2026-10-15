@@ -63,18 +63,18 @@ if ($showErrors){
     error_reporting(E_ALL);
 }
 
-
+/*
 $config['database']['host']		= 'localhost';
 $config['database']['schema']	= 'administrador_projetopsi';
 $config['database']['user']		= 'administrador_projetopsi';
 $config['database']['pass']		= 'EMPprojetopsi';
-$config['database']['port']		= '3306';
+$config['database']['port']		= '3306';*/
 
-/*$config['database']['host']		= 'localhost';
+$config['database']['host']		= 'localhost';
 $config['database']['schema']	= 'dbelmo';
 $config['database']['user']		= 'root';
-$config['database']['pass']		= '';
-$config['database']['port']		= '3306';*/
+$config['database']['pass']		= 'Ph041278*';
+$config['database']['port']		= '3306';
 
 /*$config['database']['host']		= 'localhost';
 $config['database']['schema']	= 'dbelmo';

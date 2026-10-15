@@ -192,7 +192,7 @@ class usuario {
         
     }
     
-    public function PegarPerfil() {
+    public function PegarPerfil($id) {
         $camposStr = implode(',', $this->campos);
         $usuario = new DBQuery($this->table, $camposStr, $this->primary);
         $where = new Where();
@@ -200,6 +200,45 @@ class usuario {
         $where = $where->build();
         try {
             $resultado = $usuario->selectWhere($where);
+            return [
+                'sucesso' => true,
+                'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
+            ];
+        } catch (\Exception $e) {
+            return ['sucesso' => false,
+                'mensagem' => $e->getMessage()];
+        }
+    }
+    
+    public function contatoProCli($condicao,$id) {
+        $camposStr = implode(',', $this->campos);
+        $camposStrAgnd = implode(',', $condicao);//"agnd_pro","agnd_cli" ou "agnd_cli","agnd_pro"
+        $usuario = new DBQuery($this->table, 'DISTINCT ' . $camposStr, $this->primary);//aqui a requisição vai ser invetido, o cliente vai mandar a ação para o profissional contoller  
+        $agenda = new DBQuery('agenda', $camposStrAgnd, $condicao[0]);// 'agnd_pro' ou 'agnd_cli'
+        $usuario->addJoin('INNER', $this->primary, $agenda, $condicao[0]);//'pro_id' ou 'cli_id'
+        $where = new Where();
+        $where->addCondition('AND', 'agenda.' . $condicao[1], '=', $id);
+        try {
+            $resultado = $usuario->selectFiltered($where);
+            return [
+                'sucesso' => true,
+                'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
+            ];
+        } catch (\Exception $e) {
+            return ['sucesso' => false,
+                'mensagem' => $e->getMessage()];
+        }
+    }
+    
+    public function contatoCLin($condicao,$id) {
+        $camposStr = implode(',', $this->campos);
+        $usuario = new DBQuery($this->table, 'DISTINCT ' . $camposStr, $this->primary);
+        $agenda = new DBQuery('agenda', 'agnd_clin', 'agnd_clin');
+        $usuario->addJoin('INNER', $this->primary, $agenda, 'agnd_clin');
+        $where = new Where();
+        $where->addCondition('AND', 'agenda.' . $condicao, '=', $id);
+        try {
+            $resultado = $usuario->selectFiltered($where);
             return [
                 'sucesso' => true,
                 'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)

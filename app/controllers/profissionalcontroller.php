@@ -1,6 +1,7 @@
 <?php
 use models\profissional;
 use models\busca;
+use models\clinica;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -119,5 +120,29 @@ switch ($acao){
             'dados3' => $proSer['dados']
         ]);
         exit;
+    case 'contato':
+        $camposPro = [$campos[0],$campos[1],$campos[14]];
+        $camposCLin = ['clin_id','clin_nome','clin_tel'];
         
+        $condicao = ['agnd_pro','agnd_cli'];
+        $id = 1;//$_SESSION['usuario']['idUsuario'];
+        
+        $profissional = new profissional('profissional', $camposPro, $camposPro[0]);
+        $clinica= new clinica('clinica', $camposCLin, $camposCLin[0]);
+        
+        $contPro = $profissional->contatoProCli($condicao, $id);
+        if ($contPro['sucesso'] === false){
+            echo json_encode($contPro);
+        };
+        $contCLin = $clinica->contatoCLin($condicao[1], $id);
+        
+        if ($contCLin['sucesso'] === false){
+            echo json_encode($contCLin);
+        };
+        echo json_encode([
+            "sucesso" => true, 
+            "dados1" => $contPro['dados'],
+            "dados2" => $contCLin['dados']
+            ]);
+        exit;
 }

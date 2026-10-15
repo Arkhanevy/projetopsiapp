@@ -1,5 +1,6 @@
 <?php
 use models\cliente;
+use models\clinica;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -52,5 +53,30 @@ switch ($acao){
         $cliente = new cliente('cliente', $campo, $campo);
         $resultado = $cliente->MostrarConsulta();
         echo json_encode($resultado);
+        exit;
+    case 'contato':
+        $camposCli = [$campos[0],$campos[1],$campos[13]];
+        $camposCLin = ['clin_id','clin_nome','clin_tel'];
+        
+        $condicao = ['agnd_cli','agnd_pro'];
+        $id = 1;//$_SESSION['usuario']['idUsuario'];
+        
+        $contCli = new cliente('cliente', $camposCli, $camposCli[0]);
+        $clinica= new clinica('clinica', $camposCLin, $camposCLin[0]);
+        
+        $contCli = $contCli->contatoProCli($condicao, $id);
+        if ($contCli['sucesso'] === false){
+            echo json_encode($contCli);
+        };
+        $contCLin = $clinica->contatoCLin($condicao[1], $id);
+        
+        if ($contCLin['sucesso'] === false){
+            echo json_encode($contCLin);
+        };
+        echo json_encode([
+            "sucesso" => true,
+            "dados1" => $contCli['dados'],
+            "dados2" => $contCLin['dados']
+        ]);
         exit;
 }

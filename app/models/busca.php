@@ -20,13 +20,11 @@ class busca {
         $where = new Where();
         if ($this->table === 'servico') {
             if ($valor !== null && $valor !== '') {
-                // (valor AND nome) OR (valor AND tipo)
                 $where->addCondition('AND', 'ser_val', '=', $valor);
                 $where->addLike('AND', 'ser_nome', $busca);
                 $where->addCondition('OR', 'ser_val', '=', $valor);
                 $where->addLike('AND', 'ser_tipo', $busca);
             } else {
-                // nome OR tipo
                 $where->addLike('AND', 'ser_nome', $busca);
                 $where->addLike('OR', 'ser_tipo', $busca);
             }
