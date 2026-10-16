@@ -32,9 +32,9 @@
 
     configuracao: {
       // Ordem em que os tipos são testados até um responder "logado: true".
-      tiposParaVerificar: ["cliente", "clienteSimples", "profissional", "clinica"],
+      tiposParaVerificar: ["cliente", "profissional", "clinica"],
       urlVerificarSessaoPorTipo: function (tipo) {
-        return "index.php?uri=" + tipo; //Axalote
+        return "index.php?uri=" + tipo;
       }
     },
 
@@ -77,8 +77,9 @@
 
       $.ajax({
         url: this.configuracao.urlVerificarSessaoPorTipo(tipoAtual),
-        method: "GET",
-        dataType: "json"
+        method: "POST",
+        dataType: "json",
+        data: { acao: "verificarLogin" } // os controllers só leem $_POST["acao"]
       })
         .done(function (resposta) {
           if (resposta && resposta.logado) {

@@ -145,4 +145,15 @@ switch ($acao){
             "dados2" => $contCLin['dados']
             ]);
         exit;
+
+    // TESTE - MARIA
+    case "verificarLogin":
+        // Usado por perfil.js: informa se a sessão atual é de um profissional.
+        // Lê a mesma estrutura que usuario::Login grava em $_SESSION['usuario'].
+        header('Content-Type: application/json; charset=utf-8');
+        $logado = isset($_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario'])
+            && $_SESSION['usuario']['tipoUsuario'] === 'profissional';
+        echo json_encode(['logado' => $logado]);
+        exit;  
+         
 }

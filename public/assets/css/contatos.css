@@ -1,0 +1,379 @@
+/* ============================================================
+   PÁGINA: contatos (cliente e profissional)
+   Depende de: public/assets/css/variaveis.css
+              public/assets/css/componentes.css
+   (ambos devem ser carregados antes deste arquivo)
+
+   Reaproveita do design system: modalBase, abasPerfil, botaoBase,
+   campoTexto, cardDocumento, estadoVazio, avisoFlutuante e navegação.
+   Aqui ficam só os ajustes específicos desta tela e os componentes
+   novos: cardContato, secaoContatos, listaContatos, estadoVazio_apoio,
+   abasDocumentos, listaDocumentos e areaArquivo.
+
+   Contraste (acessibilidade): onde o Figma usa texto branco sobre verde
+   (#39B675) ou roxo (#8B64CB), o fundo foi escurecido para chegar a 4,5:1.
+   ============================================================ */
+
+/* ---------- Conteúdo principal ---------- */
+
+/* Espaço para a navegação fixa: inferior no mobile, lateral (72px) no desktop */
+.conteudoContatos {
+  padding: var(--espaco5) 0 calc(64px + var(--espaco4));
+}
+
+@media (min-width: 768px) {
+  .conteudoContatos {
+    padding-bottom: var(--espaco5);
+  }
+
+  /* Só abre espaço para a navegação lateral quando ela está visível (usuário logado) */
+  .navLateralLogado:not([hidden]) + div .conteudoContatos {
+    margin-left: 72px;
+  }
+}
+
+.conteudoContatos_titulo {
+  margin: 0 0 var(--espaco4);
+  font-size: var(--tamanhoH1);
+  text-align: center;
+}
+
+/* ---------- Estados da página ---------- */
+.estadoCarregando {
+  display: flex;
+  justify-content: center;
+  padding: var(--espaco7) 0;
+  color: var(--corDestaque);
+}
+
+/* Texto de apoio do estado vazio ("Os contatos ... são adicionados automaticamente.") */
+.estadoVazio_apoio {
+  max-width: 36ch;
+  margin: 0;
+  font-size: var(--tamanhoSmall);
+}
+
+.estadoVazio_link {
+  color: var(--corAcaoSecundaria);
+  font-weight: var(--pesoNegrito);
+}
+
+.estadoVazio_link:focus-visible {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: 2px;
+}
+
+/* ---------- Seções e lista de contatos ---------- */
+.areaContatos {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--espaco4);
+}
+
+/* Seções sem itens ficam ocultas: o espaço só existe entre seções visíveis */
+.secaoContatos:not([hidden]) ~ .secaoContatos:not([hidden]) {
+  margin-top: var(--espaco6);
+}
+
+.secaoContatos_titulo {
+  margin: 0 0 var(--espaco2);
+  font-size: var(--tamanhoH3);
+}
+
+.listaContatos {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Linhas encostadas, como no Figma: a borda de cima de cada linha cobre a de baixo da anterior */
+.listaContatos_item + .listaContatos_item .cardContato {
+  margin-top: calc(-1 * var(--larguraBorda));
+}
+
+/* ---------- cardContato: avatar + dados + botão opcional ---------- */
+.cardContato {
+  --bs-card-border-color: var(--corBordas);
+  --bs-card-border-width: var(--larguraBorda);
+  --bs-card-border-radius: 0;
+  --bs-card-bg: var(--corBranco);
+}
+
+.cardContato_corpo {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco3);
+  padding: var(--espaco2) var(--espaco4);
+}
+
+.cardContato_avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: 50%;
+  background-color: var(--corFundoClaro);
+}
+
+.cardContato_iconePadrao {
+  font-size: 40px;
+  color: var(--corDestaque);
+}
+
+.cardContato_foto {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardContato_dados {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cardContato_usuario {
+  margin: 0;
+  font-size: var(--tamanhoBody);
+  overflow-wrap: anywhere;
+}
+
+.cardContato_telefone {
+  margin: 0;
+  font-size: var(--tamanhoSmall);
+}
+
+.cardContato_botaoDocumento {
+  flex-shrink: 0;
+}
+
+@media (min-width: 992px) {
+  .cardContato_corpo {
+    gap: var(--espaco4);
+    padding: var(--espaco2) var(--espaco5);
+  }
+
+  .cardContato_avatar {
+    width: 96px;
+    height: 96px;
+  }
+
+  .cardContato_iconePadrao {
+    font-size: 64px;
+  }
+
+  .cardContato_botaoDocumento {
+    margin-right: var(--espaco7);
+  }
+}
+
+/* ---------- Modal: Documentos ---------- */
+.modalDocumentos {
+  --bs-modal-width: 600px;
+}
+
+.modalDocumentos .modalBase_corpo {
+  padding-right: var(--espaco2);
+  padding-left: var(--espaco2);
+}
+
+.botaoEnviarDocumentos {
+  margin-bottom: var(--espaco3);
+}
+
+/* Ajuste de contraste: texto branco sobre o verde do Figma (#39B675) não chega a 4,5:1 */
+.modalDocumentos .botaoBase--primario {
+  --bs-btn-bg: color-mix(in srgb, var(--corBotoes) 70%, black);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--corBotoes) 62%, black);
+  --bs-btn-active-bg: color-mix(in srgb, var(--corBotoes) 55%, black);
+  --bs-btn-disabled-bg: color-mix(in srgb, var(--corBotoes) 70%, black);
+}
+
+/* ---------- Abas Enviados/Recebidos (abasPerfil do DS, versão clara) ---------- */
+/* Texto escuro: o branco do Figma sobre o verde claro não atinge contraste 4,5:1 */
+.modalDocumentos .abasDocumentos {
+  --bs-nav-link-color: var(--corLetras);
+  --bs-nav-link-hover-color: var(--corLetras);
+  justify-content: space-around;
+  gap: 0;
+  padding: 0;
+  background-color: color-mix(in srgb, var(--corDestaque) 40%, var(--corFundo));
+}
+
+.modalDocumentos .abasDocumentos .nav-link {
+  flex: 1 1 0;
+  padding-top: var(--espaco3);
+  padding-bottom: var(--espaco3);
+  color: var(--corLetras);
+  font-size: var(--tamanhoBody);
+  font-weight: var(--pesoNegrito);
+  text-align: center;
+}
+
+.modalDocumentos .abasDocumentos .nav-link.active {
+  color: var(--corLetras);
+  border-bottom-color: var(--corLetras);
+}
+
+.modalDocumentos .abasDocumentos .nav-link:focus-visible {
+  outline-color: var(--corFoco);
+}
+
+/* ---------- Lista de documentos ---------- */
+.areaDocumentos {
+  min-height: 240px;
+  padding-top: var(--espaco3);
+}
+
+.listaDocumentos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* No modal o card ocupa toda a largura; título centralizado, De/Para à esquerda e "Baixar" à direita */
+.listaDocumentos .cardDocumento {
+  max-width: none;
+}
+
+.listaDocumentos .cardDocumento_corpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--espaco3);
+}
+
+.listaDocumentos .cardDocumento_titulo {
+  grid-column: 1 / -1;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.listaDocumentos .cardDocumento_dados {
+  min-height: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.listaDocumentos .cardDocumento_rodape .botaoBase {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+/* ---------- areaArquivo: escolher ou soltar um arquivo ---------- */
+.areaArquivo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco2);
+  margin-top: var(--espaco3);
+  padding: var(--espaco5) var(--espaco4);
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: var(--raioPequeno);
+  background-color: var(--corBranco);
+  text-align: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.areaArquivo_icone {
+  font-size: 112px;
+  color: color-mix(in srgb, var(--corLetras) 55%, white);
+}
+
+/* Arrastando um arquivo por cima da área */
+.areaArquivo[data-estadoArea="arrastando"] {
+  border-color: var(--corAcaoSecundaria);
+  border-style: dashed;
+  background-color: var(--corFundoClaro);
+}
+
+/* Arquivo escolhido: o ícone ganha a cor de destaque e aparecem nome e tamanho */
+.areaArquivo[data-estadoArea="selecionado"] .areaArquivo_icone {
+  color: var(--corDestaque);
+}
+
+.areaArquivo_selecionado {
+  max-width: 100%;
+}
+
+.areaArquivo_nome {
+  margin: 0;
+  font-weight: var(--pesoNegrito);
+  overflow-wrap: anywhere;
+}
+
+.areaArquivo_tamanho {
+  margin: 0;
+  font-size: var(--tamanhoSmall);
+}
+
+/* Ajuste de contraste: texto branco sobre o roxo do Figma (#8B64CB) fica abaixo de 4,5:1 */
+.areaArquivo_botao {
+  --bs-btn-bg: color-mix(in srgb, var(--corAcaoExtra) 85%, black);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--corAcaoExtra) 75%, black);
+  --bs-btn-active-bg: color-mix(in srgb, var(--corAcaoExtra) 65%, black);
+}
+
+/* Ajuste de contraste: o cinza claro do Figma não chega a 4,5:1 sobre o branco */
+.areaArquivo_dica {
+  margin: 0;
+  font-size: var(--tamanhoSmall);
+  color: color-mix(in srgb, var(--corLetras) 70%, white);
+}
+
+/* Erro de arquivo (ex.: nenhum arquivo escolhido ao enviar) */
+.areaArquivo--invalido {
+  border-color: var(--corAcaoNegativa);
+}
+
+.areaArquivo--invalido .areaArquivo_mensagem {
+  display: block;
+}
+
+/* Mensagens de erro: vermelho escurecido para contraste sobre o fundo verde claro do modal */
+.modalDocumentos .invalid-feedback {
+  color: color-mix(in srgb, var(--corAcaoNegativa) 75%, black);
+  font-size: var(--tamanhoSmall);
+  font-weight: var(--pesoNegrito);
+  text-align: left;
+}
+
+.areaArquivo .invalid-feedback {
+  text-align: center;
+}
+
+/* ---------- Rodapé do formulário de envio ---------- */
+.modalDocumentos .modalBase_rodape {
+  flex-wrap: wrap;
+  margin-top: var(--espaco4);
+  padding: 0;
+}
+
+/* ---------- Aviso flutuante (atenção) ---------- */
+/* Ajuste de contraste: o amarelo do ícone fica abaixo de 3:1 sobre o branco */
+.avisoFlutuante--atencao .avisoFlutuante_icone {
+  color: color-mix(in srgb, var(--corAcaoAtencao) 65%, black);
+}
+
+/* Variação "sucesso" (confirmação de envio): o DS só tem erro e atenção */
+.avisoFlutuante--sucesso {
+  --bs-toast-border-color: var(--corDestaque);
+}
+
+.avisoFlutuante--sucesso .avisoFlutuante_icone {
+  color: var(--corDestaque);
+}
+
+/* ---------- Movimento reduzido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .areaArquivo {
+    transition: none;
+  }
+}

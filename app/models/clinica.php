@@ -33,12 +33,13 @@ class clinica extends usuario {
             $camposHrser = "
             hrser_id,
             hrser_pro,
-            hrser_hora_inic,
-            hrser_hora_term,
+            hrser_hrini,
+            hrser_hrterm,
             hrser_dia";
             $pegar = new DBQuery('hr_servico', $camposHrser,'hrser_clin' );
             $where = new Where();
-            $where->addCondition('AND', 'hrser_clin', '=',$_SESSION['clinica']['id']);
+            //$where->addCondition('AND', 'hrser_clin', '=',$_SESSION['clinica']['id']);
+            $where->addCondition('AND', 'hrser_clin', '=', $_SESSION['usuario']['idUsuario']);
             $where = $where->build();
             try {
                 $resultado = $pegar->selectWhere($where);

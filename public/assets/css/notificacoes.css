@@ -1,0 +1,174 @@
+/* ============================================================
+   PÁGINA: notificacoes (cliente, clienteSimples, profissional e clínica)
+   Depende de: public/assets/css/variaveis.css
+              public/assets/css/componentes.css
+   (ambos devem ser carregados antes deste arquivo)
+
+   Reaproveita do design system: modalBase, botaoBase, estadoVazio,
+   indicadorStatus e navegação.
+   Aqui ficam só os ajustes específicos desta tela e os componentes
+   novos: cardNotificacao, listaNotificacoes, modalNotificacao e a
+   variação indicadorStatus--nova (usada só aqui).
+   ============================================================ */
+
+/* ---------- Conteúdo principal ---------- */
+
+/* Espaço para a navegação fixa: inferior no mobile, lateral (72px) no desktop */
+.conteudoNotificacoes {
+  padding: var(--espaco5) 0 calc(64px + var(--espaco4));
+}
+
+@media (min-width: 768px) {
+  .conteudoNotificacoes {
+    padding-bottom: var(--espaco5);
+  }
+
+  /* Só abre espaço para a navegação lateral quando ela está visível (usuário logado) */
+  .navLateralLogado:not([hidden]) + div .conteudoNotificacoes {
+    margin-left: 72px;
+  }
+}
+
+.conteudoNotificacoes_titulo {
+  margin: 0 0 var(--espaco4);
+  font-size: var(--tamanhoH1);
+  text-align: center;
+}
+
+/* ---------- Estados da página ---------- */
+.estadoCarregando {
+  display: flex;
+  justify-content: center;
+  padding: var(--espaco7) 0;
+  color: var(--corDestaque);
+}
+
+/* ---------- Lista de notificações ---------- */
+.listaNotificacoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco3);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--espaco4);
+  list-style: none;
+}
+
+/* ---------- cardNotificacao: título + selo (linha 1), resumo + data (linha 2) ---------- */
+/* O card é um <button>: abre o modal com mouse e teclado sem JS extra de foco */
+.cardNotificacao {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--espaco1);
+  width: 100%;
+  min-height: 88px;
+  padding: var(--espaco3) var(--espaco4);
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: var(--raioMedio);
+  background-color: var(--corBranco);
+  color: var(--corLetras);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cardNotificacao:hover {
+  background-color: var(--corFundoClaro);
+}
+
+.cardNotificacao:focus-visible {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: 2px;
+}
+
+/* Não lida: borda azul (o selo "Nova" é exibido pelo JS) */
+.cardNotificacao[data-lida="false"] {
+  border-color: var(--corAcaoSecundaria);
+}
+
+.cardNotificacao_cabecalho,
+.cardNotificacao_rodape {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espaco3);
+}
+
+.cardNotificacao_titulo {
+  min-width: 0;
+  font-size: var(--tamanhoBody);
+  font-weight: var(--pesoNegrito);
+  overflow-wrap: anywhere;
+}
+
+/* Resumo limitado a 2 linhas: o texto completo aparece no modal */
+.cardNotificacao_resumo {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-size: var(--tamanhoSmall);
+  overflow-wrap: anywhere;
+}
+
+.cardNotificacao_data {
+  flex-shrink: 0;
+  font-size: var(--tamanhoBody);
+  font-weight: var(--pesoNegrito);
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .cardNotificacao_titulo,
+  .cardNotificacao_data {
+    font-size: var(--tamanhoH3);
+  }
+}
+
+/* ---------- Selo "Nova" (variação do indicadorStatus, só desta tela) ---------- */
+.indicadorStatus--nova {
+  border-color: var(--corAcaoSecundaria);
+  background-color: var(--corAcaoSecundaria);
+}
+
+/* Versão compacta para caber na linha do título do card */
+.cardNotificacao_selo {
+  flex-shrink: 0;
+  padding: var(--espaco1) var(--espaco3);
+  font-size: var(--tamanhoCaption);
+}
+
+/* ---------- Modal: detalhe da notificação ---------- */
+.modalNotificacao {
+  --bs-modal-width: 640px;
+}
+
+/* Preserva as quebras de linha (parágrafos) vindas do banco, sem usar innerHTML */
+.modalNotificacao_mensagem {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Parágrafo do link: separado da mensagem por uma linha em branco, como no Figma */
+.modalNotificacao_acao {
+  margin: var(--espaco4) 0 0;
+}
+
+/* Parágrafo fixo do link "Minhas Consultas" (o JS só mostra ou esconde) */
+.modalNotificacao_acao {
+  margin: var(--espaco4) 0 0;
+}
+
+.modalNotificacao_link {
+  color: var(--corAcaoSecundaria);
+  font-weight: var(--pesoNegrito);
+}
+
+.modalNotificacao_link:focus-visible {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: 2px;
+}

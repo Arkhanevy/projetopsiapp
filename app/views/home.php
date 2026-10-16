@@ -70,6 +70,8 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><!-- jQuery -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><!-- Bootstrap 5 (bundle com Popper) -->
   <script src="/projetopsi/public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
+  <script src="/projetopsi/public/assets/js/buscaComum.js"></script><!-- Código compartilhado da busca -->
+  <script src="/projetopsi/public/assets/js/home.js"></script><!-- JS próprio da página -->
 </body>
 
 </html>

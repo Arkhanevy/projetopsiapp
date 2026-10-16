@@ -191,8 +191,8 @@ class usuario {
         };
         
     }
-    
-    public function PegarPerfil($id) {
+    public function PegarPerfil($id = null){
+    //public function PegarPerfil($id) {
         $camposStr = implode(',', $this->campos);
         $usuario = new DBQuery($this->table, $camposStr, $this->primary);
         $where = new Where();

@@ -4,7 +4,7 @@
   var moduloInfoServico = {
 
     configuracao: {
-      urlObterServico: "index.php?uri=servico"
+      urlObterServico: "index.php?uri=busca" // buscacontroller.php: acao "mostrardetalhes"
     },
 
     estado: {
@@ -20,7 +20,9 @@
       this.elementos.$camposDinamicos = $("[data-campo]");
       this.elementos.$cartaoServico = $("#cartaoServico");
 
-      this.estado.idServico = 1; // Axalote Utilitarios.obterParametroUrl("id");
+      var id = Utilitarios.obterParametroUrl("id");
+      // O backend espera um id numérico; sem ele, a tela mostra o erro de serviço não encontrado
+      this.estado.idServico = /^[0-9]+$/.test(id || "") ? id : null;
 
       this.registrarEventos();
       this.buscarDadosServico();
@@ -48,6 +50,11 @@
 
       Utilitarios.esconderModal(this.elementos.$modalErro);
       this.desabilitarBotaoAgendar();
+
+      if (!this.estado.idServico) {
+        this.tratarFalhaCarregamento();
+        return;
+      }
       this.elementos.$cartaoServico
         .removeClass("estadoErro")
         .addClass("estadoCarregando");
@@ -59,7 +66,8 @@
         dataType: "json",
         data: {
           acao: "mostrardetalhes",
-          ser_id: this.estado.idServico
+          tipo: "servico",
+          id: this.estado.idServico
         }
       })
         .done(function (resposta) {

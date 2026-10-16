@@ -1,6 +1,19 @@
 /* ==================================================================
    Arquivo original: fundacao/reset.css
    ================================================================== */
+/*
+  Ajustes base sobre o Bootstrap 5.
+  Não reescreve o Bootstrap — conecta as variáveis raiz do Bootstrap
+  (--bs-*) às variáveis do Design System, para que qualquer componente
+  nativo do Bootstrap usado (Modal, Offcanvas, Dropdown, Navbar, Card,
+  form-check etc.) já nasça com a cor/tipografia/raio corretos, sem
+  precisar sobrescrever cada um manualmente.
+*/
+
+/* As classes d-flex/d-md-flex do Bootstrap usam !important, então o
+   atributo nativo [hidden] sozinho não venceria (ex.: navLateralLogado
+   usa "d-none d-md-flex"). sessaoNavegacao.js depende de [hidden]
+   realmente esconder o elemento até a sessão ser verificada. */
 [hidden] {
   display: none !important;
 }
@@ -84,7 +97,16 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: botao/botao.css
    ================================================================== */
+/*
+  Componente: botaoBase
+  Convertido para usar a classe .btn do Bootstrap 5 como base —
+  o Bootstrap já cuida de padding, transição, foco visível e estado
+  desabilitado. Aqui só sobrescrevemos as variáveis de cor/forma do
+  Bootstrap (--bs-btn-*) para respeitar o Design System, já que as
+  cores do projeto não são as cores padrão do Bootstrap.
 
+  Estrutura-base: .btn.botaoBase + variantes de cor + --longo.
+*/
 
 .botaoBase {
   --bs-btn-font-family: var(--fonteBase);
@@ -160,6 +182,17 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: status/status.css
    ================================================================== */
+/*
+  Componente: indicadorStatus
+  Não é um componente nativo do Bootstrap (o .badge do Bootstrap é
+  pensado para contadores pequenos, não para esta pílula com ícone),
+  então mantemos a estrutura própria. Usamos os utilitários do
+  Bootstrap (d-inline-flex, align-items-center, gap-2) no HTML para
+  o layout interno, mas padding/raio ficam no CSS próprio porque a
+  escala de espaçamento do Bootstrap não corresponde exatamente à
+  escala definida no Design System (regra 8 — não forçar o Bootstrap
+  a substituir decisões visuais próprias).
+*/
 
 .indicadorStatus {
   font-family: var(--fonteBase);
@@ -207,7 +240,17 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: campo/campo.css
    ================================================================== */
-
+/*
+  Componentes: campoTexto, campoPesquisa, campoSelect
+  Convertidos para usar estruturas nativas do Bootstrap 5:
+    - campoTexto  -> .form-floating + .form-control (o rótulo já
+      "flutua" sobre a borda ao focar/preencher, sem precisar de JS)
+    - campoPesquisa -> .input-group (input + botão acoplado)
+    - campoSelect  -> .dropdown (Bootstrap cuida de abrir/fechar,
+      clique fora e Esc; só sobrescrevemos a aparência)
+  Aqui ficam só as cores/formas do Design System, sobre as variáveis
+  nativas do Bootstrap (--bs-*).
+*/
 
 /* ============================= */
 /* Variante: campoTexto (.form-floating) */
@@ -356,7 +399,12 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: filtro/filtro.css
    ================================================================== */
-
+/*
+  Componente: painelFiltro
+  Os rádios agora usam .form-check/.form-check-input do Bootstrap
+  (acessibilidade e estados de foco/disabled já vêm prontos) — aqui só
+  sobrescrevemos a cor do estado marcado para bater com o Design System.
+*/
 
 .painelFiltro {
   display: flex;
@@ -417,7 +465,16 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: calendario/calendario.css
    ================================================================== */
-
+/*
+  Componente: calendarioBase
+  Sem componente nativo do Bootstrap equivalente a um calendário —
+  mantemos a estrutura própria, mas: (1) o botão de navegação usa a
+  classe .btn com variáveis --bs-btn-* (mesmo padrão do botaoBase);
+  (2) cabeçalho e legenda usam utilitários do Bootstrap no HTML
+  (d-flex, align-items-center, gap-*, flex-wrap) em vez de flex/gap
+  declarados aqui. Só ficam aqui a grade de dias e os estados visuais
+  específicos do Design System, que não têm equivalente no Bootstrap.
+*/
 
 .calendarioBase {
   width: 100%;
@@ -577,7 +634,14 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: modal/modal.css
    ================================================================== */
-
+/*
+  Componente: modalBase
+  Convertido para o Modal nativo do Bootstrap 5 (.modal/.modal-dialog/
+  .modal-content) — abrir, fechar, overlay, ESC e foco preso já vêm
+  prontos via data-bs-toggle/data-bs-dismiss, sem precisar de JS próprio.
+  Aqui só sobrescrevemos as variáveis do Bootstrap (--bs-modal-*) para
+  aplicar as cores/raio do Design System.
+*/
 
 .modalBase {
   --bs-modal-color: var(--corLetras);
@@ -677,7 +741,13 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: cards/cardEntidade.css
    ================================================================== */
-
+/*
+  Estrutura-base: cardEntidadeBase
+  Convertida para usar .card/.card-body/.card-title/.card-img-top do
+  Bootstrap — aqui só sobrescrevemos as variáveis (--bs-card-*) para
+  aplicar cor, borda e raio do Design System.
+  Compartilhada por cardProfissional, cardClinica e cardServico.
+*/
 
 .cardEntidadeBase {
   --bs-card-border-color: var(--corBordas);
@@ -728,6 +798,10 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: cards/cardDocumento.css
    ================================================================== */
+/*
+  Componente: cardDocumento
+  Convertido para .card/.card-body do Bootstrap — sem imagem.
+*/
 
 .cardDocumento {
   --bs-card-border-color: var(--corBordas);
@@ -768,6 +842,10 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: cards/cardConsulta.css
    ================================================================== */
+/*
+  Componente: cardConsulta (visão cliente)
+  Convertido para .card/.card-body do Bootstrap.
+*/
 
 .cardConsulta {
   --bs-card-border-color: var(--corBordas);
@@ -818,7 +896,11 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: cards/cardConsultaProfissional.css
    ================================================================== */
-
+/*
+  Componente: cardConsultaProfissional
+  Convertido para .card/.card-body do Bootstrap. Estrutura compacta
+  (linha), visão do profissional.
+*/
 
 .cardConsultaProfissional {
   --bs-card-border-color: var(--corBordas);
@@ -864,7 +946,17 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: navegacao/navTopoDeslogado.css
    ================================================================== */
+/*
+  Componente: navTopoDeslogado
+  Convertido para usar duas .navbar do Bootstrap (topo + barra
+  secundária) — sem sub-itens (confirmado), então dispensamos o
+  .navbar-toggler/.navbar-collapse. Aqui só sobrescrevemos as
+  variáveis (--bs-navbar-*) para aplicar as cores do Design System.
+*/
 
+/* Menu estático: acompanha a rolagem, sempre visível no topo da tela.
+   "sticky" mantém o menu no fluxo da página (não cobre o conteúdo e não
+   exige compensar altura), desde que seja filho direto do <body>. */
 .navTopoDeslogado {
   position: sticky;
   top: 0;
@@ -941,7 +1033,16 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: navegacao/painelMenuMobile.css
    ================================================================== */
-
+/*
+  Estrutura-base: painelMenuMobile
+  Convertida para o Offcanvas nativo do Bootstrap (.offcanvas,
+  variante .offcanvas-top esticada para 100% da altura) — abrir,
+  fechar, overlay e Esc já vêm prontos via data-bs-toggle="offcanvas"
+  / data-bs-dismiss="offcanvas". Reutilizada por:
+    - menu deslogado mobile (variante --deslogado)
+    - menu hambúrguer logado mobile (variante --logado)
+  Aqui só sobrescrevemos as variáveis (--bs-offcanvas-*) do Bootstrap.
+*/
 
 .painelMenuMobile {
   --bs-offcanvas-height: 100vh;
@@ -1018,7 +1119,12 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: navegacao/navLateralLogado.css
    ================================================================== */
-
+/*
+  Componente: navLateralLogado (desktop)
+  Sidebar vertical de ícones, sem sub-itens (confirmado).
+  Variante de papel (data-papel) só troca o primeiro item — ver navegacao.js.
+  Ao passar o mouse/focar, expande para mostrar os rótulos (confirmado).
+*/
 
 .navLateralLogado {
   position: fixed;
@@ -1088,7 +1194,11 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: navegacao/navInferiorLogado.css
    ================================================================== */
-
+/*
+  Componente: navInferiorLogado (mobile)
+  Bottom tab bar, sem sub-itens (confirmado). Mesma lógica de papel
+  do navLateralLogado (ver navegacao.js) — só muda o item "Buscar/Início".
+*/
 
 .navInferiorLogado {
   position: fixed;
@@ -1136,7 +1246,13 @@ select:focus-visible,
 /* ==================================================================
    Arquivo original: navegacao/menuHamburguerLogado.css
    ================================================================== */
-
+/*
+  Componente: menuHamburguerLogado (desktop)
+  Convertido para o Dropdown nativo do Bootstrap (.dropdown,
+  .dropdown-menu, .dropdown-item, data-bs-toggle="dropdown") — abrir,
+  fechar, clique fora e Esc já vêm prontos via Popper. Aqui só
+  sobrescrevemos as variáveis (--bs-dropdown-*) do Bootstrap.
+*/
 
 .menuHamburguerLogado {
   --bs-dropdown-min-width: 220px;
@@ -1179,3 +1295,542 @@ select:focus-visible,
 }
 
 
+
+/* ==================================================================
+   Componentes de perfil (profissional e clínica)
+   cabecalhoPerfil, abasPerfil, secaoPerfil, estadoVazio, tabelaDados,
+   seletorDias, linhaHorario, campoMinutos, formularioPerfil,
+   avisoFlutuante
+   ================================================================== */
+
+/* ---------- cabecalhoPerfil: avatar + usuário ---------- */
+.cabecalhoPerfil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco2);
+  padding: var(--espaco5) var(--espaco4) var(--espaco3);
+}
+
+.cabecalhoPerfil_avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 112px;
+  overflow: hidden;
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: 50%;
+  background-color: var(--corFundoClaro);
+}
+
+.cabecalhoPerfil_iconePadrao {
+  font-size: 72px;
+  color: var(--corDestaque);
+}
+
+.cabecalhoPerfil_foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cabecalhoPerfil_usuario {
+  margin: 0;
+  font-size: var(--tamanhoH3);
+  font-weight: var(--pesoRegular);
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 992px) {
+  .cabecalhoPerfil {
+    align-items: flex-start;
+    padding-left: var(--espaco7);
+  }
+
+  .cabecalhoPerfil_avatar {
+    width: 128px;
+    height: 128px;
+  }
+}
+
+/* ---------- abasPerfil: barra de abas (Bootstrap nav-tabs) ----------
+   .abasPerfil_grupo é o tablist (só as abas reais). Ele usa display: contents
+   para que as abas e os links (Documentos, Relatório) fiquem na mesma linha. */
+.abasPerfil {
+  --bs-nav-link-color: var(--corBranco);
+  --bs-nav-link-hover-color: var(--corBranco);
+  --bs-nav-link-padding-x: var(--espaco2);
+  --bs-nav-link-padding-y: var(--espaco2);
+  --bs-nav-link-font-size: var(--tamanhoSmall);
+  flex-wrap: nowrap;
+  justify-content: space-around;
+  overflow-x: auto;
+  border-bottom: 0;
+  background-color: var(--corDestaque);
+}
+
+.abasPerfil_grupo {
+  display: contents;
+}
+
+.abasPerfil .nav-link,
+.abasPerfil_link {
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  background-color: transparent;
+  white-space: nowrap;
+}
+
+/* Links fora do tablist: mesma aparência das abas, sem a classe .nav-link
+   (o Bootstrap trataria o link como uma aba ao navegar com as setas) */
+.abasPerfil_link {
+  display: block;
+  padding: var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x);
+  color: var(--corBranco);
+  font-size: var(--bs-nav-link-font-size);
+  text-decoration: none;
+}
+
+.abasPerfil_link:hover,
+.abasPerfil_link:focus {
+  color: var(--corBranco);
+}
+
+.abasPerfil .nav-link:hover,
+.abasPerfil .nav-link:focus {
+  border-bottom-color: transparent;
+}
+
+.abasPerfil .nav-link.active {
+  border-bottom-color: var(--corBranco);
+  background-color: transparent;
+  color: var(--corBranco);
+  font-weight: var(--pesoNegrito);
+}
+
+.abasPerfil .nav-link:focus-visible,
+.abasPerfil_link:focus-visible {
+  outline: var(--larguraFoco) solid var(--corBranco);
+  outline-offset: -4px;
+}
+
+@media (min-width: 768px) {
+  .abasPerfil {
+    --bs-nav-link-padding-x: var(--espaco3);
+  }
+}
+
+@media (min-width: 992px) {
+  .abasPerfil {
+    justify-content: flex-end;
+    padding-right: var(--espaco7);
+    gap: var(--espaco6);
+  }
+}
+
+/* ---------- secaoPerfil: título + caixa com ação no canto ---------- */
+.secaoPerfil {
+  margin-top: var(--espaco5);
+}
+
+.secaoPerfil_titulo {
+  margin: 0 0 var(--espaco2);
+  font-size: var(--tamanhoH3);
+  font-weight: var(--pesoNegrito);
+}
+
+.secaoPerfil_caixa {
+  position: relative;
+  min-height: 96px;
+  padding: var(--espaco4);
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: var(--raioPequeno);
+  background-color: var(--corBranco);
+}
+
+.secaoPerfil_texto {
+  margin: 0;
+  padding-right: var(--espaco7);
+  font-size: var(--tamanhoSmall);
+}
+
+.secaoPerfil_acao {
+  position: absolute;
+  top: var(--espaco2);
+  right: var(--espaco2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: 50%;
+  background-color: var(--corBotoes);
+  color: var(--corBranco);
+}
+
+.secaoPerfil_acao:hover,
+.secaoPerfil_acao:focus-visible {
+  background-color: color-mix(in srgb, var(--corBotoes) 85%, black);
+  border-color: var(--corBordas);
+  color: var(--corBranco);
+}
+
+.secaoPerfil_acao:focus-visible {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: 2px;
+}
+
+.secaoPerfil_acao .material-symbols-outlined {
+  font-size: 32px;
+}
+
+/* ---------- estadoVazio: ícone grande + texto ---------- */
+.estadoVazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco2);
+  padding: var(--espaco4) 0;
+  text-align: center;
+}
+
+.estadoVazio_icone {
+  font-size: 96px;
+  color: var(--corLetras);
+}
+
+.estadoVazio_texto {
+  margin: 0;
+  font-size: var(--tamanhoH3);
+}
+
+.estadoVazio--pagina {
+  margin-top: var(--espaco5);
+}
+
+.estadoVazio--pagina .estadoVazio_icone {
+  font-size: 160px;
+}
+
+/* ---------- tabelaDados ---------- */
+.tabelaDados {
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--corBordas);
+  margin: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tabelaDados thead th {
+  font-size: var(--tamanhoBody);
+  font-weight: var(--pesoNegrito);
+  border-bottom: 1px solid var(--corBordas);
+}
+
+@media (min-width: 768px) {
+  .tabelaDados thead th {
+    padding-right: var(--espaco7);
+  }
+}
+
+.tabelaDados td {
+  font-size: var(--tamanhoSmall);
+}
+
+/* ---------- seletorDias: fieldset com checkboxes ---------- */
+.seletorDias {
+  margin-top: var(--espaco5);
+  padding: 0;
+  border: 0;
+}
+
+.seletorDias_legenda {
+  float: none;
+  width: 100%;
+  margin-bottom: var(--espaco3);
+  font-size: var(--tamanhoBody);
+  font-weight: var(--pesoNegrito);
+}
+
+.seletorDias_item {
+  margin-bottom: var(--espaco2);
+  font-weight: var(--pesoNegrito);
+}
+
+.seletorDias .form-check-input {
+  --bs-form-check-bg: var(--corBranco);
+  width: 1.25em;
+  height: 1.25em;
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: 4px;
+}
+
+.seletorDias .form-check-input:checked {
+  background-color: var(--corDestaque);
+  border-color: var(--corBordas);
+}
+
+.seletorDias .form-check-input:focus {
+  box-shadow: 0 0 0 var(--larguraFoco) var(--corFoco);
+}
+
+/* ---------- linhaHorario: dia + abertura + fechamento ---------- */
+.linhaHorario {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espaco2) var(--espaco3);
+  align-items: center;
+  padding: var(--espaco3) 0;
+  border-bottom: 1px solid var(--corBordas);
+}
+
+.linhaHorario_dia {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-weight: var(--pesoNegrito);
+}
+
+.linhaHorario_campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco1);
+}
+
+.linhaHorario_rotulo {
+  font-size: var(--tamanhoSmall);
+  font-weight: var(--pesoNegrito);
+  color: var(--corLetras);
+}
+
+.linhaHorario .form-control {
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: var(--raioPequeno);
+  text-align: center;
+  font-weight: var(--pesoNegrito);
+}
+
+.linhaHorario .form-control:disabled {
+  background-color: var(--corBranco);
+  color: color-mix(in srgb, var(--corLetras) 55%, white);
+}
+
+.linhaHorario .form-control:focus {
+  box-shadow: 0 0 0 var(--larguraFoco) var(--corFoco);
+}
+
+@media (min-width: 768px) {
+  .linhaHorario {
+    grid-template-columns: 160px 1fr 1fr;
+    max-width: 640px;
+    border-bottom: 0;
+  }
+
+  .linhaHorario_dia {
+    grid-column: auto;
+  }
+
+  .linhaHorario_campo {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--espaco2);
+  }
+}
+
+/* ---------- campoMinutos: rótulo + número + "min" ---------- */
+.campoMinutos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco2);
+  margin-top: var(--espaco4);
+}
+
+.campoMinutos_rotulo {
+  font-weight: var(--pesoNegrito);
+}
+
+.campoMinutos_entrada {
+  width: 120px;
+}
+
+.campoMinutos_entrada .form-control,
+.campoMinutos_entrada .input-group-text {
+  border: var(--larguraBorda) solid var(--corBordas);
+  background-color: var(--corBranco);
+  font-weight: var(--pesoNegrito);
+}
+
+.campoMinutos_entrada .form-control {
+  border-right: 0;
+  border-radius: var(--raioPequeno) 0 0 var(--raioPequeno);
+  text-align: right;
+}
+
+.campoMinutos_entrada .input-group-text {
+  border-left: 0;
+  border-radius: 0 var(--raioPequeno) var(--raioPequeno) 0;
+}
+
+.campoMinutos_entrada .form-control:focus {
+  box-shadow: 0 0 0 var(--larguraFoco) var(--corFoco);
+}
+
+.campoMinutos + .form-text {
+  margin-top: var(--espaco1);
+}
+
+/* ---------- formularioPerfil ---------- */
+.formularioPerfil {
+  padding: var(--espaco5) 0;
+}
+
+.formularioPerfil_titulo {
+  margin: 0 0 var(--espaco4);
+  font-size: var(--tamanhoH2);
+  font-weight: var(--pesoNegrito);
+  text-align: center;
+}
+
+.formularioPerfil_rotulo {
+  display: block;
+  margin-bottom: var(--espaco2);
+  font-weight: var(--pesoNegrito);
+}
+
+.formularioPerfil_acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--espaco3);
+  margin-top: var(--espaco5);
+}
+
+.formularioPerfil .form-text {
+  color: var(--corLetras);
+  font-size: var(--tamanhoCaption);
+}
+
+.formularioPerfil .campoTexto .form-control[readonly] {
+  background-color: var(--corBranco);
+}
+
+/* ---------- avisoFlutuante (Bootstrap toast) ---------- */
+.avisoFlutuante {
+  --bs-toast-bg: var(--corBranco);
+  --bs-toast-border-color: var(--corAcaoNegativa);
+  --bs-toast-border-width: var(--larguraBorda);
+  --bs-toast-border-radius: var(--raioMedio);
+  --bs-toast-max-width: 360px;
+  --bs-toast-color: var(--corLetras);
+  font-weight: var(--pesoNegrito);
+}
+
+.avisoFlutuante_corpo {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco3);
+}
+
+.avisoFlutuante_icone {
+  flex-shrink: 0;
+  font-size: 32px;
+  color: var(--corAcaoNegativa);
+}
+
+.avisoFlutuante_mensagem {
+  margin: 0;
+}
+
+.avisoFlutuante--atencao {
+  --bs-toast-border-color: var(--corAcaoAtencao);
+}
+
+.avisoFlutuante--atencao .avisoFlutuante_icone {
+  color: var(--corAcaoAtencao);
+}
+
+/* ---------- navTopoLogado: barra superior da versão logada ----------
+   Desktop e mobile: logo + nome à esquerda e hambúrguer à direita.
+   Desktop: o hambúrguer abre o dropdown (menuHamburguerLogado).
+   Mobile: o hambúrguer abre o painelMenuMobile (offcanvas).
+   A navegação lateral (desktop) passa a começar abaixo da barra. */
+:root {
+  --alturaNavTopoLogado: 64px;
+}
+
+.navTopoLogado {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--alturaNavTopoLogado);
+  padding: var(--espaco2) var(--espaco4);
+  background-color: var(--corDestaque);
+}
+
+.navTopoLogado_logo {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco2);
+  color: var(--corBranco);
+  font-size: var(--tamanhoH3);
+  text-decoration: none;
+}
+
+.navTopoLogado_logo:hover,
+.navTopoLogado_logo:focus-visible {
+  color: var(--corBranco);
+}
+
+.navTopoLogado_logo:focus-visible,
+.navTopoLogado_botaoMenuMobile:focus-visible,
+.navTopoLogado .menuHamburguerLogado_botao:focus-visible {
+  outline: var(--larguraFoco) solid var(--corBranco);
+  outline-offset: 2px;
+}
+
+.navTopoLogado_botaoMenuMobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--corBranco);
+}
+
+.navTopoLogado_botaoMenuMobile .material-symbols-outlined,
+.navTopoLogado .menuHamburguerLogado_botao .material-symbols-outlined {
+  font-size: 36px;
+}
+
+/* Dentro da barra, o hambúrguer acompanha o fluxo (não fica fixo na tela) */
+.navTopoLogado .menuHamburguerLogado {
+  position: static;
+}
+
+.navTopoLogado ~ .navLateralLogado {
+  top: var(--alturaNavTopoLogado);
+}
+
+@media (min-width: 992px) {
+  .navTopoLogado_logo {
+    font-size: var(--tamanhoH2);
+  }
+}
+
+/* ---------- cardEntidadeBase--selecionado: card escolhido numa lista ---------- */
+.cardEntidadeBase--selecionado {
+  --bs-card-border-color: var(--corAcaoSecundaria);
+  --bs-card-border-width: 4px;
+  box-shadow: 0 4px 8px color-mix(in srgb, var(--corBordas) 35%, transparent);
+}
