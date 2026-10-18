@@ -1,4 +1,34 @@
 /* ============================================================
+   RESUMO DO ARQUIVO: notificacoes.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: moduloNotificacoes
+   - Objeto: opcoes
+   - Função/método: iniciar
+   - Função/método: cachearElementos
+   - Função/método: registrarEventos
+   - Função/método: aoDefinirSessao
+   - Função/método: exibirNaoLogado
+   - Função/método: contratoDisponivel
+   - Função/método: chamarContrato
+   - Função/método: exibirEstadoPagina
+   - Função/método: carregarNotificacoes
+   - Função/método: exibirErroNotificacoes
+   - Função/método: renderizarNotificacoes
+   - Função/método: normalizarNotificacao
+   - Função/método: valorVerdadeiro
+   - Função/método: criarCardNotificacao
+   - Função/método: formatarData
+   - Função/método: abrirNotificacao
+   - Função/método: aoFecharModal
+   - Função/método: marcarComoLida
+   - Função/método: atualizarCardLido
+   ============================================================ */
+
+/* ============================================================
    PÁGINA: notificacoes (cliente, clienteSimples, profissional e clínica)
    Depende de: jQuery, Bootstrap 5 (bundle), componentes.js,
                utilitarios.js (window.ElmoUtilitarios) e
@@ -52,6 +82,8 @@
 (function ($, Utilitarios) {
   "use strict";
 
+  // Objeto \'moduloNotificacoes\': agrupa estado, configurações e/ou métodos deste módulo.
+
   var moduloNotificacoes = {
 
     /* ---------- Configuração ---------- */
@@ -95,12 +127,16 @@
 
     elementos: {},
 
-    iniciar: function () {
+    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    iniciar: function() {
       this.cachearElementos();
       this.registrarEventos();
     },
 
-    cachearElementos: function () {
+    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cachearElementos: function() {
       var e = this.elementos;
       e.$principal = $("#conteudoNotificacoes");
       e.$avisoPagina = $("#avisoNotificacoes");
@@ -116,7 +152,9 @@
       e.$blocoLinkConsultas = e.$modal.find("[data-campo='blocoLinkConsultas']");
     },
 
-    registrarEventos: function () {
+    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    registrarEventos: function() {
       var self = this;
       var e = this.elementos;
 
@@ -141,7 +179,8 @@
     },
 
     /* ---------- Sessão e navegação ---------- */
-    aoDefinirSessao: function (sessao) {
+    // Método \'aoDefinirSessao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    aoDefinirSessao: function(sessao) {
       var configuracao = this.configuracao;
 
       if (!sessao || !sessao.logado) {
@@ -167,18 +206,27 @@
       this.carregarNotificacoes();
     },
 
-    exibirNaoLogado: function () {
+    // Método \'exibirNaoLogado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirNaoLogado: function() {
       this.exibirEstadoPagina("erro");
       this.elementos.$textoErro.text(this.configuracao.textos.naoLogado);
       this.elementos.$botaoTentar.attr("hidden", "hidden");
     },
 
     /* ---------- Contratos ---------- */
-    contratoDisponivel: function (nome) {
-      return !!this.configuracao.contratos[nome].disponivel;
+    // Método \'contratoDisponivel\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    contratoDisponivel: function(nome) {
+      if (this.configuracao.contratos[nome].disponivel) {
+        return true;
+      } else {
+        return false;
+      }
     },
 
-    chamarContrato: function (nome, dados) {
+    // Método \'chamarContrato\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    chamarContrato: function(nome, dados) {
       var contrato = this.configuracao.contratos[nome];
       var papel = this.configuracao.papeis[this.estado.papel];
 
@@ -191,11 +239,18 @@
     },
 
     /* ---------- Estados da página ---------- */
-    exibirEstadoPagina: function (nome) {
+    // Método \'exibirEstadoPagina\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    exibirEstadoPagina: function(nome) {
       var e = this.elementos;
       e.$estadosPagina.attr("hidden", "hidden");
       e.$estadosPagina.filter("[data-estadoNotificacoes='" + nome + "']").removeAttr("hidden");
-      e.$principal.attr("aria-busy", nome === "carregando" ? "true" : "false");
+      var ariaOcupado;
+      if (nome === "carregando") {
+        ariaOcupado = "true";
+      } else {
+        ariaOcupado = "false";
+      }
+      e.$principal.attr("aria-busy", ariaOcupado);
 
       if (nome === "vazio") {
         e.$avisoPagina.text(this.configuracao.textos.vazio);
@@ -205,7 +260,8 @@
     },
 
     /* ---------- Lista ---------- */
-    carregarNotificacoes: function () {
+    // Método \'carregarNotificacoes\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    carregarNotificacoes: function() {
       var self = this;
       var numero = ++this.estado.requisicaoNotificacoes;
 
@@ -237,12 +293,16 @@
         });
     },
 
-    exibirErroNotificacoes: function () {
+    // Método \'exibirErroNotificacoes\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirErroNotificacoes: function() {
       this.elementos.$textoErro.text(this.configuracao.textos.erro);
       this.exibirEstadoPagina("erro");
     },
 
-    renderizarNotificacoes: function (itens) {
+    // Método \'renderizarNotificacoes\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    renderizarNotificacoes: function(itens) {
       var self = this;
       var e = this.elementos;
       var novas = 0;
@@ -270,16 +330,39 @@
       }
 
       this.exibirEstadoPagina("lista");
-      e.$avisoPagina.text(
-        total + (total === 1 ? " notificação encontrada" : " notificações encontradas") +
-        (novas ? ", " + novas + (novas === 1 ? " nova." : " novas.") : ".")
-      );
+      var textoTotal;
+      if (total === 1) {
+        textoTotal = " notificação encontrada";
+      } else {
+        textoTotal = " notificações encontradas";
+      }
+      var textoNovas;
+      if (novas) {
+        var sufixoNovas;
+        if (novas === 1) {
+          sufixoNovas = " nova.";
+        } else {
+          sufixoNovas = " novas.";
+        }
+        textoNovas = ", " + novas + sufixoNovas;
+      } else {
+        textoNovas = ".";
+      }
+      e.$avisoPagina.text(total + textoTotal + textoNovas);
     },
 
-    normalizarNotificacao: function (item) {
+    // Método \'normalizarNotificacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    normalizarNotificacao: function(item) {
       item = item || {};
+      var idNotificacao;
+      if (item.idNotificacao) {
+        idNotificacao = String(item.idNotificacao);
+      } else {
+        idNotificacao = "";
+      }
       return {
-        id: item.idNotificacao ? String(item.idNotificacao) : "",
+        id: idNotificacao,
         titulo: String(item.tituloNotificacao || ""),
         resumo: String(item.resumoNotificacao || ""),
         mensagem: String(item.mensagemNotificacao || ""),
@@ -290,18 +373,28 @@
       };
     },
 
-    valorVerdadeiro: function (valor) {
+    // Método \'valorVerdadeiro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    valorVerdadeiro: function(valor) {
       return valor === true || valor === 1 || valor === "1" || valor === "true";
     },
 
-    criarCardNotificacao: function (notificacao) {
+    // Método \'criarCardNotificacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    criarCardNotificacao: function(notificacao) {
       var modelo = this.elementos.$modelo.get(0);
       var $item = $(modelo.content.firstElementChild.cloneNode(true));
       var data = this.formatarData(notificacao.data);
 
+      var valorLida;
+      if (notificacao.lida) {
+        valorLida = "true";
+      } else {
+        valorLida = "false";
+      }
       $item.find(".cardNotificacao")
         .attr("data-notificacaoId", notificacao.id)
-        .attr("data-lida", notificacao.lida ? "true" : "false")
+        .attr("data-lida", valorLida)
         .attr("data-tipoNotificacao", notificacao.tipo);
       $item.find("[data-campo='tituloNotificacao']").text(notificacao.titulo);
       $item.find("[data-campo='resumoNotificacao']").text(notificacao.resumo);
@@ -318,13 +411,15 @@
 
     // "AAAA-MM-DD" -> "20 de janeiro" (com o ano, se não for o ano atual).
     // Lê as partes da string para não deslocar o dia por fuso horário.
-    formatarData: function (valor) {
+    // Método \'formatarData\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    formatarData: function(valor) {
       var partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(valor || ""));
       if (!partes) {
         return { texto: "", iso: "" };
       }
 
       var data = new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]));
+      // Objeto \'opcoes\': agrupa estado, configurações e/ou métodos deste módulo.
       var opcoes = { day: "numeric", month: "long" };
       if (data.getFullYear() !== new Date().getFullYear()) {
         opcoes.year = "numeric";
@@ -337,7 +432,8 @@
     },
 
     /* ---------- Modal: abrir, marcar como lida e fechar ---------- */
-    abrirNotificacao: function ($card) {
+    // Método \'abrirNotificacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    abrirNotificacao: function($card) {
       var e = this.elementos;
       var id = $card.attr("data-notificacaoId");
       var notificacao = this.estado.notificacoes[id];
@@ -362,7 +458,9 @@
       this.marcarComoLida(notificacao.id);
     },
 
-    aoFecharModal: function () {
+    // Método \'aoFecharModal\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    aoFecharModal: function() {
       var $card = this.estado.$cardAtual;
       this.estado.$cardAtual = null;
 
@@ -371,7 +469,9 @@
       }
     },
 
-    marcarComoLida: function (id) {
+    // Método \'marcarComoLida\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    marcarComoLida: function(id) {
       var self = this;
       var notificacao = this.estado.notificacoes[id];
 
@@ -390,7 +490,9 @@
         });
     },
 
-    atualizarCardLido: function (id) {
+    // Método \'atualizarCardLido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    atualizarCardLido: function(id) {
       var $card = this.elementos.$lista.find(".cardNotificacao").filter(function () {
         return $(this).attr("data-notificacaoId") === String(id);
       });

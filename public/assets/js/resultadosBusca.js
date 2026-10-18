@@ -1,4 +1,59 @@
 /* ============================================================
+   RESUMO DO ARQUIVO: resultadosBusca.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: moduloResultados
+   - Objeto: validos
+   - Objeto: estadoHistorico
+   - Objeto: filtros
+   - Objeto: daAba
+   - Objeto: resultado
+   - Função/método: mapear
+   - Função/método: iniciar
+   - Função/método: cachearElementos
+   - Função/método: registrarEventos
+   - Função/método: restaurarBusca
+   - Função/método: filtrosValidos
+   - Função/método: salvarBusca
+   - Função/método: pesquisar
+   - Função/método: aoTrocarAba
+   - Função/método: mostrarAbaAtiva
+   - Função/método: atualizarTelaDaAba
+   - Função/método: coletarFiltros
+   - Função/método: aplicarFiltrosNaTela
+   - Função/método: filtrosDaAba
+   - Função/método: aplicarFiltros
+   - Função/método: limparFiltros
+   - Função/método: fecharPainelFiltros
+   - Função/método: chamarContrato
+   - Função/método: carregarAba
+   - Função/método: aplicarFiltrosLocais
+   - Função/método: fotoValida
+   - Função/método: $listaDaAba
+   - Função/método: $vazioDaAba
+   - Função/método: exibirSemTermo
+   - Função/método: mostrarAvisoBusca
+   - Função/método: esconderAvisoBusca
+   - Função/método: exibirCarregando
+   - Função/método: exibirErro
+   - Função/método: exibirResultados
+   - Função/método: mensagemDeResultados
+   - Função/método: anunciar
+   - Função/método: montarCard
+   - Função/método: apenasComValor
+   - Função/método: configurarLink
+   - Função/método: montarLink
+   - Função/método: formatarPreco
+   - Função/método: obterDetalhesClinica
+   - Função/método: preencherEndereco
+   - Função/método: buscarEnderecoPorCep
+   - Função/método: textoEndereco
+   ============================================================ */
+
+/* ============================================================
    PÁGINA: resultadosBusca (abas, filtros e cards)
    Depende de: jQuery, Bootstrap 5 (bundle), componentes.js,
                utilitarios.js (window.ElmoUtilitarios),
@@ -24,6 +79,8 @@
 
 (function ($, Utilitarios, Busca) {
   "use strict";
+
+  // Objeto \'moduloResultados\': agrupa estado, configurações e/ou métodos deste módulo.
 
   var moduloResultados = {
 
@@ -61,7 +118,8 @@
         modelo: "#modeloCardServico",
         estadoVazio: "servicos",
         textos: { um: "serviço encontrado", varios: "serviços encontrados", nenhum: "Nenhum serviço foi encontrado" },
-        mapear: function (item, modulo) {
+        // Método \'mapear\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+        mapear: function(item, modulo) {
           return {
             id: item.ser_id,
             nome: item.ser_nome,
@@ -132,14 +190,18 @@
 
     elementos: {},
 
-    iniciar: function () {
+    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    iniciar: function() {
       this.cachearElementos();
       Busca.configurarNavegacao();
       this.registrarEventos();
       this.restaurarBusca();
     },
 
-    cachearElementos: function () {
+    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cachearElementos: function() {
       var e = this.elementos;
       e.$conteudo = $("#conteudoResultados");
       e.$entrada = $("#entradaBuscaResultados");
@@ -153,7 +215,9 @@
       e.$erro = $("[data-estadoBusca='erro']");
     },
 
-    registrarEventos: function () {
+    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    registrarEventos: function() {
       var self = this;
 
       // Evento do campoPesquisa (componentes.js): lupa ou Enter
@@ -200,11 +264,16 @@
     /* ---------- Estado da busca (URL + history.state) ---------- */
 
     // Lê termo (URL), aba e filtros (history.state), atualiza a tela e carrega a aba ativa.
-    restaurarBusca: function () {
+    // Método \'restaurarBusca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    restaurarBusca: function() {
       var guardado = (window.history.state && window.history.state.busca) || {};
 
       this.estado.termo = $.trim(Utilitarios.obterParametroUrl("termo") || "");
-      this.estado.abaAtiva = this.abas[guardado.aba] ? guardado.aba : "servicos";
+      if (this.abas[guardado.aba]) {
+        this.estado.abaAtiva = guardado.aba;
+      } else {
+        this.estado.abaAtiva = "servicos";
+      }
       this.estado.filtros = this.filtrosValidos(guardado.filtros);
       this.estado.carregadoPara = {};
 
@@ -216,7 +285,9 @@
     },
 
     // Só aceita os filtros conhecidos, com valor em texto (o history.state pode ter sido alterado)
-    filtrosValidos: function (filtros) {
+    // Método \'filtrosValidos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    filtrosValidos: function(filtros) {
+      // Objeto \'validos\': agrupa estado, configurações e/ou métodos deste módulo.
       var validos = {};
       var conhecidos = this.configuracao.filtrosConhecidos;
 
@@ -231,11 +302,13 @@
     },
 
     // novaEntrada = true: nova pesquisa (cria entrada no histórico); false: só atualiza a atual
-    salvarBusca: function (novaEntrada) {
+    // Método \'salvarBusca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    salvarBusca: function(novaEntrada) {
       var url = window.location.pathname + "?uri=resultadosBusca";
       if (this.estado.termo !== "") {
         url += "&termo=" + encodeURIComponent(this.estado.termo);
       }
+      // Objeto \'estadoHistorico\': agrupa estado, configurações e/ou métodos deste módulo.
       var estadoHistorico = { busca: { aba: this.estado.abaAtiva, filtros: this.estado.filtros } };
 
       try {
@@ -250,7 +323,8 @@
     },
 
     /* ---------- Pesquisa, abas e filtros ---------- */
-    pesquisar: function (termo) {
+    // Método \'pesquisar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    pesquisar: function(termo) {
       // Pesquisa vazia: aviso visível e nada é pesquisado (os resultados atuais não mudam)
       if (!Busca.termoValido(termo)) {
         this.mostrarAvisoBusca(true);
@@ -262,7 +336,9 @@
       this.carregarAba(this.estado.abaAtiva);
     },
 
-    aoTrocarAba: function (aba) {
+    // Método \'aoTrocarAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    aoTrocarAba: function(aba) {
       if (!this.abas[aba]) {
         return;
       }
@@ -273,7 +349,8 @@
     },
 
     // Abre a aba guardada (se não for a que já está aberta)
-    mostrarAbaAtiva: function () {
+    // Método \'mostrarAbaAtiva\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    mostrarAbaAtiva: function() {
       var $aba = this.elementos.$abas.filter("[data-tipoBusca='" + this.estado.abaAtiva + "']");
       if (!$aba.hasClass("active")) {
         bootstrap.Tab.getOrCreateInstance($aba[0]).show();
@@ -281,7 +358,8 @@
     },
 
     // Placeholder do campo e grupos de filtro de acordo com a aba ativa
-    atualizarTelaDaAba: function () {
+    // Método \'atualizarTelaDaAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    atualizarTelaDaAba: function() {
       var aba = this.estado.abaAtiva;
       var $aba = this.elementos.$abas.filter("[data-tipoBusca='" + aba + "']");
 
@@ -300,14 +378,21 @@
     },
 
     // Lê o painel inteiro (inclusive grupos de outras abas, que mantêm o valor ao trocar de aba)
-    coletarFiltros: function () {
+    // Método \'coletarFiltros\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    coletarFiltros: function() {
+      // Objeto \'filtros\': agrupa estado, configurações e/ou métodos deste módulo.
       var filtros = {};
 
       this.elementos.$gruposFiltro.each(function () {
         var $grupo = $(this);
         var nome = $grupo.attr("data-grupoFiltro");
         var $marcado = $grupo.find("input[type='radio']:checked");
-        var valor = $marcado.length ? $marcado.val() : $.trim($grupo.find("input[type='text']").val());
+        var valor;
+        if ($marcado.length) {
+          valor = $marcado.val();
+        } else {
+          valor = $.trim($grupo.find("input[type='text']").val());
+        }
 
         if (valor) {
           filtros[nome] = valor;
@@ -316,7 +401,9 @@
       return this.filtrosValidos(filtros);
     },
 
-    aplicarFiltrosNaTela: function () {
+    // Método \'aplicarFiltrosNaTela\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    aplicarFiltrosNaTela: function() {
       var filtros = this.estado.filtros;
 
       this.elementos.$gruposFiltro.each(function () {
@@ -331,8 +418,10 @@
     },
 
     // Só os filtros que valem para a aba (conforme data-abasFiltro)
-    filtrosDaAba: function (aba) {
+    // Método \'filtrosDaAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    filtrosDaAba: function(aba) {
       var filtros = this.estado.filtros;
+      // Objeto \'daAba\': agrupa estado, configurações e/ou métodos deste módulo.
       var daAba = {};
 
       this.elementos.$gruposFiltro.each(function () {
@@ -346,7 +435,9 @@
       return daAba;
     },
 
-    aplicarFiltros: function (filtros) {
+    // Método \'aplicarFiltros\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    aplicarFiltros: function(filtros) {
       this.estado.filtros = filtros;
       this.estado.carregadoPara = {};
       this.fecharPainelFiltros();
@@ -354,18 +445,23 @@
       this.carregarAba(this.estado.abaAtiva);
     },
 
-    limparFiltros: function () {
+    // Método \'limparFiltros\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    limparFiltros: function() {
       this.aplicarFiltros({});
       this.aplicarFiltrosNaTela();
     },
 
-    fecharPainelFiltros: function () {
+    // Método \'fecharPainelFiltros\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    fecharPainelFiltros: function() {
       bootstrap.Dropdown.getOrCreateInstance(this.elementos.$botaoFiltros[0]).hide();
       this.elementos.$botaoFiltros.trigger("focus");
     },
 
     /* ---------- Carregamento dos resultados ---------- */
-    chamarContrato: function (nome, dados) {
+    // Método \'chamarContrato\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    chamarContrato: function(nome, dados) {
       var contrato = this.configuracao.contratos[nome];
 
       return $.ajax({
@@ -376,7 +472,9 @@
       });
     },
 
-    carregarAba: function (aba, forcar) {
+    // Método \'carregarAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    carregarAba: function(aba, forcar) {
       var self = this;
       var configuracaoAba = this.abas[aba];
       var chave = JSON.stringify({ termo: this.estado.termo, filtros: this.filtrosDaAba(aba) });
@@ -420,7 +518,8 @@
     },
 
     // Filtros que o backend não faz: aplicados aqui sobre os campos devolvidos.
-    aplicarFiltrosLocais: function (aba, itens) {
+    // Método \'aplicarFiltrosLocais\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    aplicarFiltrosLocais: function(aba, itens) {
       var filtros = this.filtrosDaAba(aba);
 
       if (aba === "servicos" && filtros.tipoServico) {
@@ -434,20 +533,30 @@
 
     // O cadastro grava um marcador no lugar da foto (ex.: "cxfoto"); só usa
     // valores que parecem arquivo de imagem. Sem foto, o card esconde a imagem.
-    fotoValida: function (foto) {
-      return /\.(jpe?g|png|gif|webp)$/i.test(String(foto || "")) ? foto : undefined;
+    // Método \'fotoValida\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    fotoValida: function(foto) {
+      if (/\.(jpe?g|png|gif|webp)$/i.test(String(foto || ""))) {
+        return foto;
+      } else {
+        return undefined;
+      }
     },
 
     /* ---------- Exibição ---------- */
-    $listaDaAba: function (aba) {
+    // Método \'$listaDaAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    $listaDaAba: function(aba) {
       return $("[data-campo='" + this.abas[aba].campoLista + "']");
     },
 
-    $vazioDaAba: function (aba) {
+    // Método \'$vazioDaAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    $vazioDaAba: function(aba) {
       return $("[data-estadoVazio='" + this.abas[aba].estadoVazio + "']");
     },
 
-    exibirSemTermo: function (aba) {
+    // Método \'exibirSemTermo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirSemTermo: function(aba) {
       this.$listaDaAba(aba).empty();
       this.$vazioDaAba(aba).attr("hidden", "hidden");
       this.elementos.$carregando.attr("hidden", "hidden");
@@ -457,7 +566,8 @@
     },
 
     // focar = true quando a pessoa acabou de pesquisar; ao abrir a página não rouba o foco
-    mostrarAvisoBusca: function (focar) {
+    // Método \'mostrarAvisoBusca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    mostrarAvisoBusca: function(focar) {
       this.elementos.$avisoBusca.removeAttr("hidden");
       this.elementos.$entrada.attr("aria-invalid", "true");
       if (focar) {
@@ -465,12 +575,16 @@
       }
     },
 
-    esconderAvisoBusca: function () {
+    // Método \'esconderAvisoBusca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    esconderAvisoBusca: function() {
       this.elementos.$avisoBusca.attr("hidden", "hidden");
       this.elementos.$entrada.removeAttr("aria-invalid");
     },
 
-    exibirCarregando: function (aba) {
+    // Método \'exibirCarregando\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirCarregando: function(aba) {
       this.$listaDaAba(aba).empty();
       this.$vazioDaAba(aba).attr("hidden", "hidden");
       this.elementos.$erro.attr("hidden", "hidden");
@@ -478,7 +592,9 @@
       this.elementos.$conteudo.attr("aria-busy", "true");
     },
 
-    exibirErro: function (aba) {
+    // Método \'exibirErro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirErro: function(aba) {
       this.estado.carregadoPara[aba] = null; // permite tentar de novo
       this.$listaDaAba(aba).empty();
       this.$vazioDaAba(aba).attr("hidden", "hidden");
@@ -487,7 +603,9 @@
       this.elementos.$conteudo.attr("aria-busy", "false");
     },
 
-    exibirResultados: function (aba, itens) {
+    // Método \'exibirResultados\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirResultados: function(aba, itens) {
       var self = this;
       var configuracaoAba = this.abas[aba];
       var $lista = this.$listaDaAba(aba).empty();
@@ -504,20 +622,30 @@
       this.anunciar(this.mensagemDeResultados(configuracaoAba.textos, itens.length));
     },
 
-    mensagemDeResultados: function (textos, quantidade) {
+    // Método \'mensagemDeResultados\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    mensagemDeResultados: function(textos, quantidade) {
       if (quantidade === 0) {
         return textos.nenhum;
       }
-      return quantidade + " " + (quantidade === 1 ? textos.um : textos.varios);
+      var textoQuantidade;
+      if (quantidade === 1) {
+        textoQuantidade = textos.um;
+      } else {
+        textoQuantidade = textos.varios;
+      }
+      return quantidade + " " + textoQuantidade;
     },
 
     // Texto para leitores de tela (região role="status" no HTML)
-    anunciar: function (mensagem) {
+    // Método \'anunciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    anunciar: function(mensagem) {
       this.elementos.$avisoResultados.text(mensagem);
     },
 
     /* ---------- Cards ---------- */
-    montarCard: function (aba, item) {
+    // Método \'montarCard\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    montarCard: function(aba, item) {
       var configuracaoAba = this.abas[aba];
       var dados = configuracaoAba.mapear(item, this);
       var modelo = document.querySelector(configuracaoAba.modelo);
@@ -541,7 +669,9 @@
     },
 
     // Valores vazios não entram (o preencherCampos trocaria o texto do modelo por "undefined")
-    apenasComValor: function (textos) {
+    // Método \'apenasComValor\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    apenasComValor: function(textos) {
+      // Objeto \'resultado\': agrupa estado, configurações e/ou métodos deste módulo.
       var resultado = {};
       $.each(textos, function (nome, valor) {
         if (valor !== undefined && valor !== null && valor !== "") {
@@ -552,7 +682,8 @@
     },
 
     // O link só existe com id numérico (o perfil e o serviço esperam um número)
-    configurarLink: function ($card, dados) {
+    // Método \'configurarLink\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    configurarLink: function($card, dados) {
       var $link = $card.find("[data-acao='" + dados.acao + "']");
 
       if (!/^[0-9]+$/.test(String(dados.id))) {
@@ -565,7 +696,9 @@
         .attr("data-idPerfil", dados.id);
     },
 
-    montarLink: function (base, parametros) {
+    // Método \'montarLink\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    montarLink: function(base, parametros) {
       var partes = [];
       $.each(parametros, function (nome, valor) {
         partes.push(nome + "=" + encodeURIComponent(valor));
@@ -573,7 +706,9 @@
       return base + "&" + partes.join("&");
     },
 
-    formatarPreco: function (valor) {
+    // Método \'formatarPreco\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    formatarPreco: function(valor) {
       var numero = parseFloat(valor);
       if (isNaN(numero)) {
         return "";
@@ -585,7 +720,8 @@
     // A busca não devolve o CEP: ele vem dos detalhes da clínica (uma consulta
     // por card, com cache) e a rua vem do ViaCEP. CEPs repetidos reaproveitam
     // a mesma consulta ao ViaCEP (cache).
-    obterDetalhesClinica: function (id) {
+    // Método \'obterDetalhesClinica\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    obterDetalhesClinica: function(id) {
       var cache = this.estado.cacheDetalhes;
       var self = this;
 
@@ -612,7 +748,9 @@
       return cache[id];
     },
 
-    preencherEndereco: function ($card, id) {
+    // Método \'preencherEndereco\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    preencherEndereco: function($card, id) {
       var self = this;
       var $endereco = $card.find("[data-campo='enderecoClinica']");
       var $cep = $card.find("[data-campo='cepClinica']");
@@ -621,7 +759,13 @@
         .done(function (clinica) {
           var cep = clinica.clin_cep || "";
 
-          $cep.text(cep ? Utilitarios.formatarMascara("cep", cep) : "Não informado");
+          var textoCep;
+          if (cep) {
+            textoCep = Utilitarios.formatarMascara("cep", cep);
+          } else {
+            textoCep = "Não informado";
+          }
+          $cep.text(textoCep);
           if (!cep) {
             $endereco.text("Indisponível");
             return;
@@ -640,7 +784,9 @@
         });
     },
 
-    buscarEnderecoPorCep: function (cep) {
+    // Método \'buscarEnderecoPorCep\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    buscarEnderecoPorCep: function(cep) {
       var cepNumerico = Utilitarios.apenasNumeros(cep || "");
       var cache = this.estado.cacheEnderecos;
 
@@ -676,7 +822,8 @@
     },
 
     // Rua e UF, como no card do Figma ("Rua Sol, SP")
-    textoEndereco: function (dadosViaCep) {
+    // Método \'textoEndereco\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    textoEndereco: function(dadosViaCep) {
       return [dadosViaCep.logradouro, dadosViaCep.uf].filter(Boolean).join(", ") || "Indisponível";
     }
   };

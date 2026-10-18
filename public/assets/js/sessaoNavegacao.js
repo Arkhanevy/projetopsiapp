@@ -1,3 +1,20 @@
+/* ============================================================
+   RESUMO DO ARQUIVO: sessaoNavegacao.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: moduloSessaoNavegacao
+   - Função/método: urlVerificarSessaoPorTipo
+   - Função/método: iniciar
+   - Função/método: cachearElementos
+   - Função/método: verificarSessao
+   - Função/método: testarTipo
+   - Função/método: exibirNavegacaoDeslogado
+   - Função/método: exibirNavegacaoLogado
+   ============================================================ */
+
 (function ($) {
   "use strict";
 
@@ -28,12 +45,15 @@
     sessão atual é, especificamente, de um cliente.)
   */
 
+  // Objeto \'moduloSessaoNavegacao\': agrupa estado, configurações e/ou métodos deste módulo.
+
   var moduloSessaoNavegacao = {
 
     configuracao: {
       // Ordem em que os tipos são testados até um responder "logado: true".
       tiposParaVerificar: ["cliente", "profissional", "clinica"],
-      urlVerificarSessaoPorTipo: function (tipo) {
+      // Método \'urlVerificarSessaoPorTipo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+      urlVerificarSessaoPorTipo: function(tipo) {
         return "index.php?uri=" + tipo;
       }
     },
@@ -46,26 +66,33 @@
 
     elementos: {},
 
-    iniciar: function () {
+    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    iniciar: function() {
       this.cachearElementos();
       this.verificarSessao();
     },
 
-    cachearElementos: function () {
+    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cachearElementos: function() {
       this.elementos.$navTopoDeslogado = $(".navTopoDeslogado");
       this.elementos.$navsLogado = $(".navLateralLogado, .navInferiorLogado");
       this.elementos.$menuHamburguer = $(".menuHamburguerLogado");
       this.elementos.$itemContatos = $("[data-itemContatos]");
     },
 
-    verificarSessao: function () {
+    // Método \'verificarSessao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    verificarSessao: function() {
       this.testarTipo(this.configuracao.tiposParaVerificar, 0);
     },
 
     // Testa o tipo da posição "indice"; se vier negativo (ou falhar),
     // passa para o próximo. Quando a lista acabar sem nenhum positivo,
     // considera deslogado.
-    testarTipo: function (tipos, indice) {
+    // Método \'testarTipo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    testarTipo: function(tipos, indice) {
       var self = this;
 
       if (indice >= tipos.length) {
@@ -93,7 +120,9 @@
         });
     },
 
-    exibirNavegacaoDeslogado: function () {
+    // Método \'exibirNavegacaoDeslogado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirNavegacaoDeslogado: function() {
       this.elementos.$navTopoDeslogado.removeAttr("hidden");
       this.elementos.$navsLogado.attr("hidden", "hidden");
       this.elementos.$menuHamburguer.attr("hidden", "hidden");
@@ -102,10 +131,15 @@
       $(document).trigger("sessaoNavegacaoDefinida", [{ logado: false, tipoUsuario: null }]);
     },
 
-    exibirNavegacaoLogado: function (tipoUsuario) {
-      var papel = (tipoUsuario === "cliente" || tipoUsuario === "clienteSimples")
-        ? "cliente"
-        : "profissionalClinica";
+    // Método \'exibirNavegacaoLogado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirNavegacaoLogado: function(tipoUsuario) {
+      var papel;
+      if (tipoUsuario === "cliente" || tipoUsuario === "clienteSimples") {
+        papel = "cliente";
+      } else {
+        papel = "profissionalClinica";
+      }
 
       // .data() guarda em cache o valor lido por componentes.js no carregamento
       // (sempre o "data-papel" inicial do HTML); sem atualizar o cache,

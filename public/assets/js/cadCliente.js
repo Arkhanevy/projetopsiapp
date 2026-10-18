@@ -1,3 +1,22 @@
+/* ============================================================
+   RESUMO DO ARQUIVO: cadCliente.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: moduloCadCliente
+   - Função/método: iniciar
+   - Função/método: urlElementos
+   - Função/método: validarCamposAoSair
+   - Função/método: registrarEventos
+   - Função/método: mostrarTela
+   - Função/método: mostrarAlert
+   - Função/método: enviarCadastro
+   - Função/método: gerarCodigo
+   - Função/método: ativarConta
+   ============================================================ */
+
 console.log("JS cadCliente carregado");
 /* ============================================================
    PÁGINA: cadCliente (Cadastro / Ativação do Cliente)
@@ -16,6 +35,8 @@ console.log("JS cadCliente carregado");
 
 (function ($, Utilitarios) {
   "use strict";
+
+  // Objeto \'moduloCadCliente\': agrupa estado, configurações e/ou métodos deste módulo.
 
   var moduloCadCliente = {
 
@@ -39,7 +60,8 @@ console.log("JS cadCliente carregado");
      * Ponto de entrada. Deve ser chamado uma vez, quando o
      * documento estiver pronto.
      */
-    iniciar: function () {
+    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    iniciar: function() {
       this.urlElementos();
 
       // Compatibilidade: links antigos usavam ?tipo=login nesta mesma página.
@@ -54,7 +76,9 @@ console.log("JS cadCliente carregado");
       this.mostrarTela(this.estado.telaInicial);
     },
 
-    urlElementos: function () {
+    // Método \'urlElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    urlElementos: function() {
       this.telas = {
         cadastro: $("#cadastroCliente"),
         ativacao: $("#ativacao")
@@ -86,7 +110,9 @@ console.log("JS cadCliente carregado");
 
     /* VALIDAÇÃO AO SAIR DO CAMPO */
 
-    validarCamposAoSair: function () {
+    // Método \'validarCamposAoSair\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    validarCamposAoSair: function() {
       Utilitarios.validarAoSair(this.elementos.$alertContainer, [
         { $campo: this.elementos.$cpf, valido: function (valor) { return Utilitarios.cpfValido(Utilitarios.apenasNumeros(valor)); }, mensagem: "CPF inválido!" },
         { $campo: this.elementos.$tel, valido: function (valor) { return Utilitarios.telefoneValido(valor); }, mensagem: "Telefone inválido!" },
@@ -95,7 +121,9 @@ console.log("JS cadCliente carregado");
       ]);
     },
 
-    registrarEventos: function () {
+    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    registrarEventos: function() {
       this.validarCamposAoSair();
 
       // Nenhum formulário desta página é enviado de forma nativa: o envio
@@ -131,7 +159,9 @@ console.log("JS cadCliente carregado");
 
     /* TELAS */
 
-    mostrarTela: function (nomeTela) {
+    // Método \'mostrarTela\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    mostrarTela: function(nomeTela) {
       var self = this;
       Object.keys(this.telas).forEach(function (chave) {
         self.telas[chave].hide();
@@ -147,13 +177,17 @@ console.log("JS cadCliente carregado");
 
     /* ALERTAS */
 
-    mostrarAlert: function (mensagem, tipo) {
+    // Método \'mostrarAlert\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    mostrarAlert: function(mensagem, tipo) {
       Utilitarios.mostrarAlerta(this.elementos.$alertContainer, mensagem, tipo);
     },
 
     /* CADASTRO */
 
-    enviarCadastro: function ($botao) {
+    // Método \'enviarCadastro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    enviarCadastro: function($botao) {
       var self = this;
       var el = this.elementos;
 
@@ -259,7 +293,9 @@ console.log("JS cadCliente carregado");
 
     /* CÓDIGO DE ATIVAÇÃO */
 
-    gerarCodigo: function ($botao) {
+    // Método \'gerarCodigo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    gerarCodigo: function($botao) {
       var self = this;
 
       $botao.prop("disabled", true);
@@ -312,7 +348,9 @@ console.log("JS cadCliente carregado");
       });
     },
 
-    ativarConta: function ($botao) {
+    // Método \'ativarConta\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    ativarConta: function($botao) {
       var self = this;
       var $campoCodigo = this.elementos.$codigo;
       var codigoDigitado = $campoCodigo.val().trim();

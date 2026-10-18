@@ -1,3 +1,48 @@
+/* ============================================================
+   RESUMO DO ARQUIVO: agendamentoCli.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: moduloAgendamentoCli
+   - Função/método: iniciar
+   - Função/método: urlElementos
+   - Função/método: registrarEventos
+   - Função/método: cancelarAgendamento
+   - Função/método: buscarDadosAgendamento
+   - Função/método: mapearDadosServico
+   - Função/método: tratarFalhaCarregamento
+   - Função/método: renderizarLocalizacoes
+   - Função/método: selecionarLocalizacao
+   - Função/método: navegarMes
+   - Função/método: buscarDiasIndisponiveis
+   - Função/método: extrairDiasIndisponiveis
+   - Função/método: renderizarCalendario
+   - Função/método: formatarDataChave
+   - Função/método: selecionarDia
+   - Função/método: resetarHorario
+   - Função/método: buscarHorariosDisponiveis
+   - Função/método: mapearHorarios
+   - Função/método: renderizarHorarios
+   - Função/método: selecionarHorario
+   - Função/método: alternarDropdown
+   - Função/método: abrirDropdown
+   - Função/método: fecharDropdown
+   - Função/método: fecharTodosDropdowns
+   - Função/método: registrarNavegacaoTecladoLista
+   - Função/método: marcarCampoComErro
+   - Função/método: removerErroCampo
+   - Função/método: exibirAlertaValidacao
+   - Função/método: esconderAlertaValidacao
+   - Função/método: tentarConfirmarAgendamento
+   - Função/método: verificarLoginEEnviar
+   - Função/método: enviarAgendamento
+   - Função/método: irParaInfoServicoComSucesso
+   - Função/método: exibirModalErro
+   - Função/método: exibirModalNaoLogado
+   ============================================================ */
+
 console.log("JS agendamentoCli carregado");
 
 (function ($, Utilitarios) {
@@ -17,6 +62,8 @@ console.log("JS agendamentoCli carregado");
     "domingo", "segunda-feira", "terça-feira", "quarta-feira",
     "quinta-feira", "sexta-feira", "sábado"
   ];
+
+  // Objeto \'moduloAgendamentoCli\': agrupa estado, configurações e/ou métodos deste módulo.
 
   var moduloAgendamentoCli = {
 
@@ -42,7 +89,9 @@ console.log("JS agendamentoCli carregado");
     /* ---------- Referências de elementos (cacheadas) ---------- */
     elementos: {},
 
-    iniciar: function () {
+    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    iniciar: function() {
       this.urlElementos();
       this.estado.idServico = Utilitarios.obterParametroUrl("servico");
       this.elementos.$inputIdServico.val(this.estado.idServico || "");
@@ -51,7 +100,9 @@ console.log("JS agendamentoCli carregado");
       this.buscarDadosAgendamento();
     },
 
-    urlElementos: function () {
+    // Método \'urlElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    urlElementos: function() {
       this.elementos.$form = $("#formularioAgendamento");
       this.elementos.$alerta = $("#alertaValidacao");
       this.elementos.$inputIdServico = $("#inputIdServico");
@@ -87,7 +138,9 @@ console.log("JS agendamentoCli carregado");
       this.elementos.$botaoRealizarLogin = $("#botaoRealizarLogin");
     },
 
-    registrarEventos: function () {
+    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    registrarEventos: function() {
       var self = this;
 
       this.elementos.$botaoVoltar.on("click", function () {
@@ -176,7 +229,9 @@ console.log("JS agendamentoCli carregado");
       });
     },
 
-    cancelarAgendamento: function () {
+    // Método \'cancelarAgendamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cancelarAgendamento: function() {
       var url = this.configuracao.urlInfoServico;
       if (this.estado.idServico) {
         url += "&id=" + encodeURIComponent(this.estado.idServico);
@@ -186,7 +241,9 @@ console.log("JS agendamentoCli carregado");
 
     /* CARREGAMENTO DE DADOS */
 
-    buscarDadosAgendamento: function () {
+    // Método \'buscarDadosAgendamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    buscarDadosAgendamento: function() {
       var self = this;
 
       Utilitarios.esconderModal(this.elementos.$modalErro);
@@ -224,16 +281,24 @@ console.log("JS agendamentoCli carregado");
         });
     },
 
-    mapearDadosServico: function (registro) {
+    // Método \'mapearDadosServico\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    mapearDadosServico: function(registro) {
       var numero = Number(registro.ser_val);
+      var precoFormatado;
+      if (isNaN(numero)) {
+        precoFormatado = "";
+      } else {
+        precoFormatado = numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      }
       return {
-        precoServico: isNaN(numero)
-          ? ""
-          : numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+        precoServico: precoFormatado
       };
     },
 
-    tratarFalhaCarregamento: function () {
+    // Método \'tratarFalhaCarregamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    tratarFalhaCarregamento: function() {
       this.elementos.$form.removeClass("estadoCarregando").addClass("estadoErro");
       Utilitarios.alternarEsqueletoAcessivel(this.elementos.$camposDinamicos, true);
       this.exibirModalErro();
@@ -241,7 +306,9 @@ console.log("JS agendamentoCli carregado");
 
     /*  LOCALIZAÇÃO 
 
-    renderizarLocalizacoes: function (localizacoes) {
+    // Método \'renderizarLocalizacoes\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    renderizarLocalizacoes: function(localizacoes) {
       var self = this;
       this.elementos.$listaLocalizacoes.empty();
 
@@ -261,7 +328,9 @@ console.log("JS agendamentoCli carregado");
       });
     },
 
-    selecionarLocalizacao: function (id, nome) {
+    // Método \'selecionarLocalizacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    selecionarLocalizacao: function(id, nome) {
       this.estado.localizacaoSelecionada = id;
       this.elementos.$inputLocalizacao.val(id);
       this.elementos.$textoLocalizacao.text(nome);
@@ -272,7 +341,9 @@ console.log("JS agendamentoCli carregado");
 
     /* CALENDÁRIO */
 
-    navegarMes: function (deltaMeses) {
+    // Método \'navegarMes\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    navegarMes: function(deltaMeses) {
       this.estado.dataExibida.setMonth(this.estado.dataExibida.getMonth() + deltaMeses);
       this.estado.diaSelecionado = null;
       this.elementos.$inputDia.val("");
@@ -280,7 +351,9 @@ console.log("JS agendamentoCli carregado");
       this.buscarDiasIndisponiveis(this.estado.dataExibida);
     },
 
-    buscarDiasIndisponiveis: function (data) {
+    // Método \'buscarDiasIndisponiveis\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    buscarDiasIndisponiveis: function(data) {
       var self = this;
 
       $.ajax({
@@ -310,13 +383,21 @@ console.log("JS agendamentoCli carregado");
     },
 
 
-    extrairDiasIndisponiveis: function (resposta) {
+    // Método \'extrairDiasIndisponiveis\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+
+    extrairDiasIndisponiveis: function(resposta) {
       var self = this;
       var indisponiveis = [];
 
       ["folga", "indisponivel"].forEach(function (chave) {
         (resposta[chave] || []).forEach(function (item) {
-          var dataTexto = item && item.date ? item.date : item;
+          var dataTexto;
+          if (item && item.date) {
+            dataTexto = item.date;
+          } else {
+            dataTexto = item;
+          }
           if (typeof dataTexto === "string") {
             indisponiveis.push(dataTexto.substring(0, 10));
           }
@@ -326,7 +407,9 @@ console.log("JS agendamentoCli carregado");
       return indisponiveis;
     },
 
-    renderizarCalendario: function (data) {
+    // Método \'renderizarCalendario\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    renderizarCalendario: function(data) {
       var ano = data.getFullYear();
       var mes = data.getMonth();
       var primeiroDiaSemana = new Date(ano, mes, 1).getDay();
@@ -352,11 +435,17 @@ console.log("JS agendamentoCli carregado");
           rotulo += " — indisponível";
         }
 
+        var ariaPressionado;
+        if (selecionado) {
+          ariaPressionado = "true";
+        } else {
+          ariaPressionado = "false";
+        }
         var $botaoDia = $('<button type="button" class="diaCalendario"></button>')
           .text(dia)
           .attr("data-data", dataChave)
           .attr("aria-label", rotulo)
-          .attr("aria-pressed", selecionado ? "true" : "false");
+          .attr("aria-pressed", ariaPressionado);
 
         if (indisponivel) {
           $botaoDia.addClass("diaIndisponivel").prop("disabled", true);
@@ -370,13 +459,17 @@ console.log("JS agendamentoCli carregado");
       }
     },
 
-    formatarDataChave: function (ano, mesIndiceZero, dia) {
+    // Método \'formatarDataChave\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    formatarDataChave: function(ano, mesIndiceZero, dia) {
       var mesFormatado = String(mesIndiceZero + 1).padStart(2, "0");
       var diaFormatado = String(dia).padStart(2, "0");
       return ano + "-" + mesFormatado + "-" + diaFormatado;
     },
 
-    selecionarDia: function (dataChave) {
+    // Método \'selecionarDia\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    selecionarDia: function(dataChave) {
       this.estado.diaSelecionado = dataChave;
       this.elementos.$inputDia.val(dataChave);
       this.removerErroCampo(this.elementos.$calendario);
@@ -386,7 +479,13 @@ console.log("JS agendamentoCli carregado");
         var $dia = $(this);
         var ehEsseDia = $dia.data("data") === dataChave;
         $dia.toggleClass("diaSelecionado", ehEsseDia);
-        $dia.attr("aria-pressed", ehEsseDia ? "true" : "false");
+        var ariaPressionado;
+        if (ehEsseDia) {
+          ariaPressionado = "true";
+        } else {
+          ariaPressionado = "false";
+        }
+        $dia.attr("aria-pressed", ariaPressionado);
       });
 
       this.resetarHorario();
@@ -395,7 +494,9 @@ console.log("JS agendamentoCli carregado");
 
     /* HORÁRIO */
 
-    resetarHorario: function () {
+    // Método \'resetarHorario\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    resetarHorario: function() {
       this.estado.horarioSelecionado = null;
       this.elementos.$inputHorario.val("");
       this.elementos.$textoHorario.text("Selecione horário");
@@ -404,7 +505,9 @@ console.log("JS agendamentoCli carregado");
       this.fecharDropdown(this.elementos.$dropdownHorario);
     },
 
-    buscarHorariosDisponiveis: function (dataChave) {
+    // Método \'buscarHorariosDisponiveis\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    buscarHorariosDisponiveis: function(dataChave) {
       var self = this;
 
       $.ajax({
@@ -430,7 +533,9 @@ console.log("JS agendamentoCli carregado");
         });
     },
 
-    mapearHorarios: function (horarios) {
+    // Método \'mapearHorarios\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    mapearHorarios: function(horarios) {
       return horarios.map(function (horario) {
         return {
           valor: horario.inicio + "|" + horario.termino,
@@ -439,7 +544,9 @@ console.log("JS agendamentoCli carregado");
       });
     },
 
-    renderizarHorarios: function (horarios) {
+    // Método \'renderizarHorarios\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    renderizarHorarios: function(horarios) {
       var self = this;
       this.elementos.$listaHorarios.empty();
 
@@ -456,7 +563,9 @@ console.log("JS agendamentoCli carregado");
       });
     },
 
-    selecionarHorario: function (valor, texto) {
+    // Método \'selecionarHorario\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    selecionarHorario: function(valor, texto) {
       this.estado.horarioSelecionado = valor;
       this.elementos.$inputHorario.val(valor);
       this.elementos.$textoHorario.text(texto);
@@ -467,7 +576,9 @@ console.log("JS agendamentoCli carregado");
 
     /* DROPDOWNS — abrir/fechar */
 
-    alternarDropdown: function ($dropdown, $inputOculto) {
+    // Método \'alternarDropdown\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    alternarDropdown: function($dropdown, $inputOculto) {
       var $lista = $dropdown.find(".dropdownCustomizadoLista");
       var estaAberta = !$lista.attr("hidden");
 
@@ -479,7 +590,8 @@ console.log("JS agendamentoCli carregado");
     },
 
     //Abre o dropdown e move o foco para a opção já selecionada (se houver) ou para a primeira opção da lista
-    abrirDropdown: function ($dropdown, $inputOculto) {
+    // Método \'abrirDropdown\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    abrirDropdown: function($dropdown, $inputOculto) {
       $dropdown.find(".dropdownCustomizadoLista").removeAttr("hidden");
       $dropdown.find(".dropdownCustomizadoBotao").attr("aria-expanded", "true");
 
@@ -488,20 +600,35 @@ console.log("JS agendamentoCli carregado");
         return;
       }
 
-      var valorAtual = $inputOculto ? $inputOculto.val() : null;
+      var valorAtual;
+      if ($inputOculto) {
+        valorAtual = $inputOculto.val();
+      } else {
+        valorAtual = null;
+      }
       var $itemSelecionado = $itens.filter(function () {
         return $(this).data("valor") === valorAtual;
       });
 
-      ($itemSelecionado.length ? $itemSelecionado : $itens.first()).trigger("focus");
+      var $itemFoco;
+      if ($itemSelecionado.length) {
+        $itemFoco = $itemSelecionado;
+      } else {
+        $itemFoco = $itens.first();
+      }
+      $itemFoco.trigger("focus");
     },
 
-    fecharDropdown: function ($dropdown) {
+    // Método \'fecharDropdown\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    fecharDropdown: function($dropdown) {
       $dropdown.find(".dropdownCustomizadoLista").attr("hidden", "hidden");
       $dropdown.find(".dropdownCustomizadoBotao").attr("aria-expanded", "false");
     },
 
-    fecharTodosDropdowns: function () {
+    // Método \'fecharTodosDropdowns\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    fecharTodosDropdowns: function() {
       this.fecharDropdown(this.elementos.$dropdownLocalizacao);
       this.fecharDropdown(this.elementos.$dropdownHorario);
     },
@@ -512,7 +639,8 @@ console.log("JS agendamentoCli carregado");
      * primeira/última. Enter/Espaço já funcionam nativamente, pois
      * as opções são elementos <button>.
      */
-    registrarNavegacaoTecladoLista: function ($lista) {
+    // Método \'registrarNavegacaoTecladoLista\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    registrarNavegacaoTecladoLista: function($lista) {
       $lista.on("keydown", ".dropdownCustomizadoItem", function (evento) {
         var $itens = $lista.find(".dropdownCustomizadoItem");
         var indiceAtual = $itens.index(this);
@@ -542,25 +670,35 @@ console.log("JS agendamentoCli carregado");
 
     /* VALIDAÇÃO E ENVIO DO AGENDAMENTO */
 
-    marcarCampoComErro: function ($elemento) {
+    // Método \'marcarCampoComErro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    marcarCampoComErro: function($elemento) {
       $elemento.addClass("campoComErro");
     },
 
-    removerErroCampo: function ($elemento) {
+    // Método \'removerErroCampo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    removerErroCampo: function($elemento) {
       $elemento.removeClass("campoComErro");
     },
 
-    exibirAlertaValidacao: function (mensagem) {
+    // Método \'exibirAlertaValidacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirAlertaValidacao: function(mensagem) {
       this.elementos.$alerta
         .text(mensagem || "Você precisa preencher todos os dados!")
         .removeAttr("hidden");
     },
 
-    esconderAlertaValidacao: function () {
+    // Método \'esconderAlertaValidacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    esconderAlertaValidacao: function() {
       this.elementos.$alerta.attr("hidden", "hidden");
     },
 
-    tentarConfirmarAgendamento: function () {
+    // Método \'tentarConfirmarAgendamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    tentarConfirmarAgendamento: function() {
       var self = this;
       var camposValidos = true;
       var $primeiroInvalido = null;
@@ -595,7 +733,9 @@ console.log("JS agendamentoCli carregado");
       this.verificarLoginEEnviar();
     },
 
-    verificarLoginEEnviar: function () {
+    // Método \'verificarLoginEEnviar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    verificarLoginEEnviar: function() {
       var self = this;
 
       $.ajax({
@@ -615,7 +755,9 @@ console.log("JS agendamentoCli carregado");
         });
     },
 
-    enviarAgendamento: function () {
+    // Método \'enviarAgendamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    enviarAgendamento: function() {
       var self = this;
       var partesHorario = (this.estado.horarioSelecionado || "").split("|");// Retornar o horario para "inicio" e "termino" separados.
 
@@ -651,7 +793,9 @@ console.log("JS agendamentoCli carregado");
         });
     },
 
-    irParaInfoServicoComSucesso: function () {
+    // Método \'irParaInfoServicoComSucesso\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    irParaInfoServicoComSucesso: function() {
       var url = this.configuracao.urlInfoServico + "&agendado=1";
       if (this.estado.idServico) {
         url += "&id=" + encodeURIComponent(this.estado.idServico);
@@ -661,14 +805,18 @@ console.log("JS agendamentoCli carregado");
 
     /* MODAIS */
 
-    exibirModalErro: function () {
+    // Método \'exibirModalErro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirModalErro: function() {
       Utilitarios.exibirModal(this.elementos.$modalErro, {
         backdrop: "static",
         keyboard: false
       });
     },
 
-    exibirModalNaoLogado: function () {
+    // Método \'exibirModalNaoLogado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirModalNaoLogado: function() {
       Utilitarios.exibirModal(this.elementos.$modalNaoLogado);
     }
   };

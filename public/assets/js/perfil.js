@@ -1,4 +1,88 @@
 /* ============================================================
+   RESUMO DO ARQUIVO: perfil.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: papeis
+   - Objeto: moduloPerfil
+   - Objeto: dados
+   - Função/método: iniciar
+   - Função/método: cachearElementos
+   - Função/método: sincronizarAriaInvalid
+   - Função/método: focarPrimeiroInvalido
+   - Função/método: ehVisitante
+   - Função/método: tipoPerfil
+   - Função/método: configuracaoDoPapel
+   - Função/método: textos
+   - Função/método: ehClinica
+   - Função/método: aplicarPapel
+   - Função/método: lerAlvoDaUrl
+   - Função/método: contratoDisponivel
+   - Função/método: chamarContrato
+   - Função/método: avisarIndisponivel
+   - Função/método: verificarLogin
+   - Função/método: aoConfirmarLogin
+   - Função/método: aoNaoLogar
+   - Função/método: configurarNavegacaoLogado
+   - Função/método: iniciarPerfil
+   - Função/método: exibirPerfilIndisponivel
+   - Função/método: exibirModalSessaoExpirada
+   - Função/método: sair
+   - Função/método: carregarPerfil
+   - Função/método: carregarVinculos
+   - Função/método: usuarioDoPerfil
+   - Função/método: bioDoPerfil
+   - Função/método: definirBioDoPerfil
+   - Função/método: renderizarPerfil
+   - Função/método: renderizarBio
+   - Função/método: renderizarServicos
+   - Função/método: renderizarHorarios
+   - Função/método: buscarEnderecoPorCep
+   - Função/método: textoEndereco
+   - Função/método: atualizarLinkMaps
+   - Função/método: renderizarLocalizacao
+   - Função/método: alternarListaOuVazio
+   - Função/método: clonarModelo
+   - Função/método: formatarMoeda
+   - Função/método: formatarHora
+   - Função/método: mascararValor
+   - Função/método: valorParaBackend
+   - Função/método: combinarDias
+   - Função/método: separarDias
+   - Função/método: exibirAviso
+   - Função/método: mostrarVisao
+   - Função/método: prepararVisao
+   - Função/método: cancelarEdicao
+   - Função/método: limparFormulario
+   - Função/método: enviarBio
+   - Função/método: configurarCamposLocalizacao
+   - Função/método: preencherFormularioLocalizacao
+   - Função/método: enviarLocalizacao
+   - Função/método: enviarServico
+   - Função/método: montarLinhasHorarioFormulario
+   - Função/método: preencherFormularioHorarios
+   - Função/método: alternarDiaFuncionamento
+   - Função/método: atualizarBotaoSalvarHorarios
+   - Função/método: enviarHorarios
+   - Função/método: normalizarVinculo
+   - Função/método: montarCardVinculo
+   - Função/método: renderizarVinculos
+   - Função/método: prepararModalVinculo
+   - Função/método: abrirVinculo
+   - Função/método: limparBuscaVinculo
+   - Função/método: mostrarErroBusca
+   - Função/método: buscarVinculo
+   - Função/método: alternarSelecaoVinculo
+   - Função/método: enviarVinculo
+   - Função/método: abrirModalDesvincular
+   - Função/método: confirmarDesvinculo
+   - Função/método: registrarEventos
+   - Função/método: tentar
+   ============================================================ */
+
+/* ============================================================
    PÁGINA: perfil (profissional e clínica)
    Depende de: jQuery, Bootstrap 5 (bundle), componentes.js e
                utilitarios.js (window.ElmoUtilitarios).
@@ -33,6 +117,7 @@
   var urlServico = "index.php?uri=servico";
 
   /* Configuração e textos de cada papel */
+  // Objeto \'papeis\': agrupa estado, configurações e/ou métodos deste módulo.
   var papeis = {
     profissional: {
       url: "index.php?uri=profissional",
@@ -82,6 +167,8 @@
   };
 
   var tiposDePerfil = ["profissional", "clinica"];
+
+  // Objeto \'moduloPerfil\': agrupa estado, configurações e/ou métodos deste módulo.
 
   var moduloPerfil = {
 
@@ -138,7 +225,9 @@
 
     elementos: {},
 
-    iniciar: function () {
+    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    iniciar: function() {
       this.cachearElementos();
       this.sincronizarAriaInvalid();
       this.registrarEventos();
@@ -148,7 +237,9 @@
       this.verificarLogin();
     },
 
-    cachearElementos: function () {
+    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cachearElementos: function() {
       var e = this.elementos;
       e.$navsLogado = $(".navTopoLogado, .navLateralLogado, .navInferiorLogado");
       e.$modalSessaoExpirada = $("#modalSessaoExpirada");
@@ -187,15 +278,28 @@
       marcado por utilitarios.js (ex.: CEP inválido). Assim cada ponto de validação
       só precisa marcar a classe.
     */
-    sincronizarAriaInvalid: function () {
+    // Método \'sincronizarAriaInvalid\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    sincronizarAriaInvalid: function() {
       var observador = new MutationObserver(function (mudancas) {
         $.each(mudancas, function (_, mudanca) {
           var $elemento = $(mudanca.target);
 
           if ($elemento.is("input, textarea")) {
-            $elemento.attr("aria-invalid", $elemento.hasClass("is-invalid") ? "true" : null);
+            var ariaInvalido;
+            if ($elemento.hasClass("is-invalid")) {
+              ariaInvalido = "true";
+            } else {
+              ariaInvalido = null;
+            }
+            $elemento.attr("aria-invalid", ariaInvalido);
           } else if ($elemento.is(".campoSelect")) {
-            $elemento.find(".campoSelect_gatilho").attr("aria-invalid", $elemento.hasClass("campoSelect--erro") ? "true" : null);
+            var ariaInvalidoGatilho;
+            if ($elemento.hasClass("campoSelect--erro")) {
+              ariaInvalidoGatilho = "true";
+            } else {
+              ariaInvalidoGatilho = null;
+            }
+            $elemento.find(".campoSelect_gatilho").attr("aria-invalid", ariaInvalidoGatilho);
           }
         });
       });
@@ -204,37 +308,62 @@
     },
 
     // Leva o foco ao primeiro campo com erro do formulário (teclado e leitor de tela).
-    focarPrimeiroInvalido: function ($escopo) {
+    // Método \'focarPrimeiroInvalido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    focarPrimeiroInvalido: function($escopo) {
       $escopo.find("input.is-invalid, textarea.is-invalid, .campoSelect--erro .campoSelect_gatilho").first().trigger("focus");
     },
 
     /* ---------- Papel, modo e tipo de perfil ---------- */
-    ehVisitante: function () {
-      return !!this.estado.alvo;
+    // Método \'ehVisitante\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    ehVisitante: function() {
+      if (this.estado.alvo) {
+        return true;
+      } else {
+        return false;
+      }
     },
 
     // Tipo do perfil exibido: o do visitado (modo visitante) ou o de quem está logado.
-    tipoPerfil: function () {
-      return this.estado.alvo ? this.estado.alvo.tipo : this.estado.papel;
+    // Método \'tipoPerfil\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    tipoPerfil: function() {
+      if (this.estado.alvo) {
+        return this.estado.alvo.tipo;
+      } else {
+        return this.estado.papel;
+      }
     },
 
-    configuracaoDoPapel: function () {
+    // Método \'configuracaoDoPapel\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    configuracaoDoPapel: function() {
       return papeis[this.tipoPerfil()];
     },
 
-    textos: function () {
+    // Método \'textos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    textos: function() {
       return papeis[this.tipoPerfil()].textos;
     },
 
-    ehClinica: function () {
+    // Método \'ehClinica\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    ehClinica: function() {
       return this.tipoPerfil() === "clinica";
     },
 
-    aplicarPapel: function () {
+    // Método \'aplicarPapel\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    aplicarPapel: function() {
       var tipo = this.tipoPerfil();
 
       $("[data-perfilDe]").each(function () {
-        $(this).attr("hidden", $(this).attr("data-perfilDe") === tipo ? null : "hidden");
+        var atributoHidden;
+        if ($(this).attr("data-perfilDe") === tipo) {
+          atributoHidden = null;
+        } else {
+          atributoHidden = "hidden";
+        }
+        $(this).attr("hidden", atributoHidden);
       });
 
       // Visitante não vê o que é só do dono (editar, vincular, Relatório...)
@@ -255,7 +384,8 @@
       Obs.: o link com tipo/id deixa de funcionar depois de limpo; ele só vale ao clicar.
       O backend continua recebendo o id e deve validar o que cada pessoa pode ver.
     */
-    lerAlvoDaUrl: function () {
+    // Método \'lerAlvoDaUrl\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    lerAlvoDaUrl: function() {
       var parametros = new URLSearchParams(window.location.search);
       var tipo = parametros.get("tipo");
       var id = parametros.get("id");
@@ -276,7 +406,13 @@
       var haParametros = parametros.has("tipo") || parametros.has("id") || parametros.has("meu");
       if (this.configuracao.ocultarParametrosNaUrl && haParametros) {
         try {
-          window.history.replaceState(alvo ? { perfilVisitado: alvo } : null, "", urlLimpa);
+          var estadoHistorico;
+          if (alvo) {
+            estadoHistorico = { perfilVisitado: alvo };
+          } else {
+            estadoHistorico = null;
+          }
+          window.history.replaceState(estadoHistorico, "", urlLimpa);
         } catch (erro) {
           // sem history.replaceState: mantém a URL como está
         }
@@ -285,20 +421,36 @@
     },
 
     /* ---------- Contratos de backend ---------- */
-    contratoDisponivel: function (nome) {
+    // Método \'contratoDisponivel\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    contratoDisponivel: function(nome) {
       var contrato = this.configuracao.contratos[nome];
 
       if (!contrato.disponivel) {
         return false;
       }
       // Ação por papel: só vale se existir para o papel atual
-      return typeof contrato.acao === "object" ? !!contrato.acao[this.tipoPerfil()] : true;
+      if (typeof contrato.acao === "object") {
+        if (contrato.acao[this.tipoPerfil()]) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return true;
+      }
     },
 
-    chamarContrato: function (nome, dados, tipoResposta, papel) {
+    // Método \'chamarContrato\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    chamarContrato: function(nome, dados, tipoResposta, papel) {
       var contrato = this.configuracao.contratos[nome];
       papel = papel || this.tipoPerfil();
-      var acao = typeof contrato.acao === "object" ? contrato.acao[papel] : contrato.acao;
+      var acao;
+      if (typeof contrato.acao === "object") {
+        acao = contrato.acao[papel];
+      } else {
+        acao = contrato.acao;
+      }
 
       return $.ajax({
         url: contrato.url || papeis[papel].url,
@@ -308,12 +460,15 @@
       });
     },
 
-    avisarIndisponivel: function () {
+    // Método \'avisarIndisponivel\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    avisarIndisponivel: function() {
       this.exibirAviso("Essa ação ainda não está disponível no servidor.", "atencao");
     },
 
     /* ---------- Sessão ---------- */
-    verificarLogin: function () {
+    // Método \'verificarLogin\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    verificarLogin: function() {
       var self = this;
       var ordem = ["profissional", "clinica", "cliente"];
 
@@ -338,13 +493,17 @@
       tentar(0);
     },
 
-    aoConfirmarLogin: function (papel) {
+    // Método \'aoConfirmarLogin\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    aoConfirmarLogin: function(papel) {
       this.estado.papel = papel;
       this.configurarNavegacaoLogado();
       this.iniciarPerfil();
     },
 
-    aoNaoLogar: function () {
+    // Método \'aoNaoLogar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    aoNaoLogar: function() {
       // Visitante sem login pode ver o perfil; no perfil próprio, precisa logar.
       if (!this.ehVisitante()) {
         this.exibirModalSessaoExpirada();
@@ -355,7 +514,9 @@
       this.iniciarPerfil();
     },
 
-    configurarNavegacaoLogado: function () {
+    // Método \'configurarNavegacaoLogado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    configurarNavegacaoLogado: function() {
       var papel = this.estado.papel;
       var config = papeis[papel];
       var $navs = this.elementos.$navsLogado;
@@ -381,7 +542,9 @@
       $navs.removeAttr("hidden");
     },
 
-    iniciarPerfil: function () {
+    // Método \'iniciarPerfil\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    iniciarPerfil: function() {
       if (this.ehVisitante() || $.inArray(this.estado.papel, tiposDePerfil) !== -1) {
         this.aplicarPapel();
         this.prepararModalVinculo();
@@ -392,21 +555,27 @@
       this.exibirPerfilIndisponivel("O perfil do cliente ainda não está disponível.");
     },
 
-    exibirPerfilIndisponivel: function (texto) {
+    // Método \'exibirPerfilIndisponivel\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirPerfilIndisponivel: function(texto) {
       $(".cabecalhoPerfil, .abasPerfil, .conteudoAbas").attr("hidden", "hidden");
       $('[data-campo="textoPerfilIndisponivel"]').text(texto);
       $('[data-estadoVazio="perfilIndisponivel"]').removeAttr("hidden");
       $("#conteudoPerfil").attr("aria-busy", "false");
     },
 
-    exibirModalSessaoExpirada: function () {
+    // Método \'exibirModalSessaoExpirada\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirModalSessaoExpirada: function() {
       Utilitarios.exibirModal(this.elementos.$modalSessaoExpirada, {
         backdrop: "static",
         keyboard: false
       });
     },
 
-    sair: function () {
+    // Método \'sair\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    sair: function() {
       var self = this;
       $.ajax({ url: this.configuracao.urlSair, method: "POST" }).always(function () {
         window.location.href = self.configuracao.urlInicio;
@@ -414,10 +583,16 @@
     },
 
     /* ---------- Carregamento do perfil ---------- */
-    carregarPerfil: function () {
+    // Método \'carregarPerfil\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    carregarPerfil: function() {
       var self = this;
       var visitante = this.ehVisitante();
-      var contrato = visitante ? "carregarPerfilPublico" : "carregarPerfil";
+      var contrato;
+      if (visitante) {
+        contrato = "carregarPerfilPublico";
+      } else {
+        contrato = "carregarPerfil";
+      }
 
       this.carregarVinculos();
 
@@ -426,7 +601,13 @@
         return;
       }
 
-      this.chamarContrato(contrato, visitante ? { tipo: this.estado.alvo.tipo, id: this.estado.alvo.id } : null)
+      var dadosPerfil;
+      if (visitante) {
+        dadosPerfil = { tipo: this.estado.alvo.tipo, id: this.estado.alvo.id };
+      } else {
+        dadosPerfil = null;
+      }
+      this.chamarContrato(contrato, dadosPerfil)
         .done(function (resposta) {
           if (!resposta || !resposta.sucesso) {
             if (visitante) {
@@ -465,7 +646,9 @@
         });
     },
 
-    carregarVinculos: function () {
+    // Método \'carregarVinculos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    carregarVinculos: function() {
       var self = this;
 
       if (!this.contratoDisponivel("listarVinculos")) {
@@ -473,9 +656,21 @@
         return;
       }
 
-      this.chamarContrato("listarVinculos", this.ehVisitante() ? { idPerfil: this.estado.alvo.id } : null)
+      var dadosVinculos;
+      if (this.ehVisitante()) {
+        dadosVinculos = { idPerfil: this.estado.alvo.id };
+      } else {
+        dadosVinculos = null;
+      }
+      this.chamarContrato("listarVinculos", dadosVinculos)
         .done(function (resposta) {
-          self.renderizarVinculos(resposta && resposta.sucesso ? resposta.dados : []);
+          var vinculos;
+          if (resposta && resposta.sucesso) {
+            vinculos = resposta.dados;
+          } else {
+            vinculos = [];
+          }
+          self.renderizarVinculos(vinculos);
         })
         .fail(function () {
           self.renderizarVinculos([]);
@@ -483,23 +678,45 @@
     },
 
     /* ---------- Leitura do perfil por papel ---------- */
-    usuarioDoPerfil: function () {
+    // Método \'usuarioDoPerfil\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    usuarioDoPerfil: function() {
       var p = this.estado.perfil || {};
       // O backend não devolve o usuário (pro_user / clin_user) em PegarPerfil / pegarinfo; usa o nome se faltar.
-      return this.ehClinica() ? (p.clin_user || p.clin_nome || "") : (p.pro_user || p.pro_nome || "");
+      if (this.ehClinica()) {
+        return p.clin_user || p.clin_nome || "";
+      } else {
+        return p.pro_user || p.pro_nome || "";
+      }
     },
 
-    bioDoPerfil: function () {
+    // Método \'bioDoPerfil\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    bioDoPerfil: function() {
       var p = this.estado.perfil || {};
-      return (this.ehClinica() ? p.clin_bio : p.pro_bio) || "";
+      var biografia;
+      if (this.ehClinica()) {
+        biografia = p.clin_bio;
+      } else {
+        biografia = p.pro_bio;
+      }
+      return biografia || "";
     },
 
-    definirBioDoPerfil: function (bio) {
-      this.estado.perfil[this.ehClinica() ? "clin_bio" : "pro_bio"] = bio;
+    // Método \'definirBioDoPerfil\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    definirBioDoPerfil: function(bio) {
+      var campoBio;
+      if (this.ehClinica()) {
+        campoBio = "clin_bio";
+      } else {
+        campoBio = "pro_bio";
+      }
+      this.estado.perfil[campoBio] = bio;
     },
 
     /* ---------- Renderização ---------- */
-    renderizarPerfil: function () {
+    // Método \'renderizarPerfil\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    renderizarPerfil: function() {
       $('[data-campo="usuario"]').text(this.usuarioDoPerfil());
       this.renderizarBio();
 
@@ -518,11 +735,15 @@
       }
     },
 
-    renderizarBio: function () {
+    // Método \'renderizarBio\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    renderizarBio: function() {
       $('[data-campo="bio"]').text(this.bioDoPerfil());
     },
 
-    renderizarServicos: function () {
+    // Método \'renderizarServicos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    renderizarServicos: function() {
       var self = this;
       var $corpo = $('[data-lista="servicos"]').empty();
       var servicos = this.estado.servicos;
@@ -545,7 +766,9 @@
       this.alternarListaOuVazio("servicos", servicos.length > 0);
     },
 
-    renderizarHorarios: function () {
+    // Método \'renderizarHorarios\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    renderizarHorarios: function() {
       var self = this;
       var $corpo = $('[data-lista="horarios"]').empty();
       var horarios = this.estado.horarios.slice().sort(function (a, b) {
@@ -567,7 +790,8 @@
       Endereço por CEP (ViaCEP): o backend guarda e devolve apenas o CEP.
       Rua, bairro, cidade, UF e IBGE são preenchidos aqui, no frontend.
     */
-    buscarEnderecoPorCep: function (cep) {
+    // Método \'buscarEnderecoPorCep\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    buscarEnderecoPorCep: function(cep) {
       var cepNumerico = Utilitarios.apenasNumeros(cep || "");
       var cache = this.estado.cacheEnderecos;
       var resultado = $.Deferred();
@@ -599,13 +823,23 @@
       return resultado.promise();
     },
 
-    textoEndereco: function (dadosViaCep) {
+    // Método \'textoEndereco\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    textoEndereco: function(dadosViaCep) {
       var cidadeUf = [dadosViaCep.localidade, dadosViaCep.uf].filter(Boolean).join(" - ");
       return [dadosViaCep.logradouro, dadosViaCep.bairro, cidadeUf].filter(Boolean).join(", ");
     },
 
-    atualizarLinkMaps: function (cepFormatado, endereco) {
-      var consulta = $.trim((endereco ? endereco + " " : "") + cepFormatado);
+    // Método \'atualizarLinkMaps\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    atualizarLinkMaps: function(cepFormatado, endereco) {
+      var prefixoEndereco;
+      if (endereco) {
+        prefixoEndereco = endereco + " ";
+      } else {
+        prefixoEndereco = "";
+      }
+      var consulta = $.trim(prefixoEndereco + cepFormatado);
       var $maps = $("#botaoAbrirMaps");
 
       if (consulta) {
@@ -615,10 +849,17 @@
       }
     },
 
-    renderizarLocalizacao: function () {
+    // Método \'renderizarLocalizacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    renderizarLocalizacao: function() {
       var self = this;
       var cepBruto = (this.estado.perfil || {}).clin_cep || "";
-      var cep = cepBruto ? Utilitarios.formatarMascara("cep", cepBruto) : "";
+      var cep;
+      if (cepBruto) {
+        cep = Utilitarios.formatarMascara("cep", cepBruto);
+      } else {
+        cep = "";
+      }
       var $endereco = $('[data-campo="enderecoClinica"]');
 
       $('[data-campo="cepClinica"]').text(cep || "Não informado");
@@ -645,26 +886,46 @@
         });
     },
 
-    alternarListaOuVazio: function (nome, temItens) {
-      $('[data-tabela="' + nome + '"]').attr("hidden", temItens ? null : "hidden");
-      $('[data-estadoVazio="' + nome + '"]').attr("hidden", temItens ? "hidden" : null);
+    // Método \'alternarListaOuVazio\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    alternarListaOuVazio: function(nome, temItens) {
+      var hiddenTabela;
+      if (temItens) {
+        hiddenTabela = null;
+      } else {
+        hiddenTabela = "hidden";
+      }
+      $('[data-tabela="' + nome + '"]').attr("hidden", hiddenTabela);
+      var hiddenEstadoVazio;
+      if (temItens) {
+        hiddenEstadoVazio = "hidden";
+      } else {
+        hiddenEstadoVazio = null;
+      }
+      $('[data-estadoVazio="' + nome + '"]').attr("hidden", hiddenEstadoVazio);
     },
 
-    clonarModelo: function (idModelo) {
+    // Método \'clonarModelo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    clonarModelo: function(idModelo) {
       return $(document.getElementById(idModelo).content.firstElementChild.cloneNode(true));
     },
 
     /* ---------- Formatação e conversões ---------- */
-    formatarMoeda: function (valor) {
+    // Método \'formatarMoeda\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    formatarMoeda: function(valor) {
       return Number(valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     },
 
-    formatarHora: function (hora) {
+    // Método \'formatarHora\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    formatarHora: function(hora) {
       return String(hora || "").slice(0, 5);
     },
 
     // Campo de valor: digita só números e o JS formata em reais (ex.: 9000 -> 90,00).
-    mascararValor: function ($campo) {
+    // Método \'mascararValor\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    mascararValor: function($campo) {
       var centavos = Utilitarios.apenasNumeros($campo.val());
       if (!centavos) {
         $campo.val("");
@@ -676,9 +937,15 @@
       }));
     },
 
-    valorParaBackend: function ($campo) {
+    // Método \'valorParaBackend\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    valorParaBackend: function($campo) {
       var centavos = Utilitarios.apenasNumeros($campo.val());
-      return centavos ? (Number(centavos) / 100).toFixed(2) : "";
+      if (centavos) {
+        return (Number(centavos) / 100).toFixed(2);
+      } else {
+        return "";
+      }
     },
 
     /*
@@ -688,7 +955,8 @@
       Esse formato evita ambiguidade (o Domingo, índice 0, não se perde).
       É o único ponto que define o formato: combinarDias e separarDias.
     */
-    combinarDias: function (indices) {
+    // Método \'combinarDias\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    combinarDias: function(indices) {
       var soma = 0;
       $.each(indices, function (_, indice) {
         soma += Math.pow(2, Number(indice));
@@ -696,7 +964,9 @@
       return soma;
     },
 
-    separarDias: function (valorCombinado) {
+    // Método \'separarDias\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    separarDias: function(valorCombinado) {
       var numero = parseInt(valorCombinado, 10) || 0;
       var indices = [];
       for (var indice = 0; indice < nomesDias.length; indice++) {
@@ -708,9 +978,15 @@
     },
 
     /* ---------- Avisos (toast) ---------- */
-    exibirAviso: function (mensagem, tipo) {
+    // Método \'exibirAviso\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    exibirAviso: function(mensagem, tipo) {
       var $aviso = this.elementos.$aviso;
-      var icone = tipo === "atencao" ? "warning" : "error";
+      var icone;
+      if (tipo === "atencao") {
+        icone = "warning";
+      } else {
+        icone = "error";
+      }
 
       $aviso.toggleClass("avisoFlutuante--atencao", tipo === "atencao");
       $aviso.find(".avisoFlutuante_icone").text(icone);
@@ -722,7 +998,8 @@
     },
 
     /* ---------- Navegação entre visões ---------- */
-    mostrarVisao: function (nomeVisao) {
+    // Método \'mostrarVisao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    mostrarVisao: function(nomeVisao) {
       var $alvo = $('.visaoPerfil[data-visao="' + nomeVisao + '"]');
       var origem = this.estado.origemFoco;
 
@@ -742,7 +1019,9 @@
       }
     },
 
-    prepararVisao: function (nomeVisao) {
+    // Método \'prepararVisao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    prepararVisao: function(nomeVisao) {
       if (nomeVisao === "edicaoBio") {
         $("#campoBioAtual").val(this.bioDoPerfil());
         this.elementos.$campoBioNova.val("");
@@ -755,7 +1034,9 @@
       }
     },
 
-    cancelarEdicao: function ($botao) {
+    // Método \'cancelarEdicao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cancelarEdicao: function($botao) {
       var $formulario = $botao.closest("form");
       var $visaoResumo = $botao.closest(".tab-pane").children(".visaoPerfil").first();
 
@@ -763,7 +1044,9 @@
       this.mostrarVisao($visaoResumo.attr("data-visao"));
     },
 
-    limparFormulario: function ($formulario) {
+    // Método \'limparFormulario\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    limparFormulario: function($formulario) {
       $formulario.get(0).reset();
       $formulario.find(".is-invalid").removeClass("is-invalid");
       $formulario.find(".campoSelect--erro").removeClass("campoSelect--erro");
@@ -779,7 +1062,8 @@
     },
 
     /* ---------- Biografia ---------- */
-    enviarBio: function () {
+    // Método \'enviarBio\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    enviarBio: function() {
       var $campo = this.elementos.$campoBioNova;
       var bio = $.trim($campo.val());
 
@@ -816,11 +1100,14 @@
 
     /* ---------- Localização (clínica) ---------- */
     // Reaproveita o preenchimento por CEP (ViaCEP) que já existe em utilitarios.js.
-    configurarCamposLocalizacao: function () {
+    // Método \'configurarCamposLocalizacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    configurarCamposLocalizacao: function() {
       Utilitarios.configurarCEP($("#avisosLocalizacao"), this.elementos.$camposLocalizacao);
     },
 
-    preencherFormularioLocalizacao: function () {
+    // Método \'preencherFormularioLocalizacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    preencherFormularioLocalizacao: function() {
       var cep = (this.estado.perfil || {}).clin_cep || "";
       var c = this.elementos.$camposLocalizacao;
 
@@ -828,7 +1115,13 @@
       $.each(c, function (_, $campo) {
         $campo.removeClass("is-invalid").val("");
       });
-      c.cep.val(cep ? Utilitarios.formatarMascara("cep", cep) : "");
+      var cepExibido;
+      if (cep) {
+        cepExibido = Utilitarios.formatarMascara("cep", cep);
+      } else {
+        cepExibido = "";
+      }
+      c.cep.val(cepExibido);
 
       this.buscarEnderecoPorCep(cep).done(function (dados) {
         c.rua.val(dados.logradouro || "");
@@ -839,7 +1132,9 @@
       });
     },
 
-    enviarLocalizacao: function () {
+    // Método \'enviarLocalizacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    enviarLocalizacao: function() {
       var c = this.elementos.$camposLocalizacao;
       var perfil = this.estado.perfil || {};
       var $avisos = $("#avisosLocalizacao");
@@ -895,9 +1190,12 @@
     },
 
     /* ---------- Cadastro de serviço (profissional) ---------- */
-    enviarServico: function () {
+    // Método \'enviarServico\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    enviarServico: function() {
       var $formulario = this.elementos.$formularioServico;
       var $tipo = this.elementos.$campoTipoServico;
+
+      // Objeto \'dados\': agrupa estado, configurações e/ou métodos deste módulo.
 
       var dados = {
         nome: $.trim($("#campoNomeServico").val()),
@@ -967,7 +1265,8 @@
     },
 
     /* ---------- Horários e dias de funcionamento ---------- */
-    montarLinhasHorarioFormulario: function () {
+    // Método \'montarLinhasHorarioFormulario\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    montarLinhasHorarioFormulario: function() {
       var self = this;
 
       $.each(nomesDias, function (indice, nomeDia) {
@@ -992,7 +1291,8 @@
       O backend só insere horários (não há alterar nem excluir). Os dias já
       cadastrados aparecem marcados e travados; só dá para adicionar dias novos.
     */
-    preencherFormularioHorarios: function () {
+    // Método \'preencherFormularioHorarios\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    preencherFormularioHorarios: function() {
       var self = this;
       var $linhas = this.elementos.$listaLinhasHorario.children(".linhaHorario");
       var haSalvos = false;
@@ -1017,7 +1317,9 @@
       this.atualizarBotaoSalvarHorarios();
     },
 
-    alternarDiaFuncionamento: function ($marca) {
+    // Método \'alternarDiaFuncionamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    alternarDiaFuncionamento: function($marca) {
       var $linha = $marca.closest(".linhaHorario");
       var marcado = $marca.is(":checked");
 
@@ -1028,13 +1330,17 @@
       this.atualizarBotaoSalvarHorarios();
     },
 
-    atualizarBotaoSalvarHorarios: function () {
+    // Método \'atualizarBotaoSalvarHorarios\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    atualizarBotaoSalvarHorarios: function() {
       // Só conta dia novo (os já salvos ficam marcados e travados)
       var haDiaNovo = this.elementos.$listaLinhasHorario.find('[data-campo="marcaDia"]:checked:not(:disabled)').length > 0;
       this.elementos.$botaoSalvarHorarios.prop("disabled", !haDiaNovo);
     },
 
-    enviarHorarios: function () {
+    // Método \'enviarHorarios\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    enviarHorarios: function() {
       var self = this;
       var novos = [];
       var haCampoVazio = false;
@@ -1086,7 +1392,13 @@
 
         self.chamarContrato("cadastrarHorarios", horario)
           .done(function (resposta) {
-            resultado.resolve(!!(resposta && resposta.sucesso));
+            var sucesso;
+            if (resposta && resposta.sucesso) {
+              sucesso = true;
+            } else {
+              sucesso = false;
+            }
+            resultado.resolve(sucesso);
           })
           .fail(function () {
             resultado.resolve(false);
@@ -1113,7 +1425,8 @@
 
     /* ---------- Vínculos: clínicas (profissional) e profissionais (clínica) ---------- */
     // Padroniza o item recebido do servidor para os dois papéis.
-    normalizarVinculo: function (item) {
+    // Método \'normalizarVinculo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    normalizarVinculo: function(item) {
       if (this.ehClinica()) {
         return {
           id: item.pro_id,
@@ -1121,16 +1434,24 @@
           detalhes: false
         };
       }
+      var cepFormatado;
+      if (item.clin_cep) {
+        cepFormatado = Utilitarios.formatarMascara("cep", item.clin_cep);
+      } else {
+        cepFormatado = "";
+      }
       return {
         id: item.clin_id,
         titulo: item.clin_user || item.clin_nome || "",
         detalhes: true,
         cepBruto: item.clin_cep || "",
-        cep: item.clin_cep ? Utilitarios.formatarMascara("cep", item.clin_cep) : ""
+        cep: cepFormatado
       };
     },
 
-    montarCardVinculo: function (item, modo) {
+    // Método \'montarCardVinculo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    montarCardVinculo: function(item, modo) {
       var vinculo = this.normalizarVinculo(item);
       var config = this.configuracaoDoPapel();
       var $card = this.clonarModelo("modeloCardVinculo");
@@ -1139,12 +1460,23 @@
       $card.find('[data-campo="linkPerfilVinculo"]').attr("aria-label", "Ver perfil de " + vinculo.titulo);
       $card.find('[data-campo="iconePadraoVinculo"]').text(config.iconeVinculo);
       // O vínculo de uma clínica é um profissional e o de um profissional é uma clínica
-      var tipoDoVinculo = this.ehClinica() ? "profissional" : "clinica";
+      var tipoDoVinculo;
+      if (this.ehClinica()) {
+        tipoDoVinculo = "profissional";
+      } else {
+        tipoDoVinculo = "clinica";
+      }
       $card.find('[data-campo="linkPerfilVinculo"]')
         .attr("href", "index.php?uri=perfil&tipo=" + tipoDoVinculo + "&id=" + encodeURIComponent(vinculo.id));
 
       if (vinculo.detalhes) {
-        var $endereco = $card.find('[data-campo="enderecoVinculo"]').text(vinculo.cep ? "Carregando..." : "Não informado");
+        var textoEndereco;
+        if (vinculo.cep) {
+          textoEndereco = "Carregando...";
+        } else {
+          textoEndereco = "Não informado";
+        }
+        var $endereco = $card.find('[data-campo="enderecoVinculo"]').text(textoEndereco);
         $card.find('[data-campo="cepVinculo"]').text(vinculo.cep || "Não informado");
         $card.find('[data-campo="detalhesVinculo"]').removeAttr("hidden");
 
@@ -1176,7 +1508,9 @@
       return $card;
     },
 
-    renderizarVinculos: function (itens) {
+    // Método \'renderizarVinculos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    renderizarVinculos: function(itens) {
       var self = this;
       var nomeLista = this.configuracaoDoPapel().listaVinculos;
       var $lista = $('[data-lista="' + nomeLista + '"]').empty();
@@ -1185,11 +1519,25 @@
         $lista.append(self.montarCardVinculo(item, "lista"));
       });
 
-      $lista.attr("hidden", itens.length ? null : "hidden");
-      $('[data-estadoVazio="' + nomeLista + '"]').attr("hidden", itens.length ? "hidden" : null);
+      var hiddenLista;
+      if (itens.length) {
+        hiddenLista = null;
+      } else {
+        hiddenLista = "hidden";
+      }
+      $lista.attr("hidden", hiddenLista);
+      var hiddenEstadoVazio;
+      if (itens.length) {
+        hiddenEstadoVazio = "hidden";
+      } else {
+        hiddenEstadoVazio = null;
+      }
+      $('[data-estadoVazio="' + nomeLista + '"]').attr("hidden", hiddenEstadoVazio);
     },
 
-    prepararModalVinculo: function () {
+    // Método \'prepararModalVinculo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    prepararModalVinculo: function() {
       var t = this.textos();
 
       $('[data-campo="tituloVinculo"]').text(t.tituloVinculo);
@@ -1198,12 +1546,16 @@
       $('[data-campo="rotuloBotaoDesvincular"]').text(t.rotuloDesvincular);
     },
 
-    abrirVinculo: function () {
+    // Método \'abrirVinculo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    abrirVinculo: function() {
       this.limparBuscaVinculo();
       Utilitarios.exibirModal(this.elementos.$modalVincular);
     },
 
-    limparBuscaVinculo: function () {
+    // Método \'limparBuscaVinculo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    limparBuscaVinculo: function() {
       this.estado.vinculoBuscado = null;
       this.estado.vinculoSelecionado = null;
       this.elementos.$campoUsuarioVinculo.val("").removeClass("is-invalid");
@@ -1211,15 +1563,24 @@
       this.elementos.$resultadoVinculo.empty().attr("hidden", "hidden");
     },
 
-    mostrarErroBusca: function (mensagem) {
+    // Método \'mostrarErroBusca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    mostrarErroBusca: function(mensagem) {
       this.elementos.$campoUsuarioVinculo.addClass("is-invalid");
       this.elementos.$mensagemUsuarioVinculo.text(mensagem).addClass("d-block");
     },
 
-    buscarVinculo: function () {
+    // Método \'buscarVinculo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    buscarVinculo: function() {
       var self = this;
       var usuario = $.trim(this.elementos.$campoUsuarioVinculo.val());
-      var tipoVinculo = this.ehClinica() ? "profissional" : "clinica";
+      var tipoVinculo;
+      if (this.ehClinica()) {
+        tipoVinculo = "profissional";
+      } else {
+        tipoVinculo = "clinica";
+      }
 
       this.elementos.$campoUsuarioVinculo.removeClass("is-invalid");
       this.elementos.$mensagemUsuarioVinculo.removeClass("d-block");
@@ -1237,7 +1598,12 @@
 
       this.chamarContrato("buscarVinculo", { tipo: tipoVinculo, busca: usuario })
         .done(function (resposta) {
-          var itens = resposta && resposta.sucesso && Array.isArray(resposta.dados) ? resposta.dados : [];
+          var itens;
+          if (resposta && resposta.sucesso && Array.isArray(resposta.dados)) {
+            itens = resposta.dados;
+          } else {
+            itens = [];
+          }
 
           if (!itens.length) {
             self.mostrarErroBusca(self.textos().naoEncontrado);
@@ -1256,7 +1622,9 @@
         });
     },
 
-    alternarSelecaoVinculo: function ($card) {
+    // Método \'alternarSelecaoVinculo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    alternarSelecaoVinculo: function($card) {
       var jaSelecionado = $card.hasClass("cardEntidadeBase--selecionado");
 
       // Só um card pode ficar selecionado: desmarca todos antes
@@ -1281,7 +1649,9 @@
         .text("check_circle");
     },
 
-    enviarVinculo: function () {
+    // Método \'enviarVinculo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    enviarVinculo: function() {
       var selecionado = this.estado.vinculoSelecionado;
       var self = this;
 
@@ -1308,7 +1678,9 @@
         });
     },
 
-    abrirModalDesvincular: function ($botao) {
+    // Método \'abrirModalDesvincular\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    abrirModalDesvincular: function($botao) {
       var vinculo = $botao.closest(".cardVinculo").data("vinculo");
       var t = this.textos();
       var $abertura = $('[data-campo="textoDesvinculoAbertura"]');
@@ -1323,7 +1695,9 @@
       Utilitarios.exibirModal(this.elementos.$modalDesvincular);
     },
 
-    confirmarDesvinculo: function () {
+    // Método \'confirmarDesvinculo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    confirmarDesvinculo: function() {
       var self = this;
 
       if (!this.contratoDisponivel("desvincular")) {
@@ -1348,7 +1722,8 @@
     },
 
     /* ---------- Eventos ---------- */
-    registrarEventos: function () {
+    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    registrarEventos: function() {
       var self = this;
       var e = this.elementos;
 

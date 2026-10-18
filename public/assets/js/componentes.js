@@ -1,3 +1,18 @@
+/* ============================================================
+   RESUMO DO ARQUIVO: componentes.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: filtrosSelecionados
+   - Objeto: ITEM_POR_PAPEL
+   - Função/método: atualizarIndicadorStatus
+   - Função/método: dispararPesquisa
+   - Função/método: renderizarCalendario
+   - Função/método: aplicarPapelNavegacao
+   ============================================================ */
+
 /* ==================================================================
    Arquivo original: botao/botao.js
    ================================================================== */
@@ -90,6 +105,7 @@ $(function () {
 
   $(document).on("click", ".painelFiltro_botaoAplicar", function () {
     const $painel = $(this).closest(".painelFiltro");
+    // Objeto \'filtrosSelecionados\': agrupa estado, configurações e/ou métodos deste módulo.
     const filtrosSelecionados = {};
 
     $painel.find(".grupoFiltro").each(function () {
@@ -168,7 +184,12 @@ $(function () {
   // novos estados de dia (ex.: via AJAX) e chamar renderizarCalendario novamente
   $(document).on("click", ".calendarioBase_botaoNavegacao", function () {
     const $calendario = $(this).closest(".calendarioBase");
-    const direcao = $(this).data("direcao") === "proximo" ? 1 : -1;
+    let direcao;
+    if ($(this).data("direcao") === "proximo") {
+      direcao = 1;
+    } else {
+      direcao = -1;
+    }
 
     $calendario.trigger("mesAlterado", {
       direcao: direcao,
@@ -281,6 +302,8 @@ $(function () {
    Arquivo original: navegacao/navegacao.js
    ================================================================== */
 
+// Objeto \'ITEM_POR_PAPEL\': agrupa estado, configurações e/ou métodos deste módulo.
+
 const ITEM_POR_PAPEL = {
   cliente: { icone: "search", rotulo: "Buscar", acao: "buscar" },
   profissionalClinica: { icone: "home", rotulo: "Início", acao: "irParaInicio" }
@@ -311,11 +334,13 @@ $(function () {
     const $nav = $(this).closest(".navLateralLogado, .navInferiorLogado");
     $nav.find(".navLateralLogado_item--ativo, .navInferiorLogado_item--ativo")
       .removeClass("navLateralLogado_item--ativo navInferiorLogado_item--ativo");
-    $(this).addClass(
-      $(this).closest(".navLateralLogado").length
-        ? "navLateralLogado_item--ativo"
-        : "navInferiorLogado_item--ativo"
-    );
+    let classeAtiva;
+    if ($(this).closest(".navLateralLogado").length) {
+      classeAtiva = "navLateralLogado_item--ativo";
+    } else {
+      classeAtiva = "navInferiorLogado_item--ativo";
+    }
+    $(this).addClass(classeAtiva);
   });
 });
 

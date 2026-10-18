@@ -1,4 +1,36 @@
 /* ============================================================
+   RESUMO DO ARQUIVO: utilitarios.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: ElmoUtilitarios
+   - Função/método: obterParametroUrl
+   - Função/método: obterInstanciaModal
+   - Função/método: exibirModal
+   - Função/método: esconderModal
+   - Função/método: preencherCampos
+   - Função/método: alternarEsqueletoAcessivel
+   - Função/método: mostrarAlerta
+   - Função/método: emailValido
+   - Função/método: apenasNumeros
+   - Função/método: telefoneValido
+   - Função/método: calcularIdade
+   - Função/método: maiorDeIdade
+   - Função/método: validarCampos
+   - Função/método: marcarCamposComErro
+   - Função/método: validarAoSair
+   - Função/método: formatarMascara
+   - Função/método: aplicarMascaras
+   - Função/método: cpfValido
+   - Função/método: cnpjValido
+   - Função/método: configurarPreviewImagem
+   - Função/método: configurarCEP
+   - Função/método: formatarCampo
+   ============================================================ */
+
+/* ============================================================
    UTILITÁRIOS COMPARTILHADOS
    Usado por infoServico.js, agendamentoCli.js e consultasCli.js.
    Depende de: jQuery, Bootstrap 5 (bundle JS).
@@ -14,28 +46,39 @@
 (function ($, window) {
   "use strict";
 
+  // Objeto \'ElmoUtilitarios\': agrupa estado, configurações e/ou métodos deste módulo.
+
   var ElmoUtilitarios = {
 
-    obterParametroUrl: function (nome) {
+    // Método \'obterParametroUrl\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    obterParametroUrl: function(nome) {
       var parametros = new URLSearchParams(window.location.search);
       return parametros.get(nome);
     },
 
-    obterInstanciaModal: function ($elementoModal, opcoes) {
+    // Método \'obterInstanciaModal\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    obterInstanciaModal: function($elementoModal, opcoes) {
       return bootstrap.Modal.getOrCreateInstance($elementoModal.get(0), opcoes);
     },
 
-    exibirModal: function ($elementoModal, opcoes) {
+    // Método \'exibirModal\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirModal: function($elementoModal, opcoes) {
       this.obterInstanciaModal($elementoModal, opcoes).show();
     },
 
-    esconderModal: function ($elementoModal) {
+    // Método \'esconderModal\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    esconderModal: function($elementoModal) {
       var instancia = bootstrap.Modal.getInstance($elementoModal.get(0));
       if (instancia) {
         instancia.hide();
       }
     },
-    preencherCampos: function ($camposDinamicos, dados) {
+    // Método \'preencherCampos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    preencherCampos: function($camposDinamicos, dados) {
       $camposDinamicos.each(function () {
         var $elemento = $(this);
         var nomeCampo = $elemento.data("campo");
@@ -63,7 +106,9 @@
       });
     },
 
-    alternarEsqueletoAcessivel: function ($camposDinamicos, ativo) {
+    // Método \'alternarEsqueletoAcessivel\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    alternarEsqueletoAcessivel: function($camposDinamicos, ativo) {
       if (ativo) {
         $camposDinamicos.attr("aria-hidden", "true");
       } else {
@@ -71,7 +116,9 @@
       }
     },
 
-    mostrarAlerta: function ($container, mensagem, tipo) {
+    // Método \'mostrarAlerta\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    mostrarAlerta: function($container, mensagem, tipo) {
       tipo = tipo || "success";
 
       var $alerta = $(
@@ -93,15 +140,20 @@
     /**
      * VALIDAÇÃO — helpers genéricos de formulário.
      */
-    emailValido: function (email) {
+    // Método \'emailValido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    emailValido: function(email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     },
 
-    apenasNumeros: function (valor) {
+    // Método \'apenasNumeros\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    apenasNumeros: function(valor) {
       return valor.replace(/\D/g, "");
     },
 
-    telefoneValido: function (telefone) {
+    // Método \'telefoneValido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    telefoneValido: function(telefone) {
       var numeros = this.apenasNumeros(telefone || "");
 
       if (numeros.length !== 10 && numeros.length !== 11) return false;
@@ -114,7 +166,9 @@
       return true;
     },
 
-    calcularIdade: function (dataNascimento) {
+    // Método \'calcularIdade\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    calcularIdade: function(dataNascimento) {
       var hoje = new Date();
       var nascimento = new Date(dataNascimento + "T00:00:00");
       var idade = hoje.getFullYear() - nascimento.getFullYear();
@@ -127,7 +181,9 @@
       return idade;
     },
 
-    maiorDeIdade: function (dataNascimento, idadeMinima) {
+    // Método \'maiorDeIdade\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    maiorDeIdade: function(dataNascimento, idadeMinima) {
       idadeMinima = idadeMinima || 18;
 
       if (!dataNascimento || isNaN(new Date(dataNascimento + "T00:00:00").getTime())) {
@@ -137,7 +193,9 @@
       return this.calcularIdade(dataNascimento) >= idadeMinima;
     },
 
-    validarCampos: function (campos) {
+    // Método \'validarCampos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    validarCampos: function(campos) {
       var erro = false;
       campos.forEach(function (campo) {
         if (!campo.valor) {
@@ -148,14 +206,18 @@
       return erro;
     },
 
-    marcarCamposComErro: function ($container, campos, mensagem) {
+    // Método \'marcarCamposComErro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    marcarCamposComErro: function($container, campos, mensagem) {
       campos.forEach(function ($campo) {
         $campo.addClass("is-invalid");
       });
       this.mostrarAlerta($container, mensagem, "danger");
     },
 
-    validarAoSair: function ($container, regras) {
+    // Método \'validarAoSair\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    validarAoSair: function($container, regras) {
       var self = this;
 
       regras.forEach(function (regra) {
@@ -185,7 +247,9 @@
       });
     },
 
-    formatarMascara: function (tipo, valor) {
+    // Método \'formatarMascara\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    formatarMascara: function(tipo, valor) {
       var d = this.apenasNumeros(valor || "");
       var f = "";
 
@@ -197,7 +261,13 @@
         f = "(" + d.substring(0, 2);
         if (d.length > 2) {
           var resto = d.substring(2);
-          var corte = resto.length > 8 ? 5 : 4; // 11 dígitos: 9XXXX-XXXX; 10: XXXX-XXXX
+          // 11 dígitos: 9XXXX-XXXX; 10: XXXX-XXXX
+          var corte;
+          if (resto.length > 8) {
+            corte = 5;
+          } else {
+            corte = 4;
+          }
           f += ") " + resto.substring(0, corte);
           if (resto.length > corte) f += "-" + resto.substring(corte);
         }
@@ -233,7 +303,9 @@
       return valor;
     },
 
-    aplicarMascaras: function () {
+    // Método \'aplicarMascaras\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    aplicarMascaras: function() {
       var self = this;
 
       function formatarCampo(campo) {
@@ -244,9 +316,12 @@
 
         // Mantém o cursor depois do mesmo dígito, mesmo editando no meio.
         var cursor = campo.selectionStart;
-        var digitosAntesDoCursor = (cursor === null || cursor === undefined)
-          ? null
-          : self.apenasNumeros(antes.substring(0, cursor)).length;
+        var digitosAntesDoCursor;
+        if (cursor === null || cursor === undefined) {
+          digitosAntesDoCursor = null;
+        } else {
+          digitosAntesDoCursor = self.apenasNumeros(antes.substring(0, cursor)).length;
+        }
 
         campo.value = depois;
 
@@ -271,7 +346,9 @@
       });
     },
 
-    cpfValido: function (cpf) {
+    // Método \'cpfValido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cpfValido: function(cpf) {
       cpf = cpf.replace(/\D/g, "");
 
       if (cpf.length !== 11) return false;
@@ -296,7 +373,9 @@
       return resto === parseInt(cpf[10], 10);
     },
 
-    cnpjValido: function (cnpj) {
+    // Método \'cnpjValido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cnpjValido: function(cnpj) {
       cnpj = cnpj.replace(/\D/g, "");
 
       if (cnpj.length !== 14) return false;
@@ -314,7 +393,12 @@
         if (pos < 2) pos = 9;
       }
 
-      var resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+      var resultado;
+      if (soma % 11 < 2) {
+        resultado = 0;
+      } else {
+        resultado = 11 - (soma % 11);
+      }
       if (resultado != digitos.charAt(0)) return false;
 
       tamanho = 13;
@@ -327,11 +411,17 @@
         if (pos < 2) pos = 9;
       }
 
-      resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+      if (soma % 11 < 2) {
+        resultado = 0;
+      } else {
+        resultado = 11 - (soma % 11);
+      }
       return resultado == digitos.charAt(1);
     },
 
-    configurarPreviewImagem: function ($container, $input, $preview) {
+    // Método \'configurarPreviewImagem\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    configurarPreviewImagem: function($container, $input, $preview) {
       var self = this;
 
       $preview.on("click", function () {
@@ -354,7 +444,9 @@
       });
     },
 
-    configurarCEP: function ($container, campos) {
+    // Método \'configurarCEP\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    configurarCEP: function($container, campos) {
       var self = this;
       var todosOsCampos = [campos.cep, campos.rua, campos.bairro, campos.cidade, campos.uf, campos.ibge];
 

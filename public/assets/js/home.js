@@ -1,4 +1,15 @@
 /* ============================================================
+   RESUMO DO ARQUIVO: home.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: moduloHome
+   - Função/método: iniciar
+   ============================================================ */
+
+/* ============================================================
    PÁGINA: home (barra de busca)
    Depende de: jQuery, componentes.js e buscaComum.js (window.ElmoBusca).
 
@@ -9,9 +20,13 @@
 (function ($, Busca) {
   "use strict";
 
+  // Objeto \'moduloHome\': agrupa estado, configurações e/ou métodos deste módulo.
+
   var moduloHome = {
 
-    iniciar: function () {
+    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    iniciar: function() {
       // Evento do campoPesquisa (componentes.js): lupa ou Enter
       $(document).on("pesquisaAcionada", ".campoPesquisaHome", function (evento, dados) {
         var termo = dados && dados.termo;

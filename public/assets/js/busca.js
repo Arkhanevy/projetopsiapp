@@ -1,4 +1,25 @@
 /* ============================================================
+   RESUMO DO ARQUIVO: busca.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: moduloBusca
+   - Função/método: iniciar
+   - Função/método: cachearElementos
+   - Função/método: registrarEventos
+   - Função/método: pesquisar
+   - Função/método: mostrarAviso
+   - Função/método: esconderAviso
+   - Função/método: podeTrocar
+   - Função/método: intervaloDeTroca
+   - Função/método: cancelarTroca
+   - Função/método: agendarProximaTroca
+   - Função/método: trocarTermo
+   ============================================================ */
+
+/* ============================================================
    PÁGINA: busca (tela inicial)
    Depende de: jQuery, Bootstrap 5 (bundle), componentes.js,
                sessaoNavegacao.js e buscaComum.js (window.ElmoBusca).
@@ -19,6 +40,8 @@
 (function ($, Busca) {
   "use strict";
 
+  // Objeto \'moduloBusca\': agrupa estado, configurações e/ou métodos deste módulo.
+
   var moduloBusca = {
 
     configuracao: {
@@ -35,16 +58,23 @@
 
     elementos: {},
 
-    iniciar: function () {
+    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    iniciar: function() {
       this.cachearElementos();
       Busca.configurarNavegacao();
-      this.estado.animacaoReduzida = !!(window.matchMedia &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        this.estado.animacaoReduzida = true;
+      } else {
+        this.estado.animacaoReduzida = false;
+      }
       this.registrarEventos();
       this.agendarProximaTroca();
     },
 
-    cachearElementos: function () {
+    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cachearElementos: function() {
       var e = this.elementos;
       e.$titulo = $("#tituloBusca");
       e.$termos = $(".tituloBusca_termo");
@@ -54,7 +84,9 @@
       e.$sugestoes = $(".sugestoesBusca_botao");
     },
 
-    registrarEventos: function () {
+    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    registrarEventos: function() {
       var self = this;
 
       // Evento do campoPesquisa (componentes.js): lupa ou Enter
@@ -93,7 +125,8 @@
     },
 
     /* ---------- Pesquisa ---------- */
-    pesquisar: function (termo) {
+    // Método \'pesquisar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    pesquisar: function(termo) {
       if (!Busca.termoValido(termo)) {
         this.mostrarAviso();
         return;
@@ -101,35 +134,50 @@
       Busca.irParaResultados(termo);
     },
 
-    mostrarAviso: function () {
+    // Método \'mostrarAviso\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    mostrarAviso: function() {
       this.elementos.$aviso.removeAttr("hidden");
       this.elementos.$entrada.attr("aria-invalid", "true").trigger("focus");
     },
 
-    esconderAviso: function () {
+    // Método \'esconderAviso\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    esconderAviso: function() {
       this.elementos.$aviso.attr("hidden", "hidden");
       this.elementos.$entrada.removeAttr("aria-invalid");
     },
 
     /* ---------- Título animado ---------- */
-    podeTrocar: function () {
+    // Método \'podeTrocar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    podeTrocar: function() {
       return !this.estado.animacaoReduzida &&
         !this.estado.campoEmUso &&
         !document.hidden &&
         this.elementos.$termos.length > 1;
     },
 
-    intervaloDeTroca: function () {
+    // Método \'intervaloDeTroca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    intervaloDeTroca: function() {
       var valor = parseInt(this.elementos.$titulo.attr("data-intervaloTroca"), 10);
-      return valor > 0 ? valor : this.configuracao.intervaloPadrao;
+      if (valor > 0) {
+        return valor;
+      } else {
+        return this.configuracao.intervaloPadrao;
+      }
     },
 
-    cancelarTroca: function () {
+    // Método \'cancelarTroca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cancelarTroca: function() {
       window.clearTimeout(this.estado.temporizador);
       this.estado.temporizador = null;
     },
 
-    agendarProximaTroca: function () {
+    // Método \'agendarProximaTroca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    agendarProximaTroca: function() {
       var self = this;
       this.cancelarTroca();
 
@@ -142,7 +190,9 @@
       }, this.intervaloDeTroca());
     },
 
-    trocarTermo: function () {
+    // Método \'trocarTermo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    trocarTermo: function() {
       var $termos = this.elementos.$termos;
       var $atual = $termos.eq(this.estado.indiceAtivo);
       this.estado.indiceAtivo = (this.estado.indiceAtivo + 1) % $termos.length;

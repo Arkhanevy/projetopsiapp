@@ -1,4 +1,18 @@
 /* ============================================================
+   RESUMO DO ARQUIVO: buscaComum.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: ElmoBusca
+   - Função/método: termoValido
+   - Função/método: construirUrlResultados
+   - Função/método: irParaResultados
+   - Função/método: configurarNavegacao
+   ============================================================ */
+
+/* ============================================================
    BUSCA — código compartilhado
    Usado por: home.js, busca.js e resultadosBusca.js.
    Depende de: jQuery. Quando a página tem sessaoNavegacao.js,
@@ -13,6 +27,8 @@
 (function ($, window) {
   "use strict";
 
+  // Objeto \'ElmoBusca\': agrupa estado, configurações e/ou métodos deste módulo.
+
   var ElmoBusca = {
 
     configuracao: {
@@ -26,15 +42,21 @@
       }
     },
 
-    termoValido: function (termo) {
+    // Método \'termoValido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    termoValido: function(termo) {
       return $.trim(termo || "") !== "";
     },
 
-    construirUrlResultados: function (termo) {
+    // Método \'construirUrlResultados\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    construirUrlResultados: function(termo) {
       return this.configuracao.urlResultados + "&termo=" + encodeURIComponent($.trim(termo));
     },
 
-    irParaResultados: function (termo) {
+    // Método \'irParaResultados\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    irParaResultados: function(termo) {
       window.location.href = this.construirUrlResultados(termo);
     },
 
@@ -43,7 +65,8 @@
       hambúrguer. A barra superior do logado (.navTopoLogado) e os links que
       dependem do tipo de usuário são ajustados aqui.
     */
-    configurarNavegacao: function () {
+    // Método \'configurarNavegacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    configurarNavegacao: function() {
       var configuracao = this.configuracao;
 
       $(document).on("sessaoNavegacaoDefinida", function (evento, sessao) {

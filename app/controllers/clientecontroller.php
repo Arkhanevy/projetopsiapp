@@ -44,7 +44,7 @@ switch ($acao){
         
     case "login":
         $campos = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[11]];
-        $cliente = new cliente('cliente', $campos, $camposcli[2]);
+        $cliente = new cliente('cliente', $campos, $campos[2]);
         $resultado = $cliente->Login($_POST['email'],$_POST['senha']);
         echo json_encode($resultado);
         exit;

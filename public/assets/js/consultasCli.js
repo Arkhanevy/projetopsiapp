@@ -1,5 +1,33 @@
+/* ============================================================
+   RESUMO DO ARQUIVO: consultasCli.js
+   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
+   foi acrescentado para orientar a leitura do arquivo.
+   Observações: as funções podem depender de jQuery, módulos globais,
+   elementos HTML e/ou respostas do backend mencionados no código.
+   Inventário de objetos e funções identificados:
+   - Objeto: INFORMACOES_STATUS
+   - Objeto: moduloConsultasCli
+   - Função/método: iniciar
+   - Função/método: cachearElementos
+   - Função/método: anunciar
+   - Função/método: registrarEventos
+   - Função/método: exibirModalSessaoExpirada
+   - Função/método: buscarConsultas
+   - Função/método: exibirEstadoVazio
+   - Função/método: renderizarConsultas
+   - Função/método: construirCartaoConsulta
+   - Função/método: obterInfoStatus
+   - Função/método: construirBadgeStatus
+   - Função/método: inicializarPopovers
+   - Função/método: abrirModalConfirmacao
+   - Função/método: confirmarCancelamento
+   - Função/método: atualizarCardComoCancelado
+   ============================================================ */
+
 (function ($, Utilitarios) {
   "use strict";
+
+  // Objeto \'INFORMACOES_STATUS\': agrupa estado, configurações e/ou métodos deste módulo.
 
   var INFORMACOES_STATUS = {
     pendente: {
@@ -22,6 +50,8 @@
     }
   };
 
+  // Objeto \'moduloConsultasCli\': agrupa estado, configurações e/ou métodos deste módulo.
+
   var moduloConsultasCli = {
 
     configuracao: {
@@ -33,13 +63,17 @@
 
     elementos: {},
 
-    iniciar: function () {
+    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    iniciar: function() {
       this.cachearElementos();
       this.registrarEventos();
       //this.verificarSessaoEBuscarConsultas();
     },
 
-    cachearElementos: function () {
+    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    cachearElementos: function() {
       this.elementos.$grade = $("#gradeConsultas");
       this.elementos.$estadoVazio = $("#estadoVazioConsultas");
       this.elementos.$textoEstadoVazio = this.elementos.$estadoVazio.find(".textoEstadoVazio");
@@ -55,11 +89,15 @@
       this.elementos.$mensagemStatus = $("#mensagemStatusConsultas");
     },
 
-    anunciar: function (mensagem) {
+    // Método \'anunciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    anunciar: function(mensagem) {
       this.elementos.$mensagemStatus.text(mensagem);
     },
 
-    registrarEventos: function () {
+    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    registrarEventos: function() {
       var self = this;
 
       this.elementos.$botaoRealizarLoginSessao.on("click", function () {
@@ -96,7 +134,9 @@
         });
     },*/
 
-    exibirModalSessaoExpirada: function () {
+    // Método \'exibirModalSessaoExpirada\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirModalSessaoExpirada: function() {
       this.elementos.$grade.removeClass("estadoCarregando").attr("hidden", "hidden");
       Utilitarios.exibirModal(this.elementos.$modalSessaoExpirada, {
         backdrop: "static",
@@ -104,7 +144,9 @@
       });
     },
 
-    buscarConsultas: function () {
+    // Método \'buscarConsultas\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    buscarConsultas: function() {
       var self = this;
 
       $.ajax({
@@ -134,11 +176,13 @@
           }
 
           self.renderizarConsultas(consultas);
-          self.anunciar(
-            consultas.length === 1
-              ? "1 consulta carregada."
-              : consultas.length + " consultas carregadas."
-          );
+          var mensagem;
+          if (consultas.length === 1) {
+            mensagem = "1 consulta carregada.";
+          } else {
+            mensagem = consultas.length + " consultas carregadas.";
+          }
+          self.anunciar(mensagem);
         })
         .fail(function () {
           self.elementos.$grade.removeClass("estadoCarregando");
@@ -148,7 +192,9 @@
         });
     },
 
-    exibirEstadoVazio: function (mensagemPersonalizada) {
+    // Método \'exibirEstadoVazio\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    exibirEstadoVazio: function(mensagemPersonalizada) {
       this.elementos.$grade.empty().attr("hidden", "hidden");
 
       if (mensagemPersonalizada) {
@@ -161,7 +207,10 @@
     },
 
 
-    renderizarConsultas: function (consultas) {
+    // Método \'renderizarConsultas\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+
+    renderizarConsultas: function(consultas) {
       var self = this;
 
       this.elementos.$estadoVazio.attr("hidden", "hidden");
@@ -186,7 +235,8 @@
      *   status: "pendente" | "agendada" | "cancelada"
      * }
      */
-    construirCartaoConsulta: function (consulta) {
+    // Método \'construirCartaoConsulta\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    construirCartaoConsulta: function(consulta) {
       var infoStatus = this.obterInfoStatus(consulta.status);
 
       var $card = $('<article class="cartaoConsulta"></article>').attr(
@@ -233,11 +283,15 @@
       return $card;
     },
 
-    obterInfoStatus: function (status) {
+    // Método \'obterInfoStatus\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    obterInfoStatus: function(status) {
       return INFORMACOES_STATUS[status] || INFORMACOES_STATUS.pendente;
     },
 
-    construirBadgeStatus: function (infoStatus) {
+    // Método \'construirBadgeStatus\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    construirBadgeStatus: function(infoStatus) {
       return $('<button type="button" class="badgeStatus"></button>')
         .addClass(infoStatus.classe)
         .attr("data-bs-toggle", "popover")
@@ -253,7 +307,9 @@
         );
     },
 
-    inicializarPopovers: function () {
+    // Método \'inicializarPopovers\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    inicializarPopovers: function() {
       this.elementos.$grade.find('[data-bs-toggle="popover"]').each(function () {
         if (!bootstrap.Popover.getInstance(this)) {
           new bootstrap.Popover(this);
@@ -261,13 +317,17 @@
       });
     },
 
-    abrirModalConfirmacao: function (idConsulta, nomeServico) {
+    // Método \'abrirModalConfirmacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    abrirModalConfirmacao: function(idConsulta, nomeServico) {
       this.elementos.$modalConfirmar.data("consultaId", idConsulta);
       this.elementos.$nomeConsultaParaCancelar.text(nomeServico);
       Utilitarios.exibirModal(this.elementos.$modalConfirmar);
     },
 
-    confirmarCancelamento: function () {
+    // Método \'confirmarCancelamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    confirmarCancelamento: function() {
       var self = this;
       var idConsulta = this.elementos.$modalConfirmar.data("consultaId");
 
@@ -303,7 +363,9 @@
         });
     },
 
-    atualizarCardComoCancelado: function (idConsulta) {
+    // Método \'atualizarCardComoCancelado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+
+    atualizarCardComoCancelado: function(idConsulta) {
       var infoStatus = this.obterInfoStatus("cancelada");
       var $card = this.elementos.$grade.find('[data-consulta-id="' + idConsulta + '"]');
 
