@@ -1,4 +1,69 @@
 /* ============================================================
+   ARQUIVO: busca.css
+
+   O QUE FAZ
+   Estilos da tela inicial de busca: espaço para a navegação fixa, título
+   animado com troca de termo (Serviço/Profissional/Clínica), aviso de campo
+   vazio e lista de sugestões.
+
+   OBSERVAÇÕES
+   - Depende de variaveis.css e componentes.css (carregados antes).
+     Reaproveita campoPesquisa, navegação e botões do design system.
+   - As classes tituloBusca_termo--ativo e tituloBusca_termo--saindo são
+     aplicadas pelo busca.js: não renomear sem atualizar o JS.
+   - A duração da transição (0.5s) deve ser igual à duracaoTransicao (500 ms)
+     do busca.js.
+   - Os valores 72px (navegação lateral) e 64px (navegação inferior) estão
+     repetidos em vários CSS de página; mudar o tamanho da navegação exige
+     atualizar todos.
+   - Usa color-mix(), que exige navegadores recentes.
+   - A animação é desligada para quem prefere movimento reduzido (prefers-
+     reduced-motion).
+
+   REGRAS (na ordem em que aparecem)
+   - .conteudoBusca — Conteúdo principal: espaço em cima e nas laterais e,
+     embaixo, a altura da navegação inferior fixa.
+   - @media (min-width: 768px) — A partir de tablet, a navegação inferior some
+     e a lateral entra.
+     - .conteudoBusca — Reduz o espaço inferior (não há mais navegação
+       inferior).
+     - .navLateralLogado:not([hidden]) + div .conteudoBusca — Abre 72px de
+       margem à esquerda só quando a navegação lateral do logado está visível.
+   - .secaoBusca — Seção central com largura máxima de 560px.
+   - .tituloBusca — Título principal centralizado, em negrito e com altura de
+     linha confortável.
+   - .tituloBusca_prefixo — Texto fixo do título (ex.: 'Buscar') em bloco
+     próprio.
+   - .tituloBusca_janela — Janela de uma linha com overflow escondido: só o
+     termo ativo fica visível.
+   - .tituloBusca_termo — Cada termo fica escondido (transparente e deslocado
+     para baixo) até virar o ativo.
+   - .tituloBusca_termo--ativo, .tituloBusca_termo--saindo — Liga a transição
+     só enquanto o termo entra ou sai.
+   - .tituloBusca_termo--ativo — Termo visível, na posição normal.
+   - .tituloBusca_termo--saindo — Termo que sobe e some.
+   - @media (prefers-reduced-motion: reduce) — Para quem prefere menos
+     movimento.
+     - .tituloBusca_termo--ativo, .tituloBusca_termo--saindo — Desliga a
+       transição do título.
+   - .campoPesquisaBusca — Afasta o campo de pesquisa do título.
+   - .campoPesquisa_aviso — Aviso de pesquisa vazia: vermelho escurecido
+     (contraste) e em negrito.
+   - .sugestoesBusca — Afasta o bloco de sugestões do campo de pesquisa.
+   - .sugestoesBusca_titulo — Título das sugestões com tamanho de H3 e peso
+     normal.
+   - .sugestoesBusca_lista — Caixa da lista de sugestões: sem marcadores, com
+     borda, cantos arredondados e fundo branco.
+   - .sugestoesBusca_item + .sugestoesBusca_item — Linha separadora entre
+     itens consecutivos.
+   - .sugestoesBusca_botao — Botão de sugestão ocupando a linha inteira, sem
+     borda e com texto à esquerda.
+   - .sugestoesBusca_botao:hover — Destaca a sugestão ao passar o mouse.
+   - .sugestoesBusca_botao:focus-visible — Contorno de foco visível para
+     teclado.
+   ============================================================ */
+
+/* ============================================================
    PÁGINA: busca (tela inicial)
    Depende de: public/assets/css/variaveis.css
               public/assets/css/componentes.css
@@ -11,22 +76,30 @@
    renomear sem atualizar o JS.
    ============================================================ */
 
+/*
+   Conteúdo principal: espaço em cima e nas laterais e, embaixo, a altura da navegação inferior
+   fixa.
+*/
 /* Espaço para a navegação fixa: inferior no mobile, lateral (72px) no desktop */
 .conteudoBusca {
   padding: var(--espaco7) var(--espaco4) calc(64px + var(--espaco4));
 }
 
+/* A partir de tablet, a navegação inferior some e a lateral entra. */
 @media (min-width: 768px) {
+  /* Reduz o espaço inferior (não há mais navegação inferior). */
   .conteudoBusca {
     padding-bottom: var(--espaco5);
   }
 
+  /* Abre 72px de margem à esquerda só quando a navegação lateral do logado está visível. */
   /* Só abre espaço para a navegação lateral quando ela está visível (usuário logado) */
   .navLateralLogado:not([hidden]) + div .conteudoBusca {
     margin-left: 72px;
   }
 }
 
+/* Seção central com largura máxima de 560px. */
 .secaoBusca {
   width: 100%;
   max-width: 560px;
@@ -34,6 +107,7 @@
 }
 
 /* ---------- Título animado ---------- */
+/* Título principal centralizado, em negrito e com altura de linha confortável. */
 .tituloBusca {
   margin: 0;
   text-align: center;
@@ -42,10 +116,12 @@
   line-height: 1.25;
 }
 
+/* Texto fixo do título (ex.: 'Buscar') em bloco próprio. */
 .tituloBusca_prefixo {
   display: block;
 }
 
+/* Janela de uma linha com overflow escondido: só o termo ativo fica visível. */
 /* Janela de uma linha: só o termo ativo aparece; os outros ficam fora (abaixo) */
 .tituloBusca_janela {
   position: relative;
@@ -54,6 +130,7 @@
   overflow: hidden;
 }
 
+/* Cada termo fica escondido (transparente e deslocado para baixo) até virar o ativo. */
 .tituloBusca_termo {
   position: absolute;
   inset: 0;
@@ -61,6 +138,7 @@
   transform: translateY(100%);
 }
 
+/* Liga a transição só enquanto o termo entra ou sai. */
 /* A transição só existe enquanto o termo entra ou sai; ao voltar para a posição
    inicial (abaixo da janela) ele não anima de volta. */
 .tituloBusca_termo--ativo,
@@ -68,18 +146,22 @@
   transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
+/* Termo visível, na posição normal. */
 .tituloBusca_termo--ativo {
   opacity: 1;
   transform: translateY(0);
 }
 
+/* Termo que sobe e some. */
 /* O termo que sai sobe e some (o JS remove --ativo ao adicionar --saindo) */
 .tituloBusca_termo--saindo {
   opacity: 0;
   transform: translateY(-100%);
 }
 
+/* Para quem prefere menos movimento. */
 @media (prefers-reduced-motion: reduce) {
+  /* Desliga a transição do título. */
   .tituloBusca_termo--ativo,
   .tituloBusca_termo--saindo {
     transition: none;
@@ -87,10 +169,12 @@
 }
 
 /* ---------- Campo de pesquisa ---------- */
+/* Afasta o campo de pesquisa do título. */
 .campoPesquisaBusca {
   margin-top: var(--espaco6);
 }
 
+/* Aviso de pesquisa vazia: vermelho escurecido (contraste) e em negrito. */
 .campoPesquisa_aviso {
   margin: var(--espaco2) 0 0;
   /* vermelho escurecido: contraste mínimo de 4,5:1 sobre o fundo da página */
@@ -99,16 +183,19 @@
 }
 
 /* ---------- Sugestões de busca ---------- */
+/* Afasta o bloco de sugestões do campo de pesquisa. */
 .sugestoesBusca {
   margin-top: var(--espaco6);
 }
 
+/* Título das sugestões com tamanho de H3 e peso normal. */
 .sugestoesBusca_titulo {
   margin: 0 0 var(--espaco2);
   font-size: var(--tamanhoH3);
   font-weight: var(--pesoRegular);
 }
 
+/* Caixa da lista de sugestões: sem marcadores, com borda, cantos arredondados e fundo branco. */
 .sugestoesBusca_lista {
   margin: 0;
   padding: var(--espaco2) var(--espaco4);
@@ -118,10 +205,12 @@
   background-color: var(--corBranco);
 }
 
+/* Linha separadora entre itens consecutivos. */
 .sugestoesBusca_item + .sugestoesBusca_item {
   border-top: 1px solid var(--corBordas);
 }
 
+/* Botão de sugestão ocupando a linha inteira, sem borda e com texto à esquerda. */
 .sugestoesBusca_botao {
   display: block;
   width: 100%;
@@ -133,10 +222,12 @@
   text-align: left;
 }
 
+/* Destaca a sugestão ao passar o mouse. */
 .sugestoesBusca_botao:hover {
   background-color: var(--corFundoClaro);
 }
 
+/* Contorno de foco visível para teclado. */
 .sugestoesBusca_botao:focus-visible {
   outline: var(--larguraFoco) solid var(--corFoco);
   outline-offset: -2px;

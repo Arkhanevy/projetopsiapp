@@ -1,22 +1,58 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: busca.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: moduloBusca
-   - Função/método: iniciar
-   - Função/método: cachearElementos
-   - Função/método: registrarEventos
-   - Função/método: pesquisar
-   - Função/método: mostrarAviso
-   - Função/método: esconderAviso
-   - Função/método: podeTrocar
-   - Função/método: intervaloDeTroca
-   - Função/método: cancelarTroca
-   - Função/método: agendarProximaTroca
-   - Função/método: trocarTermo
+   ARQUIVO: busca.js
+
+   O QUE FAZ
+   Tela inicial de busca: alterna o título animado (Serviço / Profissional /
+   Clínica) e o placeholder do campo, valida o termo e leva para a tela de
+   resultados, e trata o clique nas sugestões (preenche o campo e já
+   pesquisa).
+
+   OBSERVAÇÕES
+   - Não chama o backend: a busca em si acontece em resultadosBusca.js.
+   - Depende de jQuery, Bootstrap, componentes.js, sessaoNavegacao.js e
+     buscaComum.js (window.ElmoBusca).
+   - A troca do título respeita prefers-reduced-motion, pausa com o campo em
+     foco e com a aba em segundo plano.
+   - duracaoTransicao (500 ms) deve ser igual à transição de
+     .tituloBusca_termo no busca.css.
+   - Atributos data-* em camelCase são lidos com .attr(); o .data() do jQuery
+     esperaria a forma com hífen.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo e recebe jQuery e
+     ElmoBusca.
+     - moduloBusca (objeto) — Módulo da tela inicial de busca.
+       - moduloBusca.configuracao — Intervalo padrão e duração da transição do
+         título animado (ms).
+       - moduloBusca.estado — Estado do título animado: índice ativo,
+         temporizador, animação reduzida e foco no campo.
+       - moduloBusca.elementos — Cache dos elementos jQuery da página.
+       - moduloBusca.iniciar() — Guarda elementos, configura a navegação,
+         detecta animação reduzida, registra eventos e agenda a troca do
+         título.
+       - moduloBusca.cachearElementos() — Busca no DOM título, termos, campo,
+         aviso e botões de sugestão.
+       - moduloBusca.registrarEventos() — Liga pesquisa (lupa/Enter),
+         sugestões, foco/blur do campo e visibilidade da aba.
+       - moduloBusca.pesquisar() — Valida o termo; se vazio mostra o aviso,
+         senão vai para os resultados.
+       - moduloBusca.mostrarAviso() — Exibe o aviso de pesquisa vazia, marca o
+         campo como inválido e foca nele.
+       - moduloBusca.esconderAviso() — Esconde o aviso e remove o estado
+         inválido do campo.
+       - moduloBusca.podeTrocar() — Diz se a troca do título pode ocorrer
+         agora (sem animação reduzida, sem foco no campo, aba visível, mais de
+         um termo).
+       - moduloBusca.intervaloDeTroca() — Lê o intervalo de data-
+         intervaloTroca do título ou usa o padrão.
+       - moduloBusca.cancelarTroca() — Cancela o temporizador da próxima
+         troca.
+       - moduloBusca.agendarProximaTroca() — Agenda a próxima troca de termo
+         (se permitido), repetindo o ciclo.
+       - moduloBusca.trocarTermo() — Anima a saída do termo atual e a entrada
+         do próximo, e atualiza o placeholder.
+     - Callback do document ready — Executa moduloBusca.iniciar() quando o DOM
+       estiver pronto.
    ============================================================ */
 
 /* ============================================================
@@ -37,18 +73,20 @@
    do jQuery espera a forma com hífen (data-intervalo-troca).
    ============================================================ */
 
+/** Função autoexecutável que isola o escopo e recebe jQuery e ElmoBusca. */
 (function ($, Busca) {
   "use strict";
 
-  // Objeto \'moduloBusca\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Módulo da tela inicial de busca. */
   var moduloBusca = {
 
+    /** Intervalo padrão e duração da transição do título animado (ms). */
     configuracao: {
       intervaloPadrao: 3000,   // ms; pode ser trocado em data-intervaloTroca no título
       duracaoTransicao: 500    // ms; deve ser igual à transição do tituloBusca_termo no CSS
     },
 
+    /** Estado do título animado: índice ativo, temporizador, animação reduzida e foco no campo. */
     estado: {
       indiceAtivo: 0,
       temporizador: null,
@@ -56,11 +94,14 @@
       campoEmUso: false
     },
 
+    /** Cache dos elementos jQuery da página. */
     elementos: {},
 
-    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    iniciar: function() {
+    /**
+     * Guarda elementos, configura a navegação, detecta animação reduzida, registra eventos e agenda
+     * a troca do título.
+     */
+    iniciar: function () {
       this.cachearElementos();
       Busca.configurarNavegacao();
       if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -72,9 +113,8 @@
       this.agendarProximaTroca();
     },
 
-    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    cachearElementos: function() {
+    /** Busca no DOM título, termos, campo, aviso e botões de sugestão. */
+    cachearElementos: function () {
       var e = this.elementos;
       e.$titulo = $("#tituloBusca");
       e.$termos = $(".tituloBusca_termo");
@@ -84,9 +124,8 @@
       e.$sugestoes = $(".sugestoesBusca_botao");
     },
 
-    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    registrarEventos: function() {
+    /** Liga pesquisa (lupa/Enter), sugestões, foco/blur do campo e visibilidade da aba. */
+    registrarEventos: function () {
       var self = this;
 
       // Evento do campoPesquisa (componentes.js): lupa ou Enter
@@ -125,8 +164,8 @@
     },
 
     /* ---------- Pesquisa ---------- */
-    // Método \'pesquisar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    pesquisar: function(termo) {
+    /** Valida o termo; se vazio mostra o aviso, senão vai para os resultados. */
+    pesquisar: function (termo) {
       if (!Busca.termoValido(termo)) {
         this.mostrarAviso();
         return;
@@ -134,32 +173,32 @@
       Busca.irParaResultados(termo);
     },
 
-    // Método \'mostrarAviso\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    mostrarAviso: function() {
+    /** Exibe o aviso de pesquisa vazia, marca o campo como inválido e foca nele. */
+    mostrarAviso: function () {
       this.elementos.$aviso.removeAttr("hidden");
       this.elementos.$entrada.attr("aria-invalid", "true").trigger("focus");
     },
 
-    // Método \'esconderAviso\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    esconderAviso: function() {
+    /** Esconde o aviso e remove o estado inválido do campo. */
+    esconderAviso: function () {
       this.elementos.$aviso.attr("hidden", "hidden");
       this.elementos.$entrada.removeAttr("aria-invalid");
     },
 
     /* ---------- Título animado ---------- */
-    // Método \'podeTrocar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    podeTrocar: function() {
+    /**
+     * Diz se a troca do título pode ocorrer agora (sem animação reduzida, sem foco no campo, aba
+     * visível, mais de um termo).
+     */
+    podeTrocar: function () {
       return !this.estado.animacaoReduzida &&
         !this.estado.campoEmUso &&
         !document.hidden &&
         this.elementos.$termos.length > 1;
     },
 
-    // Método \'intervaloDeTroca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    intervaloDeTroca: function() {
+    /** Lê o intervalo de data-intervaloTroca do título ou usa o padrão. */
+    intervaloDeTroca: function () {
       var valor = parseInt(this.elementos.$titulo.attr("data-intervaloTroca"), 10);
       if (valor > 0) {
         return valor;
@@ -168,16 +207,14 @@
       }
     },
 
-    // Método \'cancelarTroca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    cancelarTroca: function() {
+    /** Cancela o temporizador da próxima troca. */
+    cancelarTroca: function () {
       window.clearTimeout(this.estado.temporizador);
       this.estado.temporizador = null;
     },
 
-    // Método \'agendarProximaTroca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    agendarProximaTroca: function() {
+    /** Agenda a próxima troca de termo (se permitido), repetindo o ciclo. */
+    agendarProximaTroca: function () {
       var self = this;
       this.cancelarTroca();
 
@@ -190,9 +227,8 @@
       }, this.intervaloDeTroca());
     },
 
-    // Método \'trocarTermo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    trocarTermo: function() {
+    /** Anima a saída do termo atual e a entrada do próximo, e atualiza o placeholder. */
+    trocarTermo: function () {
       var $termos = this.elementos.$termos;
       var $atual = $termos.eq(this.estado.indiceAtivo);
       this.estado.indiceAtivo = (this.estado.indiceAtivo + 1) % $termos.length;
@@ -210,6 +246,7 @@
     }
   };
 
+  /** Executa moduloBusca.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloBusca.iniciar();
   });

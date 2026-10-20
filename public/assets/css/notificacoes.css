@@ -1,4 +1,68 @@
 /* ============================================================
+   ARQUIVO: notificacoes.css
+
+   O QUE FAZ
+   Estilos da tela de notificações: área de conteúdo com navegação fixa,
+   título, lista de cards de notificação (com lida/não lida, resumo em até 2
+   linhas, data e selo 'Nova') e modal com o texto completo e links.
+
+   OBSERVAÇÕES
+   - Depende de variaveis.css e componentes.css (indicadorStatus, modalBase,
+     estadoVazio).
+   - O card não lido é marcado pelo atributo data-lida="false" (definido pelo
+     notificacoes.js).
+   - A regra .modalNotificacao_acao aparece duas vezes seguidas, com o mesmo
+     conteúdo: uma delas pode ser removida.
+   - .estadoCarregando se repete igual em contatos.css (contêiner do spinner).
+   - O resumo usa -webkit-line-clamp (e line-clamp) para cortar em 2 linhas.
+   - Os valores 72px (navegação lateral) e 64px (navegação inferior) se
+     repetem em outros CSS de página.
+
+   REGRAS (na ordem em que aparecem)
+   - .conteudoNotificacoes — Conteúdo principal: espaço no topo e, embaixo, a
+     altura da navegação inferior fixa.
+   - @media (min-width: 768px) — A partir de tablet, a navegação inferior some
+     e a lateral entra.
+     - .conteudoNotificacoes — Reduz o espaço inferior (não há mais navegação
+       inferior).
+     - .navLateralLogado:not([hidden]) + div .conteudoNotificaco… — Abre 72px
+       de margem à esquerda só quando a navegação lateral está visível.
+   - .conteudoNotificacoes_titulo — Título da página grande, centralizado e
+     com margem inferior.
+   - .estadoCarregando — Contêiner do indicador de carregamento: centralizado,
+     na cor de destaque.
+   - .listaNotificacoes — Lista de cards em coluna, centralizada até 1100px e
+     sem marcadores.
+   - .cardNotificacao — Card clicável da notificação: coluna com borda, altura
+     mínima de 88px e conteúdo espaçado.
+   - .cardNotificacao:hover — Fundo claro ao passar o mouse.
+   - .cardNotificacao:focus-visible — Contorno de foco visível para teclado.
+   - .cardNotificacao[data-lida="false"] — Notificação não lida: borda azul.
+   - .cardNotificacao_cabecalho, .cardNotificacao_rodape — Linhas do card
+     (título + selo, resumo + data) com itens nas pontas.
+   - .cardNotificacao_titulo — Título da notificação em negrito, com quebra de
+     texto longo.
+   - .cardNotificacao_resumo — Resumo cortado em 2 linhas, em tamanho pequeno.
+   - .cardNotificacao_data — Data em negrito, sem quebra de linha.
+   - @media (min-width: 768px) — Em tablet ou maior, aumenta o título e a
+     data.
+     - .cardNotificacao_titulo, .cardNotificacao_data — Título e data com
+       tamanho de H3.
+   - .indicadorStatus--nova — Variante 'nova' do indicador de status: azul.
+   - .cardNotificacao_selo — Selo 'Nova' que não encolhe, com preenchimento e
+     texto pequeno.
+   - .modalNotificacao — Define a largura do modal da notificação (640px).
+   - .modalNotificacao_mensagem — Mensagem completa respeitando quebras de
+     linha e com quebra de texto longo.
+   - .modalNotificacao_acao — Bloco de ação (link) com margem superior.
+   - .modalNotificacao_acao — Repete a regra anterior (mesma margem superior);
+     duplicada.
+   - .modalNotificacao_link — Link do modal em azul e negrito.
+   - .modalNotificacao_link:focus-visible — Contorno de foco visível para
+     teclado no link.
+   ============================================================ */
+
+/* ============================================================
    PÁGINA: notificacoes (cliente, clienteSimples, profissional e clínica)
    Depende de: public/assets/css/variaveis.css
               public/assets/css/componentes.css
@@ -13,22 +77,27 @@
 
 /* ---------- Conteúdo principal ---------- */
 
+/* Conteúdo principal: espaço no topo e, embaixo, a altura da navegação inferior fixa. */
 /* Espaço para a navegação fixa: inferior no mobile, lateral (72px) no desktop */
 .conteudoNotificacoes {
   padding: var(--espaco5) 0 calc(64px + var(--espaco4));
 }
 
+/* A partir de tablet, a navegação inferior some e a lateral entra. */
 @media (min-width: 768px) {
+  /* Reduz o espaço inferior (não há mais navegação inferior). */
   .conteudoNotificacoes {
     padding-bottom: var(--espaco5);
   }
 
+  /* Abre 72px de margem à esquerda só quando a navegação lateral está visível. */
   /* Só abre espaço para a navegação lateral quando ela está visível (usuário logado) */
   .navLateralLogado:not([hidden]) + div .conteudoNotificacoes {
     margin-left: 72px;
   }
 }
 
+/* Título da página grande, centralizado e com margem inferior. */
 .conteudoNotificacoes_titulo {
   margin: 0 0 var(--espaco4);
   font-size: var(--tamanhoH1);
@@ -36,6 +105,7 @@
 }
 
 /* ---------- Estados da página ---------- */
+/* Contêiner do indicador de carregamento: centralizado, na cor de destaque. */
 .estadoCarregando {
   display: flex;
   justify-content: center;
@@ -44,6 +114,7 @@
 }
 
 /* ---------- Lista de notificações ---------- */
+/* Lista de cards em coluna, centralizada até 1100px e sem marcadores. */
 .listaNotificacoes {
   display: flex;
   flex-direction: column;
@@ -55,6 +126,7 @@
 }
 
 /* ---------- cardNotificacao: título + selo (linha 1), resumo + data (linha 2) ---------- */
+/* Card clicável da notificação: coluna com borda, altura mínima de 88px e conteúdo espaçado. */
 /* O card é um <button>: abre o modal com mouse e teclado sem JS extra de foco */
 .cardNotificacao {
   display: flex;
@@ -73,20 +145,24 @@
   cursor: pointer;
 }
 
+/* Fundo claro ao passar o mouse. */
 .cardNotificacao:hover {
   background-color: var(--corFundoClaro);
 }
 
+/* Contorno de foco visível para teclado. */
 .cardNotificacao:focus-visible {
   outline: var(--larguraFoco) solid var(--corFoco);
   outline-offset: 2px;
 }
 
+/* Notificação não lida: borda azul. */
 /* Não lida: borda azul (o selo "Nova" é exibido pelo JS) */
 .cardNotificacao[data-lida="false"] {
   border-color: var(--corAcaoSecundaria);
 }
 
+/* Linhas do card (título + selo, resumo + data) com itens nas pontas. */
 .cardNotificacao_cabecalho,
 .cardNotificacao_rodape {
   display: flex;
@@ -95,6 +171,7 @@
   gap: var(--espaco3);
 }
 
+/* Título da notificação em negrito, com quebra de texto longo. */
 .cardNotificacao_titulo {
   min-width: 0;
   font-size: var(--tamanhoBody);
@@ -102,6 +179,7 @@
   overflow-wrap: anywhere;
 }
 
+/* Resumo cortado em 2 linhas, em tamanho pequeno. */
 /* Resumo limitado a 2 linhas: o texto completo aparece no modal */
 .cardNotificacao_resumo {
   flex: 1 1 auto;
@@ -115,6 +193,7 @@
   overflow-wrap: anywhere;
 }
 
+/* Data em negrito, sem quebra de linha. */
 .cardNotificacao_data {
   flex-shrink: 0;
   font-size: var(--tamanhoBody);
@@ -122,7 +201,9 @@
   white-space: nowrap;
 }
 
+/* Em tablet ou maior, aumenta o título e a data. */
 @media (min-width: 768px) {
+  /* Título e data com tamanho de H3. */
   .cardNotificacao_titulo,
   .cardNotificacao_data {
     font-size: var(--tamanhoH3);
@@ -130,11 +211,13 @@
 }
 
 /* ---------- Selo "Nova" (variação do indicadorStatus, só desta tela) ---------- */
+/* Variante 'nova' do indicador de status: azul. */
 .indicadorStatus--nova {
   border-color: var(--corAcaoSecundaria);
   background-color: var(--corAcaoSecundaria);
 }
 
+/* Selo 'Nova' que não encolhe, com preenchimento e texto pequeno. */
 /* Versão compacta para caber na linha do título do card */
 .cardNotificacao_selo {
   flex-shrink: 0;
@@ -143,31 +226,37 @@
 }
 
 /* ---------- Modal: detalhe da notificação ---------- */
+/* Define a largura do modal da notificação (640px). */
 .modalNotificacao {
   --bs-modal-width: 640px;
 }
 
+/* Mensagem completa respeitando quebras de linha e com quebra de texto longo. */
 /* Preserva as quebras de linha (parágrafos) vindas do banco, sem usar innerHTML */
 .modalNotificacao_mensagem {
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
 
+/* Bloco de ação (link) com margem superior. */
 /* Parágrafo do link: separado da mensagem por uma linha em branco, como no Figma */
 .modalNotificacao_acao {
   margin: var(--espaco4) 0 0;
 }
 
+/* Repete a regra anterior (mesma margem superior); duplicada. */
 /* Parágrafo fixo do link "Minhas Consultas" (o JS só mostra ou esconde) */
 .modalNotificacao_acao {
   margin: var(--espaco4) 0 0;
 }
 
+/* Link do modal em azul e negrito. */
 .modalNotificacao_link {
   color: var(--corAcaoSecundaria);
   font-weight: var(--pesoNegrito);
 }
 
+/* Contorno de foco visível para teclado no link. */
 .modalNotificacao_link:focus-visible {
   outline: var(--larguraFoco) solid var(--corFoco);
   outline-offset: 2px;

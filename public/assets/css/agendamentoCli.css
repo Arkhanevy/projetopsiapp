@@ -1,4 +1,140 @@
 /* ============================================================
+   ARQUIVO: agendamentoCli.css
+
+   O QUE FAZ
+   Estilos da tela de agendamento do cliente: grade da página (uma coluna no
+   celular; calendário à esquerda e formulário à direita em tablet+), campo de
+   valor, dropdown customizado de horário, calendário mensal com dias
+   indisponíveis/selecionados, legenda, botões, erros de validação e estados
+   de carregamento/erro.
+
+   OBSERVAÇÕES
+   - Depende de variaveis.css e componentes.css. As classes são
+     aplicadas/alternadas pelo agendamentoCli.js (diaIndisponivel,
+     diaSelecionado, campoComErro, estadoCarregando, estadoErro, aria-expanded
+     do dropdown, atributo hidden da lista).
+   - O calendário e o dropdown deste arquivo são próprios
+     (calendarioAgendamento, dropdownCustomizado); não usam o calendarioBase
+     de componentes.css.
+   - A área 'localizacao' existe no grid, mas a escolha de local foi
+     desativada no JS.
+   - O @keyframes animacaoEsqueleto se repete em infoServico.css e
+     consultasCli.css.
+   - Os valores 72px (navegação lateral) e 64px (navegação inferior) estão
+     repetidos em vários CSS de página.
+   - campoComErro usa !important na borda para vencer outras regras de borda.
+   - Raios (8px, 12px, 999px) e o tamanho 16px das amostras da legenda estão
+     fixos em vez de variáveis.
+
+   REGRAS (na ordem em que aparecem)
+   - .conteudoAgendamento — Conteúdo principal: espaço para a navegação fixa
+     (topo e rodapé) no celular.
+   - @media (min-width: 768px) — A partir de tablet, a navegação lateral ocupa
+     a esquerda.
+     - .conteudoAgendamento — Abre 72px de margem à esquerda para a navegação
+       lateral e ajusta o espaço vertical.
+   - .botaoVoltarAgendamento — Botão quadrado de 48px, com borda e ícone na
+     cor de destaque, para voltar ao serviço.
+   - .botaoVoltarAgendamento:hover — Fundo na cor dos botões ao passar o
+     mouse.
+   - .gradeAgendamento — Grade da página em uma coluna (título, alerta, valor,
+     profissional, local, calendário, horário e botões), centralizada até
+     1200px.
+   - @media (min-width: 768px) — A grade passa a duas colunas.
+     - .gradeAgendamento — Calendário na coluna esquerda, ocupando as linhas;
+       valor, profissional, local, horário e botões à direita.
+   - .areaTitulo — Posiciona o título na área 'titulo' da grade.
+   - .areaAlerta — Posiciona o alerta de validação na área 'alerta'.
+   - .areaValor — Posiciona o valor na área 'valor'.
+   - .areaProfissional — Posiciona o profissional na área 'profissional'.
+   - .areaLocalizacao — Posiciona a localização na área 'localizacao'.
+   - .areaCalendario — Posiciona o calendário na área 'calendario'.
+   - .areaHorario — Posiciona o horário na área 'horario'.
+   - .areaBotoes — Posiciona os botões na área 'botoes'.
+   - .tituloAgendamento — Remove a margem do título da página.
+   - .campoValorLinha — Linha com rótulo e valor lado a lado, nas
+     extremidades.
+   - .valorAgendamento — Caixa do preço: borda, cantos arredondados, fundo
+     branco e texto em negrito.
+   - .textoAjuda — Texto de ajuda pequeno, em negrito, logo abaixo do campo.
+   - .campoFormulario — Grupo de campo (rótulo + controle) em coluna com
+     pequeno espaçamento.
+   - .tituloCampo — Rótulo do campo com tamanho de H3.
+   - .inputFormulario — Campo de texto: largura total, borda, cantos
+     arredondados e fundo branco.
+   - .inputFormulario[readonly] — Campo somente leitura com fundo cinza claro.
+   - .dropdownCustomizado — Contêiner do dropdown de horário; referência para
+     posicionar a lista.
+   - .dropdownCustomizadoBotao — Botão que abre o dropdown: largura total, com
+     borda, ícone e texto.
+   - .dropdownCustomizadoBotao:disabled — Botão desabilitado: opaco e com
+     cursor de bloqueado.
+   - .dropdownCustomizadoTexto — Texto escolhido: ocupa o espaço, alinhado à
+     esquerda, cortado com reticências.
+   - .dropdownCustomizadoSeta — Seta do dropdown com transição suave de giro.
+   - .dropdownCustomizadoBotao[aria-expanded="true"] .dropdown… — Gira a seta
+     180° quando o dropdown está aberto.
+   - .dropdownCustomizadoLista — Lista de opções flutuante logo abaixo do
+     botão, com rolagem a partir de 240px.
+   - .dropdownCustomizadoLista[hidden] — Esconde a lista quando tem o atributo
+     hidden.
+   - .dropdownCustomizadoItem — Opção da lista: botão de largura total, sem
+     borda e com o texto e o indicador nas pontas.
+   - .dropdownCustomizadoItem:hover, .dropdownCustomizadoItem:… — Destaca a
+     opção ao passar o mouse ou receber foco do teclado.
+   - .calendarioAgendamento — Cartão do calendário: borda, cantos
+     arredondados, fundo branco e preenchimento.
+   - .calendarioAgendamento.campoComErro — Em erro, mantém a cor do texto (o
+     erro aparece só na borda).
+   - .calendarioCabecalho — Cabeçalho do calendário: botões de mês e título
+     centralizados.
+   - .calendarioBotaoNavegacao — Botão redondo de 40px para mês
+     anterior/próximo.
+   - .calendarioBotaoNavegacao:hover — Fundo na cor dos botões e ícone branco
+     ao passar o mouse.
+   - .calendarioTitulo — Título do mês e ano em maiúsculas e centralizado.
+   - .calendarioDiasSemana — Linha com as 7 iniciais dos dias da semana em 7
+     colunas iguais.
+   - .calendarioGrade — Grade com os dias do mês em 7 colunas iguais.
+   - .diaCalendario — Botão de um dia: quadrado, centralizado, com borda
+     transparente e cantos arredondados.
+   - .diaCalendario.diaVazio — Casa vazia no início do mês: invisível e sem
+     clique.
+   - .diaCalendario.diaIndisponivel — Dia indisponível: borda e texto
+     vermelhos e cursor de bloqueado.
+   - .diaCalendario.diaSelecionado — Dia escolhido: fundo azul e texto branco.
+   - @media (max-width: 400px) — Em telas muito estreitas, compacta o
+     calendário.
+     - .calendarioAgendamento — Reduz o preenchimento do cartão do calendário.
+     - .calendarioGrade, .calendarioDiasSemana — Reduz o espaço entre os dias
+       para 2px.
+   - .calendarioLegenda — Legenda do calendário em linha, com quebra e
+     espaçamento.
+   - .legendaItem — Item da legenda: amostra e texto lado a lado, em negrito.
+   - .legendaAmostra — Quadradinho de amostra de 16px com cantos arredondados.
+   - .legendaAmostraSelecionado — Amostra azul para 'selecionado'.
+   - .legendaAmostraIndisponivel — Amostra com borda vermelha para
+     'indisponível'.
+   - .acoesFormulario — Botões do formulário em linha, com quebra e
+     espaçamento.
+   - @media (min-width: 768px) — A partir de tablet, alinha os botões à
+     direita.
+     - .acoesFormulario — Empurra os botões para o lado direito.
+   - .campoComErro — Marca o campo com borda e texto vermelhos (erro de
+     validação, com !important na borda).
+   - @keyframes animacaoEsqueleto — Animação do brilho do esqueleto: o
+     gradiente desliza da direita para a esquerda.
+   - .estadoCarregando img[data-campo] — Enquanto carrega, imagens com data-
+     campo viram blocos cinza animados.
+   - .estadoCarregando [data-campo]:not(img) — Enquanto carrega, os campos de
+     texto viram faixas cinza animadas.
+   - .estadoCarregando .botaoBase--primario — Enquanto carrega, o botão
+     primário fica opaco e com cursor de bloqueado.
+   - .estadoErro img[data-campo], .estadoErro [data-campo]:not… — Em caso de
+     erro, imagens e campos viram blocos cinza fixos, sem animação.
+   ============================================================ */
+
+/* ============================================================
    PÁGINA: agendamentoCli (Agendamento)
    Depende de: public/assets/css/variaveis.css
               public/assets/css/componentes.css
@@ -14,6 +150,7 @@
    modalBase, botaoBase).
    ============================================================ */
 
+/* Conteúdo principal: espaço para a navegação fixa (topo e rodapé) no celular. */
 .conteudoAgendamento {
   padding-top: calc(72px + var(--espaco4));
   padding-bottom: calc(64px + var(--espaco4));
@@ -21,7 +158,9 @@
   padding-right: var(--espaco4);
 }
 
+/* A partir de tablet, a navegação lateral ocupa a esquerda. */
 @media (min-width: 768px) {
+  /* Abre 72px de margem à esquerda para a navegação lateral e ajusta o espaço vertical. */
   .conteudoAgendamento {
     margin-left: 72px;
     padding-top: var(--espaco5);
@@ -29,6 +168,7 @@
   }
 }
 
+/* Botão quadrado de 48px, com borda e ícone na cor de destaque, para voltar ao serviço. */
 .botaoVoltarAgendamento {
   display: flex;
   align-items: center;
@@ -41,10 +181,15 @@
   margin-bottom: var(--espaco5);
 }
 
+/* Fundo na cor dos botões ao passar o mouse. */
 .botaoVoltarAgendamento:hover {
   background-color: var(--corBotoes);
 }
 
+/*
+   Grade da página em uma coluna (título, alerta, valor, profissional, local, calendário, horário e
+   botões), centralizada até 1200px.
+*/
 .gradeAgendamento {
   display: grid;
   grid-template-columns: 1fr;
@@ -62,7 +207,12 @@
     "botoes";
 }
 
+/* A grade passa a duas colunas. */
 @media (min-width: 768px) {
+  /*
+     Calendário na coluna esquerda, ocupando as linhas; valor, profissional, local, horário e botões
+     à direita.
+  */
   .gradeAgendamento {
     grid-template-columns: 1fr 1fr;
     align-items: start;
@@ -77,19 +227,29 @@
   }
 }
 
+/* Posiciona o título na área 'titulo' da grade. */
 .areaTitulo { grid-area: titulo; }
+/* Posiciona o alerta de validação na área 'alerta'. */
 .areaAlerta { grid-area: alerta; }
+/* Posiciona o valor na área 'valor'. */
 .areaValor { grid-area: valor; }
+/* Posiciona o profissional na área 'profissional'. */
 .areaProfissional { grid-area: profissional; }
+/* Posiciona a localização na área 'localizacao'. */
 .areaLocalizacao { grid-area: localizacao; }
+/* Posiciona o calendário na área 'calendario'. */
 .areaCalendario { grid-area: calendario; }
+/* Posiciona o horário na área 'horario'. */
 .areaHorario { grid-area: horario; }
+/* Posiciona os botões na área 'botoes'. */
 .areaBotoes { grid-area: botoes; }
 
+/* Remove a margem do título da página. */
 .tituloAgendamento {
   margin: 0;
 }
 
+/* Linha com rótulo e valor lado a lado, nas extremidades. */
 .campoValorLinha {
   display: flex;
   align-items: center;
@@ -97,6 +257,7 @@
   gap: var(--espaco4);
 }
 
+/* Caixa do preço: borda, cantos arredondados, fundo branco e texto em negrito. */
 .valorAgendamento {
   margin: 0;
   padding: var(--espaco1) var(--espaco4);
@@ -106,24 +267,28 @@
   font-weight: var(--pesoNegrito);
 }
 
+/* Texto de ajuda pequeno, em negrito, logo abaixo do campo. */
 .textoAjuda {
   margin: var(--espaco1) 0 0 0;
   font-size: var(--tamanhoCaption);
   font-weight: var(--pesoNegrito);
 }
 
+/* Grupo de campo (rótulo + controle) em coluna com pequeno espaçamento. */
 .campoFormulario {
   display: flex;
   flex-direction: column;
   gap: var(--espaco1);
 }
 
+/* Rótulo do campo com tamanho de H3. */
 .tituloCampo {
   display: block;
   font-size: var(--tamanhoH3);
   margin: 0 0 var(--espaco1) 0;
 }
 
+/* Campo de texto: largura total, borda, cantos arredondados e fundo branco. */
 .inputFormulario {
   width: 100%;
   padding: var(--espaco2) var(--espaco4);
@@ -134,15 +299,18 @@
   font-size: var(--tamanhoBody);
 }
 
+/* Campo somente leitura com fundo cinza claro. */
 .inputFormulario[readonly] {
   background-color: var(--corFundo);
 }
 
 
+/* Contêiner do dropdown de horário; referência para posicionar a lista. */
 .dropdownCustomizado {
   position: relative;
 }
 
+/* Botão que abre o dropdown: largura total, com borda, ícone e texto. */
 .dropdownCustomizadoBotao {
   width: 100%;
   display: flex;
@@ -157,11 +325,13 @@
   cursor: pointer;
 }
 
+/* Botão desabilitado: opaco e com cursor de bloqueado. */
 .dropdownCustomizadoBotao:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* Texto escolhido: ocupa o espaço, alinhado à esquerda, cortado com reticências. */
 .dropdownCustomizadoTexto {
   flex: 1;
   text-align: left;
@@ -170,14 +340,17 @@
   white-space: nowrap;
 }
 
+/* Seta do dropdown com transição suave de giro. */
 .dropdownCustomizadoSeta {
   transition: transform 0.15s ease-in-out;
 }
 
+/* Gira a seta 180° quando o dropdown está aberto. */
 .dropdownCustomizadoBotao[aria-expanded="true"] .dropdownCustomizadoSeta {
   transform: rotate(180deg);
 }
 
+/* Lista de opções flutuante logo abaixo do botão, com rolagem a partir de 240px. */
 .dropdownCustomizadoLista {
   position: absolute;
   top: calc(100% + var(--espaco1));
@@ -195,10 +368,12 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* Esconde a lista quando tem o atributo hidden. */
 .dropdownCustomizadoLista[hidden] {
   display: none;
 }
 
+/* Opção da lista: botão de largura total, sem borda e com o texto e o indicador nas pontas. */
 .dropdownCustomizadoItem {
   display: flex;
   align-items: center;
@@ -214,11 +389,13 @@
   cursor: pointer;
 }
 
+/* Destaca a opção ao passar o mouse ou receber foco do teclado. */
 .dropdownCustomizadoItem:hover,
 .dropdownCustomizadoItem:focus-visible {
   background-color: var(--corFundo);
 }
 
+/* Cartão do calendário: borda, cantos arredondados, fundo branco e preenchimento. */
 .calendarioAgendamento {
   padding: var(--espaco4);
   border: 1px solid var(--corBordas);
@@ -226,10 +403,12 @@
   background-color: var(--corBranco);
 }
 
+/* Em erro, mantém a cor do texto (o erro aparece só na borda). */
 .calendarioAgendamento.campoComErro {
   color: inherit;
 }
 
+/* Cabeçalho do calendário: botões de mês e título centralizados. */
 .calendarioCabecalho {
   display: flex;
   align-items: center;
@@ -238,6 +417,7 @@
   margin-bottom: var(--espaco4);
 }
 
+/* Botão redondo de 40px para mês anterior/próximo. */
 .calendarioBotaoNavegacao {
   display: flex;
   align-items: center;
@@ -251,11 +431,13 @@
   cursor: pointer;
 }
 
+/* Fundo na cor dos botões e ícone branco ao passar o mouse. */
 .calendarioBotaoNavegacao:hover {
   background-color: var(--corBotoes);
   color: var(--corBranco);
 }
 
+/* Título do mês e ano em maiúsculas e centralizado. */
 .calendarioTitulo {
   min-width: 140px;
   margin: 0;
@@ -264,6 +446,7 @@
   text-transform: uppercase;
 }
 
+/* Linha com as 7 iniciais dos dias da semana em 7 colunas iguais. */
 .calendarioDiasSemana {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -273,6 +456,7 @@
   text-align: center;
 }
 
+/* Grade com os dias do mês em 7 colunas iguais. */
 .calendarioGrade {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -280,6 +464,7 @@
   margin-bottom: var(--espaco4);
 }
 
+/* Botão de um dia: quadrado, centralizado, com borda transparente e cantos arredondados. */
 .diaCalendario {
   aspect-ratio: 1 / 1;
   display: flex;
@@ -294,17 +479,20 @@
   cursor: pointer;
 }
 
+/* Casa vazia no início do mês: invisível e sem clique. */
 .diaCalendario.diaVazio {
   visibility: hidden;
   cursor: default;
 }
 
+/* Dia indisponível: borda e texto vermelhos e cursor de bloqueado. */
 .diaCalendario.diaIndisponivel {
   border-color: var(--corAcaoNegativa);
   color: var(--corAcaoNegativa);
   cursor: not-allowed;
 }
 
+/* Dia escolhido: fundo azul e texto branco. */
 .diaCalendario.diaSelecionado {
   background-color: var(--corAcaoSecundaria);
   border-color: var(--corAcaoSecundaria);
@@ -312,23 +500,28 @@
 }
 
 
+/* Em telas muito estreitas, compacta o calendário. */
 @media (max-width: 400px) {
+  /* Reduz o preenchimento do cartão do calendário. */
   .calendarioAgendamento {
     padding: var(--espaco2);
   }
 
+  /* Reduz o espaço entre os dias para 2px. */
   .calendarioGrade,
   .calendarioDiasSemana {
     gap: 2px;
   }
 }
 
+/* Legenda do calendário em linha, com quebra e espaçamento. */
 .calendarioLegenda {
   display: flex;
   flex-wrap: wrap;
   gap: var(--espaco4);
 }
 
+/* Item da legenda: amostra e texto lado a lado, em negrito. */
 .legendaItem {
   display: flex;
   align-items: center;
@@ -338,6 +531,7 @@
   font-weight: var(--pesoNegrito);
 }
 
+/* Quadradinho de amostra de 16px com cantos arredondados. */
 .legendaAmostra {
   display: inline-block;
   width: 16px;
@@ -345,23 +539,28 @@
   border-radius: 4px;
 }
 
+/* Amostra azul para 'selecionado'. */
 .legendaAmostraSelecionado {
   background-color: var(--corAcaoSecundaria);
 }
 
+/* Amostra com borda vermelha para 'indisponível'. */
 .legendaAmostraIndisponivel {
   border: 2px solid var(--corAcaoNegativa);
   background-color: transparent;
 }
 
 
+/* Botões do formulário em linha, com quebra e espaçamento. */
 .acoesFormulario {
   display: flex;
   flex-wrap: wrap;
   gap: var(--espaco4);
 }
 
+/* A partir de tablet, alinha os botões à direita. */
 @media (min-width: 768px) {
+  /* Empurra os botões para o lado direito. */
   .acoesFormulario {
     justify-content: flex-end;
   }
@@ -369,6 +568,7 @@
 
 /* ---------- Campo com erro de validação ---------- */
 
+/* Marca o campo com borda e texto vermelhos (erro de validação, com !important na borda). */
 .campoComErro {
   border-color: var(--corAcaoNegativa) !important;
   color: var(--corAcaoNegativa);
@@ -376,11 +576,13 @@
 
 /* ---------- Estado de carregamento (skeleton) e erro ---------- */
 
+/* Animação do brilho do esqueleto: o gradiente desliza da direita para a esquerda. */
 @keyframes animacaoEsqueleto {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
+/* Enquanto carrega, imagens com data-campo viram blocos cinza animados. */
 .estadoCarregando img[data-campo] {
   background-color: transparent;
   background-image: linear-gradient(
@@ -393,6 +595,7 @@
   animation: animacaoEsqueleto 1.5s ease-in-out infinite;
 }
 
+/* Enquanto carrega, os campos de texto viram faixas cinza animadas. */
 .estadoCarregando [data-campo]:not(img) {
   color: transparent;
   border-radius: 4px;
@@ -406,11 +609,13 @@
   animation: animacaoEsqueleto 1.5s ease-in-out infinite;
 }
 
+/* Enquanto carrega, o botão primário fica opaco e com cursor de bloqueado. */
 .estadoCarregando .botaoBase--primario {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* Em caso de erro, imagens e campos viram blocos cinza fixos, sem animação. */
 .estadoErro img[data-campo],
 .estadoErro [data-campo]:not(img) {
   color: transparent;

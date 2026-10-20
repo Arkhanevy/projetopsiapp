@@ -1,4 +1,60 @@
 /* ============================================================
+   ARQUIVO: autenticacaoBase.css
+
+   O QUE FAZ
+   Layout compartilhado das telas de cadastro e login de profissional e
+   clínica: banner de imagem à esquerda e formulário à direita (a partir de
+   tablet), avatar redondo, caixas de texto e ajustes de página inteira.
+
+   OBSERVAÇÕES
+   - Depende de variaveis.css e componentes.css, carregados antes. Regras
+     específicas de cada tela ficam em cadastroProfissional.css,
+     cadastroClinica.css, loginProfissional.css e loginClinica.css.
+   - Vários seletores são globais (html, body, h1, p, textarea, .container-
+     fluid): afetam toda a página que carregar este arquivo, não só o
+     formulário.
+   - p limita a largura a 400px, centraliza (margin: auto) e usa cinza fixo
+     #555: qualquer parágrafo da página herda isso.
+   - .vh-100 aqui define min-height, enquanto o .vh-100 do Bootstrap define
+     height com !important; as duas regras convivem.
+   - O vermelho de erro (#dc3545) está fixo em vez de usar --corAcaoNegativa.
+   - O cadProCli.css parece ser a versão anterior, que juntava estas regras
+     com as de cadastro/login; carregar os dois ao mesmo tempo duplica regras.
+   - overflow-x só no html (e não no body) para o menu sticky continuar
+     acompanhando a tela; ver comentário original.
+
+   REGRAS (na ordem em que aparecem)
+   - html, body — Remove margens e preenchimento padrão da página.
+   - html — Esconde rolagem horizontal só no html, para não quebrar o menu
+     sticky.
+   - .container-fluid — Remove o preenchimento lateral do contêiner do
+     Bootstrap para o banner encostar nas bordas.
+   - textarea.is-invalid, .form-select.is-invalid — Borda vermelha para
+     textarea ou select com erro de validação.
+   - h1 — Deixa os títulos principais semi-negrito (600).
+   - p — Parágrafos em cinza, centralizados e com largura máxima de 400px.
+   - .vh-100 — Garante altura mínima de uma tela inteira.
+   - #imgBox — Esconde a coluna do banner no celular.
+   - #imgBox img — Imagem do banner preenche toda a coluna, cortando o excesso
+     (cover).
+   - #colForm > div — Limita o formulário a 420px de largura e o centraliza.
+   - textarea — Campo de texto longo ocupa toda a largura com 250px de altura.
+   - .logo-titulo — Logo pequena (70px) mantendo a proporção.
+   - .avatar-container — Caixa quadrada de 120px, centralizada, para a foto de
+     perfil.
+   - .avatar-container img — Foto de perfil redonda, que preenche a caixa e
+     indica ser clicável.
+   - .form-wrapper — Contêiner do formulário com largura máxima de 420px,
+     centralizado.
+   - .form-esquerda — Remove a margem esquerda automática para alinhar o
+     formulário à esquerda.
+   - @media (min-width: 768px) — Ajustes de tablet em diante (banner visível
+     ao lado do formulário).
+     - #imgBox — Mostra o banner e o faz ocupar a altura da tela.
+     - #colForm — Coluna do formulário com a altura da tela e rolagem própria.
+   ============================================================ */
+
+/* ============================================================
    autenticacaoBase.css — layout compartilhado das telas de cadastro
    e login de profissional e clínica (banner à esquerda + formulário).
    Regras específicas de cada tela ficam em cadastroProfissional.css,
@@ -7,74 +63,88 @@
    ============================================================ */
 
 /* BASE */
+/* Remove margens e preenchimento padrão da página. */
 html,
 body {
     margin: 0;
     padding: 0;
 }
 
+/* Esconde rolagem horizontal só no html, para não quebrar o menu sticky. */
 /* overflow-x só no html: no body ele viraria um contêiner de rolagem
    e o menu "sticky" deixaria de acompanhar a tela. */
 html {
   overflow-x: hidden;
 }
 
+/* Remove o preenchimento lateral do contêiner do Bootstrap para o banner encostar nas bordas. */
 .container-fluid {
   padding: 0;
 }
 
+/* Borda vermelha para textarea ou select com erro de validação. */
 textarea.is-invalid, .form-select.is-invalid {
   border-color: #dc3545;
 }
 
+/* Deixa os títulos principais semi-negrito (600). */
 h1 {
   font-weight: 600;
 }
 
+/* Parágrafos em cinza, centralizados e com largura máxima de 400px. */
 p {
   color: #555;
   max-width: 400px;
   margin: auto;
 }
 
+/* Garante altura mínima de uma tela inteira. */
 .vh-100 {
   min-height: 100vh;
 }
 
+/* Esconde a coluna do banner no celular. */
 #imgBox {
   display: none;
 }
 
+/* Imagem do banner preenche toda a coluna, cortando o excesso (cover). */
 #imgBox img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+/* Limita o formulário a 420px de largura e o centraliza. */
 #colForm > div {
   width: 100%;
   max-width: 420px;
   margin: 0 auto;
 }
 
+/* Campo de texto longo ocupa toda a largura com 250px de altura. */
 textarea {
   width: 100%;
   height: 250px;
   align-self: center;
 }
 
+/* Logo pequena (70px) mantendo a proporção. */
 .logo-titulo {
   width: 70px;
   height: auto;
   object-fit: contain;
 }
 
+/* Caixa quadrada de 120px, centralizada, para a foto de perfil. */
 .avatar-container {
   width: 120px;
   height: 120px;
   margin: auto;
 }
 
+/* Foto de perfil redonda, que preenche a caixa e indica ser clicável. */
 .avatar-container img {
   width: 100%;
   height: 100%;
@@ -83,23 +153,28 @@ textarea {
   cursor: pointer;
 }
 
+/* Contêiner do formulário com largura máxima de 420px, centralizado. */
 .form-wrapper {
   width: 100%;
   max-width: 420px;
   margin: auto;
 }
 
+/* Remove a margem esquerda automática para alinhar o formulário à esquerda. */
 .form-esquerda {
   margin-left: 0 !important;
 }
 
+/* Ajustes de tablet em diante (banner visível ao lado do formulário). */
 /* TABLET+ (≥ 768px) */
 @media (min-width: 768px) {
+  /* Mostra o banner e o faz ocupar a altura da tela. */
   #imgBox {
     display: block;
     height: 100vh;
   }
 
+  /* Coluna do formulário com a altura da tela e rolagem própria. */
   #colForm {
     height: 100vh;
     overflow-y: auto;

@@ -1,11 +1,36 @@
+/* ============================================================
+   ARQUIVO: cadastroProfissional.css
+
+   O QUE FAZ
+   Estilos específicos do cadastro do profissional: esconde as etapas até o JS
+   mostrá-las, esconde o input de foto e limita a largura do formulário em
+   tablet+.
+
+   OBSERVAÇÕES
+   - Depende de variaveis.css, componentes.css e autenticacaoBase.css.
+   - O cadProfissional.js alterna entre as etapas (cadastro e ativação).
+   - Quase idêntico a cadastroClinica.css; mudam só os ids.
+
+   REGRAS (na ordem em que aparecem)
+   - #cadastroProfissional, #ativacao, .cadastro — As etapas começam
+     escondidas; o JS alterna entre elas.
+   - #img_perfil — Input de foto invisível (o clique é feito pelo avatar).
+   - @media (min-width: 768px) — A partir de tablet, limita a largura do
+     formulário.
+     - #cadastroProfissional — Formulário ocupa a largura disponível até
+       420px.
+   ============================================================ */
+
 /* cadastroProfissional.css — estilos específicos do cadastro de profissional.
    Depende de: variaveis.css, componentes.css e autenticacaoBase.css. */
 
+/* As etapas começam escondidas; o JS alterna entre elas. */
 /* As etapas começam escondidas; cadProfissional.js alterna entre elas. */
 #cadastroProfissional, #ativacao, .cadastro {
   display: none;
 }
 
+/* Input de foto invisível (o clique é feito pelo avatar). */
 /* Input de foto fica invisível: o clique é feito pelo avatar. */
 #img_perfil {
   position: absolute;
@@ -14,8 +39,10 @@
   height: 0;
 }
 
+/* A partir de tablet, limita a largura do formulário. */
 /* TABLET+ (≥ 768px) */
 @media (min-width: 768px) {
+  /* Formulário ocupa a largura disponível até 420px. */
   #cadastroProfissional {
     width: 100%;
     max-width: 420px;

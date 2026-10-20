@@ -1,13 +1,41 @@
+/* ============================================================
+   ARQUIVO: home.css
+
+   O QUE FAZ
+   Estilos da página inicial: fundo com imagem e filtro verde sobre ela,
+   conteúdo acima do filtro e largura do campo de pesquisa da home.
+
+   OBSERVAÇÕES
+   - Depende de variaveis.css e componentes.css.
+   - O caminho da imagem de fundo (".../images/bannerHorizontal.jpg") parece
+     incompleto/placeholder: confirme o caminho real, senão o fundo não
+     carrega.
+   - O filtro esverdeado é um pseudo-elemento ::before com rgba fixo (0, 120,
+     60, 0.45), sem usar variáveis.
+
+   REGRAS (na ordem em que aparecem)
+   - .fundo — Contêiner da home: altura mínima de uma tela, imagem de fundo
+     cobrindo tudo e centralizada.
+   - .fundo::before — Camada verde translúcida sobre a imagem de fundo (filtro
+     esverdeado).
+   - .fundo>* — Garante que o conteúdo apareça acima do filtro (z-index
+     maior).
+   - .campoPesquisaHome — Limita a largura do campo de pesquisa da home a
+     480px.
+   ============================================================ */
+
 /* home.css — estilos específicos da página inicial. Depende de variaveis.css e componentes.css. */
 
+  /* Contêiner da home: altura mínima de uma tela, imagem de fundo cobrindo tudo e centralizada. */
   .fundo {
     position: relative;
     min-height: 100vh;
-    background-image: url(".../images/bannerHorizontal.jpg");
+    background-image: url("public/assets/images/bannerHorizontal.jpg");
     background-size: cover;
     background-position: center;
   }
 
+  /* Camada verde translúcida sobre a imagem de fundo (filtro esverdeado). */
   /* Filtro esverdeado */
   .fundo::before {
     content: "";
@@ -16,12 +44,14 @@
     background: rgba(0, 120, 60, 0.45);
   }
 
+  /* Garante que o conteúdo apareça acima do filtro (z-index maior). */
   /* Conteúdo fica acima do filtro */
   .fundo>* {
     position: relative;
     z-index: 1;
   }
 
+  /* Limita a largura do campo de pesquisa da home a 480px. */
   .campoPesquisaHome {
     max-width: 480px;
   }

@@ -1,34 +1,81 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: consultasCli.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: INFORMACOES_STATUS
-   - Objeto: moduloConsultasCli
-   - Função/método: iniciar
-   - Função/método: cachearElementos
-   - Função/método: anunciar
-   - Função/método: registrarEventos
-   - Função/método: exibirModalSessaoExpirada
-   - Função/método: buscarConsultas
-   - Função/método: exibirEstadoVazio
-   - Função/método: renderizarConsultas
-   - Função/método: construirCartaoConsulta
-   - Função/método: obterInfoStatus
-   - Função/método: construirBadgeStatus
-   - Função/método: inicializarPopovers
-   - Função/método: abrirModalConfirmacao
-   - Função/método: confirmarCancelamento
-   - Função/método: atualizarCardComoCancelado
+   ARQUIVO: consultasCli.js
+
+   O QUE FAZ
+   Tela 'Minhas consultas' do cliente: lista as consultas em cartões (com
+   status pendente/agendada/cancelada), permite cancelar uma consulta após
+   confirmação em modal e anuncia as mudanças para leitores de tela.
+
+   OBSERVAÇÕES
+   - ATENÇÃO: em iniciar() a chamada this.verificarSessaoEBuscarConsultas()
+     está comentada, e a função também está comentada. Resultado:
+     buscarConsultas() nunca é chamada e a lista não carrega.
+   - As URLs de configuracao são antigas/provisórias
+     (/backend/verificarSessao.php, /backend/cancelarConsulta.php,
+     /login/index.html, marcadas //Axalote), diferentes do padrão
+     index.php?uri=... das outras telas.
+   - Depende de jQuery, Bootstrap (modais e popovers) e ElmoUtilitarios
+     (utilitarios.js).
+   - Os cartões são montados com .text() e createTextNode, então os dados do
+     servidor não entram como HTML.
+   - Formato esperado de cada consulta (id, nomeServico, dataHora, preco,
+     nomeProfissional, nomeClinica, status) está documentado em
+     construirCartaoConsulta.
+   - O status 'realizada' (usado em componentes.js) não existe aqui: status
+     desconhecido cai em 'pendente'.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo e recebe jQuery e
+     ElmoUtilitarios.
+     - INFORMACOES_STATUS (objeto) — Tabela de status da consulta: classe CSS,
+       título, ícone e descrição do popover.
+     - moduloConsultasCli (objeto) — Módulo da página de consultas do cliente.
+       - moduloConsultasCli.configuracao — URLs de sessão, listagem,
+         cancelamento e login.
+       - moduloConsultasCli.elementos — Cache dos elementos jQuery da página.
+       - moduloConsultasCli.iniciar() — Guarda os elementos e registra os
+         eventos (a carga das consultas está desativada).
+       - moduloConsultasCli.cachearElementos() — Busca no DOM grade, estado
+         vazio, modais, botões e região de status.
+       - moduloConsultasCli.anunciar() — Escreve uma mensagem na região de
+         status para leitores de tela.
+       - moduloConsultasCli.registrarEventos() — Liga o botão de login (sessão
+         expirada), os botões de cancelar da grade e a confirmação do
+         cancelamento.
+       - moduloConsultasCli.exibirModalSessaoExpirada() — Esconde a grade e
+         abre o modal de sessão expirada (sem fechar por fora).
+       - moduloConsultasCli.buscarConsultas() — Pede as consultas ao backend e
+         mostra a lista, o estado vazio ou uma mensagem de erro.
+       - moduloConsultasCli.exibirEstadoVazio() — Esconde a grade e mostra o
+         estado vazio, com o texto padrão ou uma mensagem de erro.
+       - moduloConsultasCli.renderizarConsultas() — Monta um cartão por
+         consulta na grade e ativa os popovers.
+       - moduloConsultasCli.construirCartaoConsulta() — Cria o cartão de uma
+         consulta (título, data, preço, profissional, clínica, botão cancelar
+         e badge de status).
+       - moduloConsultasCli.obterInfoStatus() — Devolve os dados do status;
+         desconhecido vira 'pendente'.
+       - moduloConsultasCli.construirBadgeStatus() — Cria o botão-badge de
+         status com popover explicativo.
+       - moduloConsultasCli.inicializarPopovers() — Cria os popovers Bootstrap
+         ainda não inicializados na grade.
+       - moduloConsultasCli.abrirModalConfirmacao() — Guarda o id da consulta,
+         mostra o nome do serviço e abre o modal de confirmação de
+         cancelamento.
+       - moduloConsultasCli.confirmarCancelamento() — Envia o cancelamento ao
+         backend, atualiza o cartão em caso de sucesso e anuncia o resultado.
+       - moduloConsultasCli.atualizarCardComoCancelado() — Remove o botão
+         cancelar do cartão e troca o badge para 'Cancelada'; devolve o novo
+         badge para receber o foco.
+     - Callback do document ready — Executa moduloConsultasCli.iniciar()
+       quando o DOM estiver pronto.
    ============================================================ */
 
+/** Função autoexecutável que isola o escopo e recebe jQuery e ElmoUtilitarios. */
 (function ($, Utilitarios) {
   "use strict";
 
-  // Objeto \'INFORMACOES_STATUS\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Tabela de status da consulta: classe CSS, título, ícone e descrição do popover. */
   var INFORMACOES_STATUS = {
     pendente: {
       classe: "badgeStatusPendente",
@@ -50,10 +97,10 @@
     }
   };
 
-  // Objeto \'moduloConsultasCli\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Módulo da página de consultas do cliente. */
   var moduloConsultasCli = {
 
+    /** URLs de sessão, listagem, cancelamento e login. */
     configuracao: {
       urlVerificarSessao: "/backend/verificarSessao.php", //Axalote
       urlObterConsultas: "app/controllers/Servicocontroller.php",
@@ -61,19 +108,18 @@
       urlLogin: "/login/index.html" //Axalote
     },
 
+    /** Cache dos elementos jQuery da página. */
     elementos: {},
 
-    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    iniciar: function() {
+    /** Guarda os elementos e registra os eventos (a carga das consultas está desativada). */
+    iniciar: function () {
       this.cachearElementos();
       this.registrarEventos();
       //this.verificarSessaoEBuscarConsultas();
     },
 
-    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    cachearElementos: function() {
+    /** Busca no DOM grade, estado vazio, modais, botões e região de status. */
+    cachearElementos: function () {
       this.elementos.$grade = $("#gradeConsultas");
       this.elementos.$estadoVazio = $("#estadoVazioConsultas");
       this.elementos.$textoEstadoVazio = this.elementos.$estadoVazio.find(".textoEstadoVazio");
@@ -89,15 +135,16 @@
       this.elementos.$mensagemStatus = $("#mensagemStatusConsultas");
     },
 
-    // Método \'anunciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    anunciar: function(mensagem) {
+    /** Escreve uma mensagem na região de status para leitores de tela. */
+    anunciar: function (mensagem) {
       this.elementos.$mensagemStatus.text(mensagem);
     },
 
-    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    registrarEventos: function() {
+    /**
+     * Liga o botão de login (sessão expirada), os botões de cancelar da grade e a confirmação do
+     * cancelamento.
+     */
+    registrarEventos: function () {
       var self = this;
 
       this.elementos.$botaoRealizarLoginSessao.on("click", function () {
@@ -134,9 +181,8 @@
         });
     },*/
 
-    // Método \'exibirModalSessaoExpirada\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirModalSessaoExpirada: function() {
+    /** Esconde a grade e abre o modal de sessão expirada (sem fechar por fora). */
+    exibirModalSessaoExpirada: function () {
       this.elementos.$grade.removeClass("estadoCarregando").attr("hidden", "hidden");
       Utilitarios.exibirModal(this.elementos.$modalSessaoExpirada, {
         backdrop: "static",
@@ -144,9 +190,8 @@
       });
     },
 
-    // Método \'buscarConsultas\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    buscarConsultas: function() {
+    /** Pede as consultas ao backend e mostra a lista, o estado vazio ou uma mensagem de erro. */
+    buscarConsultas: function () {
       var self = this;
 
       $.ajax({
@@ -192,9 +237,8 @@
         });
     },
 
-    // Método \'exibirEstadoVazio\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirEstadoVazio: function(mensagemPersonalizada) {
+    /** Esconde a grade e mostra o estado vazio, com o texto padrão ou uma mensagem de erro. */
+    exibirEstadoVazio: function (mensagemPersonalizada) {
       this.elementos.$grade.empty().attr("hidden", "hidden");
 
       if (mensagemPersonalizada) {
@@ -207,10 +251,8 @@
     },
 
 
-    // Método \'renderizarConsultas\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-
-    renderizarConsultas: function(consultas) {
+    /** Monta um cartão por consulta na grade e ativa os popovers. */
+    renderizarConsultas: function (consultas) {
       var self = this;
 
       this.elementos.$estadoVazio.attr("hidden", "hidden");
@@ -224,6 +266,10 @@
     },
 
     /**
+     * Cria o cartão de uma consulta (título, data, preço, profissional, clínica, botão cancelar e
+     * badge de status).
+     */
+    /**
      * Convenção do objeto "consulta" vindo do PHP:
      * {
      *   id: 1,
@@ -235,8 +281,7 @@
      *   status: "pendente" | "agendada" | "cancelada"
      * }
      */
-    // Método \'construirCartaoConsulta\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    construirCartaoConsulta: function(consulta) {
+    construirCartaoConsulta: function (consulta) {
       var infoStatus = this.obterInfoStatus(consulta.status);
 
       var $card = $('<article class="cartaoConsulta"></article>').attr(
@@ -283,15 +328,13 @@
       return $card;
     },
 
-    // Método \'obterInfoStatus\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    obterInfoStatus: function(status) {
+    /** Devolve os dados do status; desconhecido vira 'pendente'. */
+    obterInfoStatus: function (status) {
       return INFORMACOES_STATUS[status] || INFORMACOES_STATUS.pendente;
     },
 
-    // Método \'construirBadgeStatus\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    construirBadgeStatus: function(infoStatus) {
+    /** Cria o botão-badge de status com popover explicativo. */
+    construirBadgeStatus: function (infoStatus) {
       return $('<button type="button" class="badgeStatus"></button>')
         .addClass(infoStatus.classe)
         .attr("data-bs-toggle", "popover")
@@ -307,9 +350,8 @@
         );
     },
 
-    // Método \'inicializarPopovers\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    inicializarPopovers: function() {
+    /** Cria os popovers Bootstrap ainda não inicializados na grade. */
+    inicializarPopovers: function () {
       this.elementos.$grade.find('[data-bs-toggle="popover"]').each(function () {
         if (!bootstrap.Popover.getInstance(this)) {
           new bootstrap.Popover(this);
@@ -317,17 +359,20 @@
       });
     },
 
-    // Método \'abrirModalConfirmacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    abrirModalConfirmacao: function(idConsulta, nomeServico) {
+    /**
+     * Guarda o id da consulta, mostra o nome do serviço e abre o modal de confirmação de
+     * cancelamento.
+     */
+    abrirModalConfirmacao: function (idConsulta, nomeServico) {
       this.elementos.$modalConfirmar.data("consultaId", idConsulta);
       this.elementos.$nomeConsultaParaCancelar.text(nomeServico);
       Utilitarios.exibirModal(this.elementos.$modalConfirmar);
     },
 
-    // Método \'confirmarCancelamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    confirmarCancelamento: function() {
+    /**
+     * Envia o cancelamento ao backend, atualiza o cartão em caso de sucesso e anuncia o resultado.
+     */
+    confirmarCancelamento: function () {
       var self = this;
       var idConsulta = this.elementos.$modalConfirmar.data("consultaId");
 
@@ -363,9 +408,11 @@
         });
     },
 
-    // Método \'atualizarCardComoCancelado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    atualizarCardComoCancelado: function(idConsulta) {
+    /**
+     * Remove o botão cancelar do cartão e troca o badge para 'Cancelada'; devolve o novo badge para
+     * receber o foco.
+     */
+    atualizarCardComoCancelado: function (idConsulta) {
       var infoStatus = this.obterInfoStatus("cancelada");
       var $card = this.elementos.$grade.find('[data-consulta-id="' + idConsulta + '"]');
 
@@ -389,6 +436,7 @@
     }
   };
 
+  /** Executa moduloConsultasCli.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloConsultasCli.iniciar();
   });

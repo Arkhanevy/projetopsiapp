@@ -1,56 +1,134 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: resultadosBusca.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: moduloResultados
-   - Objeto: validos
-   - Objeto: estadoHistorico
-   - Objeto: filtros
-   - Objeto: daAba
-   - Objeto: resultado
-   - Função/método: mapear
-   - Função/método: iniciar
-   - Função/método: cachearElementos
-   - Função/método: registrarEventos
-   - Função/método: restaurarBusca
-   - Função/método: filtrosValidos
-   - Função/método: salvarBusca
-   - Função/método: pesquisar
-   - Função/método: aoTrocarAba
-   - Função/método: mostrarAbaAtiva
-   - Função/método: atualizarTelaDaAba
-   - Função/método: coletarFiltros
-   - Função/método: aplicarFiltrosNaTela
-   - Função/método: filtrosDaAba
-   - Função/método: aplicarFiltros
-   - Função/método: limparFiltros
-   - Função/método: fecharPainelFiltros
-   - Função/método: chamarContrato
-   - Função/método: carregarAba
-   - Função/método: aplicarFiltrosLocais
-   - Função/método: fotoValida
-   - Função/método: $listaDaAba
-   - Função/método: $vazioDaAba
-   - Função/método: exibirSemTermo
-   - Função/método: mostrarAvisoBusca
-   - Função/método: esconderAvisoBusca
-   - Função/método: exibirCarregando
-   - Função/método: exibirErro
-   - Função/método: exibirResultados
-   - Função/método: mensagemDeResultados
-   - Função/método: anunciar
-   - Função/método: montarCard
-   - Função/método: apenasComValor
-   - Função/método: configurarLink
-   - Função/método: montarLink
-   - Função/método: formatarPreco
-   - Função/método: obterDetalhesClinica
-   - Função/método: preencherEndereco
-   - Função/método: buscarEnderecoPorCep
-   - Função/método: textoEndereco
+   ARQUIVO: resultadosBusca.js
+
+   O QUE FAZ
+   Tela de resultados da busca: lê o termo da URL, consulta o backend por aba
+   (Serviços, Profissionais, Clínicas), aplica filtros, mostra os cards,
+   completa o endereço das clínicas pelo CEP (ViaCEP) e mantém aba, termo e
+   filtros no histórico do navegador.
+
+   OBSERVAÇÕES
+   - Depende de jQuery, Bootstrap, componentes.js, ElmoUtilitarios,
+     sessaoNavegacao.js e buscaComum.js (window.ElmoBusca).
+   - Cada aba só carrega ao ser aberta ou quando termo/filtros mudam
+     (carregadoPara evita repetir); estado.requisicoes descarta respostas
+     antigas.
+   - O backend só filtra por termo. O filtro tipoServico é aplicado no
+     navegador sobre ser_tipo; preço, cidade e local estão escondidos no HTML
+     até o backend suportar.
+   - Cada card de clínica faz uma consulta de detalhes (para obter o CEP) e
+     depois uma ao ViaCEP: muitas requisições; há cache para CEP e detalhes
+     repetidos.
+   - O mapeamento de serviços lê ser_foto, campo que não consta na lista de
+     campos documentada no topo.
+   - O ViaCEP é chamado via JSONP, com tempo limite de 8 s.
+   - fotoValida() e formatarPreco() também existem (iguais ou parecidos) em
+     contatos.js e infoServico.js.
+   - Atributos data-* em camelCase são lidos com .attr(); o .data() do jQuery
+     esperaria a forma com hífen.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo e recebe jQuery,
+     ElmoUtilitarios e ElmoBusca.
+     - moduloResultados (objeto) — Módulo da página de resultados.
+       - moduloResultados.configuracao — URLs de perfil, serviço e ViaCEP,
+         filtros aceitos e contratos de backend.
+         - configuracao.contratos — Rota e ação da busca e dos detalhes
+           (buscacontroller.php).
+       - moduloResultados.abas — Dados de cada aba: tipo no backend, elementos
+         do HTML, textos e conversão do item do backend.
+         - abas.servicos — Aba Serviços.
+           - abas.servicos.mapear() — Converte um serviço do backend nos dados
+             do card (nome, preço, foto, link de detalhes).
+         - abas.profissionais — Aba Profissionais.
+           - abas.profissionais.mapear() — Converte um profissional do backend
+             nos dados do card (nome, foto, link do perfil).
+         - abas.clinicas — Aba Clínicas.
+           - abas.clinicas.mapear() — Converte uma clínica do backend nos
+             dados do card (nome, foto, link do perfil e endereço provisório).
+       - moduloResultados.estado — Termo, aba ativa, filtros, controle de
+         cargas e caches de endereços e detalhes.
+       - moduloResultados.elementos — Cache dos elementos jQuery da página.
+       - moduloResultados.iniciar() — Guarda os elementos, configura a
+         navegação, registra eventos e restaura a busca.
+       - moduloResultados.cachearElementos() — Busca no DOM conteúdo, campo,
+         filtros, abas e estados.
+       - moduloResultados.registrarEventos() — Liga pesquisa, troca de aba,
+         filtros, tentar novamente e voltar/avançar do navegador.
+       - moduloResultados.restaurarBusca() — Lê termo (URL), aba e filtros
+         (history.state), atualiza a tela e carrega a aba ativa.
+       - moduloResultados.filtrosValidos() — Aceita só filtros conhecidos com
+         valor em texto.
+       - moduloResultados.salvarBusca() — Grava termo, aba e filtros na URL e
+         no history.state (nova entrada ou substituindo a atual).
+       - moduloResultados.pesquisar() — Valida o termo; se vazio avisa, senão
+         salva e recarrega a aba ativa.
+       - moduloResultados.aoTrocarAba() — Ao trocar de aba, atualiza a tela,
+         salva o estado e carrega os resultados.
+       - moduloResultados.mostrarAbaAtiva() — Abre a aba guardada se ela ainda
+         não for a ativa.
+       - moduloResultados.atualizarTelaDaAba() — Ajusta o placeholder do campo
+         e os grupos de filtro conforme a aba.
+       - moduloResultados.coletarFiltros() — Lê os valores do painel de
+         filtros.
+       - moduloResultados.aplicarFiltrosNaTela() — Preenche o painel com os
+         filtros guardados no estado.
+       - moduloResultados.filtrosDaAba() — Devolve só os filtros válidos para
+         a aba.
+       - moduloResultados.aplicarFiltros() — Guarda os filtros, fecha o
+         painel, salva a busca e recarrega a aba.
+       - moduloResultados.limparFiltros() — Remove todos os filtros e limpa o
+         painel.
+       - moduloResultados.fecharPainelFiltros() — Fecha o dropdown de filtros
+         e devolve o foco ao botão.
+       - moduloResultados.chamarContrato() — Faz o POST do contrato (acao +
+         dados) ao backend.
+       - moduloResultados.carregarAba() — Busca os resultados da aba (evita
+         repetir a mesma consulta), trata carregando, erro e respostas
+         antigas.
+       - moduloResultados.aplicarFiltrosLocais() — Aplica no navegador os
+         filtros que o backend não faz (tipo de serviço).
+       - moduloResultados.fotoValida() — Aceita a foto só se parecer arquivo
+         de imagem; senão devolve undefined.
+       - moduloResultados.$listaDaAba() — Devolve a lista de cards da aba.
+       - moduloResultados.$vazioDaAba() — Devolve o bloco de 'nenhum
+         resultado' da aba.
+       - moduloResultados.exibirSemTermo() — Limpa a aba e mostra o aviso de
+         busca vazia, sem exibir 'nenhum resultado'.
+       - moduloResultados.mostrarAvisoBusca() — Mostra o aviso de pesquisa
+         vazia e, se pedido, foca o campo.
+       - moduloResultados.esconderAvisoBusca() — Esconde o aviso de pesquisa
+         vazia.
+       - moduloResultados.exibirCarregando() — Limpa a aba e mostra o estado
+         de carregamento.
+       - moduloResultados.exibirErro() — Mostra o estado de erro e libera nova
+         tentativa.
+       - moduloResultados.exibirResultados() — Monta os cards, mostra ou
+         esconde o 'nenhum resultado' e anuncia o total.
+       - moduloResultados.mensagemDeResultados() — Monta a frase com a
+         quantidade de resultados (ou 'nenhum').
+       - moduloResultados.anunciar() — Escreve a mensagem na região de status
+         para leitores de tela.
+       - moduloResultados.montarCard() — Clona o modelo da aba, preenche os
+         campos, configura o link e, para clínicas, busca o endereço.
+       - moduloResultados.apenasComValor() — Remove valores vazios para não
+         sobrescrever o texto do modelo com 'undefined'.
+       - moduloResultados.configurarLink() — Define o link do card (só com id
+         numérico) e seu aria-label.
+       - moduloResultados.montarLink() — Monta uma URL com parâmetros
+         codificados.
+       - moduloResultados.formatarPreco() — Formata o valor como moeda
+         brasileira (vazio se inválido).
+       - moduloResultados.obterDetalhesClinica() — Busca os detalhes da
+         clínica (para obter o CEP) com cache de promessas.
+       - moduloResultados.preencherEndereco() — Preenche CEP e endereço do
+         card a partir dos detalhes e do ViaCEP.
+       - moduloResultados.buscarEnderecoPorCep() — Consulta o ViaCEP (JSONP)
+         com cache e tempo limite; CEPs repetidos reaproveitam a consulta.
+       - moduloResultados.textoEndereco() — Monta 'rua, UF' a partir do
+         ViaCEP.
+     - Callback do document ready — Executa moduloResultados.iniciar() quando
+       o DOM estiver pronto.
    ============================================================ */
 
 /* ============================================================
@@ -77,14 +155,15 @@
    do jQuery espera a forma com hífen (data-grupo-filtro).
    ============================================================ */
 
+/** Função autoexecutável que isola o escopo e recebe jQuery, ElmoUtilitarios e ElmoBusca. */
 (function ($, Utilitarios, Busca) {
   "use strict";
 
-  // Objeto \'moduloResultados\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Módulo da página de resultados. */
   var moduloResultados = {
 
     /* ---------- Configuração ---------- */
+    /** URLs de perfil, serviço e ViaCEP, filtros aceitos e contratos de backend. */
     configuracao: {
       urlPerfil: "index.php?uri=perfil",
       urlDetalhesServico: "index.php?uri=infoServico",
@@ -95,6 +174,7 @@
       // serviço é aplicado aqui no navegador, sobre ser_tipo (só aba Serviços).
       filtrosConhecidos: ["tipoServico"],
 
+      /** Rota e ação da busca e dos detalhes (buscacontroller.php). */
       /*
         Contratos de backend (rota "busca" = buscacontroller.php).
         Resposta de "busca" (campos por tipo):
@@ -110,16 +190,22 @@
       }
     },
 
+    /**
+     * Dados de cada aba: tipo no backend, elementos do HTML, textos e conversão do item do backend.
+     */
     /* Dados de cada aba: contrato, elementos do HTML, textos e conversão do item do backend */
     abas: {
+      /** Aba Serviços. */
       servicos: {
         tipoBackend: "servico",
         campoLista: "listaServicos",
         modelo: "#modeloCardServico",
         estadoVazio: "servicos",
         textos: { um: "serviço encontrado", varios: "serviços encontrados", nenhum: "Nenhum serviço foi encontrado" },
-        // Método \'mapear\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-        mapear: function(item, modulo) {
+        /**
+         * Converte um serviço do backend nos dados do card (nome, preço, foto, link de detalhes).
+         */
+        mapear: function (item, modulo) {
           return {
             id: item.ser_id,
             nome: item.ser_nome,
@@ -134,12 +220,14 @@
           };
         }
       },
+      /** Aba Profissionais. */
       profissionais: {
         tipoBackend: "profissional",
         campoLista: "listaProfissionais",
         modelo: "#modeloCardProfissional",
         estadoVazio: "profissionais",
         textos: { um: "profissional encontrado", varios: "profissionais encontrados", nenhum: "Nenhum profissional foi encontrado" },
+        /** Converte um profissional do backend nos dados do card (nome, foto, link do perfil). */
         mapear: function (item, modulo) {
           return {
             id: item.pro_id,
@@ -154,12 +242,17 @@
           };
         }
       },
+      /** Aba Clínicas. */
       clinicas: {
         tipoBackend: "clinica",
         campoLista: "listaClinicas",
         modelo: "#modeloCardClinica",
         estadoVazio: "clinicas",
         textos: { um: "clínica encontrada", varios: "clínicas encontradas", nenhum: "Nenhuma clínica foi encontrada" },
+        /**
+         * Converte uma clínica do backend nos dados do card (nome, foto, link do perfil e endereço
+         * provisório).
+         */
         mapear: function (item, modulo) {
           return {
             id: item.clin_id,
@@ -178,6 +271,7 @@
     },
 
     /* ---------- Estado interno ---------- */
+    /** Termo, aba ativa, filtros, controle de cargas e caches de endereços e detalhes. */
     estado: {
       termo: "",
       abaAtiva: "servicos",
@@ -188,20 +282,19 @@
       cacheDetalhes: {}     // id da clínica -> promessa da consulta de detalhes
     },
 
+    /** Cache dos elementos jQuery da página. */
     elementos: {},
 
-    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    iniciar: function() {
+    /** Guarda os elementos, configura a navegação, registra eventos e restaura a busca. */
+    iniciar: function () {
       this.cachearElementos();
       Busca.configurarNavegacao();
       this.registrarEventos();
       this.restaurarBusca();
     },
 
-    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    cachearElementos: function() {
+    /** Busca no DOM conteúdo, campo, filtros, abas e estados. */
+    cachearElementos: function () {
       var e = this.elementos;
       e.$conteudo = $("#conteudoResultados");
       e.$entrada = $("#entradaBuscaResultados");
@@ -215,9 +308,8 @@
       e.$erro = $("[data-estadoBusca='erro']");
     },
 
-    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    registrarEventos: function() {
+    /** Liga pesquisa, troca de aba, filtros, tentar novamente e voltar/avançar do navegador. */
+    registrarEventos: function () {
       var self = this;
 
       // Evento do campoPesquisa (componentes.js): lupa ou Enter
@@ -263,9 +355,9 @@
 
     /* ---------- Estado da busca (URL + history.state) ---------- */
 
+    /** Lê termo (URL), aba e filtros (history.state), atualiza a tela e carrega a aba ativa. */
     // Lê termo (URL), aba e filtros (history.state), atualiza a tela e carrega a aba ativa.
-    // Método \'restaurarBusca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    restaurarBusca: function() {
+    restaurarBusca: function () {
       var guardado = (window.history.state && window.history.state.busca) || {};
 
       this.estado.termo = $.trim(Utilitarios.obterParametroUrl("termo") || "");
@@ -284,10 +376,9 @@
       this.carregarAba(this.estado.abaAtiva);
     },
 
+    /** Aceita só filtros conhecidos com valor em texto. */
     // Só aceita os filtros conhecidos, com valor em texto (o history.state pode ter sido alterado)
-    // Método \'filtrosValidos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    filtrosValidos: function(filtros) {
-      // Objeto \'validos\': agrupa estado, configurações e/ou métodos deste módulo.
+    filtrosValidos: function (filtros) {
       var validos = {};
       var conhecidos = this.configuracao.filtrosConhecidos;
 
@@ -301,14 +392,15 @@
       return validos;
     },
 
+    /**
+     * Grava termo, aba e filtros na URL e no history.state (nova entrada ou substituindo a atual).
+     */
     // novaEntrada = true: nova pesquisa (cria entrada no histórico); false: só atualiza a atual
-    // Método \'salvarBusca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    salvarBusca: function(novaEntrada) {
+    salvarBusca: function (novaEntrada) {
       var url = window.location.pathname + "?uri=resultadosBusca";
       if (this.estado.termo !== "") {
         url += "&termo=" + encodeURIComponent(this.estado.termo);
       }
-      // Objeto \'estadoHistorico\': agrupa estado, configurações e/ou métodos deste módulo.
       var estadoHistorico = { busca: { aba: this.estado.abaAtiva, filtros: this.estado.filtros } };
 
       try {
@@ -323,8 +415,8 @@
     },
 
     /* ---------- Pesquisa, abas e filtros ---------- */
-    // Método \'pesquisar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    pesquisar: function(termo) {
+    /** Valida o termo; se vazio avisa, senão salva e recarrega a aba ativa. */
+    pesquisar: function (termo) {
       // Pesquisa vazia: aviso visível e nada é pesquisado (os resultados atuais não mudam)
       if (!Busca.termoValido(termo)) {
         this.mostrarAvisoBusca(true);
@@ -336,9 +428,8 @@
       this.carregarAba(this.estado.abaAtiva);
     },
 
-    // Método \'aoTrocarAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    aoTrocarAba: function(aba) {
+    /** Ao trocar de aba, atualiza a tela, salva o estado e carrega os resultados. */
+    aoTrocarAba: function (aba) {
       if (!this.abas[aba]) {
         return;
       }
@@ -348,18 +439,18 @@
       this.carregarAba(aba);
     },
 
+    /** Abre a aba guardada se ela ainda não for a ativa. */
     // Abre a aba guardada (se não for a que já está aberta)
-    // Método \'mostrarAbaAtiva\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    mostrarAbaAtiva: function() {
+    mostrarAbaAtiva: function () {
       var $aba = this.elementos.$abas.filter("[data-tipoBusca='" + this.estado.abaAtiva + "']");
       if (!$aba.hasClass("active")) {
         bootstrap.Tab.getOrCreateInstance($aba[0]).show();
       }
     },
 
+    /** Ajusta o placeholder do campo e os grupos de filtro conforme a aba. */
     // Placeholder do campo e grupos de filtro de acordo com a aba ativa
-    // Método \'atualizarTelaDaAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    atualizarTelaDaAba: function() {
+    atualizarTelaDaAba: function () {
       var aba = this.estado.abaAtiva;
       var $aba = this.elementos.$abas.filter("[data-tipoBusca='" + aba + "']");
 
@@ -377,10 +468,9 @@
       this.elementos.$botaoFiltros.prop("hidden", !haGrupoVisivel);
     },
 
+    /** Lê os valores do painel de filtros. */
     // Lê o painel inteiro (inclusive grupos de outras abas, que mantêm o valor ao trocar de aba)
-    // Método \'coletarFiltros\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    coletarFiltros: function() {
-      // Objeto \'filtros\': agrupa estado, configurações e/ou métodos deste módulo.
+    coletarFiltros: function () {
       var filtros = {};
 
       this.elementos.$gruposFiltro.each(function () {
@@ -401,9 +491,8 @@
       return this.filtrosValidos(filtros);
     },
 
-    // Método \'aplicarFiltrosNaTela\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    aplicarFiltrosNaTela: function() {
+    /** Preenche o painel com os filtros guardados no estado. */
+    aplicarFiltrosNaTela: function () {
       var filtros = this.estado.filtros;
 
       this.elementos.$gruposFiltro.each(function () {
@@ -417,11 +506,10 @@
       });
     },
 
+    /** Devolve só os filtros válidos para a aba. */
     // Só os filtros que valem para a aba (conforme data-abasFiltro)
-    // Método \'filtrosDaAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    filtrosDaAba: function(aba) {
+    filtrosDaAba: function (aba) {
       var filtros = this.estado.filtros;
-      // Objeto \'daAba\': agrupa estado, configurações e/ou métodos deste módulo.
       var daAba = {};
 
       this.elementos.$gruposFiltro.each(function () {
@@ -435,9 +523,8 @@
       return daAba;
     },
 
-    // Método \'aplicarFiltros\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    aplicarFiltros: function(filtros) {
+    /** Guarda os filtros, fecha o painel, salva a busca e recarrega a aba. */
+    aplicarFiltros: function (filtros) {
       this.estado.filtros = filtros;
       this.estado.carregadoPara = {};
       this.fecharPainelFiltros();
@@ -445,23 +532,21 @@
       this.carregarAba(this.estado.abaAtiva);
     },
 
-    // Método \'limparFiltros\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    limparFiltros: function() {
+    /** Remove todos os filtros e limpa o painel. */
+    limparFiltros: function () {
       this.aplicarFiltros({});
       this.aplicarFiltrosNaTela();
     },
 
-    // Método \'fecharPainelFiltros\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    fecharPainelFiltros: function() {
+    /** Fecha o dropdown de filtros e devolve o foco ao botão. */
+    fecharPainelFiltros: function () {
       bootstrap.Dropdown.getOrCreateInstance(this.elementos.$botaoFiltros[0]).hide();
       this.elementos.$botaoFiltros.trigger("focus");
     },
 
     /* ---------- Carregamento dos resultados ---------- */
-    // Método \'chamarContrato\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    chamarContrato: function(nome, dados) {
+    /** Faz o POST do contrato (acao + dados) ao backend. */
+    chamarContrato: function (nome, dados) {
       var contrato = this.configuracao.contratos[nome];
 
       return $.ajax({
@@ -472,9 +557,11 @@
       });
     },
 
-    // Método \'carregarAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    carregarAba: function(aba, forcar) {
+    /**
+     * Busca os resultados da aba (evita repetir a mesma consulta), trata carregando, erro e
+     * respostas antigas.
+     */
+    carregarAba: function (aba, forcar) {
       var self = this;
       var configuracaoAba = this.abas[aba];
       var chave = JSON.stringify({ termo: this.estado.termo, filtros: this.filtrosDaAba(aba) });
@@ -517,9 +604,9 @@
         });
     },
 
+    /** Aplica no navegador os filtros que o backend não faz (tipo de serviço). */
     // Filtros que o backend não faz: aplicados aqui sobre os campos devolvidos.
-    // Método \'aplicarFiltrosLocais\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    aplicarFiltrosLocais: function(aba, itens) {
+    aplicarFiltrosLocais: function (aba, itens) {
       var filtros = this.filtrosDaAba(aba);
 
       if (aba === "servicos" && filtros.tipoServico) {
@@ -531,10 +618,10 @@
       return itens;
     },
 
+    /** Aceita a foto só se parecer arquivo de imagem; senão devolve undefined. */
     // O cadastro grava um marcador no lugar da foto (ex.: "cxfoto"); só usa
     // valores que parecem arquivo de imagem. Sem foto, o card esconde a imagem.
-    // Método \'fotoValida\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    fotoValida: function(foto) {
+    fotoValida: function (foto) {
       if (/\.(jpe?g|png|gif|webp)$/i.test(String(foto || ""))) {
         return foto;
       } else {
@@ -543,20 +630,18 @@
     },
 
     /* ---------- Exibição ---------- */
-    // Método \'$listaDaAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    $listaDaAba: function(aba) {
+    /** Devolve a lista de cards da aba. */
+    $listaDaAba: function (aba) {
       return $("[data-campo='" + this.abas[aba].campoLista + "']");
     },
 
-    // Método \'$vazioDaAba\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    $vazioDaAba: function(aba) {
+    /** Devolve o bloco de 'nenhum resultado' da aba. */
+    $vazioDaAba: function (aba) {
       return $("[data-estadoVazio='" + this.abas[aba].estadoVazio + "']");
     },
 
-    // Método \'exibirSemTermo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirSemTermo: function(aba) {
+    /** Limpa a aba e mostra o aviso de busca vazia, sem exibir 'nenhum resultado'. */
+    exibirSemTermo: function (aba) {
       this.$listaDaAba(aba).empty();
       this.$vazioDaAba(aba).attr("hidden", "hidden");
       this.elementos.$carregando.attr("hidden", "hidden");
@@ -565,9 +650,9 @@
       this.mostrarAvisoBusca(false);
     },
 
+    /** Mostra o aviso de pesquisa vazia e, se pedido, foca o campo. */
     // focar = true quando a pessoa acabou de pesquisar; ao abrir a página não rouba o foco
-    // Método \'mostrarAvisoBusca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    mostrarAvisoBusca: function(focar) {
+    mostrarAvisoBusca: function (focar) {
       this.elementos.$avisoBusca.removeAttr("hidden");
       this.elementos.$entrada.attr("aria-invalid", "true");
       if (focar) {
@@ -575,16 +660,14 @@
       }
     },
 
-    // Método \'esconderAvisoBusca\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    esconderAvisoBusca: function() {
+    /** Esconde o aviso de pesquisa vazia. */
+    esconderAvisoBusca: function () {
       this.elementos.$avisoBusca.attr("hidden", "hidden");
       this.elementos.$entrada.removeAttr("aria-invalid");
     },
 
-    // Método \'exibirCarregando\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirCarregando: function(aba) {
+    /** Limpa a aba e mostra o estado de carregamento. */
+    exibirCarregando: function (aba) {
       this.$listaDaAba(aba).empty();
       this.$vazioDaAba(aba).attr("hidden", "hidden");
       this.elementos.$erro.attr("hidden", "hidden");
@@ -592,9 +675,8 @@
       this.elementos.$conteudo.attr("aria-busy", "true");
     },
 
-    // Método \'exibirErro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirErro: function(aba) {
+    /** Mostra o estado de erro e libera nova tentativa. */
+    exibirErro: function (aba) {
       this.estado.carregadoPara[aba] = null; // permite tentar de novo
       this.$listaDaAba(aba).empty();
       this.$vazioDaAba(aba).attr("hidden", "hidden");
@@ -603,9 +685,8 @@
       this.elementos.$conteudo.attr("aria-busy", "false");
     },
 
-    // Método \'exibirResultados\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirResultados: function(aba, itens) {
+    /** Monta os cards, mostra ou esconde o 'nenhum resultado' e anuncia o total. */
+    exibirResultados: function (aba, itens) {
       var self = this;
       var configuracaoAba = this.abas[aba];
       var $lista = this.$listaDaAba(aba).empty();
@@ -622,9 +703,8 @@
       this.anunciar(this.mensagemDeResultados(configuracaoAba.textos, itens.length));
     },
 
-    // Método \'mensagemDeResultados\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    mensagemDeResultados: function(textos, quantidade) {
+    /** Monta a frase com a quantidade de resultados (ou 'nenhum'). */
+    mensagemDeResultados: function (textos, quantidade) {
       if (quantidade === 0) {
         return textos.nenhum;
       }
@@ -637,15 +717,18 @@
       return quantidade + " " + textoQuantidade;
     },
 
+    /** Escreve a mensagem na região de status para leitores de tela. */
     // Texto para leitores de tela (região role="status" no HTML)
-    // Método \'anunciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    anunciar: function(mensagem) {
+    anunciar: function (mensagem) {
       this.elementos.$avisoResultados.text(mensagem);
     },
 
     /* ---------- Cards ---------- */
-    // Método \'montarCard\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    montarCard: function(aba, item) {
+    /**
+     * Clona o modelo da aba, preenche os campos, configura o link e, para clínicas, busca o
+     * endereço.
+     */
+    montarCard: function (aba, item) {
       var configuracaoAba = this.abas[aba];
       var dados = configuracaoAba.mapear(item, this);
       var modelo = document.querySelector(configuracaoAba.modelo);
@@ -668,10 +751,9 @@
       return $card;
     },
 
+    /** Remove valores vazios para não sobrescrever o texto do modelo com 'undefined'. */
     // Valores vazios não entram (o preencherCampos trocaria o texto do modelo por "undefined")
-    // Método \'apenasComValor\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    apenasComValor: function(textos) {
-      // Objeto \'resultado\': agrupa estado, configurações e/ou métodos deste módulo.
+    apenasComValor: function (textos) {
       var resultado = {};
       $.each(textos, function (nome, valor) {
         if (valor !== undefined && valor !== null && valor !== "") {
@@ -681,9 +763,9 @@
       return resultado;
     },
 
+    /** Define o link do card (só com id numérico) e seu aria-label. */
     // O link só existe com id numérico (o perfil e o serviço esperam um número)
-    // Método \'configurarLink\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    configurarLink: function($card, dados) {
+    configurarLink: function ($card, dados) {
       var $link = $card.find("[data-acao='" + dados.acao + "']");
 
       if (!/^[0-9]+$/.test(String(dados.id))) {
@@ -696,9 +778,8 @@
         .attr("data-idPerfil", dados.id);
     },
 
-    // Método \'montarLink\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    montarLink: function(base, parametros) {
+    /** Monta uma URL com parâmetros codificados. */
+    montarLink: function (base, parametros) {
       var partes = [];
       $.each(parametros, function (nome, valor) {
         partes.push(nome + "=" + encodeURIComponent(valor));
@@ -706,9 +787,8 @@
       return base + "&" + partes.join("&");
     },
 
-    // Método \'formatarPreco\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    formatarPreco: function(valor) {
+    /** Formata o valor como moeda brasileira (vazio se inválido). */
+    formatarPreco: function (valor) {
       var numero = parseFloat(valor);
       if (isNaN(numero)) {
         return "";
@@ -717,11 +797,11 @@
     },
 
     /* ---------- Endereço da clínica (ViaCEP) ---------- */
+    /** Busca os detalhes da clínica (para obter o CEP) com cache de promessas. */
     // A busca não devolve o CEP: ele vem dos detalhes da clínica (uma consulta
     // por card, com cache) e a rua vem do ViaCEP. CEPs repetidos reaproveitam
     // a mesma consulta ao ViaCEP (cache).
-    // Método \'obterDetalhesClinica\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    obterDetalhesClinica: function(id) {
+    obterDetalhesClinica: function (id) {
       var cache = this.estado.cacheDetalhes;
       var self = this;
 
@@ -748,9 +828,8 @@
       return cache[id];
     },
 
-    // Método \'preencherEndereco\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    preencherEndereco: function($card, id) {
+    /** Preenche CEP e endereço do card a partir dos detalhes e do ViaCEP. */
+    preencherEndereco: function ($card, id) {
       var self = this;
       var $endereco = $card.find("[data-campo='enderecoClinica']");
       var $cep = $card.find("[data-campo='cepClinica']");
@@ -784,9 +863,10 @@
         });
     },
 
-    // Método \'buscarEnderecoPorCep\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    buscarEnderecoPorCep: function(cep) {
+    /**
+     * Consulta o ViaCEP (JSONP) com cache e tempo limite; CEPs repetidos reaproveitam a consulta.
+     */
+    buscarEnderecoPorCep: function (cep) {
       var cepNumerico = Utilitarios.apenasNumeros(cep || "");
       var cache = this.estado.cacheEnderecos;
 
@@ -821,13 +901,14 @@
       return cache[cepNumerico];
     },
 
+    /** Monta 'rua, UF' a partir do ViaCEP. */
     // Rua e UF, como no card do Figma ("Rua Sol, SP")
-    // Método \'textoEndereco\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    textoEndereco: function(dadosViaCep) {
+    textoEndereco: function (dadosViaCep) {
       return [dadosViaCep.logradouro, dadosViaCep.uf].filter(Boolean).join(", ") || "Indisponível";
     }
   };
 
+  /** Executa moduloResultados.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloResultados.iniciar();
   });

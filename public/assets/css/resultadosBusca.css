@@ -1,4 +1,102 @@
 /* ============================================================
+   ARQUIVO: resultadosBusca.css
+
+   O QUE FAZ
+   Estilos da tela de resultados da busca: barra superior com campo de
+   pesquisa, botão e painel flutuante de filtros, abas
+   (Serviços/Profissionais/Clínicas), estado de carregamento e grade
+   responsiva de cards de resultado.
+
+   OBSERVAÇÕES
+   - Depende de variaveis.css e componentes.css (campoPesquisa, painelFiltro,
+     cardEntidadeBase, botaoBase, abas).
+   - O painel de filtros usa o dropdown do Bootstrap: .painelFiltro.dropdown-
+     menu:not(.show) força display: none quando fechado.
+   - As abas ficam dentro da .barraBusca, que tem fundo esverdeado claro com
+     color-mix() (exige navegador recente).
+   - .estadoCarregando se repete em contatos.css e notificacoes.css (contêiner
+     do spinner).
+   - Os valores 72px (navegação lateral) e 64px (navegação inferior) se
+     repetem em outros CSS de página.
+   - O vermelho do aviso é escurecido por color-mix para dar contraste sobre o
+     fundo claro.
+
+   REGRAS (na ordem em que aparecem)
+   - .conteudoResultados — Conteúdo principal: deixa espaço embaixo para a
+     navegação inferior fixa.
+   - @media (min-width: 768px) — A partir de tablet, a navegação inferior some
+     e a lateral entra.
+     - .conteudoResultados — Reduz o espaço inferior (não há mais navegação
+       inferior).
+     - .navLateralLogado:not([hidden]) + div .conteudoResultados — Abre 72px
+       de margem à esquerda só quando a navegação lateral está visível.
+   - .barraBusca — Faixa superior da busca com fundo esverdeado claro e
+     preenchimento.
+   - .barraBusca_campo — Campo de pesquisa centralizado, com largura máxima de
+     560px.
+   - .barraBusca_aviso — Aviso de pesquisa vazia em vermelho escurecido e
+     negrito.
+   - .campoPesquisa_botaoFiltro — Botão de filtros encaixado no campo de
+     pesquisa, sem bordas laterais e com fundo branco.
+   - .campoPesquisa_botaoFiltro:hover, .campoPesquisa_botaoFil… — Fundo claro
+     ao passar o mouse ou quando o painel está aberto.
+   - .campoPesquisa_botaoFiltro:focus-visible — Contorno de foco visível para
+     teclado (para dentro do botão).
+   - .campoPesquisaResultados .campoPesquisa_input — Remove a borda direita do
+     campo para emendar com o botão de filtros.
+   - .painelFiltro.dropdown-menu:not(.show) — Esconde o painel de filtros
+     enquanto o dropdown está fechado.
+   - .painelFiltro--flutuante — Painel de filtros: largura total, até 70% da
+     altura da tela com rolagem, sombra e espaçamento.
+   - .painelFiltro--flutuante .grupoFiltro_titulo — Título de cada grupo de
+     filtro centralizado e com peso normal.
+   - .painelFiltro--flutuante .form-check — Opções de filtro (radio) alinhadas
+     ao centro, na linha.
+   - .painelFiltro--flutuante .form-check-input — Radio sem float e sem margem
+     esquerda.
+   - .painelFiltro--flutuante .form-control — Campos de texto do filtro com
+     borda e cantos do design system.
+   - .painelFiltro--flutuante .form-control:focus — Anel de foco azul ao focar
+     o campo.
+   - .painelFiltro--flutuante .painelFiltro_rodape — Rodapé do painel com os
+     botões em coluna e centralizados.
+   - .painelFiltro_botaoLimpar — Botão 'Limpar filtros' com texto em azul
+     (cor, hover, ativo e foco via variáveis).
+   - .barraBusca .abasResultados — Barra de abas: largura máxima de 560px,
+     centralizada, abas distribuídas e fundo transparente.
+   - .barraBusca .abasResultados .nav-link — Cada aba ocupa a mesma largura,
+     com texto centralizado em negrito.
+   - .barraBusca .abasResultados .nav-link.active — Aba ativa com a borda
+     inferior escura.
+   - .barraBusca .abasResultados .nav-link:focus-visible — Contorno de foco do
+     teclado nas abas.
+   - .estadoCarregando — Contêiner do indicador de carregamento: centralizado,
+     na cor de destaque.
+   - .areaResultados — Área dos resultados: largura máxima de 1100px,
+     centralizada e com espaçamento.
+   - @media (min-width: 992px) — Em desktop, aumenta o espaçamento da área de
+     resultados.
+     - .areaResultados — Mais preenchimento nas laterais e em cima.
+   - .gradeResultados — Grade responsiva de cards (mínimo de 240px por
+     coluna), sem marcadores.
+   - @media (min-width: 768px) — A partir de tablet, alinha os cards à
+     esquerda da célula.
+     - .gradeResultados — Cards alinhados à esquerda em vez de centralizados.
+   - .gradeResultados_item — Item da grade: largura total até 300px.
+   - .gradeResultados .cardEntidadeBase — Cards com altura igual à do item
+     (alinham na linha).
+   - .gradeResultados .card-body — Corpo do card em coluna, centralizado, com
+     espaçamento.
+   - .gradeResultados .cardEntidadeBase_titulo — Título do card sem margem e
+     com quebra de texto longo.
+   - .gradeResultados .cardEntidadeBase_imagem — Imagem do card com largura
+     total, borda e cantos arredondados.
+   - .gradeResultados .cardClinica_detalhes — Detalhes da clínica ocupam toda
+     a largura do card.
+   - .gradeResultados .botaoBase — Empurra o botão para o rodapé do card.
+   ============================================================ */
+
+/* ============================================================
    PÁGINA: resultadosBusca (abas, filtros e cards)
    Depende de: public/assets/css/variaveis.css
               public/assets/css/componentes.css
@@ -10,16 +108,20 @@
    Aqui ficam só os ajustes específicos desta tela.
    ============================================================ */
 
+/* Conteúdo principal: deixa espaço embaixo para a navegação inferior fixa. */
 /* Espaço para a navegação fixa: inferior no mobile, lateral (72px) no desktop */
 .conteudoResultados {
   padding-bottom: calc(64px + var(--espaco4));
 }
 
+/* A partir de tablet, a navegação inferior some e a lateral entra. */
 @media (min-width: 768px) {
+  /* Reduz o espaço inferior (não há mais navegação inferior). */
   .conteudoResultados {
     padding-bottom: var(--espaco5);
   }
 
+  /* Abre 72px de margem à esquerda só quando a navegação lateral está visível. */
   /* Só abre espaço para a navegação lateral quando ela está visível (usuário logado) */
   .navLateralLogado:not([hidden]) + div .conteudoResultados {
     margin-left: 72px;
@@ -27,17 +129,20 @@
 }
 
 /* ---------- Barra de busca (campo + filtros + abas) ---------- */
+/* Faixa superior da busca com fundo esverdeado claro e preenchimento. */
 .barraBusca {
   padding: var(--espaco4) var(--espaco4) 0;
   /* verde claro do Figma, derivado das variáveis do design system */
   background-color: color-mix(in srgb, var(--corDestaque) 40%, var(--corFundo));
 }
 
+/* Campo de pesquisa centralizado, com largura máxima de 560px. */
 .barraBusca_campo {
   max-width: 560px;
   margin: 0 auto;
 }
 
+/* Aviso de pesquisa vazia em vermelho escurecido e negrito. */
 /* Aviso de pesquisa vazia. Vermelho bem escurecido: sobre o verde claro da barra
    o contraste precisa chegar a 4,5:1. */
 .barraBusca_aviso {
@@ -47,6 +152,7 @@
 }
 
 /* ---------- Botão de filtros (dentro do campoPesquisa) ---------- */
+/* Botão de filtros encaixado no campo de pesquisa, sem bordas laterais e com fundo branco. */
 .campoPesquisa_botaoFiltro {
   display: flex;
   align-items: center;
@@ -59,28 +165,33 @@
   color: var(--corLetras);
 }
 
+/* Fundo claro ao passar o mouse ou quando o painel está aberto. */
 .campoPesquisa_botaoFiltro:hover,
 .campoPesquisa_botaoFiltro.show {
   background-color: var(--corFundoClaro);
   color: var(--corLetras);
 }
 
+/* Contorno de foco visível para teclado (para dentro do botão). */
 .campoPesquisa_botaoFiltro:focus-visible {
   outline: var(--larguraFoco) solid var(--corFoco);
   outline-offset: -3px;
 }
 
+/* Remove a borda direita do campo para emendar com o botão de filtros. */
 /* Com o botão de filtro, o campo de texto não tem borda direita */
 .campoPesquisaResultados .campoPesquisa_input {
   border-right: 0;
 }
 
 /* ---------- Painel de filtros (painelFiltro do DS, em dropdown) ---------- */
+/* Esconde o painel de filtros enquanto o dropdown está fechado. */
 /* O .painelFiltro define display:flex e venceria o display:none do .dropdown-menu */
 .painelFiltro.dropdown-menu:not(.show) {
   display: none;
 }
 
+/* Painel de filtros: largura total, até 70% da altura da tela com rolagem, sombra e espaçamento. */
 .painelFiltro--flutuante {
   width: 100%;
   max-width: none;
@@ -91,6 +202,7 @@
   box-shadow: 0 8px 16px color-mix(in srgb, var(--corBordas) 30%, transparent);
 }
 
+/* Título de cada grupo de filtro centralizado e com peso normal. */
 /* O <legend> do Bootstrap flutua; aqui o título do grupo é um bloco centralizado */
 .painelFiltro--flutuante .grupoFiltro_titulo {
   float: none;
@@ -100,6 +212,7 @@
   font-weight: var(--pesoRegular);
 }
 
+/* Opções de filtro (radio) alinhadas ao centro, na linha. */
 /* O Bootstrap flutua o rádio com margem negativa; como o .grupoFiltro zera o padding
    do .form-check, a bolinha vazaria para fora do painel. Aqui usamos flex. */
 .painelFiltro--flutuante .form-check {
@@ -107,29 +220,34 @@
   align-items: center;
 }
 
+/* Radio sem float e sem margem esquerda. */
 .painelFiltro--flutuante .form-check-input {
   float: none;
   flex-shrink: 0;
   margin-left: 0;
 }
 
+/* Campos de texto do filtro com borda e cantos do design system. */
 .painelFiltro--flutuante .form-control {
   --bs-border-color: var(--corBordas);
   border: var(--larguraBorda) solid var(--corBordas);
   border-radius: var(--raioPequeno);
 }
 
+/* Anel de foco azul ao focar o campo. */
 .painelFiltro--flutuante .form-control:focus {
   border-color: var(--corBordas);
   box-shadow: 0 0 0 var(--larguraFoco) var(--corFoco);
 }
 
+/* Rodapé do painel com os botões em coluna e centralizados. */
 .painelFiltro--flutuante .painelFiltro_rodape {
   flex-direction: column;
   align-items: center;
   gap: var(--espaco2);
 }
 
+/* Botão 'Limpar filtros' com texto em azul (cor, hover, ativo e foco via variáveis). */
 .painelFiltro_botaoLimpar {
   --bs-btn-color: var(--corAcaoSecundaria);
   --bs-btn-hover-color: var(--corAcaoSecundaria);
@@ -140,6 +258,7 @@
 }
 
 /* ---------- Abas (abasPerfil do DS, adaptadas à barra de busca) ---------- */
+/* Barra de abas: largura máxima de 560px, centralizada, abas distribuídas e fundo transparente. */
 /* Texto escuro: o branco do Figma sobre o verde claro não atinge contraste 4,5:1 */
 .barraBusca .abasResultados {
   --bs-nav-link-color: var(--corLetras);
@@ -152,6 +271,7 @@
   background-color: transparent;
 }
 
+/* Cada aba ocupa a mesma largura, com texto centralizado em negrito. */
 .barraBusca .abasResultados .nav-link {
   flex: 1 1 0;
   padding-top: var(--espaco3);
@@ -162,16 +282,19 @@
   text-align: center;
 }
 
+/* Aba ativa com a borda inferior escura. */
 .barraBusca .abasResultados .nav-link.active {
   color: var(--corLetras);
   border-bottom-color: var(--corLetras);
 }
 
+/* Contorno de foco do teclado nas abas. */
 .barraBusca .abasResultados .nav-link:focus-visible {
   outline-color: var(--corFoco);
 }
 
 /* ---------- Estados compartilhados ---------- */
+/* Contêiner do indicador de carregamento: centralizado, na cor de destaque. */
 .estadoCarregando {
   display: flex;
   justify-content: center;
@@ -180,18 +303,22 @@
 }
 
 /* ---------- Área dos resultados ---------- */
+/* Área dos resultados: largura máxima de 1100px, centralizada e com espaçamento. */
 .areaResultados {
   max-width: 1100px;
   margin: 0 auto;
   padding: var(--espaco5) var(--espaco4);
 }
 
+/* Em desktop, aumenta o espaçamento da área de resultados. */
 @media (min-width: 992px) {
+  /* Mais preenchimento nas laterais e em cima. */
   .areaResultados {
     padding: var(--espaco6) var(--espaco7);
   }
 }
 
+/* Grade responsiva de cards (mínimo de 240px por coluna), sem marcadores. */
 .gradeResultados {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -202,12 +329,15 @@
   list-style: none;
 }
 
+/* A partir de tablet, alinha os cards à esquerda da célula. */
 @media (min-width: 768px) {
+  /* Cards alinhados à esquerda em vez de centralizados. */
   .gradeResultados {
     justify-items: start;
   }
 }
 
+/* Item da grade: largura total até 300px. */
 .gradeResultados_item {
   display: flex;
   width: 100%;
@@ -215,10 +345,12 @@
 }
 
 /* ---------- Cards (cardServico, cardProfissional, cardClinica) ---------- */
+/* Cards com altura igual à do item (alinham na linha). */
 .gradeResultados .cardEntidadeBase {
   height: 100%;
 }
 
+/* Corpo do card em coluna, centralizado, com espaçamento. */
 .gradeResultados .card-body {
   display: flex;
   flex-direction: column;
@@ -227,11 +359,13 @@
   text-align: center;
 }
 
+/* Título do card sem margem e com quebra de texto longo. */
 .gradeResultados .cardEntidadeBase_titulo {
   margin: 0;
   overflow-wrap: anywhere;
 }
 
+/* Imagem do card com largura total, borda e cantos arredondados. */
 /* A imagem fica dentro do card-body (não é card-img-top): borda completa */
 .gradeResultados .cardEntidadeBase_imagem {
   width: 100%;
@@ -239,10 +373,12 @@
   border-radius: var(--raioPequeno);
 }
 
+/* Detalhes da clínica ocupam toda a largura do card. */
 .gradeResultados .cardClinica_detalhes {
   width: 100%;
 }
 
+/* Empurra o botão para o rodapé do card. */
 /* Botão sempre no pé do card, mesmo com títulos de tamanhos diferentes */
 .gradeResultados .botaoBase {
   margin-top: auto;

@@ -1,20 +1,58 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: sessaoNavegacao.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: moduloSessaoNavegacao
-   - Função/método: urlVerificarSessaoPorTipo
-   - Função/método: iniciar
-   - Função/método: cachearElementos
-   - Função/método: verificarSessao
-   - Função/método: testarTipo
-   - Função/método: exibirNavegacaoDeslogado
-   - Função/método: exibirNavegacaoLogado
+   ARQUIVO: sessaoNavegacao.js
+
+   O QUE FAZ
+   Descobre, ao carregar a página, se há usuário logado e qual o tipo
+   (cliente, profissional ou clínica), e mostra o bloco de navegação correto
+   (deslogado ou logado). Depois avisa a página com o evento
+   sessaoNavegacaoDefinida.
+
+   OBSERVAÇÕES
+   - É só exibição, NÃO é segurança: cada endpoint precisa validar $_SESSION
+     no servidor.
+   - Não há rota única 'quem sou eu': testa uma URI por tipo, na ordem de
+     tiposParaVerificar, e para no primeiro 'logado: true'. Se todas falharem,
+     considera deslogado.
+   - Cada URI deve responder JSON { logado: true|false } e recebe POST com
+     acao=verificarLogin.
+   - Chama aplicarPapelNavegacao() (componentes.js) se existir; por isso
+     componentes.js deve estar carregado.
+   - No máximo 3 requisições em sequência em página deslogada (uma por tipo).
+   - O tipo 'clienteSimples' é tratado aqui, mas nunca é testado em
+     tiposParaVerificar: só aparece se a URI de cliente passar a devolvê-lo.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo do arquivo.
+     - moduloSessaoNavegacao (objeto) — Módulo que resolve a sessão e controla
+       a navegação exibida.
+       - moduloSessaoNavegacao.configuracao — Ordem dos tipos a verificar e
+         geração da URL de verificação.
+         - configuracao.urlVerificarSessaoPorTipo() — Devolve a URI de
+           verificação de login do tipo informado.
+       - moduloSessaoNavegacao.itemContatosPorTipo — Troca ícone e rótulo do
+         item Contatos por 'Documentos' para clienteSimples.
+       - moduloSessaoNavegacao.elementos — Cache dos elementos jQuery de
+         navegação.
+       - moduloSessaoNavegacao.iniciar() — Ponto de entrada: guarda os
+         elementos e inicia a verificação de sessão.
+       - moduloSessaoNavegacao.cachearElementos() — Busca no DOM e guarda as
+         navegações, o menu hambúrguer e o item de contatos.
+       - moduloSessaoNavegacao.verificarSessao() — Começa a testar os tipos
+         pelo primeiro da lista.
+       - moduloSessaoNavegacao.testarTipo() — Consulta o servidor para o tipo
+         da posição indicada; se negativo ou com falha, tenta o próximo;
+         esgotada a lista, exibe como deslogado.
+       - moduloSessaoNavegacao.exibirNavegacaoDeslogado() — Mostra a barra de
+         deslogado, esconde as de logado e dispara sessaoNavegacaoDefinida
+         (logado: false).
+       - moduloSessaoNavegacao.exibirNavegacaoLogado() — Mostra a navegação do
+         logado conforme o papel, ajusta Contatos/Documentos e dispara
+         sessaoNavegacaoDefinida (logado: true).
+     - Callback do document ready — Executa moduloSessaoNavegacao.iniciar()
+       quando o DOM estiver pronto.
    ============================================================ */
 
+/** Função autoexecutável que isola o escopo do arquivo. */
 (function ($) {
   "use strict";
 
@@ -45,54 +83,56 @@
     sessão atual é, especificamente, de um cliente.)
   */
 
-  // Objeto \'moduloSessaoNavegacao\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Módulo que resolve a sessão e controla a navegação exibida. */
   var moduloSessaoNavegacao = {
 
+    /** Ordem dos tipos a verificar e geração da URL de verificação. */
     configuracao: {
       // Ordem em que os tipos são testados até um responder "logado: true".
       tiposParaVerificar: ["cliente", "profissional", "clinica"],
-      // Método \'urlVerificarSessaoPorTipo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-      urlVerificarSessaoPorTipo: function(tipo) {
+      /** Devolve a URI de verificação de login do tipo informado. */
+      urlVerificarSessaoPorTipo: function (tipo) {
         return "index.php?uri=" + tipo;
       }
     },
 
+    /** Troca ícone e rótulo do item Contatos por 'Documentos' para clienteSimples. */
     // clienteSimples troca o rótulo/ícone do item de Contatos por
     // "Documentos"; os demais tipos mantêm o que já está no HTML.
     itemContatosPorTipo: {
       clienteSimples: { icone: "description", rotulo: "Documentos" }
     },
 
+    /** Cache dos elementos jQuery de navegação. */
     elementos: {},
 
-    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    iniciar: function() {
+    /** Ponto de entrada: guarda os elementos e inicia a verificação de sessão. */
+    iniciar: function () {
       this.cachearElementos();
       this.verificarSessao();
     },
 
-    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    cachearElementos: function() {
+    /** Busca no DOM e guarda as navegações, o menu hambúrguer e o item de contatos. */
+    cachearElementos: function () {
       this.elementos.$navTopoDeslogado = $(".navTopoDeslogado");
       this.elementos.$navsLogado = $(".navLateralLogado, .navInferiorLogado");
       this.elementos.$menuHamburguer = $(".menuHamburguerLogado");
       this.elementos.$itemContatos = $("[data-itemContatos]");
     },
 
-    // Método \'verificarSessao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    verificarSessao: function() {
+    /** Começa a testar os tipos pelo primeiro da lista. */
+    verificarSessao: function () {
       this.testarTipo(this.configuracao.tiposParaVerificar, 0);
     },
 
+    /**
+     * Consulta o servidor para o tipo da posição indicada; se negativo ou com falha, tenta o
+     * próximo; esgotada a lista, exibe como deslogado.
+     */
     // Testa o tipo da posição "indice"; se vier negativo (ou falhar),
     // passa para o próximo. Quando a lista acabar sem nenhum positivo,
     // considera deslogado.
-    // Método \'testarTipo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    testarTipo: function(tipos, indice) {
+    testarTipo: function (tipos, indice) {
       var self = this;
 
       if (indice >= tipos.length) {
@@ -120,9 +160,11 @@
         });
     },
 
-    // Método \'exibirNavegacaoDeslogado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirNavegacaoDeslogado: function() {
+    /**
+     * Mostra a barra de deslogado, esconde as de logado e dispara sessaoNavegacaoDefinida (logado:
+     * false).
+     */
+    exibirNavegacaoDeslogado: function () {
       this.elementos.$navTopoDeslogado.removeAttr("hidden");
       this.elementos.$navsLogado.attr("hidden", "hidden");
       this.elementos.$menuHamburguer.attr("hidden", "hidden");
@@ -131,9 +173,11 @@
       $(document).trigger("sessaoNavegacaoDefinida", [{ logado: false, tipoUsuario: null }]);
     },
 
-    // Método \'exibirNavegacaoLogado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirNavegacaoLogado: function(tipoUsuario) {
+    /**
+     * Mostra a navegação do logado conforme o papel, ajusta Contatos/Documentos e dispara
+     * sessaoNavegacaoDefinida (logado: true).
+     */
+    exibirNavegacaoLogado: function (tipoUsuario) {
       var papel;
       if (tipoUsuario === "cliente" || tipoUsuario === "clienteSimples") {
         papel = "cliente";
@@ -175,6 +219,7 @@
     }
   };
 
+  /** Executa moduloSessaoNavegacao.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloSessaoNavegacao.iniciar();
   });

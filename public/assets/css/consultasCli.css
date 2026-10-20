@@ -1,4 +1,77 @@
 /* ============================================================
+   ARQUIVO: consultasCli.css
+
+   O QUE FAZ
+   Estilos da tela 'Minhas consultas' do cliente: área de conteúdo com
+   navegação fixa, título, grade de cartões de consulta, botão cancelar,
+   badges de status, esqueleto de carregamento, estado vazio e botões do modal
+   de confirmação.
+
+   OBSERVAÇÕES
+   - Depende de variaveis.css e componentes.css (botaoBase, navegação,
+     modais).
+   - As classes badgeStatusPendente/Agendada/Cancelada são montadas pelo
+     consultasCli.js a partir do status da consulta.
+   - O @keyframes animacaoEsqueleto também existe em infoServico.css (mesmo
+     nome e mesmo conteúdo).
+   - Os valores 72px (navegação lateral) e 64px (navegação inferior) estão
+     repetidos em vários CSS de página.
+   - O status 'realizada' não tem badge aqui.
+   - A grade vira duas colunas a partir de 768px; no celular é uma coluna.
+
+   REGRAS (na ordem em que aparecem)
+   - .conteudoConsultas — Conteúdo principal: espaço para a navegação fixa
+     (topo e rodapé) no celular, centralizado até 1200px.
+   - @media (min-width: 768px) — A partir de tablet, a navegação lateral ocupa
+     a esquerda.
+     - .conteudoConsultas — Abre 72px de margem à esquerda para a navegação
+       lateral e ajusta o espaço vertical.
+   - .tituloConsultas — Título da página com linha separadora embaixo.
+   - .gradeConsultas — Grade de cartões em uma coluna no celular, com
+     espaçamento entre eles.
+   - @media (min-width: 768px) — Em tablet ou maior, a grade passa a duas
+     colunas.
+     - .gradeConsultas — Duas colunas iguais, cada cartão com a altura do
+       próprio conteúdo.
+   - .cartaoConsulta — Cartão de uma consulta: coluna com espaçamento, borda,
+     cantos arredondados e fundo branco.
+   - .tituloConsulta — Nome do serviço da consulta, centralizado e com tamanho
+     de H3.
+   - .linhaConsulta — Linhas de data/horário e preço em negrito.
+   - .profissionalConsulta, .clinicaConsulta — Remove margem dos textos de
+     profissional e clínica.
+   - .rodapeConsulta — Rodapé do cartão (botão cancelar e badge) com quebra de
+     linha e espaçamento.
+   - .botaoCancelar — Botão vermelho arredondado de cancelar consulta, com
+     ícone e texto.
+   - .botaoCancelar:hover — Ao passar o mouse, mantém opacidade total e texto
+     branco.
+   - .badgeStatus — Base do selo de status: botão em linha, em negrito, com
+     ícone e texto brancos.
+   - .badgeStatusPendente — Selo de consulta pendente: amarelo com texto
+     escuro.
+   - .badgeStatusAgendada — Selo de consulta agendada: verde de destaque.
+   - .badgeStatusCancelada — Selo de consulta cancelada: vermelho levemente
+     translúcido.
+   - @keyframes animacaoEsqueleto — Animação do brilho do esqueleto: o
+     gradiente desliza da direita para a esquerda.
+   - .cartaoConsultaEsqueleto .tituloConsulta, .cartaoConsulta… — Enquanto
+     carrega, os textos do cartão viram faixas cinza animadas (texto
+     transparente).
+   - .estadoVazioConsultas — Bloco de 'nenhuma consulta': centralizado e com
+     espaçamento generoso.
+   - .iconeEstadoVazio — Ícone grande (96px) do estado vazio, na cor das
+     bordas.
+   - .textoEstadoVazio — Texto do estado vazio com margem superior.
+   - .acoesModalConfirmacao .botaoBase, .acoesModalConfirmacao… — Botões do
+     modal de confirmação ocupam a largura toda (celular).
+   - @media (min-width: 576px) — A partir de telas pequenas largas, os botões
+     do modal voltam ao tamanho natural.
+     - .acoesModalConfirmacao .botaoBase, .acoesModalConfirmacao… — Botões do
+       modal com largura automática.
+   ============================================================ */
+
+/* ============================================================
    PÁGINA: consultasCli (Minhas consultas)
    Depende de: public/assets/css/variaveis.css
               public/assets/css/componentes.css
@@ -9,6 +82,10 @@
    não renomear sem atualizar o JS.
    ============================================================ */
 
+/*
+   Conteúdo principal: espaço para a navegação fixa (topo e rodapé) no celular, centralizado até
+   1200px.
+*/
 .conteudoConsultas {
   padding-top: calc(72px + var(--espaco4));
   padding-bottom: calc(64px + var(--espaco4));
@@ -18,7 +95,9 @@
   margin: 0 auto;
 }
 
+/* A partir de tablet, a navegação lateral ocupa a esquerda. */
 @media (min-width: 768px) {
+  /* Abre 72px de margem à esquerda para a navegação lateral e ajusta o espaço vertical. */
   .conteudoConsultas {
     margin-left: 72px;
     padding-top: var(--espaco5);
@@ -26,19 +105,23 @@
   }
 }
 
+/* Título da página com linha separadora embaixo. */
 .tituloConsultas {
   margin: 0 0 var(--espaco5) 0;
   padding-bottom: var(--espaco4);
   border-bottom: 1px solid var(--corBordas);
 }
 
+/* Grade de cartões em uma coluna no celular, com espaçamento entre eles. */
 .gradeConsultas {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--espaco5);
 }
 
+/* Em tablet ou maior, a grade passa a duas colunas. */
 @media (min-width: 768px) {
+  /* Duas colunas iguais, cada cartão com a altura do próprio conteúdo. */
   .gradeConsultas {
     grid-template-columns: repeat(2, 1fr);
     align-items: start;
@@ -46,6 +129,7 @@
 }
 
 
+/* Cartão de uma consulta: coluna com espaçamento, borda, cantos arredondados e fundo branco. */
 .cartaoConsulta {
   display: flex;
   flex-direction: column;
@@ -56,27 +140,32 @@
   background-color: var(--corBranco);
 }
 
+/* Nome do serviço da consulta, centralizado e com tamanho de H3. */
 .tituloConsulta {
   margin: 0;
   font-size: var(--tamanhoH3);
   text-align: center;
 }
 
+/* Linhas de data/horário e preço em negrito. */
 .linhaConsulta {
   font-weight: var(--pesoNegrito);
 }
 
+/* Remove margem dos textos de profissional e clínica. */
 .profissionalConsulta,
 .clinicaConsulta {
   margin: 0;
 }
 
+/* Rodapé do cartão (botão cancelar e badge) com quebra de linha e espaçamento. */
 .rodapeConsulta {
   margin-top: var(--espaco2);
   flex-wrap: wrap;
   gap: var(--espaco2);
 }
 
+/* Botão vermelho arredondado de cancelar consulta, com ícone e texto. */
 /* Botão de cancelar consulta — usado tanto no card gerado por
    consultasCli.js (.botaoCancelarConsulta) quanto no modal de
    confirmação (#botaoConfirmarCancelamento). Não renomear. */
@@ -95,12 +184,14 @@
   opacity: 0.85;
 }
 
+/* Ao passar o mouse, mantém opacidade total e texto branco. */
 .botaoCancelar:hover {
   opacity: 1;
   color: var(--corBranco);
 }
 
 
+/* Base do selo de status: botão em linha, em negrito, com ícone e texto brancos. */
 .badgeStatus {
   display: inline-flex;
   align-items: center;
@@ -113,26 +204,31 @@
   cursor: pointer;
 }
 
+/* Selo de consulta pendente: amarelo com texto escuro. */
 .badgeStatusPendente {
   background-color: var(--corAcaoAtencao);
   color: var(--corLetras);
 }
 
+/* Selo de consulta agendada: verde de destaque. */
 .badgeStatusAgendada {
   background-color: var(--corDestaque);
 }
 
+/* Selo de consulta cancelada: vermelho levemente translúcido. */
 .badgeStatusCancelada {
   background-color: var(--corAcaoNegativa);
   opacity: 0.85;
 }
 
 
+/* Animação do brilho do esqueleto: o gradiente desliza da direita para a esquerda. */
 @keyframes animacaoEsqueleto {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
+/* Enquanto carrega, os textos do cartão viram faixas cinza animadas (texto transparente). */
 .cartaoConsultaEsqueleto .tituloConsulta,
 .cartaoConsultaEsqueleto .dataHoraConsulta,
 .cartaoConsultaEsqueleto .precoConsulta,
@@ -153,28 +249,34 @@
 }
 
 
+/* Bloco de 'nenhuma consulta': centralizado e com espaçamento generoso. */
 .estadoVazioConsultas {
   padding: var(--espaco6) var(--espaco4);
   text-align: center;
 }
 
+/* Ícone grande (96px) do estado vazio, na cor das bordas. */
 .iconeEstadoVazio {
   font-size: 96px;
   color: var(--corBordas);
 }
 
+/* Texto do estado vazio com margem superior. */
 .textoEstadoVazio {
   margin-top: var(--espaco4);
   font-size: var(--tamanhoBody);
 }
 
 
+/* Botões do modal de confirmação ocupam a largura toda (celular). */
 .acoesModalConfirmacao .botaoBase,
 .acoesModalConfirmacao .botaoCancelar {
   width: 100%;
 }
 
+/* A partir de telas pequenas largas, os botões do modal voltam ao tamanho natural. */
 @media (min-width: 576px) {
+  /* Botões do modal com largura automática. */
   .acoesModalConfirmacao .botaoBase,
   .acoesModalConfirmacao .botaoCancelar {
     width: auto;

@@ -1,31 +1,90 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: notificacoes.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: moduloNotificacoes
-   - Objeto: opcoes
-   - Função/método: iniciar
-   - Função/método: cachearElementos
-   - Função/método: registrarEventos
-   - Função/método: aoDefinirSessao
-   - Função/método: exibirNaoLogado
-   - Função/método: contratoDisponivel
-   - Função/método: chamarContrato
-   - Função/método: exibirEstadoPagina
-   - Função/método: carregarNotificacoes
-   - Função/método: exibirErroNotificacoes
-   - Função/método: renderizarNotificacoes
-   - Função/método: normalizarNotificacao
-   - Função/método: valorVerdadeiro
-   - Função/método: criarCardNotificacao
-   - Função/método: formatarData
-   - Função/método: abrirNotificacao
-   - Função/método: aoFecharModal
-   - Função/método: marcarComoLida
-   - Função/método: atualizarCardLido
+   ARQUIVO: notificacoes.js
+
+   O QUE FAZ
+   Tela de notificações (cliente, clienteSimples, profissional e clínica):
+   lista as notificações em cards, abre o texto completo em modal, marca como
+   lida e mostra os estados vazio, erro e 'entre na sua conta'.
+
+   OBSERVAÇÕES
+   - Os contratos listarNotificacoes e marcarNotificacaoLida estão com
+     disponivel: false: por enquanto a tela só mostra o estado vazio, sem
+     chamar o backend. Para ligar, crie a ação no controller e troque para
+     true.
+   - A tela exige login: visitante deslogado vê 'Entre na sua conta para ver
+     suas notificações.'.
+   - Depende de jQuery, Bootstrap, componentes.js, ElmoUtilitarios e do evento
+     sessaoNavegacaoDefinida (sessaoNavegacao.js).
+   - Cards vêm do <template id='modeloCardNotificacao'> e são preenchidos só
+     com .text()/.attr() (nada do banco entra como HTML).
+   - Só depois de o servidor confirmar a leitura o card perde o selo 'Nova'.
+   - requisicaoNotificacoes descarta respostas antigas quando há várias cargas
+     seguidas.
+   - normalizarNotificacao() também lê tipoNotificacao, campo que não consta
+     no contrato documentado no topo.
+   - A lógica de sessão e de links de agenda se repete em contatos.js e
+     buscaComum.js.
+   - Atributos data-* em camelCase são lidos com .attr(); o .data() do jQuery
+     esperaria a forma com hífen.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo e recebe jQuery e
+     ElmoUtilitarios.
+     - moduloNotificacoes (objeto) — Módulo da página de notificações.
+       - moduloNotificacoes.configuracao — Controller por papel, links de
+         agenda, contratos de backend e textos.
+         - configuracao.papeis — URL do controller de cada tipo de usuário.
+         - configuracao.hrefAgendaPorTipo — Destino de 'Agenda' e 'Minhas
+           Consultas' por tipo de usuário.
+         - configuracao.contratos — Ações de backend (listar e marcar como
+           lida) e se já estão disponíveis.
+         - configuracao.textos — Mensagens de não logado, erro e lista vazia.
+       - moduloNotificacoes.estado — Papel atual, contador de requisições,
+         notificações carregadas e card que abriu o modal.
+       - moduloNotificacoes.elementos — Cache dos elementos jQuery da página.
+       - moduloNotificacoes.iniciar() — Guarda os elementos e registra os
+         eventos.
+       - moduloNotificacoes.cachearElementos() — Busca no DOM conteúdo,
+         estados, lista, modelo de card e elementos do modal.
+       - moduloNotificacoes.registrarEventos() — Escuta a sessão resolvida,
+         'Tentar novamente', clique no card e fechamento do modal.
+       - moduloNotificacoes.aoDefinirSessao() — Reage à sessão: deslogado
+         mostra o aviso; logado ajusta a navegação e carrega as notificações.
+       - moduloNotificacoes.exibirNaoLogado() — Mostra a mensagem 'Entre na
+         sua conta' e esconde 'Tentar novamente'.
+       - moduloNotificacoes.contratoDisponivel() — Diz se o contrato de
+         backend já está disponível.
+       - moduloNotificacoes.chamarContrato() — Faz o POST do contrato (acao +
+         dados) ao controller do papel atual.
+       - moduloNotificacoes.exibirEstadoPagina() — Mostra apenas o estado
+         informado (carregando, lista, vazio ou erro) e atualiza aria-busy e o
+         aviso.
+       - moduloNotificacoes.carregarNotificacoes() — Busca a lista no backend
+         (ou mostra o vazio, se o contrato não existe) descartando respostas
+         antigas.
+       - moduloNotificacoes.exibirErroNotificacoes() — Mostra o estado de erro
+         de carregamento.
+       - moduloNotificacoes.renderizarNotificacoes() — Cria os cards, guarda
+         as notificações por id e anuncia o total e quantas são novas.
+       - moduloNotificacoes.normalizarNotificacao() — Converte o item do
+         backend em um objeto padronizado (textos e booleanos).
+       - moduloNotificacoes.valorVerdadeiro() — Interpreta true, 1, '1' e
+         'true' como verdadeiro.
+       - moduloNotificacoes.criarCardNotificacao() — Clona o modelo e preenche
+         título, resumo, data e selo 'Nova'.
+       - moduloNotificacoes.formatarData() — Converte AAAA-MM-DD em texto em
+         português (com ano se não for o atual) e valor ISO, sem deslocar o
+         dia por fuso.
+       - moduloNotificacoes.abrirNotificacao() — Preenche e abre o modal com a
+         notificação e a marca como lida.
+       - moduloNotificacoes.aoFecharModal() — Devolve o foco ao card que abriu
+         o modal.
+       - moduloNotificacoes.marcarComoLida() — Avisa o servidor e, só se
+         confirmar, marca a notificação como lida.
+       - moduloNotificacoes.atualizarCardLido() — Atualiza o card: data-
+         lida=true e esconde o selo 'Nova'.
+     - Callback do document ready — Executa moduloNotificacoes.iniciar()
+       quando o DOM estiver pronto.
    ============================================================ */
 
 /* ============================================================
@@ -79,15 +138,17 @@
    do jQuery espera a forma com hífen (data-notificacao-id).
    ============================================================ */
 
+/** Função autoexecutável que isola o escopo e recebe jQuery e ElmoUtilitarios. */
 (function ($, Utilitarios) {
   "use strict";
 
-  // Objeto \'moduloNotificacoes\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Módulo da página de notificações. */
   var moduloNotificacoes = {
 
     /* ---------- Configuração ---------- */
+    /** Controller por papel, links de agenda, contratos de backend e textos. */
     configuracao: {
+      /** URL do controller de cada tipo de usuário. */
       // Cada papel usa o controller do próprio tipo de usuário.
       // clienteSimples usa o controller de cliente (não há outro para ele).
       papeis: {
@@ -97,6 +158,7 @@
         clinica:        { url: "index.php?uri=clinica" }
       },
 
+      /** Destino de 'Agenda' e 'Minhas Consultas' por tipo de usuário. */
       // Destino de "Agenda" no menu e de "Minhas Consultas" no modal
       hrefAgendaPorTipo: {
         cliente: "index.php?uri=consultasCli",
@@ -105,11 +167,13 @@
         clinica: "index.php?uri=agendaClinica"
       },
 
+      /** Ações de backend (listar e marcar como lida) e se já estão disponíveis. */
       contratos: {
         listarNotificacoes:    { acao: "listarNotificacoes",    disponivel: false },
         marcarNotificacaoLida: { acao: "marcarNotificacaoLida", disponivel: false } // dados: idNotificacao
       },
 
+      /** Mensagens de não logado, erro e lista vazia. */
       textos: {
         naoLogado: "Entre na sua conta para ver suas notificações.",
         erro: "Não foi possível carregar as notificações.",
@@ -118,6 +182,7 @@
     },
 
     /* ---------- Estado interno ---------- */
+    /** Papel atual, contador de requisições, notificações carregadas e card que abriu o modal. */
     estado: {
       papel: null,               // "cliente" | "clienteSimples" | "profissional" | "clinica" | null
       requisicaoNotificacoes: 0, // descarta respostas antigas
@@ -125,18 +190,17 @@
       $cardAtual: null           // card que abriu o modal (recebe o foco ao fechar)
     },
 
+    /** Cache dos elementos jQuery da página. */
     elementos: {},
 
-    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    iniciar: function() {
+    /** Guarda os elementos e registra os eventos. */
+    iniciar: function () {
       this.cachearElementos();
       this.registrarEventos();
     },
 
-    // Método \'cachearElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    cachearElementos: function() {
+    /** Busca no DOM conteúdo, estados, lista, modelo de card e elementos do modal. */
+    cachearElementos: function () {
       var e = this.elementos;
       e.$principal = $("#conteudoNotificacoes");
       e.$avisoPagina = $("#avisoNotificacoes");
@@ -152,9 +216,8 @@
       e.$blocoLinkConsultas = e.$modal.find("[data-campo='blocoLinkConsultas']");
     },
 
-    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    registrarEventos: function() {
+    /** Escuta a sessão resolvida, 'Tentar novamente', clique no card e fechamento do modal. */
+    registrarEventos: function () {
       var self = this;
       var e = this.elementos;
 
@@ -179,8 +242,11 @@
     },
 
     /* ---------- Sessão e navegação ---------- */
-    // Método \'aoDefinirSessao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    aoDefinirSessao: function(sessao) {
+    /**
+     * Reage à sessão: deslogado mostra o aviso; logado ajusta a navegação e carrega as
+     * notificações.
+     */
+    aoDefinirSessao: function (sessao) {
       var configuracao = this.configuracao;
 
       if (!sessao || !sessao.logado) {
@@ -206,17 +272,16 @@
       this.carregarNotificacoes();
     },
 
-    // Método \'exibirNaoLogado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirNaoLogado: function() {
+    /** Mostra a mensagem 'Entre na sua conta' e esconde 'Tentar novamente'. */
+    exibirNaoLogado: function () {
       this.exibirEstadoPagina("erro");
       this.elementos.$textoErro.text(this.configuracao.textos.naoLogado);
       this.elementos.$botaoTentar.attr("hidden", "hidden");
     },
 
     /* ---------- Contratos ---------- */
-    // Método \'contratoDisponivel\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    contratoDisponivel: function(nome) {
+    /** Diz se o contrato de backend já está disponível. */
+    contratoDisponivel: function (nome) {
       if (this.configuracao.contratos[nome].disponivel) {
         return true;
       } else {
@@ -224,9 +289,8 @@
       }
     },
 
-    // Método \'chamarContrato\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    chamarContrato: function(nome, dados) {
+    /** Faz o POST do contrato (acao + dados) ao controller do papel atual. */
+    chamarContrato: function (nome, dados) {
       var contrato = this.configuracao.contratos[nome];
       var papel = this.configuracao.papeis[this.estado.papel];
 
@@ -239,8 +303,11 @@
     },
 
     /* ---------- Estados da página ---------- */
-    // Método \'exibirEstadoPagina\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    exibirEstadoPagina: function(nome) {
+    /**
+     * Mostra apenas o estado informado (carregando, lista, vazio ou erro) e atualiza aria-busy e o
+     * aviso.
+     */
+    exibirEstadoPagina: function (nome) {
       var e = this.elementos;
       e.$estadosPagina.attr("hidden", "hidden");
       e.$estadosPagina.filter("[data-estadoNotificacoes='" + nome + "']").removeAttr("hidden");
@@ -260,8 +327,11 @@
     },
 
     /* ---------- Lista ---------- */
-    // Método \'carregarNotificacoes\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    carregarNotificacoes: function() {
+    /**
+     * Busca a lista no backend (ou mostra o vazio, se o contrato não existe) descartando respostas
+     * antigas.
+     */
+    carregarNotificacoes: function () {
       var self = this;
       var numero = ++this.estado.requisicaoNotificacoes;
 
@@ -293,16 +363,14 @@
         });
     },
 
-    // Método \'exibirErroNotificacoes\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirErroNotificacoes: function() {
+    /** Mostra o estado de erro de carregamento. */
+    exibirErroNotificacoes: function () {
       this.elementos.$textoErro.text(this.configuracao.textos.erro);
       this.exibirEstadoPagina("erro");
     },
 
-    // Método \'renderizarNotificacoes\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    renderizarNotificacoes: function(itens) {
+    /** Cria os cards, guarda as notificações por id e anuncia o total e quantas são novas. */
+    renderizarNotificacoes: function (itens) {
       var self = this;
       var e = this.elementos;
       var novas = 0;
@@ -351,9 +419,8 @@
       e.$avisoPagina.text(total + textoTotal + textoNovas);
     },
 
-    // Método \'normalizarNotificacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    normalizarNotificacao: function(item) {
+    /** Converte o item do backend em um objeto padronizado (textos e booleanos). */
+    normalizarNotificacao: function (item) {
       item = item || {};
       var idNotificacao;
       if (item.idNotificacao) {
@@ -373,15 +440,13 @@
       };
     },
 
-    // Método \'valorVerdadeiro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    valorVerdadeiro: function(valor) {
+    /** Interpreta true, 1, '1' e 'true' como verdadeiro. */
+    valorVerdadeiro: function (valor) {
       return valor === true || valor === 1 || valor === "1" || valor === "true";
     },
 
-    // Método \'criarCardNotificacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    criarCardNotificacao: function(notificacao) {
+    /** Clona o modelo e preenche título, resumo, data e selo 'Nova'. */
+    criarCardNotificacao: function (notificacao) {
       var modelo = this.elementos.$modelo.get(0);
       var $item = $(modelo.content.firstElementChild.cloneNode(true));
       var data = this.formatarData(notificacao.data);
@@ -409,17 +474,19 @@
       return $item;
     },
 
+    /**
+     * Converte AAAA-MM-DD em texto em português (com ano se não for o atual) e valor ISO, sem
+     * deslocar o dia por fuso.
+     */
     // "AAAA-MM-DD" -> "20 de janeiro" (com o ano, se não for o ano atual).
     // Lê as partes da string para não deslocar o dia por fuso horário.
-    // Método \'formatarData\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    formatarData: function(valor) {
+    formatarData: function (valor) {
       var partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(valor || ""));
       if (!partes) {
         return { texto: "", iso: "" };
       }
 
       var data = new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]));
-      // Objeto \'opcoes\': agrupa estado, configurações e/ou métodos deste módulo.
       var opcoes = { day: "numeric", month: "long" };
       if (data.getFullYear() !== new Date().getFullYear()) {
         opcoes.year = "numeric";
@@ -432,8 +499,8 @@
     },
 
     /* ---------- Modal: abrir, marcar como lida e fechar ---------- */
-    // Método \'abrirNotificacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    abrirNotificacao: function($card) {
+    /** Preenche e abre o modal com a notificação e a marca como lida. */
+    abrirNotificacao: function ($card) {
       var e = this.elementos;
       var id = $card.attr("data-notificacaoId");
       var notificacao = this.estado.notificacoes[id];
@@ -458,9 +525,8 @@
       this.marcarComoLida(notificacao.id);
     },
 
-    // Método \'aoFecharModal\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    aoFecharModal: function() {
+    /** Devolve o foco ao card que abriu o modal. */
+    aoFecharModal: function () {
       var $card = this.estado.$cardAtual;
       this.estado.$cardAtual = null;
 
@@ -469,9 +535,8 @@
       }
     },
 
-    // Método \'marcarComoLida\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    marcarComoLida: function(id) {
+    /** Avisa o servidor e, só se confirmar, marca a notificação como lida. */
+    marcarComoLida: function (id) {
       var self = this;
       var notificacao = this.estado.notificacoes[id];
 
@@ -490,9 +555,8 @@
         });
     },
 
-    // Método \'atualizarCardLido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    atualizarCardLido: function(id) {
+    /** Atualiza o card: data-lida=true e esconde o selo 'Nova'. */
+    atualizarCardLido: function (id) {
       var $card = this.elementos.$lista.find(".cardNotificacao").filter(function () {
         return $(this).attr("data-notificacaoId") === String(id);
       });
@@ -502,6 +566,7 @@
     }
   };
 
+  /** Executa moduloNotificacoes.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloNotificacoes.iniciar();
   });

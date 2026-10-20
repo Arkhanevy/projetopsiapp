@@ -1,9 +1,73 @@
 /* ============================================================
+   ARQUIVO: infoServico.css
+
+   O QUE FAZ
+   Estilos da tela de detalhes do serviço: espaço em volta da navegação fixa,
+   botão voltar, foto e informações do serviço, descrição, esqueleto de
+   carregamento (skeleton), estado de erro e ícone do modal de erro.
+
+   OBSERVAÇÕES
+   - Depende de variaveis.css e componentes.css (botaoBase, navegação, modais
+     etc.).
+   - As classes estadoCarregando e estadoErro são aplicadas no contêiner pelo
+     infoServico.js; os elementos preenchidos têm o atributo data-campo.
+   - O @keyframes animacaoEsqueleto também existe em consultasCli.css (e
+     possivelmente em outras telas); o nome repetido faz a última definição
+     carregada valer.
+   - Os valores 72px (navegação lateral) e 64px (navegação inferior) estão
+     repetidos em vários CSS de página.
+   - Alguns tamanhos e raios (320px, 12px, 8px, 4px, 999px) estão fixos em vez
+     de variáveis.
+
+   REGRAS (na ordem em que aparecem)
+   - .conteudoDetalheServico — Conteúdo principal: espaço para a navegação
+     fixa (topo e rodapé) no celular, centralizado até 1200px.
+   - @media (min-width: 768px) — A partir de tablet, a navegação lateral ocupa
+     a esquerda.
+     - .conteudoDetalheServico — Abre 72px de margem à esquerda para a
+       navegação lateral e ajusta o espaço vertical.
+   - .botaoVoltarServico — Botão quadrado de 48px, com borda e ícone na cor de
+     destaque, para voltar à busca.
+   - .botaoVoltarServico:hover — Fundo na cor dos botões ao passar o mouse.
+   - .figuraServico — Remove a margem padrão da figura do serviço.
+   - .imagemServico — Foto do serviço com largura total, 320px de altura,
+     recorte (cover), borda e cantos arredondados.
+   - .infoServico — Espaçamento entre os blocos de informação.
+   - .rotuloProfissional — Rótulo 'Profissional' em negrito.
+   - .nomeProfissional — Nome do profissional pequeno, em negrito e sem
+     margem.
+   - .tituloServico — Título do serviço com pequena margem inferior.
+   - .detalhesServico — Linha de detalhes (duração e preço) em negrito.
+   - .descricaoServico — Afasta o bloco de descrição do que vem depois.
+   - .textoDescricao — Caixa com borda e cantos arredondados para o texto da
+     descrição.
+   - @keyframes animacaoEsqueleto — Animação do brilho do esqueleto: o
+     gradiente desliza da direita para a esquerda.
+   - .estadoCarregando .imagemServico — Enquanto carrega, a foto vira um bloco
+     cinza animado.
+   - .estadoCarregando [data-campo]:not(img) — Enquanto carrega, os campos de
+     texto viram faixas cinza animadas (texto transparente).
+   - .estadoCarregando .botaoAgendarAgora — Enquanto carrega, o botão de
+     agendar fica opaco e com cursor de bloqueado.
+   - .estadoErro .imagemServico, .estadoErro [data-campo]:not(… — Em caso de
+     erro, foto e campos viram blocos cinza fixos, sem animação.
+   - .iconeModalErro — Caixa quadrada de 96px, com borda, centralizada, para o
+     ícone do modal de erro.
+   - .iconeModalErroBase — Ícone grande (56px) de fundo da caixa de erro.
+   - .iconeModalErroSobreposto — Ícone menor (28px) vermelho sobreposto no
+     canto inferior direito.
+   ============================================================ */
+
+/* ============================================================
    infoServico.css — estilos específicos da página de detalhe do
    serviço. Navegação, modal e botões vêm de componentes.css
    (navLateralLogado, navInferiorLogado, modalBase, botaoBase).
    ============================================================ */
 
+/*
+   Conteúdo principal: espaço para a navegação fixa (topo e rodapé) no celular, centralizado até
+   1200px.
+*/
 .conteudoDetalheServico {
   padding-top: calc(72px + var(--espaco4));
   padding-bottom: calc(64px + var(--espaco4));
@@ -13,7 +77,9 @@
   margin: 0 auto;
 }
 
+/* A partir de tablet, a navegação lateral ocupa a esquerda. */
 @media (min-width: 768px) {
+  /* Abre 72px de margem à esquerda para a navegação lateral e ajusta o espaço vertical. */
   .conteudoDetalheServico {
     margin-left: 72px;
     padding-top: var(--espaco5);
@@ -21,6 +87,7 @@
   }
 }
 
+/* Botão quadrado de 48px, com borda e ícone na cor de destaque, para voltar à busca. */
 .botaoVoltarServico {
   display: flex;
   align-items: center;
@@ -33,14 +100,19 @@
   margin-bottom: var(--espaco5);
 }
 
+/* Fundo na cor dos botões ao passar o mouse. */
 .botaoVoltarServico:hover {
   background-color: var(--corBotoes);
 }
 
+/* Remove a margem padrão da figura do serviço. */
 .figuraServico {
   margin: 0;
 }
 
+/*
+   Foto do serviço com largura total, 320px de altura, recorte (cover), borda e cantos arredondados.
+*/
 .imagemServico {
   width: 100%;
   height: 320px;
@@ -49,34 +121,41 @@
   border-radius: 12px;
 }
 
+/* Espaçamento entre os blocos de informação. */
 .infoServico {
   gap: var(--espaco2);
 }
 
+/* Rótulo 'Profissional' em negrito. */
 .rotuloProfissional {
   font-weight: var(--pesoNegrito);
 }
 
+/* Nome do profissional pequeno, em negrito e sem margem. */
 .nomeProfissional {
   font-size: var(--tamanhoSmall);
   font-weight: var(--pesoNegrito);
   margin: 0;
 }
 
+/* Título do serviço com pequena margem inferior. */
 .tituloServico {
   margin: 0 0 var(--espaco2) 0;
 }
 
+/* Linha de detalhes (duração e preço) em negrito. */
 .detalhesServico {
   font-size: var(--tamanhoBody);
   font-weight: var(--pesoNegrito);
   margin-bottom: var(--espaco4);
 }
 
+/* Afasta o bloco de descrição do que vem depois. */
 .descricaoServico {
   margin-bottom: var(--espaco5);
 }
 
+/* Caixa com borda e cantos arredondados para o texto da descrição. */
 .textoDescricao {
   border: 1px solid var(--corBordas);
   border-radius: 8px;
@@ -87,11 +166,13 @@
 
 /* ---------- Estado de carregamento (skeleton) e erro ---------- */
 
+/* Animação do brilho do esqueleto: o gradiente desliza da direita para a esquerda. */
 @keyframes animacaoEsqueleto {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
+/* Enquanto carrega, a foto vira um bloco cinza animado. */
 .estadoCarregando .imagemServico {
   background-color: transparent;
   background-image: linear-gradient(
@@ -104,6 +185,7 @@
   animation: animacaoEsqueleto 1.5s ease-in-out infinite;
 }
 
+/* Enquanto carrega, os campos de texto viram faixas cinza animadas (texto transparente). */
 .estadoCarregando [data-campo]:not(img) {
   color: transparent;
   border-radius: 4px;
@@ -117,11 +199,13 @@
   animation: animacaoEsqueleto 1.5s ease-in-out infinite;
 }
 
+/* Enquanto carrega, o botão de agendar fica opaco e com cursor de bloqueado. */
 .estadoCarregando .botaoAgendarAgora {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* Em caso de erro, foto e campos viram blocos cinza fixos, sem animação. */
 /* Quando a busca falha: mantém os blocos neutros, mas sem
    animação, para não distrair atrás do modal de erro. */
 .estadoErro .imagemServico,
@@ -134,6 +218,7 @@
 
 /* ---------- Modal de erro: ícone com sobreposição ---------- */
 
+/* Caixa quadrada de 96px, com borda, centralizada, para o ícone do modal de erro. */
 .iconeModalErro {
   position: relative;
   width: 96px;
@@ -145,11 +230,13 @@
   justify-content: center;
 }
 
+/* Ícone grande (56px) de fundo da caixa de erro. */
 .iconeModalErroBase {
   font-size: 56px;
   color: var(--corBordas);
 }
 
+/* Ícone menor (28px) vermelho sobreposto no canto inferior direito. */
 .iconeModalErroSobreposto {
   position: absolute;
   bottom: 8px;

@@ -1,8 +1,48 @@
+/* ============================================================
+   ARQUIVO: variaveis.css
+
+   O QUE FAZ
+   Fundação do design system: declara as variáveis CSS (custom properties) de
+   cor, tipografia, espaçamento, bordas e foco usadas por todos os outros CSS
+   do projeto. Só define valores; não estiliza nenhum elemento.
+
+   OBSERVAÇÕES
+   - Deve ser o PRIMEIRO CSS próprio carregado (antes de componentes.css e dos
+     CSS de página), pois todos usam var(--...).
+   - Mobile-first: os tamanhos de texto padrão são os do celular; a partir de
+     992px (breakpoint 'lg' do Bootstrap) os tamanhos de título e texto
+     aumentam.
+   - Só a tipografia muda no desktop; espaçamentos, raios e cores são iguais
+     em todas as larguras.
+   - --corFoco repete o mesmo azul de --corAcaoSecundaria; componentes.css
+     também usa esse azul em rgba(...) fixo (--bs-focus-ring-color), que
+     precisa ser atualizado à mão se a cor mudar.
+   - Escala de espaçamento em múltiplos de 4 px (--espaco1 a --espaco7).
+
+   VARIÁVEIS DECLARADAS
+   - :root (padrão) — Bloco com todas as variáveis, nos valores mobile.
+     - Paleta principal — --corLetras, --corBordas, --corDestaque,
+       --corBotoes, --corFundo.
+     - Paleta secundária — --corAcaoExtra (roxo), --corAcaoSecundaria (azul),
+       --corAcaoAtencao (amarelo), --corAcaoNegativa (vermelho).
+     - Superfícies auxiliares — --corFundoClaro e --corBranco.
+     - Tipografia — --tamanhoH1/H2/H3, --tamanhoBody, --tamanhoSmall,
+       --tamanhoCaption, --fonteBase, --pesoRegular, --pesoNegrito.
+     - Espaçamentos — --espaco1 (4 px) a --espaco7 (48 px).
+     - Raios e bordas — --raioPequeno, --raioMedio, --raioTotal,
+       --larguraBorda.
+     - Foco — --corFoco e --larguraFoco, usados nos indicadores de foco de
+       acessibilidade.
+   - @media (min-width: 992px) — Redefine apenas os tamanhos de tipografia
+     para desktop.
+   ============================================================ */
+
 /* ==================================================================
    Arquivo original: fundacao/variaveis.css
    ================================================================== */
 
 
+/* Declara todas as variáveis do design system com os valores para celular (mobile-first). */
 :root {
   /* Paleta principal */
   --corLetras: #07120A;
@@ -53,8 +93,10 @@
   --larguraFoco: 3px;
 }
 
+/* A partir de 992px (desktop), muda só a escala de tipografia. */
 /* Tipografia — desktop (>= 992px, breakpoint 'lg' do Bootstrap) */
 @media (min-width: 992px) {
+  /* Tamanhos maiores de H1, H2, H3, texto, texto pequeno e legenda para telas largas. */
   :root {
     --tamanhoH1: 48px;
     --tamanhoH2: 36px;

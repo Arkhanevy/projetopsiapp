@@ -1,12 +1,25 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: home.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: moduloHome
-   - Função/método: iniciar
+   ARQUIVO: home.js
+
+   O QUE FAZ
+   Página inicial (home): faz a barra de busca da home levar o termo digitado
+   para a tela de resultados (resultadosBusca). Não chama o backend.
+
+   OBSERVAÇÕES
+   - Depende de jQuery, componentes.js (evento pesquisaAcionada do
+     campoPesquisa) e buscaComum.js (window.ElmoBusca), que deve ser carregado
+     antes.
+   - Termo vazio não pesquisa: o foco volta para o campo.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo do arquivo e recebe
+     jQuery e ElmoBusca.
+     - moduloHome (objeto) — Módulo da página home; agrupa a inicialização da
+       barra de busca.
+       - moduloHome.iniciar() — Escuta o evento pesquisaAcionada da barra da
+         home, valida o termo e redireciona para os resultados.
+     - Callback do document ready — Executa moduloHome.iniciar() quando o DOM
+       estiver pronto.
    ============================================================ */
 
 /* ============================================================
@@ -17,16 +30,18 @@
    para a tela de resultados. Não chama o backend.
    ============================================================ */
 
+/** Função autoexecutável que isola o escopo do arquivo e recebe jQuery e ElmoBusca. */
 (function ($, Busca) {
   "use strict";
 
-  // Objeto \'moduloHome\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Módulo da página home; agrupa a inicialização da barra de busca. */
   var moduloHome = {
 
-    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    iniciar: function() {
+    /**
+     * Escuta o evento pesquisaAcionada da barra da home, valida o termo e redireciona para os
+     * resultados.
+     */
+    iniciar: function () {
       // Evento do campoPesquisa (componentes.js): lupa ou Enter
       $(document).on("pesquisaAcionada", ".campoPesquisaHome", function (evento, dados) {
         var termo = dados && dados.termo;
@@ -40,6 +55,7 @@
     }
   };
 
+  /** Executa moduloHome.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloHome.iniciar();
   });

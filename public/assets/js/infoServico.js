@@ -1,43 +1,78 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: infoServico.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: moduloInfoServico
-   - Função/método: iniciar
-   - Função/método: registrarEventos
-   - Função/método: buscarDadosServico
-   - Função/método: mapearDadosServico
-   - Função/método: formatarPreco
-   - Função/método: tratarFalhaCarregamento
-   - Função/método: exibirModalSucessoSeAgendado
-   - Função/método: exibirModalErro
-   - Função/método: habilitarBotaoAgendar
-   - Função/método: desabilitarBotaoAgendar
-   - Função/método: irParaAgendamento
+   ARQUIVO: infoServico.js
+
+   O QUE FAZ
+   Tela de detalhes de um serviço: lê o id da URL, busca os dados no backend,
+   preenche os campos da página e habilita o botão de agendar. Mostra modal de
+   erro se o serviço não for encontrado e modal de sucesso após um agendamento
+   (?agendado=1).
+
+   OBSERVAÇÕES
+   - Depende de jQuery, Bootstrap (modais) e ElmoUtilitarios (utilitarios.js,
+     carregado antes).
+   - Sem id numérico válido na URL, a tela cai direto no erro de serviço não
+     encontrado.
+   - Usa a rota index.php?uri=busca com acao=mostrardetalhes
+     (buscacontroller.php).
+   - formatarPreco() se repete em agendamentoCli.js e resultadosBusca.js.
+   - O modal de sucesso remove ?agendado=1 da URL com history.replaceState
+     para não reaparecer ao recarregar.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo e recebe jQuery e
+     ElmoUtilitarios.
+     - moduloInfoServico (objeto) — Módulo da página de detalhes do serviço.
+       - moduloInfoServico.configuracao — URL do backend que devolve os
+         detalhes do serviço.
+       - moduloInfoServico.estado — Estado da tela: id do serviço exibido.
+       - moduloInfoServico.elementos — Cache dos elementos jQuery da página.
+       - moduloInfoServico.iniciar() — Guarda os elementos, valida o id da
+         URL, registra eventos e busca os dados.
+       - moduloInfoServico.registrarEventos() — Liga os cliques de 'Tentar
+         novamente' e 'Agendar agora' e o foco do modal de erro.
+       - moduloInfoServico.buscarDadosServico() — Pede os dados ao backend,
+         controla os estados de carregamento/erro e preenche a tela.
+       - moduloInfoServico.mapearDadosServico() — Converte o registro do
+         backend (ser_*) nos campos exibidos na página.
+       - moduloInfoServico.formatarPreco() — Formata um número como moeda
+         brasileira (R$).
+       - moduloInfoServico.tratarFalhaCarregamento() — Coloca o cartão em
+         estado de erro e abre o modal de erro.
+       - moduloInfoServico.exibirModalSucessoSeAgendado() — Se a URL tiver
+         ?agendado=1, mostra o modal de sucesso e limpa o parâmetro da URL.
+       - moduloInfoServico.exibirModalErro() — Desabilita o agendamento e abre
+         o modal de serviço não encontrado (sem fechar por fora).
+       - moduloInfoServico.habilitarBotaoAgendar() — Habilita o botão 'Agendar
+         agora' (disabled e aria-disabled).
+       - moduloInfoServico.desabilitarBotaoAgendar() — Desabilita o botão
+         'Agendar agora' (disabled e aria-disabled).
+       - moduloInfoServico.irParaAgendamento() — Redireciona para a tela de
+         agendamento levando o id do serviço.
+     - Callback do document ready — Executa moduloInfoServico.iniciar() quando
+       o DOM estiver pronto.
    ============================================================ */
 
+/** Função autoexecutável que isola o escopo e recebe jQuery e ElmoUtilitarios. */
 (function ($, Utilitarios) {
   "use strict";
 
-  // Objeto \'moduloInfoServico\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Módulo da página de detalhes do serviço. */
   var moduloInfoServico = {
 
+    /** URL do backend que devolve os detalhes do serviço. */
     configuracao: {
       urlObterServico: "index.php?uri=busca" // buscacontroller.php: acao "mostrardetalhes"
     },
 
+    /** Estado da tela: id do serviço exibido. */
     estado: {
       idServico: null
     },
+    /** Cache dos elementos jQuery da página. */
     elementos: {},
 
-    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    iniciar: function() {
+    /** Guarda os elementos, valida o id da URL, registra eventos e busca os dados. */
+    iniciar: function () {
       this.elementos.$botaoAgendarAgora = $("#botaoAgendarAgora");
       this.elementos.$botaoTentarNovamente = $("#botaoTentarNovamente");
       this.elementos.$modalErro = $("#modalServicoNaoEncontrado");
@@ -57,9 +92,8 @@
       this.buscarDadosServico();
     },
 
-    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    registrarEventos: function() {
+    /** Liga os cliques de 'Tentar novamente' e 'Agendar agora' e o foco do modal de erro. */
+    registrarEventos: function () {
       var self = this;
 
       this.elementos.$botaoTentarNovamente.on("click", function () {
@@ -76,9 +110,8 @@
       });
     },
 
-    // Método \'buscarDadosServico\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    buscarDadosServico: function() {
+    /** Pede os dados ao backend, controla os estados de carregamento/erro e preenche a tela. */
+    buscarDadosServico: function () {
       var self = this;
 
       Utilitarios.esconderModal(this.elementos.$modalErro);
@@ -122,9 +155,8 @@
         });
     },
 
-    // Método \'mapearDadosServico\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    mapearDadosServico: function(registro) {
+    /** Converte o registro do backend (ser_*) nos campos exibidos na página. */
+    mapearDadosServico: function (registro) {
       var duracao;
       if (registro.ser_dur) {
         duracao = registro.ser_dur + " min";
@@ -139,9 +171,8 @@
       };
     },
 
-    // Método \'formatarPreco\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    formatarPreco: function(valor) {
+    /** Formata um número como moeda brasileira (R$). */
+    formatarPreco: function (valor) {
       var numero = Number(valor);
       if (isNaN(numero)) {
         return "";
@@ -149,9 +180,8 @@
       return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     },
 
-    // Método \'tratarFalhaCarregamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    tratarFalhaCarregamento: function() {
+    /** Coloca o cartão em estado de erro e abre o modal de erro. */
+    tratarFalhaCarregamento: function () {
       this.elementos.$cartaoServico
         .removeClass("estadoCarregando")
         .addClass("estadoErro");
@@ -159,9 +189,8 @@
       this.exibirModalErro();
     },
 
-    // Método \'exibirModalSucessoSeAgendado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirModalSucessoSeAgendado: function() {
+    /** Se a URL tiver ?agendado=1, mostra o modal de sucesso e limpa o parâmetro da URL. */
+    exibirModalSucessoSeAgendado: function () {
       var parametros = new URLSearchParams(window.location.search);
 
       if (parametros.get("agendado") !== "1") {
@@ -182,9 +211,8 @@
       window.history.replaceState({}, document.title, novaUrl);
     },
 
-    // Método \'exibirModalErro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirModalErro: function() {
+    /** Desabilita o agendamento e abre o modal de serviço não encontrado (sem fechar por fora). */
+    exibirModalErro: function () {
       this.desabilitarBotaoAgendar();
       Utilitarios.exibirModal(this.elementos.$modalErro, {
         backdrop: "static",
@@ -192,25 +220,22 @@
       });
     },
 
-    // Método \'habilitarBotaoAgendar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    habilitarBotaoAgendar: function() {
+    /** Habilita o botão 'Agendar agora' (disabled e aria-disabled). */
+    habilitarBotaoAgendar: function () {
       this.elementos.$botaoAgendarAgora
         .prop("disabled", false)
         .attr("aria-disabled", "false");
     },
 
-    // Método \'desabilitarBotaoAgendar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    desabilitarBotaoAgendar: function() {
+    /** Desabilita o botão 'Agendar agora' (disabled e aria-disabled). */
+    desabilitarBotaoAgendar: function () {
       this.elementos.$botaoAgendarAgora
         .prop("disabled", true)
         .attr("aria-disabled", "true");
     },
 
-    // Método \'irParaAgendamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    irParaAgendamento: function() {
+    /** Redireciona para a tela de agendamento levando o id do serviço. */
+    irParaAgendamento: function () {
       var url = "index.php?uri=agendamentoCli";
       if (this.estado.idServico) {
         url += "&servico=" + encodeURIComponent(this.estado.idServico);
@@ -219,6 +244,7 @@
     }
   };
 
+  /** Executa moduloInfoServico.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloInfoServico.iniciar();
   });

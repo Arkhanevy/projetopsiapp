@@ -1,20 +1,70 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: cadCliente.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: moduloCadCliente
-   - Função/método: iniciar
-   - Função/método: urlElementos
-   - Função/método: validarCamposAoSair
-   - Função/método: registrarEventos
-   - Função/método: mostrarTela
-   - Função/método: mostrarAlert
-   - Função/método: enviarCadastro
-   - Função/método: gerarCodigo
-   - Função/método: ativarConta
+   ARQUIVO: cadCliente.js
+
+   O QUE FAZ
+   Cadastro e ativação de conta do cliente. Alterna entre as telas de cadastro
+   e de ativação, valida e envia o cadastro (com foto de perfil) por AJAX,
+   gera/reenvia o código de ativação por e-mail e ativa a conta com o código
+   informado.
+
+   OBSERVAÇÕES
+   - Depende de jQuery, Bootstrap e ElmoUtilitarios (utilitarios.js, carregado
+     antes).
+   - Nenhum formulário é enviado de forma nativa: o submit é bloqueado e o
+     envio é por AJAX com FormData.
+   - As validações do navegador (CPF/CNPJ, telefone, e-mail, idade) são só
+     conveniência: o servidor precisa validar tudo de novo.
+   - A URL do controller está fixa com o prefixo /projetopsi/ (marcada
+     //Axolote em alguns pontos): ajuste ao mudar de ambiente.
+   - O nome urlElementos() engana: a função só guarda referências de
+     elementos, não monta URL.
+   - O botão 'Ativar' só funciona depois de 'Gerar código'
+     (estado.codigoGerado); o botão de gerar fica bloqueado 60 s com contagem
+     regressiva.
+   - gerarCodigo() inicia a contagem de 60 s antes da resposta do servidor: se
+     a requisição falhar, o usuário ainda espera o tempo todo. Há também um
+     caractere \b dentro do texto do botão.
+   - Os campos $form e $emailAtivacao são guardados mas não usados; a ativação
+     lê o e-mail do formulário de cadastro.
+   - Links antigos com ?tipo=login são redirecionados para a tela
+     loginCliente.
+   - Exige ser maior de 18 anos, CPF e telefone válidos e foto de perfil.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo e recebe jQuery e
+     ElmoUtilitarios.
+     - moduloCadCliente (objeto) — Módulo da página de cadastro e ativação.
+       - moduloCadCliente.configuracao — URL do controller e URL de login
+         (destino após a ativação).
+       - moduloCadCliente.estado — Estado interno: tela inicial e se o código
+         de ativação já foi gerado.
+       - moduloCadCliente.telas — Referências das telas (cadastro e ativação)
+         alternadas por mostrarTela().
+       - moduloCadCliente.elementos — Cache dos elementos jQuery (campos,
+         botões e contêiner de alerta).
+       - moduloCadCliente.iniciar() — Guarda os elementos, redireciona links
+         antigos ?tipo=login, ativa a prévia da imagem, registra eventos e
+         mostra a tela inicial.
+       - moduloCadCliente.urlElementos() — Busca no DOM e guarda telas, campos
+         do formulário e botões.
+       - moduloCadCliente.validarCamposAoSair() — Valida os campos indicados
+         ao perder o foco e mostra alerta quando inválidos.
+       - moduloCadCliente.registrarEventos() — Bloqueia o submit nativo, limpa
+         o estado de erro ao digitar e liga os botões de cadastrar, gerar
+         código e ativar.
+       - moduloCadCliente.mostrarTela() — Esconde todas as telas e mostra só a
+         indicada.
+       - moduloCadCliente.mostrarAlert() — Exibe um alerta Bootstrap no
+         contêiner da página.
+       - moduloCadCliente.enviarCadastro() — Valida o formulário, monta o
+         FormData (com a foto) e envia o cadastro; em sucesso, passa para a
+         tela de ativação.
+       - moduloCadCliente.gerarCodigo() — Bloqueia o botão por 60 s e pede ao
+         servidor que (re)envie o código de ativação por e-mail.
+       - moduloCadCliente.ativarConta() — Envia e-mail e código digitado; se
+         correto, informa o sucesso e redireciona ao login após 1,5 s.
+     - Callback do document ready — Executa moduloCadCliente.iniciar() quando
+       o DOM estiver pronto.
    ============================================================ */
 
 console.log("JS cadCliente carregado");
@@ -33,35 +83,42 @@ console.log("JS cadCliente carregado");
    - Validar o código informado e ativar a conta.
    ============================================================ */
 
+/** Função autoexecutável que isola o escopo e recebe jQuery e ElmoUtilitarios. */
 (function ($, Utilitarios) {
   "use strict";
 
-  // Objeto \'moduloCadCliente\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Módulo da página de cadastro e ativação. */
   var moduloCadCliente = {
 
     /* ---------- Configuração ---------- */
+    /** URL do controller e URL de login (destino após a ativação). */
     configuracao: {
       urlCliente: "/projetopsi/index.php?uri=cliente", //Axolote
       urlLogin: "index.php?uri=loginCliente"
     },
 
     /* ---------- Estado interno ---------- */
+    /** Estado interno: tela inicial e se o código de ativação já foi gerado. */
     estado: {
       telaInicial: "cadastro",
       codigoGerado: false
     },
 
     /* ---------- Referências de elementos (cacheadas) ---------- */
+    /** Referências das telas (cadastro e ativação) alternadas por mostrarTela(). */
     telas: {},
+    /** Cache dos elementos jQuery (campos, botões e contêiner de alerta). */
     elementos: {},
 
+    /**
+     * Guarda os elementos, redireciona links antigos ?tipo=login, ativa a prévia da imagem,
+     * registra eventos e mostra a tela inicial.
+     */
     /**
      * Ponto de entrada. Deve ser chamado uma vez, quando o
      * documento estiver pronto.
      */
-    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    iniciar: function() {
+    iniciar: function () {
       this.urlElementos();
 
       // Compatibilidade: links antigos usavam ?tipo=login nesta mesma página.
@@ -76,9 +133,8 @@ console.log("JS cadCliente carregado");
       this.mostrarTela(this.estado.telaInicial);
     },
 
-    // Método \'urlElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    urlElementos: function() {
+    /** Busca no DOM e guarda telas, campos do formulário e botões. */
+    urlElementos: function () {
       this.telas = {
         cadastro: $("#cadastroCliente"),
         ativacao: $("#ativacao")
@@ -110,9 +166,8 @@ console.log("JS cadCliente carregado");
 
     /* VALIDAÇÃO AO SAIR DO CAMPO */
 
-    // Método \'validarCamposAoSair\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    validarCamposAoSair: function() {
+    /** Valida os campos indicados ao perder o foco e mostra alerta quando inválidos. */
+    validarCamposAoSair: function () {
       Utilitarios.validarAoSair(this.elementos.$alertContainer, [
         { $campo: this.elementos.$cpf, valido: function (valor) { return Utilitarios.cpfValido(Utilitarios.apenasNumeros(valor)); }, mensagem: "CPF inválido!" },
         { $campo: this.elementos.$tel, valido: function (valor) { return Utilitarios.telefoneValido(valor); }, mensagem: "Telefone inválido!" },
@@ -121,9 +176,11 @@ console.log("JS cadCliente carregado");
       ]);
     },
 
-    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    registrarEventos: function() {
+    /**
+     * Bloqueia o submit nativo, limpa o estado de erro ao digitar e liga os botões de cadastrar,
+     * gerar código e ativar.
+     */
+    registrarEventos: function () {
       this.validarCamposAoSair();
 
       // Nenhum formulário desta página é enviado de forma nativa: o envio
@@ -159,9 +216,8 @@ console.log("JS cadCliente carregado");
 
     /* TELAS */
 
-    // Método \'mostrarTela\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    mostrarTela: function(nomeTela) {
+    /** Esconde todas as telas e mostra só a indicada. */
+    mostrarTela: function (nomeTela) {
       var self = this;
       Object.keys(this.telas).forEach(function (chave) {
         self.telas[chave].hide();
@@ -177,17 +233,18 @@ console.log("JS cadCliente carregado");
 
     /* ALERTAS */
 
-    // Método \'mostrarAlert\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    mostrarAlert: function(mensagem, tipo) {
+    /** Exibe um alerta Bootstrap no contêiner da página. */
+    mostrarAlert: function (mensagem, tipo) {
       Utilitarios.mostrarAlerta(this.elementos.$alertContainer, mensagem, tipo);
     },
 
     /* CADASTRO */
 
-    // Método \'enviarCadastro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    enviarCadastro: function($botao) {
+    /**
+     * Valida o formulário, monta o FormData (com a foto) e envia o cadastro; em sucesso, passa para
+     * a tela de ativação.
+     */
+    enviarCadastro: function ($botao) {
       var self = this;
       var el = this.elementos;
 
@@ -293,9 +350,10 @@ console.log("JS cadCliente carregado");
 
     /* CÓDIGO DE ATIVAÇÃO */
 
-    // Método \'gerarCodigo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    gerarCodigo: function($botao) {
+    /**
+     * Bloqueia o botão por 60 s e pede ao servidor que (re)envie o código de ativação por e-mail.
+     */
+    gerarCodigo: function ($botao) {
       var self = this;
 
       $botao.prop("disabled", true);
@@ -348,9 +406,11 @@ console.log("JS cadCliente carregado");
       });
     },
 
-    // Método \'ativarConta\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    ativarConta: function($botao) {
+    /**
+     * Envia e-mail e código digitado; se correto, informa o sucesso e redireciona ao login após 1,5
+     * s.
+     */
+    ativarConta: function ($botao) {
       var self = this;
       var $campoCodigo = this.elementos.$codigo;
       var codigoDigitado = $campoCodigo.val().trim();
@@ -413,6 +473,7 @@ console.log("JS cadCliente carregado");
     }
   };
 
+  /** Executa moduloCadCliente.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloCadCliente.iniciar();
   });

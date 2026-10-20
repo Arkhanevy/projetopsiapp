@@ -1,33 +1,81 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: utilitarios.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: ElmoUtilitarios
-   - Função/método: obterParametroUrl
-   - Função/método: obterInstanciaModal
-   - Função/método: exibirModal
-   - Função/método: esconderModal
-   - Função/método: preencherCampos
-   - Função/método: alternarEsqueletoAcessivel
-   - Função/método: mostrarAlerta
-   - Função/método: emailValido
-   - Função/método: apenasNumeros
-   - Função/método: telefoneValido
-   - Função/método: calcularIdade
-   - Função/método: maiorDeIdade
-   - Função/método: validarCampos
-   - Função/método: marcarCamposComErro
-   - Função/método: validarAoSair
-   - Função/método: formatarMascara
-   - Função/método: aplicarMascaras
-   - Função/método: cpfValido
-   - Função/método: cnpjValido
-   - Função/método: configurarPreviewImagem
-   - Função/método: configurarCEP
-   - Função/método: formatarCampo
+   ARQUIVO: utilitarios.js
+
+   O QUE FAZ
+   Biblioteca de funções compartilhadas (window.ElmoUtilitarios): leitura de
+   parâmetros da URL, modais Bootstrap, preenchimento de campos data-campo,
+   esqueleto de carregamento acessível, alertas, validações (e-mail, telefone,
+   CPF, CNPJ, idade), máscaras de campos, prévia de imagem e preenchimento de
+   endereço por CEP.
+
+   OBSERVAÇÕES
+   - Deve ser carregado ANTES do script de cada página. Depende de jQuery e
+     Bootstrap 5 (bundle).
+   - O comentário original cita só infoServico/agendamentoCli/consultasCli,
+     mas ele é usado também por login, cadastros, perfil, contatos,
+     notificações e resultadosBusca.
+   - As máscaras são aplicadas sozinhas no document ready a todo campo com
+     data-mascara (telefone, cpf, cnpj, cep).
+   - mostrarAlerta() injeta a mensagem como HTML: nunca passe texto vindo do
+     usuário/servidor sem escapar.
+   - configurarCEP() usa $.getJSON (JSONP) sem tratamento de falha: se o
+     ViaCEP não responder, os campos ficam com '...'.
+   - cnpjValido() só considera dígitos; se o sistema precisar aceitar o novo
+     CNPJ alfanumérico, a validação terá de ser revista.
+   - apenasNumeros() espera texto: chamá-la com undefined ou número gera erro.
+   - As validações do navegador são conveniência; o servidor deve validar de
+     novo.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo e publica ElmoUtilitarios
+     em window.
+     - ElmoUtilitarios (objeto) — Objeto com todas as utilidades
+       compartilhadas.
+       - ElmoUtilitarios.obterParametroUrl() — Lê um parâmetro da query string
+         atual (null se não existir).
+       - ElmoUtilitarios.obterInstanciaModal() — Obtém ou cria a instância do
+         modal Bootstrap do elemento.
+       - ElmoUtilitarios.exibirModal() — Abre um modal Bootstrap (aceita
+         opções como backdrop e keyboard).
+       - ElmoUtilitarios.esconderModal() — Fecha o modal, se já houver
+         instância.
+       - ElmoUtilitarios.preencherCampos() — Preenche elementos [data-campo]
+         com os dados: src/alt em IMG, valor em INPUT e texto nos demais.
+       - ElmoUtilitarios.alternarEsqueletoAcessivel() — Liga/desliga aria-
+         hidden nos campos enquanto o esqueleto de carregamento aparece.
+       - ElmoUtilitarios.mostrarAlerta() — Anexa um alerta Bootstrap (success
+         por padrão) ao contêiner e o remove após 3 s.
+       - ElmoUtilitarios.emailValido() — Valida o formato básico de e-mail.
+       - ElmoUtilitarios.apenasNumeros() — Remove tudo que não for dígito.
+       - ElmoUtilitarios.telefoneValido() — Valida telefone brasileiro: 10 ou
+         11 dígitos, DDD de 11 a 99 e 9 inicial nos celulares.
+       - ElmoUtilitarios.calcularIdade() — Calcula a idade em anos a partir da
+         data de nascimento (AAAA-MM-DD).
+       - ElmoUtilitarios.maiorDeIdade() — Informa se a pessoa tem a idade
+         mínima (18 por padrão); data inválida retorna false.
+       - ElmoUtilitarios.validarCampos() — Marca como is-invalid os campos
+         vazios e retorna true se algum estava vazio.
+       - ElmoUtilitarios.marcarCamposComErro() — Marca os campos como
+         inválidos e exibe um alerta de erro.
+       - ElmoUtilitarios.validarAoSair() — Valida campos ao perder o foco
+         (regras valido/mensagem), sem repetir alertas iguais.
+       - ElmoUtilitarios.formatarMascara() — Aplica a máscara de telefone,
+         CPF, CNPJ ou CEP a um valor.
+       - ElmoUtilitarios.aplicarMascaras() — Ativa a máscara automática em
+         todo campo [data-mascara], mantendo a posição do cursor.
+         - aplicarMascaras > formatarCampo() — Reformata o valor de um campo e
+           devolve o cursor ao mesmo dígito.
+       - ElmoUtilitarios.cpfValido() — Valida CPF pelos dígitos verificadores
+         (rejeita sequências repetidas).
+       - ElmoUtilitarios.cnpjValido() — Valida CNPJ pelos dígitos
+         verificadores (rejeita sequências repetidas).
+       - ElmoUtilitarios.configurarPreviewImagem() — Faz o clique na prévia
+         abrir o seletor de arquivo e mostra a imagem escolhida (valida o
+         tipo).
+       - ElmoUtilitarios.configurarCEP() — Ao sair do campo CEP, consulta o
+         ViaCEP e preenche rua, bairro, cidade, UF e IBGE.
+     - Callback do document ready — Aplica as máscaras automáticas quando o
+       DOM estiver pronto.
    ============================================================ */
 
 /* ============================================================
@@ -43,42 +91,41 @@
    acessibilidade do skeleton de carregamento.
    ============================================================ */
 
+/** Função autoexecutável que isola o escopo e publica ElmoUtilitarios em window. */
 (function ($, window) {
   "use strict";
 
-  // Objeto \'ElmoUtilitarios\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Objeto com todas as utilidades compartilhadas. */
   var ElmoUtilitarios = {
 
-    // Método \'obterParametroUrl\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    obterParametroUrl: function(nome) {
+    /** Lê um parâmetro da query string atual (null se não existir). */
+    obterParametroUrl: function (nome) {
       var parametros = new URLSearchParams(window.location.search);
       return parametros.get(nome);
     },
 
-    // Método \'obterInstanciaModal\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    obterInstanciaModal: function($elementoModal, opcoes) {
+    /** Obtém ou cria a instância do modal Bootstrap do elemento. */
+    obterInstanciaModal: function ($elementoModal, opcoes) {
       return bootstrap.Modal.getOrCreateInstance($elementoModal.get(0), opcoes);
     },
 
-    // Método \'exibirModal\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirModal: function($elementoModal, opcoes) {
+    /** Abre um modal Bootstrap (aceita opções como backdrop e keyboard). */
+    exibirModal: function ($elementoModal, opcoes) {
       this.obterInstanciaModal($elementoModal, opcoes).show();
     },
 
-    // Método \'esconderModal\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    esconderModal: function($elementoModal) {
+    /** Fecha o modal, se já houver instância. */
+    esconderModal: function ($elementoModal) {
       var instancia = bootstrap.Modal.getInstance($elementoModal.get(0));
       if (instancia) {
         instancia.hide();
       }
     },
-    // Método \'preencherCampos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    preencherCampos: function($camposDinamicos, dados) {
+    /**
+     * Preenche elementos [data-campo] com os dados: src/alt em IMG, valor em INPUT e texto nos
+     * demais.
+     */
+    preencherCampos: function ($camposDinamicos, dados) {
       $camposDinamicos.each(function () {
         var $elemento = $(this);
         var nomeCampo = $elemento.data("campo");
@@ -106,9 +153,8 @@
       });
     },
 
-    // Método \'alternarEsqueletoAcessivel\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    alternarEsqueletoAcessivel: function($camposDinamicos, ativo) {
+    /** Liga/desliga aria-hidden nos campos enquanto o esqueleto de carregamento aparece. */
+    alternarEsqueletoAcessivel: function ($camposDinamicos, ativo) {
       if (ativo) {
         $camposDinamicos.attr("aria-hidden", "true");
       } else {
@@ -116,9 +162,8 @@
       }
     },
 
-    // Método \'mostrarAlerta\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    mostrarAlerta: function($container, mensagem, tipo) {
+    /** Anexa um alerta Bootstrap (success por padrão) ao contêiner e o remove após 3 s. */
+    mostrarAlerta: function ($container, mensagem, tipo) {
       tipo = tipo || "success";
 
       var $alerta = $(
@@ -137,23 +182,21 @@
       }, 3000);
     },
 
+    /** Valida o formato básico de e-mail. */
     /**
      * VALIDAÇÃO — helpers genéricos de formulário.
      */
-    // Método \'emailValido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    emailValido: function(email) {
+    emailValido: function (email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     },
 
-    // Método \'apenasNumeros\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    apenasNumeros: function(valor) {
+    /** Remove tudo que não for dígito. */
+    apenasNumeros: function (valor) {
       return valor.replace(/\D/g, "");
     },
 
-    // Método \'telefoneValido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    telefoneValido: function(telefone) {
+    /** Valida telefone brasileiro: 10 ou 11 dígitos, DDD de 11 a 99 e 9 inicial nos celulares. */
+    telefoneValido: function (telefone) {
       var numeros = this.apenasNumeros(telefone || "");
 
       if (numeros.length !== 10 && numeros.length !== 11) return false;
@@ -166,9 +209,8 @@
       return true;
     },
 
-    // Método \'calcularIdade\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    calcularIdade: function(dataNascimento) {
+    /** Calcula a idade em anos a partir da data de nascimento (AAAA-MM-DD). */
+    calcularIdade: function (dataNascimento) {
       var hoje = new Date();
       var nascimento = new Date(dataNascimento + "T00:00:00");
       var idade = hoje.getFullYear() - nascimento.getFullYear();
@@ -181,9 +223,8 @@
       return idade;
     },
 
-    // Método \'maiorDeIdade\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    maiorDeIdade: function(dataNascimento, idadeMinima) {
+    /** Informa se a pessoa tem a idade mínima (18 por padrão); data inválida retorna false. */
+    maiorDeIdade: function (dataNascimento, idadeMinima) {
       idadeMinima = idadeMinima || 18;
 
       if (!dataNascimento || isNaN(new Date(dataNascimento + "T00:00:00").getTime())) {
@@ -193,9 +234,8 @@
       return this.calcularIdade(dataNascimento) >= idadeMinima;
     },
 
-    // Método \'validarCampos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    validarCampos: function(campos) {
+    /** Marca como is-invalid os campos vazios e retorna true se algum estava vazio. */
+    validarCampos: function (campos) {
       var erro = false;
       campos.forEach(function (campo) {
         if (!campo.valor) {
@@ -206,18 +246,16 @@
       return erro;
     },
 
-    // Método \'marcarCamposComErro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    marcarCamposComErro: function($container, campos, mensagem) {
+    /** Marca os campos como inválidos e exibe um alerta de erro. */
+    marcarCamposComErro: function ($container, campos, mensagem) {
       campos.forEach(function ($campo) {
         $campo.addClass("is-invalid");
       });
       this.mostrarAlerta($container, mensagem, "danger");
     },
 
-    // Método \'validarAoSair\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    validarAoSair: function($container, regras) {
+    /** Valida campos ao perder o foco (regras valido/mensagem), sem repetir alertas iguais. */
+    validarAoSair: function ($container, regras) {
       var self = this;
 
       regras.forEach(function (regra) {
@@ -247,9 +285,8 @@
       });
     },
 
-    // Método \'formatarMascara\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    formatarMascara: function(tipo, valor) {
+    /** Aplica a máscara de telefone, CPF, CNPJ ou CEP a um valor. */
+    formatarMascara: function (tipo, valor) {
       var d = this.apenasNumeros(valor || "");
       var f = "";
 
@@ -303,11 +340,11 @@
       return valor;
     },
 
-    // Método \'aplicarMascaras\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    aplicarMascaras: function() {
+    /** Ativa a máscara automática em todo campo [data-mascara], mantendo a posição do cursor. */
+    aplicarMascaras: function () {
       var self = this;
 
+      /** Reformata o valor de um campo e devolve o cursor ao mesmo dígito. */
       function formatarCampo(campo) {
         var tipo = campo.getAttribute("data-mascara");
         var antes = campo.value;
@@ -346,9 +383,8 @@
       });
     },
 
-    // Método \'cpfValido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    cpfValido: function(cpf) {
+    /** Valida CPF pelos dígitos verificadores (rejeita sequências repetidas). */
+    cpfValido: function (cpf) {
       cpf = cpf.replace(/\D/g, "");
 
       if (cpf.length !== 11) return false;
@@ -373,9 +409,8 @@
       return resto === parseInt(cpf[10], 10);
     },
 
-    // Método \'cnpjValido\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    cnpjValido: function(cnpj) {
+    /** Valida CNPJ pelos dígitos verificadores (rejeita sequências repetidas). */
+    cnpjValido: function (cnpj) {
       cnpj = cnpj.replace(/\D/g, "");
 
       if (cnpj.length !== 14) return false;
@@ -419,9 +454,11 @@
       return resultado == digitos.charAt(1);
     },
 
-    // Método \'configurarPreviewImagem\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    configurarPreviewImagem: function($container, $input, $preview) {
+    /**
+     * Faz o clique na prévia abrir o seletor de arquivo e mostra a imagem escolhida (valida o
+     * tipo).
+     */
+    configurarPreviewImagem: function ($container, $input, $preview) {
       var self = this;
 
       $preview.on("click", function () {
@@ -444,9 +481,8 @@
       });
     },
 
-    // Método \'configurarCEP\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    configurarCEP: function($container, campos) {
+    /** Ao sair do campo CEP, consulta o ViaCEP e preenche rua, bairro, cidade, UF e IBGE. */
+    configurarCEP: function ($container, campos) {
       var self = this;
       var todosOsCampos = [campos.cep, campos.rua, campos.bairro, campos.cidade, campos.uf, campos.ibge];
 
@@ -489,6 +525,7 @@
 
   window.ElmoUtilitarios = ElmoUtilitarios;
 
+  /** Aplica as máscaras automáticas quando o DOM estiver pronto. */
   $(function () {
     ElmoUtilitarios.aplicarMascaras();
   });

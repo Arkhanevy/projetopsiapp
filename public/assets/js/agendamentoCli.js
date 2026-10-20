@@ -1,97 +1,196 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: agendamentoCli.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: moduloAgendamentoCli
-   - Função/método: iniciar
-   - Função/método: urlElementos
-   - Função/método: registrarEventos
-   - Função/método: cancelarAgendamento
-   - Função/método: buscarDadosAgendamento
-   - Função/método: mapearDadosServico
-   - Função/método: tratarFalhaCarregamento
-   - Função/método: renderizarLocalizacoes
-   - Função/método: selecionarLocalizacao
-   - Função/método: navegarMes
-   - Função/método: buscarDiasIndisponiveis
-   - Função/método: extrairDiasIndisponiveis
-   - Função/método: renderizarCalendario
-   - Função/método: formatarDataChave
-   - Função/método: selecionarDia
-   - Função/método: resetarHorario
-   - Função/método: buscarHorariosDisponiveis
-   - Função/método: mapearHorarios
-   - Função/método: renderizarHorarios
-   - Função/método: selecionarHorario
-   - Função/método: alternarDropdown
-   - Função/método: abrirDropdown
-   - Função/método: fecharDropdown
-   - Função/método: fecharTodosDropdowns
-   - Função/método: registrarNavegacaoTecladoLista
-   - Função/método: marcarCampoComErro
-   - Função/método: removerErroCampo
-   - Função/método: exibirAlertaValidacao
-   - Função/método: esconderAlertaValidacao
-   - Função/método: tentarConfirmarAgendamento
-   - Função/método: verificarLoginEEnviar
-   - Função/método: enviarAgendamento
-   - Função/método: irParaInfoServicoComSucesso
-   - Função/método: exibirModalErro
-   - Função/método: exibirModalNaoLogado
+   ARQUIVO: agendamentoCli.js
+
+   O QUE FAZ
+   Tela de agendamento do cliente: carrega os dados do serviço, mostra um
+   calendário mensal com os dias indisponíveis, lista os horários livres do
+   dia escolhido, valida a escolha, confere se o cliente está logado e envia o
+   agendamento.
+
+   OBSERVAÇÕES
+   - Depende de jQuery, Bootstrap (modais) e ElmoUtilitarios (utilitarios.js).
+   - Cliente deslogado ao confirmar vê o modal 'não logado' com botão para o
+     login.
+   - Localização (clínica/local de atendimento): o cliente escolhe entre as
+     opções do profissional. O contrato listarLocalizacoes ainda não existe no
+     backend (disponivel: false): enquanto isso o campo fica oculto e não é
+     obrigatório. Quando existir, resposta { sucesso, dados: [{ loc_id,
+     loc_nome }] }; é preciso ligar disponivel: true e fazer o mostrarSala do
+     servidor usar a localização enviada (hoje usa ser_loc da sessão).
+   - A sala não é escolhida pelo cliente: buscarSalaLivre() pede mostrarSala e
+     usa a primeira sala livre no horário; sem sala livre, avisa e não envia.
+   - O agendar do backend não confere se a sala continua livre ao gravar:
+     dois agendamentos simultâneos podem receber a mesma sala.
+   - navegarMes() usa setMonth sobre a data de hoje: nos dias 29 a 31, avançar
+     para um mês mais curto pula para o mês seguinte (ex.: 31/jan + 1 mês =
+     3/mar).
+   - enviarAgendamento() envia sala, dia, início e término (sem id do serviço):
+     o servidor precisa saber o serviço por outro meio, como a sessão.
+   - A resposta de 'agendar' é texto simples: só o texto 'sucesso' conta como
+     êxito.
+   - buscarDadosAgendamento() usa index.php?uri=busca (tipo "servico", id),
+     que também grava $_SESSION['servico'] usada pelo Servicocontroller.
+   - verificarLoginEEnviar() envia acao=verificarLogin; urlLogin aponta para
+     loginCliente (a rota "login" não existe no routes.json).
+   - Tem calendário próprio, independente do renderizarCalendario() de
+     componentes.js.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo e recebe jQuery e
+     ElmoUtilitarios.
+     - NOMES_MES (array) — Abreviações dos meses para o título do calendário.
+     - NOMES_MES_COMPLETO (array) — Nomes completos dos meses, usados nos
+       rótulos de acessibilidade dos dias.
+     - NOMES_DIA_SEMANA (array) — Nomes dos dias da semana, usados nos rótulos
+       de acessibilidade.
+     - moduloAgendamentoCli (objeto) — Módulo da página de agendamento do
+       cliente.
+       - moduloAgendamentoCli.configuracao — URLs do serviço, de verificação
+         de login, de detalhes do serviço, de login e de cadastro.
+       - moduloAgendamentoCli.estado — Serviço, mês exibido, dias
+         indisponíveis e escolhas atuais de dia, local e horário.
+       - moduloAgendamentoCli.elementos — Cache dos elementos jQuery da
+         página.
+       - moduloAgendamentoCli.iniciar() — Lê o id do serviço da URL, registra
+         eventos e carrega os dados.
+       - moduloAgendamentoCli.urlElementos() — Busca no DOM e guarda
+         formulário, calendário, dropdowns e modais.
+       - moduloAgendamentoCli.registrarEventos() — Liga botões, envio do
+         formulário, navegação de mês, dropdowns, teclado, seleção de
+         dia/horário e modais.
+       - moduloAgendamentoCli.cancelarAgendamento() — Volta para a tela de
+         detalhes do serviço.
+       - moduloAgendamentoCli.buscarDadosAgendamento() — Pede os dados do
+         serviço, preenche o preço e carrega os dias indisponíveis do mês.
+       - moduloAgendamentoCli.mapearDadosServico() — Converte o registro do
+         backend no preço formatado.
+       - moduloAgendamentoCli.tratarFalhaCarregamento() — Coloca o formulário
+         em estado de erro e abre o modal de erro.
+       - moduloAgendamentoCli.navegarMes() — Avança ou volta meses, limpa dia
+         e horário e recarrega os dias indisponíveis.
+       - moduloAgendamentoCli.buscarDiasIndisponiveis() — Pede ao backend os
+         dias de folga/indisponíveis do mês e redesenha o calendário.
+       - moduloAgendamentoCli.extrairDiasIndisponiveis() — Junta folgas e
+         indisponíveis da resposta em uma lista de datas AAAA-MM-DD.
+       - moduloAgendamentoCli.renderizarCalendario() — Desenha a grade do mês
+         com botões de dia (indisponível, selecionado, rótulos de
+         acessibilidade).
+       - moduloAgendamentoCli.formatarDataChave() — Monta a data no formato
+         AAAA-MM-DD.
+       - moduloAgendamentoCli.selecionarDia() — Marca o dia escolhido, zera o
+         horário e busca os horários livres.
+       - moduloAgendamentoCli.resetarHorario() — Limpa o horário escolhido e a
+         lista, e desabilita o dropdown de horários.
+       - moduloAgendamentoCli.buscarHorariosDisponiveis() — Pede ao backend os
+         horários livres do dia e preenche o dropdown.
+       - moduloAgendamentoCli.mapearHorarios() — Converte cada horário em
+         valor 'inicio|termino' e texto 'inicio às termino'.
+       - moduloAgendamentoCli.renderizarHorarios() — Cria os itens da lista de
+         horários.
+       - moduloAgendamentoCli.selecionarHorario() — Guarda o horário
+         escolhido, atualiza o texto e fecha o dropdown.
+       - moduloAgendamentoCli.alternarDropdown() — Abre o dropdown se estava
+         fechado (fechando os outros) ou fecha se estava aberto.
+       - moduloAgendamentoCli.abrirDropdown() — Abre a lista e foca a opção
+         selecionada ou a primeira.
+       - moduloAgendamentoCli.fecharDropdown() — Fecha a lista do dropdown e
+         atualiza aria-expanded.
+       - moduloAgendamentoCli.fecharTodosDropdowns() — Fecha os dropdowns de
+         localização e de horário.
+       - moduloAgendamentoCli.registrarNavegacaoTecladoLista() — Navegação por
+         teclado numa lista de opções (setas, Home e End), padrão ARIA
+         listbox.
+       - moduloAgendamentoCli.marcarCampoComErro() — Marca um campo com a
+         classe de erro.
+       - moduloAgendamentoCli.removerErroCampo() — Remove a classe de erro de
+         um campo.
+       - moduloAgendamentoCli.exibirAlertaValidacao() — Mostra o alerta de
+         validação (mensagem padrão: preencher todos os dados).
+       - moduloAgendamentoCli.esconderAlertaValidacao() — Esconde o alerta de
+         validação.
+       - moduloAgendamentoCli.tentarConfirmarAgendamento() — Valida dia e
+         horário; se faltar algo, marca os erros e foca o primeiro; senão
+         confere o login e envia.
+       - moduloAgendamentoCli.verificarLoginEEnviar() — Consulta se o cliente
+         está logado: se sim envia o agendamento, senão abre o modal 'não
+         logado'.
+       - moduloAgendamentoCli.enviarAgendamento() — Envia dia, início e
+         término ao backend e, se a resposta for 'sucesso', vai para a tela de
+         detalhes.
+       - moduloAgendamentoCli.irParaInfoServicoComSucesso() — Redireciona para
+         os detalhes do serviço com agendado=1 (que mostra o modal de
+         sucesso).
+       - moduloAgendamentoCli.exibirModalErro() — Abre o modal de serviço não
+         encontrado (sem fechar por fora).
+       - moduloAgendamentoCli.exibirModalNaoLogado() — Abre o modal pedindo
+         para o cliente entrar na conta.
+     - Callback do document ready — Executa moduloAgendamentoCli.iniciar()
+       quando o DOM estiver pronto.
    ============================================================ */
 
 console.log("JS agendamentoCli carregado");
 
+/** Função autoexecutável que isola o escopo e recebe jQuery e ElmoUtilitarios. */
 (function ($, Utilitarios) {
   "use strict";
 
+  /** Abreviações dos meses para o título do calendário. */
   var NOMES_MES = [
     "JAN", "FEV", "MAR", "ABR", "MAI", "JUN",
     "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"
   ];
 
+  /** Nomes completos dos meses, usados nos rótulos de acessibilidade dos dias. */
   var NOMES_MES_COMPLETO = [
     "janeiro", "fevereiro", "março", "abril", "maio", "junho",
     "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
   ];
 
+  /** Nomes dos dias da semana, usados nos rótulos de acessibilidade. */
   var NOMES_DIA_SEMANA = [
     "domingo", "segunda-feira", "terça-feira", "quarta-feira",
     "quinta-feira", "sexta-feira", "sábado"
   ];
 
-  // Objeto \'moduloAgendamentoCli\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Módulo da página de agendamento do cliente. */
   var moduloAgendamentoCli = {
 
     /* ---------- Configuração ---------- */
+    /** URLs do serviço, de verificação de login, de detalhes do serviço, de login e de cadastro. */
     configuracao: {
       urlServico: "index.php?uri=servico",
-      urlVerificarLogin: "index.php?uri=cliente", //Axalote
+      urlDetalhesServico: "index.php?uri=busca", // buscacontroller.php: acao "mostrardetalhes" (também grava $_SESSION['servico'])
+      urlVerificarLogin: "index.php?uri=cliente",
       urlInfoServico: "index.php?uri=infoServico",
-      urlLogin: "index.php?uri=login", //Axalote
-      urlCadastro: "index.php?uri=cadastro"
+      urlLogin: "index.php?uri=loginCliente",
+      /* Contratos com o backend. 'disponivel: false' = ação ainda não existe no
+         servidor: o JS não chama e segue sem ela. */
+      contratos: {
+        // Dados: id (serviço). Resposta esperada: { sucesso, dados: [{ loc_id, loc_nome }] }
+        listarLocalizacoes: { acao: "listarLocalizacoes", disponivel: false },
+        // Dados: inicio, termino e, se houver, localizacao. Resposta: { sucesso, dados: [{ sala_id, sala_nome }] }
+        mostrarSala: { acao: "mostrarSala", disponivel: true }
+      }
     },
 
     /* ---------- Estado interno ---------- */
+    /** Serviço, mês exibido, dias indisponíveis e escolhas atuais de dia, local e horário. */
     estado: {
       idServico: null,
       dataExibida: new Date(),
       diasIndisponiveis: [],
       diaSelecionado: null,
       localizacaoSelecionada: null,
+      localizacoesDisponiveis: false,
       horarioSelecionado: null
     },
 
     /* ---------- Referências de elementos (cacheadas) ---------- */
+    /** Cache dos elementos jQuery da página. */
     elementos: {},
 
-    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    iniciar: function() {
+    /** Lê o id do serviço da URL, registra eventos e carrega os dados. */
+    iniciar: function () {
       this.urlElementos();
       this.estado.idServico = Utilitarios.obterParametroUrl("servico");
       this.elementos.$inputIdServico.val(this.estado.idServico || "");
@@ -100,9 +199,8 @@ console.log("JS agendamentoCli carregado");
       this.buscarDadosAgendamento();
     },
 
-    // Método \'urlElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    urlElementos: function() {
+    /** Busca no DOM e guarda formulário, calendário, dropdowns e modais. */
+    urlElementos: function () {
       this.elementos.$form = $("#formularioAgendamento");
       this.elementos.$alerta = $("#alertaValidacao");
       this.elementos.$inputIdServico = $("#inputIdServico");
@@ -113,7 +211,8 @@ console.log("JS agendamentoCli carregado");
       this.elementos.$botaoConfirmar = $("#botaoConfirmarAgendamento");
 
       this.elementos.$dropdownLocalizacao = $("#dropdownLocalizacao");
-      //this.elementos.$botaoLocalizacao = $("#botaoDropdownLocalizacao");
+      this.elementos.$areaLocalizacao = $(".areaLocalizacao");
+      this.elementos.$botaoLocalizacao = $("#botaoDropdownLocalizacao");
       this.elementos.$textoLocalizacao = $("#textoLocalizacaoSelecionada");
       this.elementos.$listaLocalizacoes = $("#listaLocalizacoes");
       this.elementos.$inputLocalizacao = $("#inputLocalizacaoSelecionada");
@@ -138,9 +237,11 @@ console.log("JS agendamentoCli carregado");
       this.elementos.$botaoRealizarLogin = $("#botaoRealizarLogin");
     },
 
-    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    registrarEventos: function() {
+    /**
+     * Liga botões, envio do formulário, navegação de mês, dropdowns, teclado, seleção de
+     * dia/horário e modais.
+     */
+    registrarEventos: function () {
       var self = this;
 
       this.elementos.$botaoVoltar.on("click", function () {
@@ -164,10 +265,10 @@ console.log("JS agendamentoCli carregado");
         self.navegarMes(1);
       });
 
-      /*this.elementos.$botaoLocalizacao.on("click", function (evento) {
+      this.elementos.$botaoLocalizacao.on("click", function (evento) {
         evento.stopPropagation();
         self.alternarDropdown(self.elementos.$dropdownLocalizacao, self.elementos.$inputLocalizacao);
-      });*/
+      });
 
       this.elementos.$botaoHorario.on("click", function (evento) {
         evento.stopPropagation();
@@ -229,9 +330,8 @@ console.log("JS agendamentoCli carregado");
       });
     },
 
-    // Método \'cancelarAgendamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    cancelarAgendamento: function() {
+    /** Volta para a tela de detalhes do serviço. */
+    cancelarAgendamento: function () {
       var url = this.configuracao.urlInfoServico;
       if (this.estado.idServico) {
         url += "&id=" + encodeURIComponent(this.estado.idServico);
@@ -241,25 +341,22 @@ console.log("JS agendamentoCli carregado");
 
     /* CARREGAMENTO DE DADOS */
 
-    // Método \'buscarDadosAgendamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    buscarDadosAgendamento: function() {
+    /** Pede os dados do serviço, preenche o preço e carrega os dias indisponíveis do mês. */
+    buscarDadosAgendamento: function () {
       var self = this;
 
       Utilitarios.esconderModal(this.elementos.$modalErro);
       this.elementos.$form.removeClass("estadoErro").addClass("estadoCarregando");
       Utilitarios.alternarEsqueletoAcessivel(this.elementos.$camposDinamicos, true);
 
-      console.log("ID do serviço:", this.estado.idServico);
-      console.log("URL do serviço:", this.configuracao.urlServico);
-
       $.ajax({
-        url: this.configuracao.urlServico,
+        url: this.configuracao.urlDetalhesServico,
         method: "POST",
         dataType: "json",
         data: {
           acao: "mostrardetalhes",
-          ser_id: this.estado.idServico
+          tipo: "servico",
+          id: this.estado.idServico
         }
       })
         .done(function (resposta) {
@@ -273,7 +370,7 @@ console.log("JS agendamentoCli carregado");
             self.mapearDadosServico(resposta.dados[0])
           );
           Utilitarios.alternarEsqueletoAcessivel(self.elementos.$camposDinamicos, false);
-          //self.renderizarLocalizacoes([]);
+          self.carregarLocalizacoes();
           self.buscarDiasIndisponiveis(self.estado.dataExibida);
         })
         .fail(function () {
@@ -281,9 +378,8 @@ console.log("JS agendamentoCli carregado");
         });
     },
 
-    // Método \'mapearDadosServico\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    mapearDadosServico: function(registro) {
+    /** Converte o registro do backend no preço formatado. */
+    mapearDadosServico: function (registro) {
       var numero = Number(registro.ser_val);
       var precoFormatado;
       if (isNaN(numero)) {
@@ -296,19 +392,58 @@ console.log("JS agendamentoCli carregado");
       };
     },
 
-    // Método \'tratarFalhaCarregamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    tratarFalhaCarregamento: function() {
+    /** Coloca o formulário em estado de erro e abre o modal de erro. */
+    tratarFalhaCarregamento: function () {
       this.elementos.$form.removeClass("estadoCarregando").addClass("estadoErro");
       Utilitarios.alternarEsqueletoAcessivel(this.elementos.$camposDinamicos, true);
       this.exibirModalErro();
     },
 
-    /*  LOCALIZAÇÃO 
+    /* LOCALIZAÇÃO (clínica/local de atendimento escolhido pelo cliente) */
 
-    // Método \'renderizarLocalizacoes\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    /**
+     * Carrega as localizações do serviço. Se o contrato ainda não existe no backend
+     * ou não vier nenhuma opção, esconde o campo e o agendamento segue sem ele.
+     */
+    carregarLocalizacoes: function () {
+      var self = this;
+      var contrato = this.configuracao.contratos.listarLocalizacoes;
 
-    renderizarLocalizacoes: function(localizacoes) {
+      this.estado.localizacoesDisponiveis = false;
+      this.elementos.$areaLocalizacao.attr("hidden", "hidden");
+
+      if (!contrato.disponivel) {
+        return;
+      }
+
+      $.ajax({
+        url: this.configuracao.urlServico,
+        method: "POST",
+        dataType: "json",
+        data: {
+          acao: contrato.acao,
+          id: this.estado.idServico
+        }
+      })
+        .done(function (resposta) {
+          if (!resposta || !resposta.sucesso || !$.isArray(resposta.dados)) {
+            self.tratarFalhaCarregamento();
+            return;
+          }
+          if (!resposta.dados.length) {
+            return;
+          }
+          self.renderizarLocalizacoes(resposta.dados);
+          self.estado.localizacoesDisponiveis = true;
+          self.elementos.$areaLocalizacao.removeAttr("hidden");
+        })
+        .fail(function () {
+          self.tratarFalhaCarregamento();
+        });
+    },
+
+    /** Cria os itens da lista de localizações (loc_id e loc_nome). */
+    renderizarLocalizacoes: function (localizacoes) {
       var self = this;
       this.elementos.$listaLocalizacoes.empty();
 
@@ -318,32 +453,30 @@ console.log("JS agendamentoCli carregado");
         );
         $item
           .find("button")
-          .attr("data-valor", local.id)
-          .attr("data-texto", local.nome)
-          .text(local.nome)
+          .attr("data-valor", local.loc_id)
+          .attr("data-texto", local.loc_nome)
+          .text(local.loc_nome)
           .append(
-            '<span class="material-symbols-outlined" aria-hidden="true">manage_search</span>'
+            '<span class="material-symbols-outlined" aria-hidden="true">location_on</span>'
           );
         self.elementos.$listaLocalizacoes.append($item);
       });
     },
 
-    // Método \'selecionarLocalizacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    selecionarLocalizacao: function(id, nome) {
+    /** Guarda a localização escolhida, atualiza o texto e fecha o dropdown. */
+    selecionarLocalizacao: function (id, nome) {
       this.estado.localizacaoSelecionada = id;
       this.elementos.$inputLocalizacao.val(id);
       this.elementos.$textoLocalizacao.text(nome);
       this.fecharDropdown(this.elementos.$dropdownLocalizacao);
       this.removerErroCampo(this.elementos.$botaoLocalizacao);
       this.elementos.$botaoLocalizacao.trigger("focus");
-    },*/
+    },
 
     /* CALENDÁRIO */
 
-    // Método \'navegarMes\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    navegarMes: function(deltaMeses) {
+    /** Avança ou volta meses, limpa dia e horário e recarrega os dias indisponíveis. */
+    navegarMes: function (deltaMeses) {
       this.estado.dataExibida.setMonth(this.estado.dataExibida.getMonth() + deltaMeses);
       this.estado.diaSelecionado = null;
       this.elementos.$inputDia.val("");
@@ -351,9 +484,8 @@ console.log("JS agendamentoCli carregado");
       this.buscarDiasIndisponiveis(this.estado.dataExibida);
     },
 
-    // Método \'buscarDiasIndisponiveis\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    buscarDiasIndisponiveis: function(data) {
+    /** Pede ao backend os dias de folga/indisponíveis do mês e redesenha o calendário. */
+    buscarDiasIndisponiveis: function (data) {
       var self = this;
 
       $.ajax({
@@ -383,10 +515,8 @@ console.log("JS agendamentoCli carregado");
     },
 
 
-    // Método \'extrairDiasIndisponiveis\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-
-    extrairDiasIndisponiveis: function(resposta) {
+    /** Junta folgas e indisponíveis da resposta em uma lista de datas AAAA-MM-DD. */
+    extrairDiasIndisponiveis: function (resposta) {
       var self = this;
       var indisponiveis = [];
 
@@ -407,9 +537,11 @@ console.log("JS agendamentoCli carregado");
       return indisponiveis;
     },
 
-    // Método \'renderizarCalendario\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    renderizarCalendario: function(data) {
+    /**
+     * Desenha a grade do mês com botões de dia (indisponível, selecionado, rótulos de
+     * acessibilidade).
+     */
+    renderizarCalendario: function (data) {
       var ano = data.getFullYear();
       var mes = data.getMonth();
       var primeiroDiaSemana = new Date(ano, mes, 1).getDay();
@@ -459,17 +591,15 @@ console.log("JS agendamentoCli carregado");
       }
     },
 
-    // Método \'formatarDataChave\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    formatarDataChave: function(ano, mesIndiceZero, dia) {
+    /** Monta a data no formato AAAA-MM-DD. */
+    formatarDataChave: function (ano, mesIndiceZero, dia) {
       var mesFormatado = String(mesIndiceZero + 1).padStart(2, "0");
       var diaFormatado = String(dia).padStart(2, "0");
       return ano + "-" + mesFormatado + "-" + diaFormatado;
     },
 
-    // Método \'selecionarDia\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    selecionarDia: function(dataChave) {
+    /** Marca o dia escolhido, zera o horário e busca os horários livres. */
+    selecionarDia: function (dataChave) {
       this.estado.diaSelecionado = dataChave;
       this.elementos.$inputDia.val(dataChave);
       this.removerErroCampo(this.elementos.$calendario);
@@ -494,9 +624,8 @@ console.log("JS agendamentoCli carregado");
 
     /* HORÁRIO */
 
-    // Método \'resetarHorario\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    resetarHorario: function() {
+    /** Limpa o horário escolhido e a lista, e desabilita o dropdown de horários. */
+    resetarHorario: function () {
       this.estado.horarioSelecionado = null;
       this.elementos.$inputHorario.val("");
       this.elementos.$textoHorario.text("Selecione horário");
@@ -505,9 +634,8 @@ console.log("JS agendamentoCli carregado");
       this.fecharDropdown(this.elementos.$dropdownHorario);
     },
 
-    // Método \'buscarHorariosDisponiveis\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    buscarHorariosDisponiveis: function(dataChave) {
+    /** Pede ao backend os horários livres do dia e preenche o dropdown. */
+    buscarHorariosDisponiveis: function (dataChave) {
       var self = this;
 
       $.ajax({
@@ -533,9 +661,8 @@ console.log("JS agendamentoCli carregado");
         });
     },
 
-    // Método \'mapearHorarios\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    mapearHorarios: function(horarios) {
+    /** Converte cada horário em valor 'inicio|termino' e texto 'inicio às termino'. */
+    mapearHorarios: function (horarios) {
       return horarios.map(function (horario) {
         return {
           valor: horario.inicio + "|" + horario.termino,
@@ -544,9 +671,8 @@ console.log("JS agendamentoCli carregado");
       });
     },
 
-    // Método \'renderizarHorarios\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    renderizarHorarios: function(horarios) {
+    /** Cria os itens da lista de horários. */
+    renderizarHorarios: function (horarios) {
       var self = this;
       this.elementos.$listaHorarios.empty();
 
@@ -563,9 +689,8 @@ console.log("JS agendamentoCli carregado");
       });
     },
 
-    // Método \'selecionarHorario\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    selecionarHorario: function(valor, texto) {
+    /** Guarda o horário escolhido, atualiza o texto e fecha o dropdown. */
+    selecionarHorario: function (valor, texto) {
       this.estado.horarioSelecionado = valor;
       this.elementos.$inputHorario.val(valor);
       this.elementos.$textoHorario.text(texto);
@@ -576,9 +701,8 @@ console.log("JS agendamentoCli carregado");
 
     /* DROPDOWNS — abrir/fechar */
 
-    // Método \'alternarDropdown\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    alternarDropdown: function($dropdown, $inputOculto) {
+    /** Abre o dropdown se estava fechado (fechando os outros) ou fecha se estava aberto. */
+    alternarDropdown: function ($dropdown, $inputOculto) {
       var $lista = $dropdown.find(".dropdownCustomizadoLista");
       var estaAberta = !$lista.attr("hidden");
 
@@ -589,9 +713,9 @@ console.log("JS agendamentoCli carregado");
       }
     },
 
+    /** Abre a lista e foca a opção selecionada ou a primeira. */
     //Abre o dropdown e move o foco para a opção já selecionada (se houver) ou para a primeira opção da lista
-    // Método \'abrirDropdown\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    abrirDropdown: function($dropdown, $inputOculto) {
+    abrirDropdown: function ($dropdown, $inputOculto) {
       $dropdown.find(".dropdownCustomizadoLista").removeAttr("hidden");
       $dropdown.find(".dropdownCustomizadoBotao").attr("aria-expanded", "true");
 
@@ -607,7 +731,7 @@ console.log("JS agendamentoCli carregado");
         valorAtual = null;
       }
       var $itemSelecionado = $itens.filter(function () {
-        return $(this).data("valor") === valorAtual;
+        return String($(this).data("valor")) === String(valorAtual);
       });
 
       var $itemFoco;
@@ -619,28 +743,26 @@ console.log("JS agendamentoCli carregado");
       $itemFoco.trigger("focus");
     },
 
-    // Método \'fecharDropdown\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    fecharDropdown: function($dropdown) {
+    /** Fecha a lista do dropdown e atualiza aria-expanded. */
+    fecharDropdown: function ($dropdown) {
       $dropdown.find(".dropdownCustomizadoLista").attr("hidden", "hidden");
       $dropdown.find(".dropdownCustomizadoBotao").attr("aria-expanded", "false");
     },
 
-    // Método \'fecharTodosDropdowns\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    fecharTodosDropdowns: function() {
+    /** Fecha os dropdowns de localização e de horário. */
+    fecharTodosDropdowns: function () {
       this.fecharDropdown(this.elementos.$dropdownLocalizacao);
       this.fecharDropdown(this.elementos.$dropdownHorario);
     },
 
+    /** Navegação por teclado numa lista de opções (setas, Home e End), padrão ARIA listbox. */
     /* Implementa a navegação por teclado do padrão ARIA "listbox"
      * dentro de uma lista de opções: setas para cima/baixo movem o
      * foco entre as opções (com wrap-around), Home/End vão para a
      * primeira/última. Enter/Espaço já funcionam nativamente, pois
      * as opções são elementos <button>.
      */
-    // Método \'registrarNavegacaoTecladoLista\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    registrarNavegacaoTecladoLista: function($lista) {
+    registrarNavegacaoTecladoLista: function ($lista) {
       $lista.on("keydown", ".dropdownCustomizadoItem", function (evento) {
         var $itens = $lista.find(".dropdownCustomizadoItem");
         var indiceAtual = $itens.index(this);
@@ -670,44 +792,42 @@ console.log("JS agendamentoCli carregado");
 
     /* VALIDAÇÃO E ENVIO DO AGENDAMENTO */
 
-    // Método \'marcarCampoComErro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    marcarCampoComErro: function($elemento) {
+    /** Marca um campo com a classe de erro. */
+    marcarCampoComErro: function ($elemento) {
       $elemento.addClass("campoComErro");
     },
 
-    // Método \'removerErroCampo\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    removerErroCampo: function($elemento) {
+    /** Remove a classe de erro de um campo. */
+    removerErroCampo: function ($elemento) {
       $elemento.removeClass("campoComErro");
     },
 
-    // Método \'exibirAlertaValidacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirAlertaValidacao: function(mensagem) {
+    /** Mostra o alerta de validação (mensagem padrão: preencher todos os dados). */
+    exibirAlertaValidacao: function (mensagem) {
       this.elementos.$alerta
         .text(mensagem || "Você precisa preencher todos os dados!")
         .removeAttr("hidden");
     },
 
-    // Método \'esconderAlertaValidacao\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    esconderAlertaValidacao: function() {
+    /** Esconde o alerta de validação. */
+    esconderAlertaValidacao: function () {
       this.elementos.$alerta.attr("hidden", "hidden");
     },
 
-    // Método \'tentarConfirmarAgendamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    tentarConfirmarAgendamento: function() {
+    /**
+     * Valida dia e horário; se faltar algo, marca os erros e foca o primeiro; senão confere o login
+     * e envia.
+     */
+    tentarConfirmarAgendamento: function () {
       var self = this;
       var camposValidos = true;
       var $primeiroInvalido = null;
 
-      /*if (!this.estado.localizacaoSelecionada) {
+      if (this.estado.localizacoesDisponiveis && !this.estado.localizacaoSelecionada) {
         this.marcarCampoComErro(this.elementos.$botaoLocalizacao);
         $primeiroInvalido = $primeiroInvalido || this.elementos.$botaoLocalizacao;
         camposValidos = false;
-      }*/
+      }
 
       if (!this.estado.diaSelecionado) {
         this.marcarCampoComErro(this.elementos.$calendario);
@@ -733,19 +853,22 @@ console.log("JS agendamentoCli carregado");
       this.verificarLoginEEnviar();
     },
 
-    // Método \'verificarLoginEEnviar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    verificarLoginEEnviar: function() {
+    /**
+     * Consulta se o cliente está logado: se sim envia o agendamento, senão abre o modal 'não
+     * logado'.
+     */
+    verificarLoginEEnviar: function () {
       var self = this;
 
       $.ajax({
         url: this.configuracao.urlVerificarLogin,
         method: "POST",
-        dataType: "json"
+        dataType: "json",
+        data: { acao: "verificarLogin" }
       })
         .done(function (resposta) {
           if (resposta && resposta.logado) {
-            self.enviarAgendamento();
+            self.buscarSalaLivre();
           } else {
             self.exibirModalNaoLogado();
           }
@@ -755,11 +878,72 @@ console.log("JS agendamentoCli carregado");
         });
     },
 
-    // Método \'enviarAgendamento\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
+    /** Separa o horário escolhido ('inicio|termino') em início e término. */
+    obterPartesHorario: function () {
+      return (this.estado.horarioSelecionado || "").split("|");
+    },
 
-    enviarAgendamento: function() {
+    /**
+     * Pede ao backend as salas livres no horário escolhido e usa a primeira. Sem sala livre,
+     * avisa o cliente e não envia o agendamento.
+     */
+    buscarSalaLivre: function () {
       var self = this;
-      var partesHorario = (this.estado.horarioSelecionado || "").split("|");// Retornar o horario para "inicio" e "termino" separados.
+      var contrato = this.configuracao.contratos.mostrarSala;
+      var partesHorario = this.obterPartesHorario();
+      var dados = {
+        acao: contrato.acao,
+        inicio: partesHorario[0],
+        termino: partesHorario[1]
+      };
+      if (this.estado.localizacaoSelecionada) {
+        dados.localizacao = this.estado.localizacaoSelecionada;
+      }
+
+      this.elementos.$botaoConfirmar.prop("disabled", true);
+
+      $.ajax({
+        url: this.configuracao.urlServico,
+        method: "POST",
+        dataType: "json",
+        data: dados
+      })
+        .done(function (resposta) {
+          if (!resposta || !resposta.sucesso || !$.isArray(resposta.dados)) {
+            self.exibirAlertaValidacao("Não foi possível concluir o agendamento. Tente novamente.");
+            self.elementos.$botaoConfirmar.prop("disabled", false);
+            return;
+          }
+          if (!resposta.dados.length) {
+            self.exibirAlertaValidacao("Não há sala disponível nesse horário. Escolha outro horário.");
+            self.elementos.$botaoConfirmar.prop("disabled", false);
+            return;
+          }
+          self.enviarAgendamento(resposta.dados[0].sala_id);
+        })
+        .fail(function () {
+          self.exibirAlertaValidacao("Não foi possível concluir o agendamento. Tente novamente.");
+          self.elementos.$botaoConfirmar.prop("disabled", false);
+        });
+    },
+
+    /**
+     * Envia dia, início, término e sala ao backend e, se a resposta for 'sucesso', vai para a
+     * tela de detalhes.
+     */
+    enviarAgendamento: function (idSala) {
+      var self = this;
+      var partesHorario = this.obterPartesHorario();
+      var dados = {
+        acao: "agendar",
+        sala: idSala,
+        dia: this.estado.diaSelecionado,
+        inicio: partesHorario[0],
+        termino: partesHorario[1]
+      };
+      if (this.estado.localizacaoSelecionada) {
+        dados.localizacao = this.estado.localizacaoSelecionada;
+      }
 
       this.elementos.$botaoConfirmar.prop("disabled", true);
 
@@ -767,12 +951,7 @@ console.log("JS agendamentoCli carregado");
         url: this.configuracao.urlServico,
         method: "POST",
         dataType: "text",
-        data: {
-          acao: "agendar",
-          dia: this.estado.diaSelecionado,
-          inicio: partesHorario[0],
-          termino: partesHorario[1]
-        }
+        data: dados
       })
         .done(function (respostaTexto) {
           if ($.trim(respostaTexto) === "sucesso") {
@@ -793,9 +972,8 @@ console.log("JS agendamentoCli carregado");
         });
     },
 
-    // Método \'irParaInfoServicoComSucesso\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    irParaInfoServicoComSucesso: function() {
+    /** Redireciona para os detalhes do serviço com agendado=1 (que mostra o modal de sucesso). */
+    irParaInfoServicoComSucesso: function () {
       var url = this.configuracao.urlInfoServico + "&agendado=1";
       if (this.estado.idServico) {
         url += "&id=" + encodeURIComponent(this.estado.idServico);
@@ -805,22 +983,21 @@ console.log("JS agendamentoCli carregado");
 
     /* MODAIS */
 
-    // Método \'exibirModalErro\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirModalErro: function() {
+    /** Abre o modal de serviço não encontrado (sem fechar por fora). */
+    exibirModalErro: function () {
       Utilitarios.exibirModal(this.elementos.$modalErro, {
         backdrop: "static",
         keyboard: false
       });
     },
 
-    // Método \'exibirModalNaoLogado\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    exibirModalNaoLogado: function() {
+    /** Abre o modal pedindo para o cliente entrar na conta. */
+    exibirModalNaoLogado: function () {
       Utilitarios.exibirModal(this.elementos.$modalNaoLogado);
     }
   };
 
+  /** Executa moduloAgendamentoCli.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloAgendamentoCli.iniciar();
   });

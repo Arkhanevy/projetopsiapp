@@ -1,0 +1,240 @@
+================================================================================
+FLUXO DE ESTILOS ENTRE OS ARQUIVOS CSS
+================================================================================
+Base: os 19 CSS próprios da pasta css/ (bootstrap.min.css e style.css, vazio,
+ficam de fora). O HTML não foi enviado: a relação "tela -> CSS" abaixo vem dos
+comentários "Depende de ..." de cada arquivo e do nome de cada tela.
+
+
+--------------------------------------------------------------------------------
+1. CAMADAS E ORDEM DE CARGA
+--------------------------------------------------------------------------------
+
+   1) bootstrap.min.css      framework (terceiros)
+   2) variaveis.css          variáveis do design system (cores, tipografia, espaços)
+   3) componentes.css        design system: reset + componentes reutilizáveis
+   4) CSS da tela            ajustes de layout da página (um por tela)
+
+   Regra: cada camada usa a anterior; as camadas não se chamam ao contrário.
+
+        bootstrap.min.css
+              |
+        variaveis.css ----------- var(--cor...), var(--espaco...), var(--tamanho...)
+              |
+        componentes.css -------- religa o Bootstrap (--bs-*) às variáveis e define
+              |                  botão, campos, cards, modal, navegações, abas etc.
+              v
+        CSS da tela ------------ só posiciona e ajusta os componentes naquela tela
+
+   Se a ordem mudar, quebra: sem variaveis.css antes, todo var(--...) fica vazio;
+   sem componentes.css, as telas perdem botões, cards, navegações e modais.
+
+
+--------------------------------------------------------------------------------
+2. FLUXO DAS VARIÁVEIS
+--------------------------------------------------------------------------------
+
+   variaveis.css (:root)
+      --corLetras, --corBordas, --corDestaque, --corBotoes, --corFundo,
+      --corAcao* (Extra, Secundaria, Atencao, Negativa), --corFundoClaro, --corBranco
+      --tamanhoH1/H2/H3/Body/Small/Caption, --fonteBase, --pesoRegular/Negrito
+      --espaco1..7 (4 a 48 px), --raioPequeno/Medio/Total, --larguraBorda
+      --corFoco, --larguraFoco
+        |
+        +--> componentes.css  (:root liga --bs-body-bg, --bs-body-color,
+        |                      --bs-border-color, --bs-border-radius etc. às
+        |                      variáveis; cada componente usa var(--...))
+        +--> CSS de cada tela (usam as mesmas variáveis; quase não têm cor própria)
+
+   Tipografia: variaveis.css muda os tamanhos em 992px (desktop) dentro de um
+   @media; todos os arquivos que usam var(--tamanho...) acompanham sozinhos.
+
+   Valores que NÃO vêm de variáveis (precisam ser alterados à mão se mudarem):
+      72px  largura da navegação lateral  (nos CSS de tela e em componentes.css)
+      64px  altura da navegação inferior / barra superior (--alturaNavTopoLogado)
+      #aaaaaa, #d9d9d9, #dc3545, #555 e alguns rgba(...) fixos
+      rgba(36, 24, 205, 0.35) do foco do Bootstrap (repete o azul --corFoco)
+
+
+--------------------------------------------------------------------------------
+3. QUEM USA O QUÊ: TELA -> CSS -> JS
+--------------------------------------------------------------------------------
+
+   tela                    CSS da tela              JS da tela
+   ------------------------------------------------------------------------------
+   Home                    home.css                 home.js
+   Busca                   busca.css                busca.js
+   Resultados da busca     resultadosBusca.css      resultadosBusca.js
+   Detalhe do serviço      infoServico.css          infoServico.js
+   Agendamento (cliente)   agendamentoCli.css       agendamentoCli.js
+   Minhas consultas        consultasCli.css         consultasCli.js
+   Perfil                  perfil.css               perfil.js
+   Contatos/documentos     contatos.css             contatos.js
+   Notificações            notificacoes.css         notificacoes.js
+   Login cliente           loginCliente.css         loginCliente.js
+   Login clínica           autenticacaoBase.css +   loginClinica.js
+                           loginClinica.css
+   Login profissional      autenticacaoBase.css +   loginProfissional.js
+                           loginProfissional.css
+   Cadastro cliente        cadastroCliente.css      cadCliente.js
+   Cadastro clínica        autenticacaoBase.css +   cadClinica.js
+                           cadastroClinica.css
+   Cadastro profissional   autenticacaoBase.css +   cadProfissional.js
+                           cadastroProfissional.css
+
+   Todas as telas também carregam bootstrap.min.css, variaveis.css e
+   componentes.css (ver seção 1).
+
+   cadProCli.css: versão antiga e unificada das telas de profissional/clínica.
+   Quase todas as regras dele foram divididas em autenticacaoBase.css,
+   cadastroProfissional.css, cadastroClinica.css, loginProfissional.css e
+   loginClinica.css. Se for carregado junto com os novos, as regras se repetem.
+
+
+--------------------------------------------------------------------------------
+4. COMPONENTES COMPARTILHADOS (componentes.css) E ONDE APARECEM
+--------------------------------------------------------------------------------
+
+   (Sem o HTML, a coluna 'usado nas telas' é inferida pelos nomes de classe e pelo
+   que os JS e os CSS de tela referenciam; confirme nos templates.)
+
+   componente (classe)            usado nas telas
+   ------------------------------------------------------------------------------
+   botaoBase (+ --primario etc.)  todas (ações, modais, cartões)
+   indicadorStatus                notificações (selo 'Nova'), agenda
+   campoTexto                     login, cadastros, perfil (formulários)
+   campoPesquisa (+ _botaoIcone)  home, busca, resultadosBusca, perfil (vínculos)
+   campoSelect                    perfil (formulários)
+   painelFiltro, grupoFiltro      resultadosBusca (filtros)
+   calendarioBase                 agenda do profissional/clínica (componente genérico)
+   modalBase, modalMidia,         infoServico, consultasCli, contatos, notificações,
+     modalFeedback                perfil (sessão expirada, vínculos, confirmações)
+   cardEntidadeBase, cardClinica, resultadosBusca (cards de resultado) e perfil
+     cardServico                  (vínculos)
+   cardDocumento                  contatos (documentos no modal)
+   cardConsulta,                  componentes de card de consulta (a tela do cliente
+     cardConsultaProfissional     usa .cartaoConsulta, definido em consultasCli.css)
+   navTopoDeslogado               telas públicas (visitante)
+   navTopoLogado, navLateralLogado,
+     navInferiorLogado,
+     menuHamburguerLogado,
+     painelMenuMobile             telas do usuário logado
+   cabecalhoPerfil, abasPerfil,
+     secaoPerfil, tabelaDados,
+     seletorDias, linhaHorario,
+     campoMinutos, formularioPerfil perfil
+   estadoVazio                    contatos, notificações, perfil
+   avisoFlutuante                 contatos, notificações, perfil
+
+   Observação: agendamentoCli.css tem calendário e dropdown PRÓPRIOS
+   (calendarioAgendamento, dropdownCustomizado) e não usa o calendarioBase.
+
+
+--------------------------------------------------------------------------------
+5. LAYOUT DAS TELAS COM NAVEGAÇÃO FIXA (padrão repetido)
+--------------------------------------------------------------------------------
+
+   Cada tela do logado reserva espaço para a navegação fixa do mesmo modo:
+
+      celular (< 768px):
+         navInferiorLogado fica fixa embaixo  -> conteúdo ganha padding-bottom
+         de 64px (+ espaço)  (conteudoBusca, conteudoDetalheServico,
+         conteudoAgendamento, conteudoConsultas, conteudoContatos,
+         conteudoNotificacoes, conteudoPerfil, conteudoResultados)
+      tablet/desktop (>= 768px):
+         navInferiorLogado some e navLateralLogado (72px) fica à esquerda
+         -> conteúdo ganha margin-left: 72px
+
+      Detalhe: em busca, contatos, notificações e resultados a margem de 72px só é
+      aplicada quando a lateral está visível:
+         .navLateralLogado:not([hidden]) + div .conteudoX { margin-left: 72px; }
+      No perfil, conteudoPerfil--semNavLateral remove essa margem (visitante).
+
+   A lateral EXPANDE para 240px no hover/foco, mas o conteúdo não acompanha (ela
+   sobrepõe a tela). A barra superior (navTopoLogado) tem 64px e empurra a lateral
+   para baixo por meio de .navTopoLogado ~ .navLateralLogado.
+
+
+--------------------------------------------------------------------------------
+6. CLASSES E ATRIBUTOS QUE O JAVASCRIPT ALTERNA
+--------------------------------------------------------------------------------
+
+   O CSS define a aparência; o JS liga/desliga as classes abaixo.
+
+   estadoCarregando / estadoErro .. infoServico.js, agendamentoCli.js
+        (esqueleto animado e blocos cinza; campos com atributo data-campo)
+        Em contatos/notificações/resultadosBusca o mesmo nome .estadoCarregando
+        é só um contêiner de spinner (sem esqueleto).
+   hidden ......................... todas (regra global [hidden] { display:none !important })
+   campoComErro .................. agendamentoCli.js (validação)
+   diaIndisponivel / diaSelecionado agendamentoCli.js (calendário próprio)
+   aria-expanded (dropdown) ....... agendamentoCli.js
+   tituloBusca_termo--ativo /
+     --saindo ..................... busca.js (troca do título animado)
+   badgeStatusPendente/Agendada/
+     Cancelada .................... consultasCli.js
+   indicadorStatus--nova .......... notificacoes.js
+   data-lida="false" .............. notificacoes.js (card não lido)
+   data-estadoArea (vazio,
+     arrastando, selecionado) ..... contatos.js (área de upload)
+   areaArquivo--invalido .......... contatos.js
+   avisoFlutuante--sucesso /
+     --atencao .................... contatos.js, perfil.js
+   conteudoPerfil[aria-busy] ....... perfil.js (esconde abas até carregar)
+   conteudoPerfil--semNavLateral .. perfil.js
+   cardVinculo--selecionavel /
+     cardEntidadeBase--selecionado  perfil.js (modal de vínculos)
+   is-invalid ..................... cadastros, logins e perfil (via ElmoUtilitarios)
+   calendarioBase_dia--* e
+     marcadorLegenda--* ........... JS que usa renderizarCalendario() (componentes.js)
+   active (abas) .................. Bootstrap (abasPerfil, abasResultados, abasDocumentos)
+
+   Se um nome de classe mudar no CSS, é preciso mudar também no JS (e vice-versa).
+
+
+--------------------------------------------------------------------------------
+7. PADRÕES DO CSS
+--------------------------------------------------------------------------------
+
+   - Nomenclatura: bloco_elemento--modificador (ex.: cardContato_corpo,
+     botaoBase--primario). IDs (#...) só nas telas de login e cadastro.
+   - Mobile-first: o padrão é o celular; telas maiores entram em @media
+     (min-width: 576px, 768px, 992px, 1200px). Há também @media (max-width: ...)
+     em alguns pontos de componentes.css, e prefers-reduced-motion em busca,
+     contatos e perfil.
+   - Bootstrap por variáveis: componentes.css muda a aparência dos componentes do
+     Bootstrap sobrescrevendo variáveis --bs-btn-*, --bs-card-*, --bs-modal-* etc.,
+     em vez de reescrever o componente inteiro.
+   - Acessibilidade: foco visível padrão (azul, 2px), link 'Pular para o conteúdo',
+     contraste reforçado com color-mix() em botões e avisos.
+   - Variantes --demo (painelMenuMobile, navLateralLogado, navInferiorLogado,
+     menuHamburguerLogado) servem só para mostrar os componentes numa página de
+     demonstração.
+
+
+--------------------------------------------------------------------------------
+8. DUPLICAÇÕES E PONTOS DE ATENÇÃO
+--------------------------------------------------------------------------------
+
+   1. cadProCli.css repete quase tudo que foi dividido em autenticacaoBase.css e
+      nos CSS de cadastro/login de profissional e clínica. Confirmar se ainda é
+      carregado.
+   2. @keyframes animacaoEsqueleto está definido em infoServico.css,
+      consultasCli.css e agendamentoCli.css (mesmo conteúdo).
+   3. .estadoCarregando tem dois significados: esqueleto (infoServico,
+      agendamentoCli) e spinner centralizado (contatos, notificacoes,
+      resultadosBusca). Misturar as telas na mesma página geraria conflito.
+   4. Valores 72px e 64px se repetem à mão nos CSS de tela: mudar o tamanho da
+      navegação exige editar vários arquivos.
+   5. Imagens de fundo: loginCliente.css e cadastroCliente.css usam um caminho
+      relativo ao CSS (public/assets/images/...); home.css usa
+      ".../images/bannerHorizontal.jpg", que parece incompleto. Confirmar os
+      caminhos reais.
+   6. notificacoes.css tem a regra .modalNotificacao_acao duplicada (idêntica).
+   7. autenticacaoBase.css e cadProCli.css redefinem seletores globais (html, body,
+      h1, p, textarea, .container-fluid): afetam toda a página que os carregar.
+   8. color-mix() é usado em vários arquivos: exige navegadores recentes.
+   9. Cores fixas fora das variáveis: #dc3545 (erro nos cadastros), #aaaaaa (dia
+      desabilitado), #d9d9d9 (fundo de imagem), rgba(0, 120, 60, 0.45) (filtro da
+      home), rgba do foco do Bootstrap.
+================================================================================

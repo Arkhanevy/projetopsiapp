@@ -1,17 +1,48 @@
 /* ============================================================
-   RESUMO DO ARQUIVO: loginProfissional.js
-   O que faz: consulte a descrição de responsabilidade abaixo; este resumo
-   foi acrescentado para orientar a leitura do arquivo.
-   Observações: as funções podem depender de jQuery, módulos globais,
-   elementos HTML e/ou respostas do backend mencionados no código.
-   Inventário de objetos e funções identificados:
-   - Objeto: moduloLoginProfissional
-   - Função/método: iniciar
-   - Função/método: urlElementos
-   - Função/método: validarCamposAoSair
-   - Função/método: registrarEventos
-   - Função/método: mostrarAlert
-   - Função/método: enviarLogin
+   ARQUIVO: loginProfissional.js
+
+   O QUE FAZ
+   Login do profissional: valida e-mail e senha, envia o login por AJAX ao
+   controller e, se der certo, redireciona para o perfil. O cadastro e a
+   ativação ficam em cadProfissional.js.
+
+   OBSERVAÇÕES
+   - Depende de jQuery, Bootstrap e ElmoUtilitarios (utilitarios.js, carregado
+     antes).
+   - O formulário nunca é enviado de forma nativa: o submit é bloqueado e o
+     envio é por AJAX (FormData).
+   - Em caso de sucesso redireciona para index.php?uri=perfil (o comentário
+     original fala em 'página de serviços').
+   - A URL do controller está fixa com o prefixo /projetopsi/ (marcada
+     //Axolote em alguns pontos): ajuste ao mudar de ambiente.
+   - O nome urlElementos() engana: a função só guarda referências de
+     elementos, não monta URL.
+   - A tela de login dos três perfis (cliente, profissional, clínica) é quase
+     idêntica; vale unificar em um único módulo parametrizado.
+
+   OBJETOS E FUNÇÕES (na ordem em que aparecem)
+   - IIFE — Função autoexecutável que isola o escopo e recebe jQuery e
+     ElmoUtilitarios.
+     - moduloLoginProfissional (objeto) — Módulo da página de login.
+       - moduloLoginProfissional.configuracao — URL do controller de
+         autenticação e URL do perfil (destino após o login).
+       - moduloLoginProfissional.elementos — Cache dos elementos jQuery da
+         página.
+       - moduloLoginProfissional.iniciar() — Ponto de entrada: guarda os
+         elementos e registra os eventos.
+       - moduloLoginProfissional.urlElementos() — Busca no DOM e guarda
+         alerta, campos de e-mail/senha e botão de login.
+       - moduloLoginProfissional.validarCamposAoSair() — Valida o e-mail ao
+         sair do campo e mostra alerta se for inválido.
+       - moduloLoginProfissional.registrarEventos() — Bloqueia o submit
+         nativo, limpa o estado de erro ao digitar e liga o clique do botão de
+         login.
+       - moduloLoginProfissional.mostrarAlert() — Exibe um alerta Bootstrap no
+         contêiner da página.
+       - moduloLoginProfissional.enviarLogin() — Valida os campos, envia
+         email/senha (acao=login) ao backend e trata sucesso ou erro.
+     - Callback do document ready — Executa moduloLoginProfissional.iniciar()
+       quando o DOM estiver pronto.
    ============================================================ */
 
 console.log("JS loginProfissional carregado");
@@ -27,35 +58,36 @@ console.log("JS loginProfissional carregado");
    O cadastro e a ativação de conta ficam em cadProfissional.js.
    ============================================================ */
 
+/** Função autoexecutável que isola o escopo e recebe jQuery e ElmoUtilitarios. */
 (function ($, Utilitarios) {
   "use strict";
 
-  // Objeto \'moduloLoginProfissional\': agrupa estado, configurações e/ou métodos deste módulo.
-
+  /** Módulo da página de login. */
   var moduloLoginProfissional = {
 
     /* ---------- Configuração ---------- */
+    /** URL do controller de autenticação e URL do perfil (destino após o login). */
     configuracao: {
       urlProfissional: "/projetopsi/index.php?uri=profissional",
       urlPerfil: "index.php?uri=perfil"
     },
 
     /* ---------- Referências de elementos (cacheadas) ---------- */
+    /** Cache dos elementos jQuery da página. */
     elementos: {},
 
+    /** Ponto de entrada: guarda os elementos e registra os eventos. */
     /**
      * Ponto de entrada. Deve ser chamado uma vez, quando o
      * documento estiver pronto.
      */
-    // Método \'iniciar\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-    iniciar: function() {
+    iniciar: function () {
       this.urlElementos();
       this.registrarEventos();
     },
 
-    // Método \'urlElementos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    urlElementos: function() {
+    /** Busca no DOM e guarda alerta, campos de e-mail/senha e botão de login. */
+    urlElementos: function () {
       this.elementos.$alertContainer = $("#alertContainer");
 
       this.elementos.$loginEmail = $("#emailCadastroLog");
@@ -65,17 +97,18 @@ console.log("JS loginProfissional carregado");
 
     /* VALIDAÇÃO AO SAIR DO CAMPO */
 
-    // Método \'validarCamposAoSair\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    validarCamposAoSair: function() {
+    /** Valida o e-mail ao sair do campo e mostra alerta se for inválido. */
+    validarCamposAoSair: function () {
       Utilitarios.validarAoSair(this.elementos.$alertContainer, [
         { $campo: this.elementos.$loginEmail, valido: function (valor) { return Utilitarios.emailValido(valor); }, mensagem: "E-mail inválido!" }
       ]);
     },
 
-    // Método \'registrarEventos\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    registrarEventos: function() {
+    /**
+     * Bloqueia o submit nativo, limpa o estado de erro ao digitar e liga o clique do botão de
+     * login.
+     */
+    registrarEventos: function () {
       this.validarCamposAoSair();
 
       // Nenhum formulário desta página é enviado de forma nativa: o envio
@@ -98,17 +131,15 @@ console.log("JS loginProfissional carregado");
 
     /* ALERTAS */
 
-    // Método \'mostrarAlert\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    mostrarAlert: function(mensagem, tipo) {
+    /** Exibe um alerta Bootstrap no contêiner da página. */
+    mostrarAlert: function (mensagem, tipo) {
       Utilitarios.mostrarAlerta(this.elementos.$alertContainer, mensagem, tipo);
     },
 
     /* LOGIN */
 
-    // Método \'enviarLogin\': executa a responsabilidade indicada pelo nome; detalhes estão no corpo.
-
-    enviarLogin: function($botao) {
+    /** Valida os campos, envia email/senha (acao=login) ao backend e trata sucesso ou erro. */
+    enviarLogin: function ($botao) {
       var self = this;
       var el = this.elementos;
 
@@ -165,6 +196,7 @@ console.log("JS loginProfissional carregado");
     }
   };
 
+  /** Executa moduloLoginProfissional.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloLoginProfissional.iniciar();
   });
