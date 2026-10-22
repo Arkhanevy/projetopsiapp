@@ -13,7 +13,7 @@
      envio é por AJAX (FormData).
    - Em caso de sucesso redireciona para index.php?uri=perfil (o comentário
      original fala em 'página de serviços').
-   - A URL do controller está fixa com o prefixo /projetopsi/ (marcada
+   - A URL do controller está fixa com o prefixo  (marcada
      //Axolote em alguns pontos): ajuste ao mudar de ambiente.
    - O nome urlElementos() engana: a função só guarda referências de
      elementos, não monta URL.
@@ -66,7 +66,7 @@ console.log("JS loginCliente carregado");
     /* ---------- Configuração ---------- */
     /** URL do controller de autenticação e URL do perfil (destino após o login). */
     configuracao: {
-      urlCliente: "/projetopsi/index.php?uri=cliente", //Axolote
+      urlCliente: "index.php?uri=cliente", //Axolote
       urlPerfil: "index.php?uri=perfil"
     },
 

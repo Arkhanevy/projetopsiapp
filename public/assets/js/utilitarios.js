@@ -11,20 +11,12 @@
    OBSERVAÇÕES
    - Deve ser carregado ANTES do script de cada página. Depende de jQuery e
      Bootstrap 5 (bundle).
-   - O comentário original cita só infoServico/agendamentoCli/consultasCli,
-     mas ele é usado também por login, cadastros, perfil, contatos,
-     notificações e resultadosBusca.
    - As máscaras são aplicadas sozinhas no document ready a todo campo com
      data-mascara (telefone, cpf, cnpj, cep).
    - mostrarAlerta() injeta a mensagem como HTML: nunca passe texto vindo do
      usuário/servidor sem escapar.
    - configurarCEP() usa $.getJSON (JSONP) sem tratamento de falha: se o
      ViaCEP não responder, os campos ficam com '...'.
-   - cnpjValido() só considera dígitos; se o sistema precisar aceitar o novo
-     CNPJ alfanumérico, a validação terá de ser revista.
-   - apenasNumeros() espera texto: chamá-la com undefined ou número gera erro.
-   - As validações do navegador são conveniência; o servidor deve validar de
-     novo.
 
    OBJETOS E FUNÇÕES (na ordem em que aparecem)
    - IIFE — Função autoexecutável que isola o escopo e publica ElmoUtilitarios
@@ -95,36 +87,34 @@
 (function ($, window) {
   "use strict";
 
-  /** Objeto com todas as utilidades compartilhadas. */
+  /* Objeto com todas as utilidades compartilhadas. */
   var ElmoUtilitarios = {
 
-    /** Lê um parâmetro da query string atual (null se não existir). */
+    /* Por meio da propriedade search, retorna o que vÊm depoi de ? da URL */
     obterParametroUrl: function (nome) {
-      var parametros = new URLSearchParams(window.location.search);
+      var parametros = new URLSearchParams(window.location.search); // URLSearchParams -> Permite consultar, adicionar e manipular parâmetros de uma URL.
       return parametros.get(nome);
     },
 
-    /** Obtém ou cria a instância do modal Bootstrap do elemento. */
+    /* Obter um objeto (instancia) para controlar o modal Bootstrap */
     obterInstanciaModal: function ($elementoModal, opcoes) {
       return bootstrap.Modal.getOrCreateInstance($elementoModal.get(0), opcoes);
     },
 
-    /** Abre um modal Bootstrap (aceita opções como backdrop e keyboard). */
+    /* Abre um modal Bootstrap (aceita opções como backdrop e keyboard). */
     exibirModal: function ($elementoModal, opcoes) {
       this.obterInstanciaModal($elementoModal, opcoes).show();
     },
 
-    /** Fecha o modal, se já houver instância. */
+    /* Fecha o modal, se já houver instância. */
     esconderModal: function ($elementoModal) {
       var instancia = bootstrap.Modal.getInstance($elementoModal.get(0));
       if (instancia) {
         instancia.hide();
       }
     },
-    /**
-     * Preenche elementos [data-campo] com os dados: src/alt em IMG, valor em INPUT e texto nos
-     * demais.
-     */
+
+    /* Preenche elementos [data-campo] com os dados: src/alt em IMG, valor em INPUT e texto nos demais.*/
     preencherCampos: function ($camposDinamicos, dados) {
       $camposDinamicos.each(function () {
         var $elemento = $(this);
@@ -182,20 +172,16 @@
       }, 3000);
     },
 
-    /** Valida o formato básico de e-mail. */
-    /**
-     * VALIDAÇÃO — helpers genéricos de formulário.
-     */
+    /* Valida o formato básico de e-mail e remove tudo que não for dígito. */
     emailValido: function (email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     },
 
-    /** Remove tudo que não for dígito. */
     apenasNumeros: function (valor) {
       return valor.replace(/\D/g, "");
     },
 
-    /** Valida telefone brasileiro: 10 ou 11 dígitos, DDD de 11 a 99 e 9 inicial nos celulares. */
+    /* Valida telefone brasileiro: 10 ou 11 dígitos, DDD de 11 a 99 e 9 inicial nos celulares. */
     telefoneValido: function (telefone) {
       var numeros = this.apenasNumeros(telefone || "");
 
@@ -209,7 +195,7 @@
       return true;
     },
 
-    /** Calcula a idade em anos a partir da data de nascimento (AAAA-MM-DD). */
+    /* Calcula a idade em anos a partir da data de nascimento (AAAA-MM-DD). */
     calcularIdade: function (dataNascimento) {
       var hoje = new Date();
       var nascimento = new Date(dataNascimento + "T00:00:00");
@@ -223,7 +209,7 @@
       return idade;
     },
 
-    /** Informa se a pessoa tem a idade mínima (18 por padrão); data inválida retorna false. */
+    /* Informa se a pessoa tem a idade mínima (18 por padrão). */
     maiorDeIdade: function (dataNascimento, idadeMinima) {
       idadeMinima = idadeMinima || 18;
 
@@ -454,10 +440,7 @@
       return resultado == digitos.charAt(1);
     },
 
-    /**
-     * Faz o clique na prévia abrir o seletor de arquivo e mostra a imagem escolhida (valida o
-     * tipo).
-     */
+    /* bre a prévia e mostra a imagem escolhida (valida o tipo). */
     configurarPreviewImagem: function ($container, $input, $preview) {
       var self = this;
 

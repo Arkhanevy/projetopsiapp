@@ -13,7 +13,7 @@
      envio é por AJAX com FormData.
    - As validações do navegador (CPF/CNPJ, telefone, e-mail, idade) são só
      conveniência: o servidor precisa validar tudo de novo.
-   - A URL do controller está fixa com o prefixo /projetopsi/ (marcada
+   - A URL do controller está fixa com o prefixo  (marcada
      //Axolote em alguns pontos): ajuste ao mudar de ambiente.
    - O nome urlElementos() engana: a função só guarda referências de
      elementos, não monta URL.
@@ -98,7 +98,7 @@ console.log("JS cadClinica carregado");
     /* ---------- Configuração ---------- */
     /** URL do controller e URL de login (destino após a ativação). */
     configuracao: {
-      urlClinica: "/projetopsi/index.php?uri=clinica", //Axolote
+      urlClinica: "index.php?uri=clinica", //Axolote
       urlLogin: "index.php?uri=loginClinica"
     },
 

@@ -4,31 +4,23 @@
    O QUE FAZ
    Descobre, ao carregar a página, se há usuário logado e qual o tipo
    (cliente, profissional ou clínica), e mostra o bloco de navegação correto
-   (deslogado ou logado). Depois avisa a página com o evento
-   sessaoNavegacaoDefinida.
+   (deslogado ou logado). Depois avisa a página com o evento sessaoNavegacaoDefinida.
 
    OBSERVAÇÕES
-   - É só exibição, NÃO é segurança: cada endpoint precisa validar $_SESSION
-     no servidor.
    - Não há rota única 'quem sou eu': testa uma URI por tipo, na ordem de
      tiposParaVerificar, e para no primeiro 'logado: true'. Se todas falharem,
      considera deslogado.
    - Cada URI deve responder JSON { logado: true|false } e recebe POST com
      acao=verificarLogin.
-   - Chama aplicarPapelNavegacao() (componentes.js) se existir; por isso
-     componentes.js deve estar carregado.
    - No máximo 3 requisições em sequência em página deslogada (uma por tipo).
    - O tipo 'clienteSimples' é tratado aqui, mas nunca é testado em
      tiposParaVerificar: só aparece se a URI de cliente passar a devolvê-lo.
 
    OBJETOS E FUNÇÕES (na ordem em que aparecem)
    - IIFE — Função autoexecutável que isola o escopo do arquivo.
-     - moduloSessaoNavegacao (objeto) — Módulo que resolve a sessão e controla
-       a navegação exibida.
-       - moduloSessaoNavegacao.configuracao — Ordem dos tipos a verificar e
-         geração da URL de verificação.
-         - configuracao.urlVerificarSessaoPorTipo() — Devolve a URI de
-           verificação de login do tipo informado.
+     - moduloSessaoNavegacao (objeto) — Módulo que resolve a sessão e controla a navegação exibida.
+       - moduloSessaoNavegacao.configuracao — Ordem dos tipos a verificar e geração da URL de verificação.
+         - configuracao.urlVerificarSessaoPorTipo() — Devolve a URI de verificação de login do tipo informado.
        - moduloSessaoNavegacao.itemContatosPorTipo — Troca ícone e rótulo do
          item Contatos por 'Documentos' para clienteSimples.
        - moduloSessaoNavegacao.elementos — Cache dos elementos jQuery de

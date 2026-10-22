@@ -7,9 +7,9 @@
   <title>Podopsi - Início</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" /><!-- Bootstrap 5 -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /> <!-- Material Symbols (Google) -->
-  <link rel="stylesheet" href="/projetopsi/public/assets/css/variaveis.css" /><!-- Variáveis globais de design -->
-  <link rel="stylesheet" href="/projetopsi/public/assets/css/componentes.css" /><!-- Componentes compartilhados -->
-  <link rel="stylesheet" href="/projetopsi/public/assets/css/home.css" /><!-- CSS próprio -->
+  <link rel="stylesheet" href="public/assets/css/variaveis.css" /><!-- Variáveis globais de design -->
+  <link rel="stylesheet" href="public/assets/css/componentes.css" /><!-- Componentes compartilhados -->
+  <link rel="stylesheet" href="public/assets/css/home.css" /><!-- CSS próprio -->
 </head>
 <body>
   <a href="#conteudoHome" class="linkPularConteudo">Pular para o conteúdo principal</a>
@@ -25,17 +25,17 @@
       <div class="navTopoDeslogado_acoes">
         <button type="button" class="nav-link dropdown-toggle navbar-brand navTopoDeslogado_acao" data-bs-toggle="dropdown">Cadastre-se</button>
         <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="/projetopsi/index.php?uri=cadastroCliente">Sou um cliente</a></li>
-          <li><a class="dropdown-item" href="/projetopsi/index.php?uri=cadastroProfissional">Sou um profissional</a>
+          <li><a class="dropdown-item" href="index.php?uri=cadastroCliente">Sou um cliente</a></li>
+          <li><a class="dropdown-item" href="index.php?uri=cadastroProfissional">Sou um profissional</a>
           </li>
-          <li><a class="dropdown-item" href="/projetopsi/index.php?uri=cadastroClinica">Sou uma clínica</a></li>
+          <li><a class="dropdown-item" href="index.php?uri=cadastroClinica">Sou uma clínica</a></li>
         </ul>
         <button type="button" class="nav-link dropdown-toggle navbar-brand navTopoDeslogado_acao" data-bs-toggle="dropdown">Entrar</button>
         <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="/projetopsi/index.php?uri=loginCliente">Sou um cliente</a></li>
-          <li><a class="dropdown-item" href="/projetopsi/index.php?uri=loginProfissional">Sou um profissional</a>
+          <li><a class="dropdown-item" href="index.php?uri=loginCliente">Sou um cliente</a></li>
+          <li><a class="dropdown-item" href="index.php?uri=loginProfissional">Sou um profissional</a>
           </li>
-          <li><a class="dropdown-item" href="/projetopsi/index.php?uri=loginClinica">Sou uma clínica</a></li>
+          <li><a class="dropdown-item" href="index.php?uri=loginClinica">Sou uma clínica</a></li>
         </ul>
       </div>
     </div>
@@ -69,9 +69,9 @@
   </div>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><!-- jQuery -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><!-- Bootstrap 5 (bundle com Popper) -->
-  <script src="/projetopsi/public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
-  <script src="/projetopsi/public/assets/js/buscaComum.js"></script><!-- Código compartilhado da busca -->
-  <script src="/projetopsi/public/assets/js/home.js"></script><!-- JS próprio da página -->
+  <script src="public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
+  <script src="public/assets/js/buscaComum.js"></script><!-- Código compartilhado da busca -->
+  <script src="public/assets/js/home.js"></script><!-- JS próprio da página -->
 </body>
 
 </html>
