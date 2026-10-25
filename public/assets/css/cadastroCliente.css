@@ -1,54 +1,9 @@
-/* ============================================================
-   ARQUIVO: cadastroCliente.css
-
-   O QUE FAZ
-   Estilos da tela de cadastro e ativação de conta do cliente: fundo com
-   imagem, cartões de cadastro/ativação, prévia da foto e campo de biografia.
-
-   OBSERVAÇÕES
-   - Depende de variaveis.css e componentes.css. Estilos extraídos de um
-     <style> inline da página.
-   - O * { margin:0; padding:0; box-sizing:border-box } zera todos os
-     elementos da página.
-   - O caminho da imagem de fundo é relativo ao arquivo CSS: confirme se
-     resolve para a imagem correta (igual ao loginCliente.css).
-   - As telas #ativacao e .cadastro começam escondidas; o cadCliente.js
-     alterna a exibição.
-   - #img_perfil usa só position:absolute e opacity:0 (nos outros cadastros
-     também tem width/height 0).
-   - A regra de textarea.is-invalid se repete em autenticacaoBase.css e
-     cadProCli.css.
-
-   REGRAS (na ordem em que aparecem)
-   - * — Reinicia margens e preenchimento de todos os elementos e usa box-
-     sizing: border-box.
-   - body — Imagem de fundo fixa, cobrindo toda a tela, centralizada e sem
-     repetir.
-   - #ativacao, .cadastro — Esconde a tela de ativação e os blocos .cadastro
-     até o JS exibi-los.
-   - #cadastroCliente, #ativacao — Cartão de cadastro/ativação: até 500px,
-     altura máxima de 90% da tela com rolagem e preenchimento de 30px.
-   - #preview — Prévia da foto de perfil: 100x100px, recortada para preencher
-     (cover).
-   - #img_perfil — Esconde o input de arquivo (invisível); o clique é feito
-     pela prévia.
-   - textarea — Campo de biografia: largura total, altura mínima de 150px e
-     sem redimensionar.
-   - textarea.is-invalid, .form-select.is-invalid — Borda vermelha para
-     textarea ou select com erro de validação.
-   ============================================================ */
-
-/* cadastroCliente.css — estilos específicos da página (extraídos do <style> inline).
-   Depende de variaveis.css e componentes.css. */
-
-    /* Reinicia margens e preenchimento de todos os elementos e usa box-sizing: border-box. */
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
     }
 
-    /* Imagem de fundo fixa, cobrindo toda a tela, centralizada e sem repetir. */
     body {
         background-image: url("public/assets/images/bannerVertical.jpg");
         background-size: cover;
@@ -59,16 +14,10 @@
         width: 100%;
     }
 
-    /* Esconde a tela de ativação e os blocos .cadastro até o JS exibi-los. */
     #ativacao, .cadastro {
         display: none;
     }
 
-    /* CARD DO CADASTRO */
-    /*
-       Cartão de cadastro/ativação: até 500px, altura máxima de 90% da tela com rolagem e
-       preenchimento de 30px.
-    */
     #cadastroCliente, #ativacao {
         width: 100%;
         max-width: 500px;
@@ -78,28 +27,23 @@
         box-sizing: border-box;
     }
 
-    /* FOTO */
-    /* Prévia da foto de perfil: 100x100px, recortada para preencher (cover). */
     #preview {
         width: 100px;
         height: 100px;
         object-fit: cover;
     }
 
-    /* Esconde o input de arquivo (invisível); o clique é feito pela prévia. */
     #img_perfil{
      position: absolute;
      opacity: 0;
     }
 
-    /* BIOGRAFIA */
-    /* Campo de biografia: largura total, altura mínima de 150px e sem redimensionar. */
     textarea {
         width: 100%;
         min-height: 150px;
         resize: none;
     }
-    /* Borda vermelha para textarea ou select com erro de validação. */
+
     textarea.is-invalid, .form-select.is-invalid {
         border-color: #dc3545;
     }

@@ -1,68 +1,3 @@
-/* ============================================================
-   ARQUIVO: cadProCli.css
-
-   O QUE FAZ
-   Estilos antigos e unificados das telas de cadastro e login de profissional
-   e clínica: layout com banner e formulário, avatar, campos e etapas
-   escondidas.
-
-   OBSERVAÇÕES
-   - Parece a versão anterior que foi dividida em autenticacaoBase.css,
-     cadastroProfissional.css, cadastroClinica.css, loginProfissional.css e
-     loginClinica.css: quase todas as regras se repetem nesses arquivos.
-   - Se este arquivo e os novos forem carregados juntos, as regras ficam
-     duplicadas; confirme se ainda é usado.
-   - O html,body recebe margens laterais de 5px e overflow-x: hidden também no
-     body (o autenticacaoBase.css evita isso no body para não quebrar o menu
-     sticky).
-   - Inclui #esqueciForm (tela de recuperar senha), que não aparece nos
-     arquivos novos.
-   - A regra .logo-titulo aparece três vezes (base e dentro do bloco de
-     1200px) com os mesmos valores.
-   - O vermelho de erro (#dc3545) está fixo em vez de usar --corAcaoNegativa.
-
-   REGRAS (na ordem em que aparecem)
-   - html,body — Remove margens e preenchimento, deixa 5px nas laterais e
-     esconde a rolagem horizontal.
-   - .container-fluid — Remove o preenchimento lateral do contêiner do
-     Bootstrap.
-   - textarea.is-invalid, .form-select.is-invalid — Borda vermelha para
-     textarea ou select com erro de validação.
-   - #cadastroClinica, #cadastroProfissional, #esqueciForm, #a… — Esconde as
-     etapas de cadastro, recuperação e ativação até o JS exibi-las.
-   - h1 — Deixa os títulos principais semi-negrito (600).
-   - p — Parágrafos em cinza, centralizados e com largura máxima de 400px.
-   - .vh-100 — Garante altura mínima de uma tela inteira.
-   - #imgBox — Esconde a coluna do banner no celular.
-   - #imgBox img — Imagem do banner preenche toda a coluna, cortando o
-     excesso.
-   - #colForm > div — Limita o formulário a 420px de largura e o centraliza.
-   - textarea — Campo de texto longo ocupa toda a largura com 250px de altura.
-   - .logo-titulo — Logo pequena (70px) mantendo a proporção.
-   - .avatar-container — Caixa quadrada de 120px, centralizada, para a foto de
-     perfil.
-   - .avatar-container img — Foto de perfil redonda, que preenche a caixa e
-     indica ser clicável.
-   - #img_perfil, #img_perfil_Clinica — Inputs de foto invisíveis (o clique é
-     feito pelo avatar).
-   - .form-wrapper — Contêiner do formulário com largura máxima de 420px,
-     centralizado.
-   - @media (min-width: 768px) — Ajustes de tablet em diante.
-     - #cadastroProfissional, #cadastroClinica, #loginProfission… —
-       Formulários ocupam a largura disponível até 420px.
-     - #imgBox — Mostra o banner e o faz ocupar a altura da tela.
-     - #imgBox img — Imagem do banner preenche a coluna, cortando o excesso.
-     - #colForm — Coluna do formulário com a altura da tela e rolagem própria.
-   - @media (min-width: 1200px) — Ajustes para desktop largo.
-     - #cadastroProfissional, #cadastroClinica, #loginProfission… — Repete a
-       largura máxima de 420px dos formulários.
-     - .logo-titulo — Repete o tamanho da logo (70px), igual à regra base.
-   - .form-esquerda — Remove a margem esquerda automática para alinhar o
-     formulário à esquerda.
-   ============================================================ */
-
-/* BASE*/
- /* Remove margens e preenchimento, deixa 5px nas laterais e esconde a rolagem horizontal. */
  html,body {
      margin: 0;
      padding: 0;
@@ -70,67 +5,67 @@
      margin-right: 5px;
      overflow-x: hidden;
 }
- /* Remove o preenchimento lateral do contêiner do Bootstrap. */
+
  .container-fluid {
      padding: 0;
 }
- /* Borda vermelha para textarea ou select com erro de validação. */
+
  textarea.is-invalid, .form-select.is-invalid {
      border-color: #dc3545;
 }
- /* Esconde as etapas de cadastro, recuperação e ativação até o JS exibi-las. */
+
  #cadastroClinica, #cadastroProfissional, #esqueciForm, #ativacao, .cadastro {
      display: none;
 }
- /* Deixa os títulos principais semi-negrito (600). */
+
  h1 {
      font-weight: 600;
 }
- /* Parágrafos em cinza, centralizados e com largura máxima de 400px. */
+
  p {
      color: #555;
      max-width: 400px;
      margin: auto;
 }
- /* Garante altura mínima de uma tela inteira. */
+
  .vh-100 {
      min-height: 100vh;
 }
- /* Esconde a coluna do banner no celular. */
+
  #imgBox {
      display: none;
 }
- /* Imagem do banner preenche toda a coluna, cortando o excesso. */
+
  #imgBox img {
      width: 100%;
      height: 100%;
      object-fit: cover;
 }
-/* Limita o formulário a 420px de largura e o centraliza. */
+
 #colForm > div {
     width: 100%;
     max-width: 420px;
-    margin: 0 auto;    
+    margin: 0 auto;
 }
- /* Campo de texto longo ocupa toda a largura com 250px de altura. */
+
  textarea {
      width: 100%;
      height: 250px;
      align-self: center;
 }
-/* Logo pequena (70px) mantendo a proporção. */
+
 .logo-titulo {
     width: 70px;
     height: auto;
     object-fit: contain;
 }
- /* Caixa quadrada de 120px, centralizada, para a foto de perfil. */
+
  .avatar-container {
      width: 120px;
      height: 120px;
      margin: auto;
 }
- /* Foto de perfil redonda, que preenche a caixa e indica ser clicável. */
+
  .avatar-container img {
      width: 100%;
      height: 100%;
@@ -138,39 +73,38 @@
      border-radius: 50%;
      cursor: pointer;
 }
- /* Inputs de foto invisíveis (o clique é feito pelo avatar). */
+
  #img_perfil, #img_perfil_Clinica {
      position: absolute;
      opacity: 0;
      width: 0;
      height: 0;
 }
-/* Contêiner do formulário com largura máxima de 420px, centralizado. */
+
 .form-wrapper{
     width:100%;
     max-width:420px;
     margin:auto;
 }
- /* Ajustes de tablet em diante. */
-/* TABLET+ (≥ 768px)*/
+
  @media (min-width: 768px) {
-     /* Formulários ocupam a largura disponível até 420px. */
+
      #cadastroProfissional, #cadastroClinica, #loginProfissional, #loginClinica {
          width: 100%;
          max-width: 420px;
     }
-     /* Mostra o banner e o faz ocupar a altura da tela. */
+
      #imgBox {
          display: block;
          height: 100vh;
     }
-     /* Imagem do banner preenche a coluna, cortando o excesso. */
+
      #imgBox img {
          width: 100%;
          height: 100%;
          object-fit: cover;
     }
-     /* Coluna do formulário com a altura da tela e rolagem própria. */
+
      #colForm {
         height: 100vh;
         overflow-y: auto;
@@ -178,22 +112,21 @@
         box-sizing: border-box;
     }
 }
- /* Ajustes para desktop largo. */
-/* DESKTOP (≥ 1200px)*/
+
  @media (min-width: 1200px) {
-     /* Repete a largura máxima de 420px dos formulários. */
+
      #cadastroProfissional, #cadastroClinica, #loginProfissional, #loginClinica {
          width: 100%;
          max-width: 420px;
     }
-    /* Repete o tamanho da logo (70px), igual à regra base. */
+
     .logo-titulo {
     width: 70px;
     height: auto;
     object-fit: contain;
 }
 }
- /* Remove a margem esquerda automática para alinhar o formulário à esquerda. */
+
  .form-esquerda {
      margin-left: 0 !important;
 }

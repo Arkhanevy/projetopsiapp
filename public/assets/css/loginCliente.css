@@ -1,40 +1,9 @@
-/* ============================================================
-   ARQUIVO: loginCliente.css
-
-   O QUE FAZ
-   Estilos da tela de login do cliente: reinicia margens, coloca a imagem de
-   fundo e define o cartão do login.
-
-   OBSERVAÇÕES
-   - Depende de variaveis.css e componentes.css. Estilos extraídos de um
-     <style> inline da página, conforme o comentário original.
-   - O * { margin:0; padding:0; box-sizing:border-box } zera todos os
-     elementos da página.
-   - O caminho da imagem (public/assets/images/bannerVertical.jpg) é relativo
-     ao arquivo CSS, não à página: se o CSS estiver em outra pasta, a imagem
-     não carrega. Confirme ou use caminho absoluto.
-   - O mesmo bloco de fundo se repete em cadastroCliente.css.
-
-   REGRAS (na ordem em que aparecem)
-   - * — Reinicia margens e preenchimento de todos os elementos e usa box-
-     sizing: border-box.
-   - body — Imagem de fundo fixa, cobrindo toda a tela, centralizada e sem
-     repetir.
-   - #loginCliente — Cartão do login: largura até 500px, altura máxima de 90%
-     da tela com rolagem, e preenchimento de 30px.
-   ============================================================ */
-
-/* loginCliente.css — estilos específicos da página (extraídos do <style> inline).
-   Depende de variaveis.css e componentes.css. */
-
-    /* Reinicia margens e preenchimento de todos os elementos e usa box-sizing: border-box. */
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
     }
 
-    /* Imagem de fundo fixa, cobrindo toda a tela, centralizada e sem repetir. */
     body {
         background-image: url("public/assets/images/bannerVertical.jpg");
         background-size: cover;
@@ -45,11 +14,6 @@
         width: 100%;
     }
 
-    /* CARD DO LOGIN */
-    /*
-       Cartão do login: largura até 500px, altura máxima de 90% da tela com rolagem, e preenchimento
-       de 30px.
-    */
     #loginCliente {
         width: 100%;
         max-width: 500px;

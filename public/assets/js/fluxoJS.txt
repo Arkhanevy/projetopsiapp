@@ -408,6 +408,6 @@ são POST com o parâmetro "acao"; as respostas são JSON, salvo onde indicado.
       endereço não reabre o perfil (o link com tipo/id só vale ao clicar).
    6. Validações no navegador (CPF, CNPJ, telefone, idade, arquivo) são
       conveniência: o servidor precisa validar tudo de novo.
-   7. URLs fixas com  (login e cadastro) e URLs provisórias em
+   7. URLs fixas com /projetopsi/ (login e cadastro) e URLs provisórias em
       consultasCli precisam ser ajustadas ao mudar de ambiente.
 ================================================================================

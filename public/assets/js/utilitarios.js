@@ -1,112 +1,21 @@
-/* ============================================================
-   ARQUIVO: utilitarios.js
-
-   O QUE FAZ
-   Biblioteca de funções compartilhadas (window.ElmoUtilitarios): leitura de
-   parâmetros da URL, modais Bootstrap, preenchimento de campos data-campo,
-   esqueleto de carregamento acessível, alertas, validações (e-mail, telefone,
-   CPF, CNPJ, idade), máscaras de campos, prévia de imagem e preenchimento de
-   endereço por CEP.
-
-   OBSERVAÇÕES
-   - Deve ser carregado ANTES do script de cada página. Depende de jQuery e
-     Bootstrap 5 (bundle).
-   - As máscaras são aplicadas sozinhas no document ready a todo campo com
-     data-mascara (telefone, cpf, cnpj, cep).
-   - mostrarAlerta() injeta a mensagem como HTML: nunca passe texto vindo do
-     usuário/servidor sem escapar.
-   - configurarCEP() usa $.getJSON (JSONP) sem tratamento de falha: se o
-     ViaCEP não responder, os campos ficam com '...'.
-
-   OBJETOS E FUNÇÕES (na ordem em que aparecem)
-   - IIFE — Função autoexecutável que isola o escopo e publica ElmoUtilitarios
-     em window.
-     - ElmoUtilitarios (objeto) — Objeto com todas as utilidades
-       compartilhadas.
-       - ElmoUtilitarios.obterParametroUrl() — Lê um parâmetro da query string
-         atual (null se não existir).
-       - ElmoUtilitarios.obterInstanciaModal() — Obtém ou cria a instância do
-         modal Bootstrap do elemento.
-       - ElmoUtilitarios.exibirModal() — Abre um modal Bootstrap (aceita
-         opções como backdrop e keyboard).
-       - ElmoUtilitarios.esconderModal() — Fecha o modal, se já houver
-         instância.
-       - ElmoUtilitarios.preencherCampos() — Preenche elementos [data-campo]
-         com os dados: src/alt em IMG, valor em INPUT e texto nos demais.
-       - ElmoUtilitarios.alternarEsqueletoAcessivel() — Liga/desliga aria-
-         hidden nos campos enquanto o esqueleto de carregamento aparece.
-       - ElmoUtilitarios.mostrarAlerta() — Anexa um alerta Bootstrap (success
-         por padrão) ao contêiner e o remove após 3 s.
-       - ElmoUtilitarios.emailValido() — Valida o formato básico de e-mail.
-       - ElmoUtilitarios.apenasNumeros() — Remove tudo que não for dígito.
-       - ElmoUtilitarios.telefoneValido() — Valida telefone brasileiro: 10 ou
-         11 dígitos, DDD de 11 a 99 e 9 inicial nos celulares.
-       - ElmoUtilitarios.calcularIdade() — Calcula a idade em anos a partir da
-         data de nascimento (AAAA-MM-DD).
-       - ElmoUtilitarios.maiorDeIdade() — Informa se a pessoa tem a idade
-         mínima (18 por padrão); data inválida retorna false.
-       - ElmoUtilitarios.validarCampos() — Marca como is-invalid os campos
-         vazios e retorna true se algum estava vazio.
-       - ElmoUtilitarios.marcarCamposComErro() — Marca os campos como
-         inválidos e exibe um alerta de erro.
-       - ElmoUtilitarios.validarAoSair() — Valida campos ao perder o foco
-         (regras valido/mensagem), sem repetir alertas iguais.
-       - ElmoUtilitarios.formatarMascara() — Aplica a máscara de telefone,
-         CPF, CNPJ ou CEP a um valor.
-       - ElmoUtilitarios.aplicarMascaras() — Ativa a máscara automática em
-         todo campo [data-mascara], mantendo a posição do cursor.
-         - aplicarMascaras > formatarCampo() — Reformata o valor de um campo e
-           devolve o cursor ao mesmo dígito.
-       - ElmoUtilitarios.cpfValido() — Valida CPF pelos dígitos verificadores
-         (rejeita sequências repetidas).
-       - ElmoUtilitarios.cnpjValido() — Valida CNPJ pelos dígitos
-         verificadores (rejeita sequências repetidas).
-       - ElmoUtilitarios.configurarPreviewImagem() — Faz o clique na prévia
-         abrir o seletor de arquivo e mostra a imagem escolhida (valida o
-         tipo).
-       - ElmoUtilitarios.configurarCEP() — Ao sair do campo CEP, consulta o
-         ViaCEP e preenche rua, bairro, cidade, UF e IBGE.
-     - Callback do document ready — Aplica as máscaras automáticas quando o
-       DOM estiver pronto.
-   ============================================================ */
-
-/* ============================================================
-   UTILITÁRIOS COMPARTILHADOS
-   Usado por infoServico.js, agendamentoCli.js e consultasCli.js.
-   Depende de: jQuery, Bootstrap 5 (bundle JS).
-   Deve ser carregado ANTES do script de cada página.
-
-   Concentra aqui o que antes estava duplicado (com pequenas
-   divergências) em cada arquivo de página: leitura de parâmetro
-   de URL, controle de modal via API nativa do Bootstrap 5,
-   preenchimento de campos "data-campo" e o toggle de
-   acessibilidade do skeleton de carregamento.
-   ============================================================ */
-
-/** Função autoexecutável que isola o escopo e publica ElmoUtilitarios em window. */
 (function ($, window) {
   "use strict";
 
-  /* Objeto com todas as utilidades compartilhadas. */
   var ElmoUtilitarios = {
 
-    /* Por meio da propriedade search, retorna o que vÊm depoi de ? da URL */
     obterParametroUrl: function (nome) {
-      var parametros = new URLSearchParams(window.location.search); // URLSearchParams -> Permite consultar, adicionar e manipular parâmetros de uma URL.
+      var parametros = new URLSearchParams(window.location.search);
       return parametros.get(nome);
     },
 
-    /* Obter um objeto (instancia) para controlar o modal Bootstrap */
     obterInstanciaModal: function ($elementoModal, opcoes) {
       return bootstrap.Modal.getOrCreateInstance($elementoModal.get(0), opcoes);
     },
 
-    /* Abre um modal Bootstrap (aceita opções como backdrop e keyboard). */
     exibirModal: function ($elementoModal, opcoes) {
       this.obterInstanciaModal($elementoModal, opcoes).show();
     },
 
-    /* Fecha o modal, se já houver instância. */
     esconderModal: function ($elementoModal) {
       var instancia = bootstrap.Modal.getInstance($elementoModal.get(0));
       if (instancia) {
@@ -114,7 +23,6 @@
       }
     },
 
-    /* Preenche elementos [data-campo] com os dados: src/alt em IMG, valor em INPUT e texto nos demais.*/
     preencherCampos: function ($camposDinamicos, dados) {
       $camposDinamicos.each(function () {
         var $elemento = $(this);
@@ -143,7 +51,6 @@
       });
     },
 
-    /** Liga/desliga aria-hidden nos campos enquanto o esqueleto de carregamento aparece. */
     alternarEsqueletoAcessivel: function ($camposDinamicos, ativo) {
       if (ativo) {
         $camposDinamicos.attr("aria-hidden", "true");
@@ -152,7 +59,6 @@
       }
     },
 
-    /** Anexa um alerta Bootstrap (success por padrão) ao contêiner e o remove após 3 s. */
     mostrarAlerta: function ($container, mensagem, tipo) {
       tipo = tipo || "success";
 
@@ -172,7 +78,6 @@
       }, 3000);
     },
 
-    /* Valida o formato básico de e-mail e remove tudo que não for dígito. */
     emailValido: function (email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     },
@@ -181,7 +86,6 @@
       return valor.replace(/\D/g, "");
     },
 
-    /* Valida telefone brasileiro: 10 ou 11 dígitos, DDD de 11 a 99 e 9 inicial nos celulares. */
     telefoneValido: function (telefone) {
       var numeros = this.apenasNumeros(telefone || "");
 
@@ -195,7 +99,6 @@
       return true;
     },
 
-    /* Calcula a idade em anos a partir da data de nascimento (AAAA-MM-DD). */
     calcularIdade: function (dataNascimento) {
       var hoje = new Date();
       var nascimento = new Date(dataNascimento + "T00:00:00");
@@ -209,7 +112,6 @@
       return idade;
     },
 
-    /* Informa se a pessoa tem a idade mínima (18 por padrão). */
     maiorDeIdade: function (dataNascimento, idadeMinima) {
       idadeMinima = idadeMinima || 18;
 
@@ -220,7 +122,6 @@
       return this.calcularIdade(dataNascimento) >= idadeMinima;
     },
 
-    /** Marca como is-invalid os campos vazios e retorna true se algum estava vazio. */
     validarCampos: function (campos) {
       var erro = false;
       campos.forEach(function (campo) {
@@ -232,7 +133,6 @@
       return erro;
     },
 
-    /** Marca os campos como inválidos e exibe um alerta de erro. */
     marcarCamposComErro: function ($container, campos, mensagem) {
       campos.forEach(function ($campo) {
         $campo.addClass("is-invalid");
@@ -240,7 +140,6 @@
       this.mostrarAlerta($container, mensagem, "danger");
     },
 
-    /** Valida campos ao perder o foco (regras valido/mensagem), sem repetir alertas iguais. */
     validarAoSair: function ($container, regras) {
       var self = this;
 
@@ -255,7 +154,6 @@
 
           regra.$campo.addClass("is-invalid").attr("aria-invalid", "true");
 
-          // Evita alerta repetido (ex.: o mesmo aviso do envio logo em seguida).
           var jaExibido = $container.find(".alert").filter(function () {
             return $.trim($(this).text()) === regra.mensagem;
           }).length > 0;
@@ -271,20 +169,19 @@
       });
     },
 
-    /** Aplica a máscara de telefone, CPF, CNPJ ou CEP a um valor. */
     formatarMascara: function (tipo, valor) {
       var d = this.apenasNumeros(valor || "");
       var f = "";
 
       if (tipo === "telefone") {
-        // Autopreenchimento pode trazer o código do país (+55).
+
         if (d.length > 11 && d.indexOf("55") === 0) d = d.substring(2);
         d = d.substring(0, 11);
         if (d.length === 0) return "";
         f = "(" + d.substring(0, 2);
         if (d.length > 2) {
           var resto = d.substring(2);
-          // 11 dígitos: 9XXXX-XXXX; 10: XXXX-XXXX
+
           var corte;
           if (resto.length > 8) {
             corte = 5;
@@ -326,18 +223,15 @@
       return valor;
     },
 
-    /** Ativa a máscara automática em todo campo [data-mascara], mantendo a posição do cursor. */
     aplicarMascaras: function () {
       var self = this;
 
-      /** Reformata o valor de um campo e devolve o cursor ao mesmo dígito. */
       function formatarCampo(campo) {
         var tipo = campo.getAttribute("data-mascara");
         var antes = campo.value;
         var depois = self.formatarMascara(tipo, antes);
         if (antes === depois) return;
 
-        // Mantém o cursor depois do mesmo dígito, mesmo editando no meio.
         var cursor = campo.selectionStart;
         var digitosAntesDoCursor;
         if (cursor === null || cursor === undefined) {
@@ -363,18 +257,16 @@
         formatarCampo(this);
       });
 
-      // Formata valores que já estejam no campo ao carregar (ex.: autopreenchimento).
       $("[data-mascara]").each(function () {
         formatarCampo(this);
       });
     },
 
-    /** Valida CPF pelos dígitos verificadores (rejeita sequências repetidas). */
     cpfValido: function (cpf) {
       cpf = cpf.replace(/\D/g, "");
 
       if (cpf.length !== 11) return false;
-      if (/^(\d)\1+$/.test(cpf)) return false; // Elimina CPFs inválidos conhecidos
+      if (/^(\d)\1+$/.test(cpf)) return false;
 
       var soma = 0;
       var i;
@@ -395,12 +287,11 @@
       return resto === parseInt(cpf[10], 10);
     },
 
-    /** Valida CNPJ pelos dígitos verificadores (rejeita sequências repetidas). */
     cnpjValido: function (cnpj) {
       cnpj = cnpj.replace(/\D/g, "");
 
       if (cnpj.length !== 14) return false;
-      if (/^(\d)\1+$/.test(cnpj)) return false; // Elimina CNPJs inválidos conhecidos
+      if (/^(\d)\1+$/.test(cnpj)) return false;
 
       var tamanho = 12;
       var numeros = cnpj.substring(0, tamanho);
@@ -440,7 +331,6 @@
       return resultado == digitos.charAt(1);
     },
 
-    /* bre a prévia e mostra a imagem escolhida (valida o tipo). */
     configurarPreviewImagem: function ($container, $input, $preview) {
       var self = this;
 
@@ -464,7 +354,6 @@
       });
     },
 
-    /** Ao sair do campo CEP, consulta o ViaCEP e preenche rua, bairro, cidade, UF e IBGE. */
     configurarCEP: function ($container, campos) {
       var self = this;
       var todosOsCampos = [campos.cep, campos.rua, campos.bairro, campos.cidade, campos.uf, campos.ibge];
@@ -508,7 +397,6 @@
 
   window.ElmoUtilitarios = ElmoUtilitarios;
 
-  /** Aplica as máscaras automáticas quando o DOM estiver pronto. */
   $(function () {
     ElmoUtilitarios.aplicarMascaras();
   });

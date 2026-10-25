@@ -1,67 +1,19 @@
-/* ============================================================
-   ARQUIVO: variaveis.css
-
-   O QUE FAZ
-   Fundação do design system: declara as variáveis CSS (custom properties) de
-   cor, tipografia, espaçamento, bordas e foco usadas por todos os outros CSS
-   do projeto. Só define valores; não estiliza nenhum elemento.
-
-   OBSERVAÇÕES
-   - Deve ser o PRIMEIRO CSS próprio carregado (antes de componentes.css e dos
-     CSS de página), pois todos usam var(--...).
-   - Mobile-first: os tamanhos de texto padrão são os do celular; a partir de
-     992px (breakpoint 'lg' do Bootstrap) os tamanhos de título e texto
-     aumentam.
-   - Só a tipografia muda no desktop; espaçamentos, raios e cores são iguais
-     em todas as larguras.
-   - --corFoco repete o mesmo azul de --corAcaoSecundaria; componentes.css
-     também usa esse azul em rgba(...) fixo (--bs-focus-ring-color), que
-     precisa ser atualizado à mão se a cor mudar.
-   - Escala de espaçamento em múltiplos de 4 px (--espaco1 a --espaco7).
-
-   VARIÁVEIS DECLARADAS
-   - :root (padrão) — Bloco com todas as variáveis, nos valores mobile.
-     - Paleta principal — --corLetras, --corBordas, --corDestaque,
-       --corBotoes, --corFundo.
-     - Paleta secundária — --corAcaoExtra (roxo), --corAcaoSecundaria (azul),
-       --corAcaoAtencao (amarelo), --corAcaoNegativa (vermelho).
-     - Superfícies auxiliares — --corFundoClaro e --corBranco.
-     - Tipografia — --tamanhoH1/H2/H3, --tamanhoBody, --tamanhoSmall,
-       --tamanhoCaption, --fonteBase, --pesoRegular, --pesoNegrito.
-     - Espaçamentos — --espaco1 (4 px) a --espaco7 (48 px).
-     - Raios e bordas — --raioPequeno, --raioMedio, --raioTotal,
-       --larguraBorda.
-     - Foco — --corFoco e --larguraFoco, usados nos indicadores de foco de
-       acessibilidade.
-   - @media (min-width: 992px) — Redefine apenas os tamanhos de tipografia
-     para desktop.
-   ============================================================ */
-
-/* ==================================================================
-   Arquivo original: fundacao/variaveis.css
-   ================================================================== */
-
-
-/* Declara todas as variáveis do design system com os valores para celular (mobile-first). */
 :root {
-  /* Paleta principal */
+
   --corLetras: #07120A;
   --corBordas: #0D2B17;
   --corDestaque: #04724D;
   --corBotoes: #39B675;
   --corFundo: #CFE9E7;
 
-  /* Paleta secundária (ações semânticas) */
-  --corAcaoExtra: #8B64CB;      /* roxo   → ações complementares/excepcionais */
-  --corAcaoSecundaria: #2418CD; /* azul   → consulta, navegação, ações secundárias */
-  --corAcaoAtencao: #E0A800;    /* amarelo → atenção / pendente */
-  --corAcaoNegativa: #CC1818;   /* vermelho → ações negativas */
+  --corAcaoExtra: #8B64CB;
+  --corAcaoSecundaria: #2418CD;
+  --corAcaoAtencao: #E0A800;
+  --corAcaoNegativa: #CC1818;
 
-  /* Superfícies auxiliares derivadas do fundo principal */
   --corFundoClaro: #E8F3F2;
   --corBranco: #FFFFFF;
 
-  /* Tipografia — mobile (padrão / mobile-first) */
   --tamanhoH1: 32px;
   --tamanhoH2: 24px;
   --tamanhoH3: 20px;
@@ -73,7 +25,6 @@
   --pesoRegular: 400;
   --pesoNegrito: 700;
 
-  /* Espaçamentos (escala baseada em 4px) */
   --espaco1: 4px;
   --espaco2: 8px;
   --espaco3: 12px;
@@ -82,21 +33,17 @@
   --espaco6: 32px;
   --espaco7: 48px;
 
-  /* Raios e bordas */
   --raioPequeno: 8px;
   --raioMedio: 16px;
   --raioTotal: 999px;
   --larguraBorda: 2px;
 
-  /* Foco (acessibilidade) */
   --corFoco: #2418CD;
   --larguraFoco: 3px;
 }
 
-/* A partir de 992px (desktop), muda só a escala de tipografia. */
-/* Tipografia — desktop (>= 992px, breakpoint 'lg' do Bootstrap) */
 @media (min-width: 992px) {
-  /* Tamanhos maiores de H1, H2, H3, texto, texto pequeno e legenda para telas largas. */
+
   :root {
     --tamanhoH1: 48px;
     --tamanhoH2: 36px;
@@ -106,4 +53,3 @@
     --tamanhoCaption: 14px;
   }
 }
-

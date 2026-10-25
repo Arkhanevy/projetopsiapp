@@ -1,188 +1,24 @@
-/* ============================================================
-   ARQUIVO: contatos.css
-
-   O QUE FAZ
-   Estilos da tela de contatos: lista de contatos em cards por seção
-   (profissionais, clientes, clínicas), estados de carregamento/vazio e o
-   modal de documentos (abas Enviados/Recebidos, lista de documentos, área de
-   upload de arquivo com arrastar e soltar, avisos).
-
-   OBSERVAÇÕES
-   - Depende de variaveis.css e componentes.css (modalBase, botaoBase,
-     cardDocumento, abas, avisoFlutuante, estadoVazio).
-   - As classes de estado são alternadas pelo contatos.js: data-estadoArea
-     (vazio, arrastando, selecionado), areaArquivo--invalido e avisoFlutuante
-     --sucesso/--atencao.
-   - O .estadoCarregando aqui é um contêiner de spinner centralizado e se
-     repete em notificacoes.css; já em infoServico.css/agendamentoCli.css a
-     mesma classe é usada para o esqueleto (skeleton).
-   - avisoFlutuante--atencao e avisoFlutuante--sucesso ajustam o componente de
-     componentes.css para esta tela.
-   - Vários botões do modal usam color-mix() para escurecer a cor e melhorar o
-     contraste (exige navegador recente).
-   - O valor 64px (navegação inferior) e 72px (navegação lateral) se repetem
-     em outros CSS de página.
-   - Respeita prefers-reduced-motion: a transição da área de arquivo é
-     desligada.
-
-   REGRAS (na ordem em que aparecem)
-   - .conteudoContatos — Conteúdo principal: espaço no topo e, embaixo, a
-     altura da navegação inferior fixa.
-   - @media (min-width: 768px) — A partir de tablet, a navegação inferior some
-     e a lateral entra.
-     - .conteudoContatos — Reduz o espaço inferior (não há mais navegação
-       inferior).
-     - .navLateralLogado:not([hidden]) + div .conteudoContatos — Abre 72px de
-       margem à esquerda só quando a navegação lateral está visível.
-   - .conteudoContatos_titulo — Título da página grande, centralizado e com
-     margem inferior.
-   - .estadoCarregando — Contêiner do indicador de carregamento: centralizado,
-     na cor de destaque.
-   - .estadoVazio_apoio — Texto de apoio do estado vazio: largura máxima de 36
-     caracteres e tamanho pequeno.
-   - .estadoVazio_link — Link do estado vazio em azul e negrito.
-   - .estadoVazio_link:focus-visible — Contorno de foco visível para teclado
-     no link.
-   - .areaContatos — Área das listas: largura máxima de 1100px, centralizada,
-     com margem lateral.
-   - .secaoContatos:not([hidden]) ~ .secaoContatos:not([hidden… — Espaço entre
-     seções de contatos visíveis consecutivas.
-   - .secaoContatos_titulo — Título de cada seção (ex.: Profissionais) com
-     tamanho de H3.
-   - .listaContatos — Lista sem marcadores e sem margens.
-   - .listaContatos_item + .listaContatos_item .cardContato — Sobrepõe a borda
-     entre cards vizinhos para não ficar dupla.
-   - .cardContato — Card de contato: cantos retos, borda e fundo branco
-     (variáveis do Bootstrap).
-   - .cardContato_corpo — Corpo do card em linha: avatar, dados e botão, com
-     espaçamento.
-   - .cardContato_avatar — Avatar redondo de 56px com borda, que recorta a
-     foto.
-   - .cardContato_iconePadrao — Ícone padrão (sem foto) de 40px na cor de
-     destaque.
-   - .cardContato_foto — Foto do contato preenche o avatar (cover).
-   - .cardContato_dados — Bloco de nome e telefone: ocupa o espaço restante e
-     pode encolher.
-   - .cardContato_usuario — Nome/usuário do contato, com quebra de linha em
-     textos longos.
-   - .cardContato_telefone — Telefone do contato em tamanho pequeno.
-   - .cardContato_botaoDocumento — Botão 'Documento' que não encolhe.
-   - @media (min-width: 992px) — Em desktop, o card ganha mais espaço e
-     imagens maiores.
-     - .cardContato_corpo — Mais espaçamento e preenchimento no corpo do card.
-     - .cardContato_avatar — Avatar maior (96px).
-     - .cardContato_iconePadrao — Ícone padrão maior (64px).
-     - .cardContato_botaoDocumento — Afasta o botão de documentos da borda
-       direita.
-   - .modalDocumentos — Define a largura do modal de documentos (600px).
-   - .modalDocumentos .modalBase_corpo — Reduz o preenchimento lateral do
-     corpo do modal.
-   - .botaoEnviarDocumentos — Margem inferior do botão que abre o envio.
-   - .modalDocumentos .botaoBase--primario — Escurece o botão primário dentro
-     do modal (fundo, hover, ativo e desabilitado) para melhor contraste.
-   - .modalDocumentos .abasDocumentos — Barra de abas Enviados/Recebidos com
-     fundo esverdeado claro e abas distribuídas.
-   - .modalDocumentos .abasDocumentos .nav-link — Cada aba ocupa a mesma
-     largura, com texto centralizado em negrito.
-   - .modalDocumentos .abasDocumentos .nav-link.active — Aba ativa com a borda
-     inferior escura.
-   - .modalDocumentos .abasDocumentos .nav-link:focus-visible — Contorno de
-     foco do teclado nas abas.
-   - .areaDocumentos — Área do conteúdo das abas, com altura mínima de 240px.
-   - .listaDocumentos — Lista de documentos em coluna, sem marcadores.
-   - .listaDocumentos .cardDocumento — Remove a largura máxima do card de
-     documento dentro da lista.
-   - .listaDocumentos .cardDocumento_corpo — Corpo do card em grade: dados e
-     ações lado a lado, alinhados embaixo.
-   - .listaDocumentos .cardDocumento_titulo — Título do documento ocupa a
-     linha toda, com quebra de texto longo.
-   - .listaDocumentos .cardDocumento_dados — Dados do documento alinhados à
-     esquerda, com quebra de texto longo.
-   - .listaDocumentos .cardDocumento_rodape .botaoBase — Botões do rodapé do
-     card não crescem nem encolhem.
-   - .areaArquivo — Área de upload: coluna centralizada, com borda e cantos
-     arredondados.
-   - .areaArquivo_icone — Ícone grande (112px) do upload, em cinza claro.
-   - .areaArquivo[data-estadoArea="arrastando"] — Enquanto arrasta um arquivo:
-     borda azul tracejada e fundo claro.
-   - .areaArquivo[data-estadoArea="selecionado"] .areaArquivo_… — Com arquivo
-     escolhido: ícone na cor de destaque.
-   - .areaArquivo_selecionado — Bloco do arquivo escolhido limitado à largura
-     da área.
-   - .areaArquivo_nome — Nome do arquivo em negrito, com quebra de texto
-     longo.
-   - .areaArquivo_tamanho — Tamanho do arquivo em tamanho pequeno.
-   - .areaArquivo_botao — Botão 'Escolher arquivo' em roxo escurecido (fundo,
-     hover e ativo).
-   - .areaArquivo_dica — Dica de tipos/tamanho em cinza e tamanho pequeno.
-   - .areaArquivo--invalido — Borda vermelha na área quando o arquivo é
-     inválido.
-   - .areaArquivo--invalido .areaArquivo_mensagem — Mostra a mensagem de erro
-     quando a área é inválida.
-   - .modalDocumentos .invalid-feedback — Mensagem de erro em vermelho
-     escurecido, negrito e alinhada à esquerda.
-   - .areaArquivo .invalid-feedback — Dentro da área de upload, a mensagem de
-     erro fica centralizada.
-   - .modalDocumentos .modalBase_rodape — Rodapé do modal com botões que
-     quebram linha e margem superior.
-   - .avisoFlutuante--atencao .avisoFlutuante_icone — Ícone do aviso de
-     atenção em amarelo escurecido (contraste).
-   - .avisoFlutuante--sucesso — Aviso de sucesso: borda na cor de destaque
-     (verde).
-   - .avisoFlutuante--sucesso .avisoFlutuante_icone — Ícone do aviso de
-     sucesso na cor de destaque.
-   - @media (prefers-reduced-motion: reduce) — Para quem prefere menos
-     movimento.
-     - .areaArquivo — Desliga a transição da área de upload.
-   ============================================================ */
-
-/* ============================================================
-   PÁGINA: contatos (cliente e profissional)
-   Depende de: public/assets/css/variaveis.css
-              public/assets/css/componentes.css
-   (ambos devem ser carregados antes deste arquivo)
-
-   Reaproveita do design system: modalBase, abasPerfil, botaoBase,
-   campoTexto, cardDocumento, estadoVazio, avisoFlutuante e navegação.
-   Aqui ficam só os ajustes específicos desta tela e os componentes
-   novos: cardContato, secaoContatos, listaContatos, estadoVazio_apoio,
-   abasDocumentos, listaDocumentos e areaArquivo.
-
-   Contraste (acessibilidade): onde o Figma usa texto branco sobre verde
-   (#39B675) ou roxo (#8B64CB), o fundo foi escurecido para chegar a 4,5:1.
-   ============================================================ */
-
-/* ---------- Conteúdo principal ---------- */
-
-/* Conteúdo principal: espaço no topo e, embaixo, a altura da navegação inferior fixa. */
-/* Espaço para a navegação fixa: inferior no mobile, lateral (72px) no desktop */
 .conteudoContatos {
   padding: var(--espaco5) 0 calc(64px + var(--espaco4));
 }
 
-/* A partir de tablet, a navegação inferior some e a lateral entra. */
 @media (min-width: 768px) {
-  /* Reduz o espaço inferior (não há mais navegação inferior). */
+
   .conteudoContatos {
     padding-bottom: var(--espaco5);
   }
 
-  /* Abre 72px de margem à esquerda só quando a navegação lateral está visível. */
-  /* Só abre espaço para a navegação lateral quando ela está visível (usuário logado) */
   .navLateralLogado:not([hidden]) + div .conteudoContatos {
     margin-left: 72px;
   }
 }
 
-/* Título da página grande, centralizado e com margem inferior. */
 .conteudoContatos_titulo {
   margin: 0 0 var(--espaco4);
   font-size: var(--tamanhoH1);
   text-align: center;
 }
 
-/* ---------- Estados da página ---------- */
-/* Contêiner do indicador de carregamento: centralizado, na cor de destaque. */
 .estadoCarregando {
   display: flex;
   justify-content: center;
@@ -190,61 +26,47 @@
   color: var(--corDestaque);
 }
 
-/* Texto de apoio do estado vazio: largura máxima de 36 caracteres e tamanho pequeno. */
-/* Texto de apoio do estado vazio ("Os contatos ... são adicionados automaticamente.") */
 .estadoVazio_apoio {
   max-width: 36ch;
   margin: 0;
   font-size: var(--tamanhoSmall);
 }
 
-/* Link do estado vazio em azul e negrito. */
 .estadoVazio_link {
   color: var(--corAcaoSecundaria);
   font-weight: var(--pesoNegrito);
 }
 
-/* Contorno de foco visível para teclado no link. */
 .estadoVazio_link:focus-visible {
   outline: var(--larguraFoco) solid var(--corFoco);
   outline-offset: 2px;
 }
 
-/* ---------- Seções e lista de contatos ---------- */
-/* Área das listas: largura máxima de 1100px, centralizada, com margem lateral. */
 .areaContatos {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 var(--espaco4);
 }
 
-/* Espaço entre seções de contatos visíveis consecutivas. */
-/* Seções sem itens ficam ocultas: o espaço só existe entre seções visíveis */
 .secaoContatos:not([hidden]) ~ .secaoContatos:not([hidden]) {
   margin-top: var(--espaco6);
 }
 
-/* Título de cada seção (ex.: Profissionais) com tamanho de H3. */
 .secaoContatos_titulo {
   margin: 0 0 var(--espaco2);
   font-size: var(--tamanhoH3);
 }
 
-/* Lista sem marcadores e sem margens. */
 .listaContatos {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* Sobrepõe a borda entre cards vizinhos para não ficar dupla. */
-/* Linhas encostadas, como no Figma: a borda de cima de cada linha cobre a de baixo da anterior */
 .listaContatos_item + .listaContatos_item .cardContato {
   margin-top: calc(-1 * var(--larguraBorda));
 }
 
-/* ---------- cardContato: avatar + dados + botão opcional ---------- */
-/* Card de contato: cantos retos, borda e fundo branco (variáveis do Bootstrap). */
 .cardContato {
   --bs-card-border-color: var(--corBordas);
   --bs-card-border-width: var(--larguraBorda);
@@ -252,7 +74,6 @@
   --bs-card-bg: var(--corBranco);
 }
 
-/* Corpo do card em linha: avatar, dados e botão, com espaçamento. */
 .cardContato_corpo {
   display: flex;
   align-items: center;
@@ -260,7 +81,6 @@
   padding: var(--espaco2) var(--espaco4);
 }
 
-/* Avatar redondo de 56px com borda, que recorta a foto. */
 .cardContato_avatar {
   display: flex;
   flex-shrink: 0;
@@ -274,13 +94,11 @@
   background-color: var(--corFundoClaro);
 }
 
-/* Ícone padrão (sem foto) de 40px na cor de destaque. */
 .cardContato_iconePadrao {
   font-size: 40px;
   color: var(--corDestaque);
 }
 
-/* Foto do contato preenche o avatar (cover). */
 .cardContato_foto {
   display: block;
   width: 100%;
@@ -288,77 +106,60 @@
   object-fit: cover;
 }
 
-/* Bloco de nome e telefone: ocupa o espaço restante e pode encolher. */
 .cardContato_dados {
   flex: 1 1 auto;
   min-width: 0;
 }
 
-/* Nome/usuário do contato, com quebra de linha em textos longos. */
 .cardContato_usuario {
   margin: 0;
   font-size: var(--tamanhoBody);
   overflow-wrap: anywhere;
 }
 
-/* Telefone do contato em tamanho pequeno. */
 .cardContato_telefone {
   margin: 0;
   font-size: var(--tamanhoSmall);
 }
 
-/* Botão 'Documento' que não encolhe. */
 .cardContato_botaoDocumento {
   flex-shrink: 0;
 }
 
-/* Em desktop, o card ganha mais espaço e imagens maiores. */
 @media (min-width: 992px) {
-  /* Mais espaçamento e preenchimento no corpo do card. */
+
   .cardContato_corpo {
     gap: var(--espaco4);
     padding: var(--espaco2) var(--espaco5);
   }
 
-  /* Avatar maior (96px). */
   .cardContato_avatar {
     width: 96px;
     height: 96px;
   }
 
-  /* Ícone padrão maior (64px). */
   .cardContato_iconePadrao {
     font-size: 64px;
   }
 
-  /* Afasta o botão de documentos da borda direita. */
   .cardContato_botaoDocumento {
     margin-right: var(--espaco7);
   }
 }
 
-/* ---------- Modal: Documentos ---------- */
-/* Define a largura do modal de documentos (600px). */
 .modalDocumentos {
   --bs-modal-width: 600px;
 }
 
-/* Reduz o preenchimento lateral do corpo do modal. */
 .modalDocumentos .modalBase_corpo {
   padding-right: var(--espaco2);
   padding-left: var(--espaco2);
 }
 
-/* Margem inferior do botão que abre o envio. */
 .botaoEnviarDocumentos {
   margin-bottom: var(--espaco3);
 }
 
-/*
-   Escurece o botão primário dentro do modal (fundo, hover, ativo e desabilitado) para melhor
-   contraste.
-*/
-/* Ajuste de contraste: texto branco sobre o verde do Figma (#39B675) não chega a 4,5:1 */
 .modalDocumentos .botaoBase--primario {
   --bs-btn-bg: color-mix(in srgb, var(--corBotoes) 70%, black);
   --bs-btn-hover-bg: color-mix(in srgb, var(--corBotoes) 62%, black);
@@ -366,9 +167,6 @@
   --bs-btn-disabled-bg: color-mix(in srgb, var(--corBotoes) 70%, black);
 }
 
-/* ---------- Abas Enviados/Recebidos (abasPerfil do DS, versão clara) ---------- */
-/* Barra de abas Enviados/Recebidos com fundo esverdeado claro e abas distribuídas. */
-/* Texto escuro: o branco do Figma sobre o verde claro não atinge contraste 4,5:1 */
 .modalDocumentos .abasDocumentos {
   --bs-nav-link-color: var(--corLetras);
   --bs-nav-link-hover-color: var(--corLetras);
@@ -378,7 +176,6 @@
   background-color: color-mix(in srgb, var(--corDestaque) 40%, var(--corFundo));
 }
 
-/* Cada aba ocupa a mesma largura, com texto centralizado em negrito. */
 .modalDocumentos .abasDocumentos .nav-link {
   flex: 1 1 0;
   padding-top: var(--espaco3);
@@ -389,25 +186,20 @@
   text-align: center;
 }
 
-/* Aba ativa com a borda inferior escura. */
 .modalDocumentos .abasDocumentos .nav-link.active {
   color: var(--corLetras);
   border-bottom-color: var(--corLetras);
 }
 
-/* Contorno de foco do teclado nas abas. */
 .modalDocumentos .abasDocumentos .nav-link:focus-visible {
   outline-color: var(--corFoco);
 }
 
-/* ---------- Lista de documentos ---------- */
-/* Área do conteúdo das abas, com altura mínima de 240px. */
 .areaDocumentos {
   min-height: 240px;
   padding-top: var(--espaco3);
 }
 
-/* Lista de documentos em coluna, sem marcadores. */
 .listaDocumentos {
   display: flex;
   flex-direction: column;
@@ -417,13 +209,10 @@
   list-style: none;
 }
 
-/* Remove a largura máxima do card de documento dentro da lista. */
-/* No modal o card ocupa toda a largura; título centralizado, De/Para à esquerda e "Baixar" à direita */
 .listaDocumentos .cardDocumento {
   max-width: none;
 }
 
-/* Corpo do card em grade: dados e ações lado a lado, alinhados embaixo. */
 .listaDocumentos .cardDocumento_corpo {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -431,28 +220,23 @@
   gap: var(--espaco3);
 }
 
-/* Título do documento ocupa a linha toda, com quebra de texto longo. */
 .listaDocumentos .cardDocumento_titulo {
   grid-column: 1 / -1;
   margin: 0;
   overflow-wrap: anywhere;
 }
 
-/* Dados do documento alinhados à esquerda, com quebra de texto longo. */
 .listaDocumentos .cardDocumento_dados {
   min-height: 0;
   text-align: left;
   overflow-wrap: anywhere;
 }
 
-/* Botões do rodapé do card não crescem nem encolhem. */
 .listaDocumentos .cardDocumento_rodape .botaoBase {
   flex: 0 0 auto;
   min-width: 0;
 }
 
-/* ---------- areaArquivo: escolher ou soltar um arquivo ---------- */
-/* Área de upload: coluna centralizada, com borda e cantos arredondados. */
 .areaArquivo {
   display: flex;
   flex-direction: column;
@@ -467,73 +251,56 @@
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-/* Ícone grande (112px) do upload, em cinza claro. */
 .areaArquivo_icone {
   font-size: 112px;
   color: color-mix(in srgb, var(--corLetras) 55%, white);
 }
 
-/* Enquanto arrasta um arquivo: borda azul tracejada e fundo claro. */
-/* Arrastando um arquivo por cima da área */
 .areaArquivo[data-estadoArea="arrastando"] {
   border-color: var(--corAcaoSecundaria);
   border-style: dashed;
   background-color: var(--corFundoClaro);
 }
 
-/* Com arquivo escolhido: ícone na cor de destaque. */
-/* Arquivo escolhido: o ícone ganha a cor de destaque e aparecem nome e tamanho */
 .areaArquivo[data-estadoArea="selecionado"] .areaArquivo_icone {
   color: var(--corDestaque);
 }
 
-/* Bloco do arquivo escolhido limitado à largura da área. */
 .areaArquivo_selecionado {
   max-width: 100%;
 }
 
-/* Nome do arquivo em negrito, com quebra de texto longo. */
 .areaArquivo_nome {
   margin: 0;
   font-weight: var(--pesoNegrito);
   overflow-wrap: anywhere;
 }
 
-/* Tamanho do arquivo em tamanho pequeno. */
 .areaArquivo_tamanho {
   margin: 0;
   font-size: var(--tamanhoSmall);
 }
 
-/* Botão 'Escolher arquivo' em roxo escurecido (fundo, hover e ativo). */
-/* Ajuste de contraste: texto branco sobre o roxo do Figma (#8B64CB) fica abaixo de 4,5:1 */
 .areaArquivo_botao {
   --bs-btn-bg: color-mix(in srgb, var(--corAcaoExtra) 85%, black);
   --bs-btn-hover-bg: color-mix(in srgb, var(--corAcaoExtra) 75%, black);
   --bs-btn-active-bg: color-mix(in srgb, var(--corAcaoExtra) 65%, black);
 }
 
-/* Dica de tipos/tamanho em cinza e tamanho pequeno. */
-/* Ajuste de contraste: o cinza claro do Figma não chega a 4,5:1 sobre o branco */
 .areaArquivo_dica {
   margin: 0;
   font-size: var(--tamanhoSmall);
   color: color-mix(in srgb, var(--corLetras) 70%, white);
 }
 
-/* Borda vermelha na área quando o arquivo é inválido. */
-/* Erro de arquivo (ex.: nenhum arquivo escolhido ao enviar) */
 .areaArquivo--invalido {
   border-color: var(--corAcaoNegativa);
 }
 
-/* Mostra a mensagem de erro quando a área é inválida. */
 .areaArquivo--invalido .areaArquivo_mensagem {
   display: block;
 }
 
-/* Mensagem de erro em vermelho escurecido, negrito e alinhada à esquerda. */
-/* Mensagens de erro: vermelho escurecido para contraste sobre o fundo verde claro do modal */
 .modalDocumentos .invalid-feedback {
   color: color-mix(in srgb, var(--corAcaoNegativa) 75%, black);
   font-size: var(--tamanhoSmall);
@@ -541,41 +308,30 @@
   text-align: left;
 }
 
-/* Dentro da área de upload, a mensagem de erro fica centralizada. */
 .areaArquivo .invalid-feedback {
   text-align: center;
 }
 
-/* ---------- Rodapé do formulário de envio ---------- */
-/* Rodapé do modal com botões que quebram linha e margem superior. */
 .modalDocumentos .modalBase_rodape {
   flex-wrap: wrap;
   margin-top: var(--espaco4);
   padding: 0;
 }
 
-/* ---------- Aviso flutuante (atenção) ---------- */
-/* Ícone do aviso de atenção em amarelo escurecido (contraste). */
-/* Ajuste de contraste: o amarelo do ícone fica abaixo de 3:1 sobre o branco */
 .avisoFlutuante--atencao .avisoFlutuante_icone {
   color: color-mix(in srgb, var(--corAcaoAtencao) 65%, black);
 }
 
-/* Aviso de sucesso: borda na cor de destaque (verde). */
-/* Variação "sucesso" (confirmação de envio): o DS só tem erro e atenção */
 .avisoFlutuante--sucesso {
   --bs-toast-border-color: var(--corDestaque);
 }
 
-/* Ícone do aviso de sucesso na cor de destaque. */
 .avisoFlutuante--sucesso .avisoFlutuante_icone {
   color: var(--corDestaque);
 }
 
-/* ---------- Movimento reduzido ---------- */
-/* Para quem prefere menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-  /* Desliga a transição da área de upload. */
+
   .areaArquivo {
     transition: none;
   }

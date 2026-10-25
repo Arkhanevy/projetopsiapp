@@ -1,117 +1,7 @@
-/* ============================================================
-   ARQUIVO: componentes.css
-
-   O QUE FAZ
-   Design system de componentes visuais do site: reset e base (fontes,
-   títulos, foco, ícones), botões, selos de status, campos (texto, pesquisa,
-   select), painel de filtros, calendário, modais, cards (entidade, clínica,
-   serviço, documento, consulta), navegações (topo, lateral, inferior,
-   hambúrguer e menu móvel), cabeçalho e abas de perfil, tabelas, seletor de
-   dias, horários, formulários e avisos flutuantes.
-
-   OBSERVAÇÕES
-   - Deve ser carregado DEPOIS de bootstrap.min.css e variaveis.css: o arquivo
-     sobrescreve variáveis do Bootstrap (--bs-*) e usa var(--...) do design
-     system.
-   - Nomes seguem o padrão bloco_elemento--modificador (ex.: botaoBase--
-     primario, calendarioBase_dia--selecionado). As classes de estado são
-     aplicadas pelo componentes.js e pelos JS de página.
-   - Variantes com sufixo --demo (painelMenuMobile, navLateralLogado,
-     navInferiorLogado, menuHamburguerLogado) existem só para exibir os
-     componentes em uma página de demonstração (usam !important).
-   - A navegação lateral tem 72px e a barra superior 64px
-     (--alturaNavTopoLogado); os CSS de página repetem esses números à mão
-     para abrir espaço ao conteúdo.
-   - A regra [hidden] com !important garante que elementos escondidos pelo JS
-     realmente sumam, mesmo com display definido em classes.
-   - Há duas regras :root: a que liga o Bootstrap ao design system (no início)
-     e a que define --alturaNavTopoLogado (na barra superior).
-   - Algumas cores estão fixas: #aaaaaa (dia desabilitado), #d9d9d9 (fundo de
-     imagem) e rgba(7, 18, 10, 0.25) (sombra do menu hambúrguer).
-   - Usa color-mix() em vários estados (hover/ativo/contraste), que exige
-     navegadores recentes.
-   - O cabeçalho original do arquivo informa que ele reúne vários arquivos
-     anteriores; os comentários 'Arquivo original: ...' no meio marcam cada
-     parte.
-
-   COMPONENTES (na ordem em que aparecem)
-   - Base — [hidden], link 'Pular para o conteúdo', :root ligando o Bootstrap
-     às variáveis, body, títulos h1-h6, textos small/caption, foco visível e
-     ícones Material Symbols.
-   - .botaoBase (+ --primario, --secundario, --opositora, --extra, --longo) —
-     Botão do design system e suas variantes de cor e tamanho; compacta no
-     celular.
-   - .indicadorStatus (+ --agendada, --confirmada, --pendente, --cancelada,
-     --realizada) — Selo de status em forma de pílula.
-   - .campoTexto — Campo de texto com rótulo flutuante, foco e estado
-     inválido.
-   - .campoPesquisa (+ _botaoIcone) — Campo de pesquisa com botão de lupa.
-   - .campoSelect (+ _gatilho, _valor, _iconeChevron, _lista, _opcao, --erro)
-     — Select customizado.
-   - .painelFiltro, .grupoFiltro — Painel de filtros com grupos de opções
-     (radio).
-   - .calendarioBase (+ _grade, _dia e suas variações, _marcadorLegenda) —
-     Calendário mensal com dias selecionado, indisponível, folga, confirmada e
-     pendente e legenda.
-   - .modalBase, .modalMidia, .modalFeedback — Modais: estrutura, imagem e
-     ícone de feedback.
-   - .cardEntidadeBase, .cardClinica, .cardServico — Cards de serviço,
-     profissional e clínica.
-   - .cardDocumento — Card de documento.
-   - .cardConsulta, .cardConsultaProfissional — Cards de consulta do cliente e
-     do profissional.
-   - .navTopoDeslogado — Navegação superior do visitante (barra principal e
-     secundária).
-   - .painelMenuMobile — Menu móvel em tela cheia (offcanvas).
-   - .navLateralLogado — Navegação lateral do logado, que expande no
-     hover/foco.
-   - .navInferiorLogado — Navegação inferior do logado (celular).
-   - .menuHamburguerLogado — Menu hambúrguer do logado (dropdown).
-   - .cabecalhoPerfil — Cabeçalho do perfil com avatar e nome.
-   - .abasPerfil — Abas do perfil.
-   - .secaoPerfil — Seção do perfil (título, caixa, texto e botão de ação).
-   - .estadoVazio — Estado vazio com ícone e texto.
-   - .tabelaDados — Tabela de dados.
-   - .seletorDias — Seletor de dias da semana (checkboxes).
-   - .linhaHorario — Linha de horário de funcionamento por dia.
-   - .campoMinutos — Campo de duração em minutos.
-   - .formularioPerfil — Formulário do perfil.
-   - .avisoFlutuante (+ --atencao) — Aviso flutuante (toast).
-   - .navTopoLogado — Barra superior do logado e variável
-     --alturaNavTopoLogado.
-   - .cardEntidadeBase--selecionado — Variação de card selecionado (modal de
-     vínculo).
-   ============================================================ */
-
-/* ==================================================================
-   Arquivo original: fundacao/reset.css
-   ================================================================== */
-/*
-  Ajustes base sobre o Bootstrap 5.
-  Não reescreve o Bootstrap — conecta as variáveis raiz do Bootstrap
-  (--bs-*) às variáveis do Design System, para que qualquer componente
-  nativo do Bootstrap usado (Modal, Offcanvas, Dropdown, Navbar, Card,
-  form-check etc.) já nasça com a cor/tipografia/raio corretos, sem
-  precisar sobrescrever cada um manualmente.
-*/
-
-/*
-   Garante que elementos com o atributo hidden fiquem realmente escondidos (display: none
-   !important).
-*/
-/* As classes d-flex/d-md-flex do Bootstrap usam !important, então o
-   atributo nativo [hidden] sozinho não venceria (ex.: navLateralLogado
-   usa "d-none d-md-flex"). sessaoNavegacao.js depende de [hidden]
-   realmente esconder o elemento até a sessão ser verificada. */
 [hidden] {
   display: none !important;
 }
 
-/*
-   Link 'Pular para o conteúdo' (acessibilidade): fica fora da tela e só aparece quando recebe foco.
-*/
-/* Link "Pular para o conteúdo principal": invisível até receber foco
-   pelo teclado (primeiro Tab da página). */
 .linkPularConteudo {
   position: absolute;
   top: 0;
@@ -125,15 +15,10 @@
   transform: translateY(-120%);
 }
 
-/* Ao receber foco do teclado, desce para dentro da tela. */
 .linkPularConteudo:focus {
   transform: translateY(var(--espaco2));
 }
 
-/*
-   Liga as variáveis do Bootstrap (--bs-*) às variáveis do design system: cores, fonte, bordas,
-   raios e foco.
-*/
 :root {
   --bs-body-bg: var(--corFundo);
   --bs-body-color: var(--corLetras);
@@ -145,10 +30,9 @@
   --bs-border-radius-pill: var(--raioTotal);
   --bs-link-color: var(--corAcaoSecundaria);
   --bs-link-hover-color: var(--corDestaque);
-  --bs-focus-ring-color: rgba(36, 24, 205, 0.35); /* baseado em --corFoco */
+  --bs-focus-ring-color: rgba(36, 24, 205, 0.35);
 }
 
-/* Fonte, tamanho, cor do texto e fundo padrão da página. */
 body {
   font-family: var(--fonteBase);
   font-size: var(--tamanhoBody);
@@ -156,7 +40,6 @@ body {
   background-color: var(--corFundo);
 }
 
-/* Títulos h1 a h6 com fonte e cor padrão, em negrito e sem margem. */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--fonteBase);
   color: var(--corLetras);
@@ -164,20 +47,16 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
 }
 
-/* Tamanho do h1 (variável --tamanhoH1). */
 h1 { font-size: var(--tamanhoH1); }
-/* Tamanho do h2 (variável --tamanhoH2). */
+
 h2 { font-size: var(--tamanhoH2); }
-/* Tamanho do h3 (variável --tamanhoH3). */
+
 h3 { font-size: var(--tamanhoH3); }
 
-/* Texto pequeno (<small> ou .textoSmall). */
 small, .textoSmall { font-size: var(--tamanhoSmall); }
-/* Texto de legenda, o menor da escala. */
+
 .textoCaption { font-size: var(--tamanhoCaption); }
 
-/* Contorno de foco visível padrão (azul, 2px) em links, botões, campos e itens focáveis. */
-/* Indicador de foco visível — nunca remover sem alternativa (regra 11) */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -187,8 +66,6 @@ select:focus-visible,
   outline-offset: 2px;
 }
 
-/* Ícones Material Symbols: alinhados ao texto, preenchidos e com peso 400. */
-/* Ícones Material Symbols — ajuste de alinhamento vertical padrão */
 .material-symbols-outlined {
   vertical-align: middle;
   line-height: 1;
@@ -199,25 +76,6 @@ select:focus-visible,
     'opsz' 24;
 }
 
-
-/* ==================================================================
-   Arquivo original: botao/botao.css
-   ================================================================== */
-/*
-  Componente: botaoBase
-  Convertido para usar a classe .btn do Bootstrap 5 como base —
-  o Bootstrap já cuida de padding, transição, foco visível e estado
-  desabilitado. Aqui só sobrescrevemos as variáveis de cor/forma do
-  Bootstrap (--bs-btn-*) para respeitar o Design System, já que as
-  cores do projeto não são as cores padrão do Bootstrap.
-
-  Estrutura-base: .btn.botaoBase + variantes de cor + --longo.
-*/
-
-/*
-   Botão base do design system: define fonte, preenchimento, borda, raio e cores via variáveis --bs-
-   btn-*.
-*/
 .botaoBase {
   --bs-btn-font-family: var(--fonteBase);
   --bs-btn-font-size: var(--tamanhoBody);
@@ -244,51 +102,41 @@ select:focus-visible,
   white-space: nowrap;
 }
 
-/* Ícone dentro do botão levemente maior que o texto (1.25em). */
 .botaoBase .material-symbols-outlined {
   font-size: 1.25em;
 }
 
-/* Variante primária: fundo da cor dos botões (verde) com hover mais claro e ativo mais escuro. */
-/* Variantes de cor/função — cada uma só redefine as variáveis do Bootstrap */
 .botaoBase--primario {
   --bs-btn-bg: var(--corBotoes);
   --bs-btn-hover-bg: color-mix(in srgb, var(--corBotoes) 90%, white);
   --bs-btn-active-bg: color-mix(in srgb, var(--corBotoes) 85%, black);
 }
 
-/* Variante secundária: fundo azul. */
 .botaoBase--secundario {
   --bs-btn-bg: var(--corAcaoSecundaria);
   --bs-btn-hover-bg: color-mix(in srgb, var(--corAcaoSecundaria) 90%, white);
   --bs-btn-active-bg: color-mix(in srgb, var(--corAcaoSecundaria) 85%, black);
 }
 
-/* Variante opositora: fundo vermelho (ações negativas, como cancelar). */
 .botaoBase--opositora {
   --bs-btn-bg: var(--corAcaoNegativa);
   --bs-btn-hover-bg: color-mix(in srgb, var(--corAcaoNegativa) 90%, white);
   --bs-btn-active-bg: color-mix(in srgb, var(--corAcaoNegativa) 85%, black);
 }
 
-/* Variante extra: fundo roxo. */
 .botaoBase--extra {
   --bs-btn-bg: var(--corAcaoExtra);
   --bs-btn-hover-bg: color-mix(in srgb, var(--corAcaoExtra) 90%, white);
   --bs-btn-active-bg: color-mix(in srgb, var(--corAcaoExtra) 85%, black);
 }
 
-/* Botão longo: largura total, até 420px. */
-/* Tamanho expandido (ex.: "Botão longooooo") */
 .botaoBase--longo {
   width: 100%;
   max-width: 420px;
 }
 
-/* Em telas muito pequenas (celular), compacta botões. */
-/* Responsividade — botões um pouco mais compactos no mobile */
 @media (max-width: 575.98px) {
-  /* Botão com menos preenchimento e fonte pequena no celular. */
+
   .botaoBase {
     --bs-btn-padding-x: var(--espaco4);
     --bs-btn-padding-y: var(--espaco2);
@@ -296,25 +144,6 @@ select:focus-visible,
   }
 }
 
-
-/* ==================================================================
-   Arquivo original: status/status.css
-   ================================================================== */
-/*
-  Componente: indicadorStatus
-  Não é um componente nativo do Bootstrap (o .badge do Bootstrap é
-  pensado para contadores pequenos, não para esta pílula com ícone),
-  então mantemos a estrutura própria. Usamos os utilitários do
-  Bootstrap (d-inline-flex, align-items-center, gap-2) no HTML para
-  o layout interno, mas padding/raio ficam no CSS próprio porque a
-  escala de espaçamento do Bootstrap não corresponde exatamente à
-  escala definida no Design System (regra 8 — não forçar o Bootstrap
-  a substituir decisões visuais próprias).
-*/
-
-/*
-   Selo de status (pílula): texto branco em negrito, borda, cantos totalmente arredondados e ícone.
-*/
 .indicadorStatus {
   font-family: var(--fonteBase);
   font-size: var(--tamanhoBody);
@@ -327,68 +156,39 @@ select:focus-visible,
   user-select: none;
 }
 
-/* Ícone do selo levemente maior que o texto. */
 .indicadorStatus .material-symbols-outlined {
   font-size: 1.25em;
 }
 
-/* Status 'agendada' e 'confirmada': fundo verde. */
 .indicadorStatus--agendada,
 .indicadorStatus--confirmada {
   background-color: var(--corBotoes);
 }
 
-/* Status 'pendente': fundo amarelo. */
 .indicadorStatus--pendente {
   background-color: var(--corAcaoAtencao);
-  /* Mantido conforme o Figma (texto branco). Atenção: #E0A800 com texto
-     branco tem contraste abaixo de 4.5:1 (AA para texto pequeno) — ver
-     nota de acessibilidade sobre este ponto antes de finalizar. */
+
 }
 
-/* Status 'cancelada': fundo vermelho. */
 .indicadorStatus--cancelada {
   background-color: var(--corAcaoNegativa);
 }
 
-/* Status 'realizada': fundo azul. */
 .indicadorStatus--realizada {
   background-color: var(--corAcaoSecundaria);
 }
 
-/* Em telas muito pequenas, reduz o selo. */
 @media (max-width: 575.98px) {
-  /* Texto menor no selo de status no celular. */
+
   .indicadorStatus {
     font-size: var(--tamanhoSmall);
   }
 }
 
-
-/* ==================================================================
-   Arquivo original: campo/campo.css
-   ================================================================== */
-/*
-  Componentes: campoTexto, campoPesquisa, campoSelect
-  Convertidos para usar estruturas nativas do Bootstrap 5:
-    - campoTexto  -> .form-floating + .form-control (o rótulo já
-      "flutua" sobre a borda ao focar/preencher, sem precisar de JS)
-    - campoPesquisa -> .input-group (input + botão acoplado)
-    - campoSelect  -> .dropdown (Bootstrap cuida de abrir/fechar,
-      clique fora e Esc; só sobrescrevemos a aparência)
-  Aqui ficam só as cores/formas do Design System, sobre as variáveis
-  nativas do Bootstrap (--bs-*).
-*/
-
-/* ============================= */
-/* Variante: campoTexto (.form-floating) */
-/* ============================= */
-/* Campo de texto (form-floating) com espaço acima. */
 .campoTexto {
   margin-top: var(--espaco3);
 }
 
-/* Caixa do campo: borda e raio do design system. */
 .campoTexto .form-control {
   --bs-border-color: var(--corBordas);
   --bs-body-color: var(--corLetras);
@@ -396,34 +196,25 @@ select:focus-visible,
   border-width: var(--larguraBorda);
 }
 
-/* Em foco: borda mantida e anel de foco azul. */
 .campoTexto .form-control:focus {
   border-color: var(--corBordas);
   box-shadow: 0 0 0 var(--larguraFoco) var(--corFoco);
 }
 
-/* Rótulo do campo em negrito. */
 .campoTexto label {
   font-weight: var(--pesoNegrito);
   color: var(--corLetras);
 }
 
-/* Campo inválido: borda vermelha e sem ícone de erro do Bootstrap. */
-/* Estado: erro — reaproveita o padrão is-invalid do Bootstrap */
 .campoTexto .form-control.is-invalid {
   border-color: var(--corAcaoNegativa);
-  background-image: none; /* remove o ícone de alerta padrão do Bootstrap */
+  background-image: none;
 }
 
-/* Rótulo vermelho quando o campo é inválido. */
 .campoTexto .form-control.is-invalid ~ label {
   color: var(--corAcaoNegativa);
 }
 
-/* ============================= */
-/* Variante: campoPesquisa (.input-group) */
-/* ============================= */
-/* Caixa do campo de pesquisa: sem borda direita e cantos esquerdos arredondados. */
 .campoPesquisa .form-control {
   --bs-border-color: var(--corBordas);
   border-right: none;
@@ -431,13 +222,11 @@ select:focus-visible,
   border-bottom-left-radius: var(--raioMedio);
 }
 
-/* Em foco, sem sombra (o contorno vem do contêiner). */
 .campoPesquisa .form-control:focus {
   box-shadow: none;
   border-color: var(--corBordas);
 }
 
-/* Botão da lupa: verde, cantos direitos arredondados e ícone branco. */
 .campoPesquisa_botaoIcone {
   border: var(--larguraBorda) solid var(--corBordas);
   border-left: none;
@@ -447,7 +236,6 @@ select:focus-visible,
   color: var(--corBranco);
 }
 
-/* Ao passar o mouse ou focar, clareia o botão da lupa (brightness 1.1). */
 .campoPesquisa_botaoIcone:hover,
 .campoPesquisa_botaoIcone:focus-visible {
   background-color: var(--corDestaque);
@@ -455,15 +243,10 @@ select:focus-visible,
   filter: brightness(1.1);
 }
 
-/* ============================= */
-/* Variante: campoSelect (.dropdown) */
-/* ============================= */
-/* Campo de seleção (dropdown customizado) com espaço acima. */
 .campoSelect {
   margin-top: var(--espaco3);
 }
 
-/* Botão que abre o select: largura total, com borda e fundo branco. */
 .campoSelect_gatilho {
   display: flex;
   align-items: stretch;
@@ -475,13 +258,10 @@ select:focus-visible,
   overflow: hidden;
 }
 
-/* Esconde a seta padrão do dropdown do Bootstrap (usa o ícone próprio). */
-/* Remove o caret padrão do .dropdown-toggle — usamos nosso próprio ícone */
 .campoSelect_gatilho.dropdown-toggle::after {
   display: none;
 }
 
-/* Texto do valor escolhido, alinhado à esquerda. */
 .campoSelect_valor {
   flex: 1;
   text-align: left;
@@ -491,7 +271,6 @@ select:focus-visible,
   color: var(--corLetras);
 }
 
-/* Quadrado verde com a seta do select, na ponta direita. */
 .campoSelect_iconeChevron {
   display: flex;
   align-items: center;
@@ -501,25 +280,18 @@ select:focus-visible,
   color: var(--corBranco);
 }
 
-/* Select com erro: borda vermelha. */
-/* Estado: erro */
 .campoSelect--erro .campoSelect_gatilho {
   border-color: var(--corAcaoNegativa);
 }
 
-/* Select com erro: texto vermelho. */
 .campoSelect--erro .campoSelect_valor {
   color: var(--corAcaoNegativa);
 }
 
-/* Select com erro: seta com fundo vermelho. */
 .campoSelect--erro .campoSelect_iconeChevron {
   background-color: var(--corAcaoNegativa);
 }
 
-/* Lista de opções: largura do gatilho, com borda e cantos arredondados só embaixo. */
-/* .dropdown-menu já vem com posicionamento/Popper do Bootstrap —
-   só ajustamos aparência para bater com o Design System */
 .campoSelect_lista {
   width: 100%;
   margin-top: 0 !important;
@@ -529,7 +301,6 @@ select:focus-visible,
   border-radius: 0 0 var(--raioPequeno) var(--raioPequeno);
 }
 
-/* Opção da lista: preenchimento, linha separadora no topo e texto padrão. */
 .campoSelect_opcao {
   padding: var(--espaco3) var(--espaco4);
   border-top: 1px solid var(--corBordas);
@@ -537,27 +308,12 @@ select:focus-visible,
   color: var(--corLetras);
 }
 
-/* Fundo claro ao passar o mouse ou focar a opção. */
 .campoSelect_opcao:hover,
 .campoSelect_opcao:focus-visible {
   background-color: var(--corFundoClaro);
   color: var(--corLetras);
 }
 
-
-/* ==================================================================
-   Arquivo original: filtro/filtro.css
-   ================================================================== */
-/*
-  Componente: painelFiltro
-  Os rádios agora usam .form-check/.form-check-input do Bootstrap
-  (acessibilidade e estados de foco/disabled já vêm prontos) — aqui só
-  sobrescrevemos a cor do estado marcado para bater com o Design System.
-*/
-
-/*
-   Painel de filtros: coluna com espaçamento, largura até 360px, borda, cantos arredondados e fundo.
-*/
 .painelFiltro {
   display: flex;
   flex-direction: column;
@@ -570,19 +326,16 @@ select:focus-visible,
   padding: var(--espaco5);
 }
 
-/* Título de cada grupo de filtro (tamanho de H3). */
 .grupoFiltro_titulo {
   margin-bottom: var(--espaco3);
   font-size: var(--tamanhoH3);
 }
 
-/* Item de opção (radio) do filtro, sem recuo e com espaço embaixo. */
 .grupoFiltro .form-check {
   padding-left: 0;
   margin-bottom: var(--espaco2);
 }
 
-/* Bolinha do radio maior (22px), com borda escura e cursor de clique. */
 .grupoFiltro .form-check-input {
   width: 22px;
   height: 22px;
@@ -592,51 +345,30 @@ select:focus-visible,
   cursor: pointer;
 }
 
-/* Radio marcado: fundo e borda azuis. */
 .grupoFiltro .form-check-input:checked {
   background-color: var(--corAcaoSecundaria);
   border-color: var(--corAcaoSecundaria);
 }
 
-/* Radio inválido: borda vermelha. */
 .grupoFiltro .form-check-input.is-invalid {
   border-color: var(--corAcaoNegativa);
 }
 
-/* Em foco: anel azul. */
 .grupoFiltro .form-check-input:focus {
   box-shadow: 0 0 0 var(--larguraFoco) var(--corFoco);
 }
 
-/* Texto da opção do filtro, com cursor de clique. */
 .grupoFiltro .form-check-label {
   font-size: var(--tamanhoBody);
   color: var(--corLetras);
   cursor: pointer;
 }
 
-/* Rodapé do painel com botões centralizados. */
 .painelFiltro_rodape {
   display: flex;
   justify-content: center;
 }
 
-
-/* ==================================================================
-   Arquivo original: calendario/calendario.css
-   ================================================================== */
-/*
-  Componente: calendarioBase
-  Sem componente nativo do Bootstrap equivalente a um calendário —
-  mantemos a estrutura própria, mas: (1) o botão de navegação usa a
-  classe .btn com variáveis --bs-btn-* (mesmo padrão do botaoBase);
-  (2) cabeçalho e legenda usam utilitários do Bootstrap no HTML
-  (d-flex, align-items-center, gap-*, flex-wrap) em vez de flex/gap
-  declarados aqui. Só ficam aqui a grade de dias e os estados visuais
-  específicos do Design System, que não têm equivalente no Bootstrap.
-*/
-
-/* Calendário base: largura até 420px, borda, cantos arredondados, fundo branco e preenchimento. */
 .calendarioBase {
   width: 100%;
   max-width: 420px;
@@ -646,16 +378,12 @@ select:focus-visible,
   padding: var(--espaco5);
 }
 
-/* Título do mês (tamanho de H2), centralizado com largura mínima de 10 caracteres. */
 .calendarioBase_tituloMes {
   font-size: var(--tamanhoH2);
   min-width: 10ch;
   text-align: center;
 }
 
-/*
-   Botão redondo de mês anterior/próximo: borda e cores na cor de destaque (variáveis --bs-btn-*).
-*/
 .calendarioBase_botaoNavegacao {
   --bs-btn-padding-x: 0;
   --bs-btn-padding-y: 0;
@@ -677,7 +405,6 @@ select:focus-visible,
   height: 40px;
 }
 
-/* Grade de 7 colunas para dias da semana e dias do mês. */
 .calendarioBase_grade {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -685,14 +412,12 @@ select:focus-visible,
   text-align: center;
 }
 
-/* Inicial do dia da semana, pequena e em negrito. */
 .calendarioBase_diaSemana {
   font-weight: var(--pesoNegrito);
   font-size: var(--tamanhoSmall);
   padding-bottom: var(--espaco2);
 }
 
-/* Botão de um dia: quadrado, centralizado e redondo, com borda transparente. */
 .calendarioBase_dia {
   position: relative;
   display: flex;
@@ -708,39 +433,30 @@ select:focus-visible,
   cursor: pointer;
 }
 
-/* Fundo claro ao passar o mouse sobre um dia habilitado. */
 .calendarioBase_dia:hover:not(:disabled) {
   background-color: var(--corFundoClaro);
 }
 
-/* Dia desabilitado: cinza e sem cursor de clique. */
 .calendarioBase_dia:disabled {
   color: #aaaaaa;
   cursor: default;
 }
 
-/* Casa vazia no início do mês: invisível. */
 .calendarioBase_dia--vazio {
   visibility: hidden;
 }
 
-/* Dia selecionado: fundo azul, texto branco e negrito. */
-/* Estado: selecionado */
 .calendarioBase_dia--selecionado {
   background-color: var(--corAcaoSecundaria);
   color: var(--corBranco);
   font-weight: var(--pesoNegrito);
 }
 
-/* Dia indisponível ou de folga: borda vermelha. */
-/* Estado: indisponível (cliente) / dia de folga (profissional) */
 .calendarioBase_dia--indisponivel,
 .calendarioBase_dia--folga {
   border-color: var(--corAcaoNegativa);
 }
 
-/* Marcador pequeno (ponto) embaixo do dia com consulta confirmada ou pendente. */
-/* Estado: consulta confirmada — indicador em ponto abaixo do número */
 .calendarioBase_dia--confirmada::after,
 .calendarioBase_dia--pendente::after {
   content: "";
@@ -753,12 +469,10 @@ select:focus-visible,
   border-radius: 50%;
 }
 
-/* Ponto verde para dia com consulta confirmada. */
 .calendarioBase_dia--confirmada::after {
   background-color: var(--corDestaque);
 }
 
-/* Anel amarelo (vazio) para dia com consulta pendente. */
 .calendarioBase_dia--pendente::after {
   background-color: transparent;
   border: 2px solid var(--corAcaoAtencao);
@@ -766,8 +480,6 @@ select:focus-visible,
   height: 8px;
 }
 
-/* Quadradinho de amostra da legenda (16px). */
-/* Legenda */
 .calendarioBase_marcadorLegenda {
   display: inline-block;
   width: 16px;
@@ -776,58 +488,38 @@ select:focus-visible,
   flex-shrink: 0;
 }
 
-/* Amostra azul para 'selecionado'. */
 .calendarioBase_marcadorLegenda--selecionado {
   background-color: var(--corAcaoSecundaria);
 }
 
-/* Amostra com borda vermelha para 'indisponível' ou 'folga'. */
 .calendarioBase_marcadorLegenda--indisponivel,
 .calendarioBase_marcadorLegenda--folga {
   background-color: transparent;
   border: 2px solid var(--corAcaoNegativa);
 }
 
-/* Amostra redonda verde para 'confirmada'. */
 .calendarioBase_marcadorLegenda--confirmada {
   border-radius: 50%;
   background-color: var(--corDestaque);
 }
 
-/* Amostra redonda com borda amarela para 'pendente'. */
 .calendarioBase_marcadorLegenda--pendente {
   border-radius: 50%;
   background-color: transparent;
   border: 2px solid var(--corAcaoAtencao);
 }
 
-/* Em telas muito pequenas (celular), compacta o calendário. */
 @media (max-width: 575.98px) {
-  /* Menos preenchimento no calendário. */
+
   .calendarioBase {
     padding: var(--espaco4);
   }
 
-  /* Título do mês menor (tamanho de H3). */
   .calendarioBase_tituloMes {
     font-size: var(--tamanhoH3);
   }
 }
 
-
-/* ==================================================================
-   Arquivo original: modal/modal.css
-   ================================================================== */
-/*
-  Componente: modalBase
-  Convertido para o Modal nativo do Bootstrap 5 (.modal/.modal-dialog/
-  .modal-content) — abrir, fechar, overlay, ESC e foco preso já vêm
-  prontos via data-bs-toggle/data-bs-dismiss, sem precisar de JS próprio.
-  Aqui só sobrescrevemos as variáveis do Bootstrap (--bs-modal-*) para
-  aplicar as cores/raio do Design System.
-*/
-
-/* Modal base: liga as variáveis --bs-modal-* às cores, bordas e raios do design system. */
 .modalBase {
   --bs-modal-color: var(--corLetras);
   --bs-modal-bg: var(--corFundo);
@@ -840,13 +532,11 @@ select:focus-visible,
   --bs-backdrop-opacity: 0.6;
 }
 
-/* Conteúdo do modal centralizado, com preenchimento. */
 .modalBase_conteudo {
   padding: var(--espaco4) var(--espaco2);
   text-align: center;
 }
 
-/* Cabeçalho do modal centralizado, sem linha embaixo, referência do botão fechar. */
 .modalBase_cabecalho {
   position: relative;
   justify-content: center;
@@ -854,12 +544,10 @@ select:focus-visible,
   padding-bottom: 0;
 }
 
-/* Título do modal com tamanho de H2. */
 .modalBase_titulo {
   font-size: var(--tamanhoH2);
 }
 
-/* Botão redondo de fechar (36px) posicionado no canto superior direito. */
 .modalBase_botaoFechar {
   position: absolute;
   top: calc(-1 * var(--espaco4));
@@ -876,19 +564,16 @@ select:focus-visible,
   cursor: pointer;
 }
 
-/* Fundo claro ao passar o mouse no botão fechar. */
 .modalBase_botaoFechar:hover {
   background-color: var(--corFundoClaro);
 }
 
-/* Corpo do modal alinhado à esquerda, com tamanho e cor padrão. */
 .modalBase_corpo {
   font-size: var(--tamanhoBody);
   color: var(--corLetras);
   text-align: left;
 }
 
-/* Rodapé do modal centralizado, sem linha em cima e com espaçamento entre botões. */
 .modalBase_rodape {
   justify-content: center;
   border-top: none;
@@ -896,8 +581,6 @@ select:focus-visible,
   gap: var(--espaco3);
 }
 
-/* Imagem de modal (ex.: foto): bloco centralizado de até 220px, com borda e fundo branco. */
-/* Variante: modalMidia — imagem/ilustração entre título e texto */
 .modalMidia_imagem {
   display: block;
   max-width: 220px;
@@ -908,8 +591,6 @@ select:focus-visible,
   background-color: var(--corBranco);
 }
 
-/* Caixa 120x90px com borda para o ícone de feedback (sucesso/erro). */
-/* Variante: modalFeedback — ícone grande + mensagem centralizada + botão único */
 .modalFeedback_icone {
   display: flex;
   align-items: center;
@@ -921,34 +602,16 @@ select:focus-visible,
   background-color: var(--corBranco);
 }
 
-/* Ícone de feedback grande (56px). */
 .modalFeedback_icone .material-symbols-outlined {
   font-size: 56px;
   color: var(--corLetras);
 }
 
-/* Mensagem de feedback centralizada e sem margem inferior. */
 .modalFeedback_mensagem {
   text-align: center;
   margin-bottom: 0;
 }
 
-
-/* ==================================================================
-   Arquivo original: cards/cardEntidade.css
-   ================================================================== */
-/*
-  Estrutura-base: cardEntidadeBase
-  Convertida para usar .card/.card-body/.card-title/.card-img-top do
-  Bootstrap — aqui só sobrescrevemos as variáveis (--bs-card-*) para
-  aplicar cor, borda e raio do Design System.
-  Compartilhada por cardProfissional, cardClinica e cardServico.
-*/
-
-/*
-   Card de entidade (serviço, profissional, clínica): borda, raio, fundo branco e espaçamentos via
-   variáveis --bs-card-*.
-*/
 .cardEntidadeBase {
   --bs-card-border-color: var(--corBordas);
   --bs-card-border-width: var(--larguraBorda);
@@ -960,13 +623,11 @@ select:focus-visible,
   max-width: 300px;
 }
 
-/* Título do card na cor de destaque, com tamanho de H3. */
 .cardEntidadeBase_titulo {
   color: var(--corDestaque);
   font-size: var(--tamanhoH3);
 }
 
-/* Imagem quadrada do card, recortada (cover), com linha embaixo e fundo cinza de reserva. */
 .cardEntidadeBase_imagem {
   aspect-ratio: 1 / 1;
   object-fit: cover;
@@ -974,8 +635,6 @@ select:focus-visible,
   background-color: #d9d9d9;
 }
 
-/* Bloco de informações da clínica alinhado à esquerda, pequeno e em negrito. */
-/* Variante: cardClinica — linhas extra de endereço/CEP, alinhadas à esquerda */
 .cardClinica_info {
   align-self: flex-start;
   text-align: left;
@@ -983,13 +642,10 @@ select:focus-visible,
   font-size: var(--tamanhoSmall);
 }
 
-/* Linhas de informação sem margem. */
 .cardClinica_info p {
   margin: 0;
 }
 
-/* Linha de metadados do serviço (ex.: preço e duração) com itens nas pontas. */
-/* Variante: cardServico — linha de preço/cidade */
 .cardServico_metadados {
   display: flex;
   justify-content: space-between;
@@ -999,16 +655,6 @@ select:focus-visible,
   color: var(--corLetras);
 }
 
-
-/* ==================================================================
-   Arquivo original: cards/cardDocumento.css
-   ================================================================== */
-/*
-  Componente: cardDocumento
-  Convertido para .card/.card-body do Bootstrap — sem imagem.
-*/
-
-/* Card de documento: borda, raio, fundo branco e espaçamentos via variáveis --bs-card-*. */
 .cardDocumento {
   --bs-card-border-color: var(--corBordas);
   --bs-card-border-width: var(--larguraBorda);
@@ -1020,14 +666,12 @@ select:focus-visible,
   max-width: 360px;
 }
 
-/* Título do documento centralizado, na cor de destaque. */
 .cardDocumento_titulo {
   text-align: center;
   color: var(--corDestaque);
   font-size: var(--tamanhoH3);
 }
 
-/* Lista de dados do documento sem marcadores, com altura mínima. */
 .cardDocumento_dados {
   list-style: none;
   margin: 0;
@@ -1037,29 +681,15 @@ select:focus-visible,
   color: var(--corLetras);
 }
 
-/* Cada linha de dado do documento com altura de linha 1.4. */
 .cardDocumento_dados li {
   line-height: 1.4;
 }
 
-/* Botões do rodapé crescem igualmente, com largura mínima de 130px. */
 .cardDocumento_rodape .botaoBase {
   flex: 1;
   min-width: 130px;
 }
 
-
-/* ==================================================================
-   Arquivo original: cards/cardConsulta.css
-   ================================================================== */
-/*
-  Componente: cardConsulta (visão cliente)
-  Convertido para .card/.card-body do Bootstrap.
-*/
-
-/*
-   Card de consulta do cliente: borda, raio, fundo branco e espaçamentos via variáveis --bs-card-*.
-*/
 .cardConsulta {
   --bs-card-border-color: var(--corBordas);
   --bs-card-border-width: var(--larguraBorda);
@@ -1071,13 +701,11 @@ select:focus-visible,
   max-width: 380px;
 }
 
-/* Título da consulta centralizado, com tamanho de H3. */
 .cardConsulta_titulo {
   text-align: center;
   font-size: var(--tamanhoH3);
 }
 
-/* Linha de topo (ex.: data e hora) com itens nas pontas. */
 .cardConsulta_linhaTopo {
   display: flex;
   justify-content: space-between;
@@ -1085,7 +713,6 @@ select:focus-visible,
   font-size: var(--tamanhoBody);
 }
 
-/* Detalhes da consulta em coluna com espaçamento. */
 .cardConsulta_detalhes {
   display: flex;
   flex-direction: column;
@@ -1094,7 +721,6 @@ select:focus-visible,
   color: var(--corLetras);
 }
 
-/* Rodapé do card com status e botões, com quebra de linha. */
 .cardConsulta_rodape {
   display: flex;
   justify-content: space-between;
@@ -1103,27 +729,10 @@ select:focus-visible,
   gap: var(--espaco3);
 }
 
-/* Quando só há o status, alinha à direita. */
-/* Quando não há botão de cancelar (Cancelada/Realizada), o status
-   ocupa o espaço sozinho, alinhado à direita — conforme o Figma. */
 .cardConsulta_rodape--somenteStatus {
   justify-content: flex-end;
 }
 
-
-/* ==================================================================
-   Arquivo original: cards/cardConsultaProfissional.css
-   ================================================================== */
-/*
-  Componente: cardConsultaProfissional
-  Convertido para .card/.card-body do Bootstrap. Estrutura compacta
-  (linha), visão do profissional.
-*/
-
-/*
-   Card de consulta do profissional: fundo da página, borda e espaçamentos via variáveis --bs-
-   card-*.
-*/
 .cardConsultaProfissional {
   --bs-card-border-color: var(--corBordas);
   --bs-card-border-width: var(--larguraBorda);
@@ -1135,7 +744,6 @@ select:focus-visible,
   max-width: 480px;
 }
 
-/* Cabeçalho do card com serviço e data/hora nas pontas. */
 .cardConsultaProfissional_cabecalho {
   display: flex;
   justify-content: space-between;
@@ -1143,17 +751,14 @@ select:focus-visible,
   font-size: var(--tamanhoBody);
 }
 
-/* Nome do serviço com peso normal. */
 .cardConsultaProfissional_servico {
   font-weight: var(--pesoRegular);
 }
 
-/* Data e hora em negrito. */
 .cardConsultaProfissional_dataHora {
   font-weight: var(--pesoNegrito);
 }
 
-/* Ações do card (aceitar, reagendar, cancelar) com quebra de linha. */
 .cardConsultaProfissional_acoes {
   display: flex;
   justify-content: space-between;
@@ -1162,36 +767,16 @@ select:focus-visible,
   gap: var(--espaco3);
 }
 
-/* Quando há só uma ação, alinha à direita. */
-/* Quando o slot de ações tem só um item (ex.: Cancelada, Realizada),
-   ele fica alinhado à direita */
 .cardConsultaProfissional_acoes--somenteUmItem {
   justify-content: flex-end;
 }
 
-
-/* ==================================================================
-   Arquivo original: navegacao/navTopoDeslogado.css
-   ================================================================== */
-/*
-  Componente: navTopoDeslogado
-  Convertido para usar duas .navbar do Bootstrap (topo + barra
-  secundária) — sem sub-itens (confirmado), então dispensamos o
-  .navbar-toggler/.navbar-collapse. Aqui só sobrescrevemos as
-  variáveis (--bs-navbar-*) para aplicar as cores do Design System.
-*/
-
-/* Navegação superior do visitante: fixa no topo (sticky) acima do conteúdo. */
-/* Menu estático: acompanha a rolagem, sempre visível no topo da tela.
-   "sticky" mantém o menu no fluxo da página (não cobre o conteúdo e não
-   exige compensar altura), desde que seja filho direto do <body>. */
 .navTopoDeslogado {
   position: sticky;
   top: 0;
   z-index: 1000;
 }
 
-/* Barra verde com logo à esquerda e ações à direita. */
 .navTopoDeslogado_barra {
     display: flex;
     align-items: center;
@@ -1200,8 +785,6 @@ select:focus-visible,
     background-color: var(--corDestaque);
 }
 
-
-/* Logo/nome do site em branco, sem sublinhado, com ícone. */
 .navTopoDeslogado_logo {
   display: flex;
   align-items: center;
@@ -1211,32 +794,26 @@ select:focus-visible,
   text-decoration: none;
 }
 
-/* Mantém o branco ao passar o mouse ou focar. */
 .navTopoDeslogado_logo:hover,
 .navTopoDeslogado_logo:focus-visible {
     color: var(--corBranco);
 }
 
-
-/* Ícone da logo maior (1.5em). */
 .navTopoDeslogado_logo .material-symbols-outlined {
   font-size: 1.5em;
 }
 
-/* Links de ação (entrar, cadastrar) em linha com espaçamento. */
 .navTopoDeslogado_acoes {
     display: flex;
     align-items: center;
     gap: var(--espaco5);
 }
 
-/* Sublinha os links de ação ao passar o mouse ou focar. */
 .navTopoDeslogado_acoes .nav-link:hover,
 .navTopoDeslogado_acoes .nav-link:focus-visible {
   text-decoration: underline;
 }
 
-/* Barra secundária (links de navegação) com fundo na cor dos botões e variáveis --bs-navbar-*. */
 .navTopoDeslogado_secundaria {
   --bs-navbar-padding-y: var(--espaco3);
   --bs-navbar-padding-x: var(--espaco5);
@@ -1246,13 +823,11 @@ select:focus-visible,
   background-color: var(--corBotoes);
 }
 
-/* Link da barra secundária com linha inferior transparente. */
 .navTopoDeslogado_secundaria .nav-link {
   padding-bottom: 2px;
   border-bottom: 2px solid transparent;
 }
 
-/* Link em negrito e com linha inferior escura ao passar o mouse ou focar. */
 .navTopoDeslogado_secundaria .nav-link:hover,
 .navTopoDeslogado_secundaria .nav-link:focus-visible,
 .navTopoDeslogado_secundaria .nav-link.active {
@@ -1260,30 +835,13 @@ select:focus-visible,
   border-bottom-color: var(--corLetras);
 }
 
-/* Em telas menores que desktop. */
 @media (max-width: 991.98px) {
-  /* Esconde a barra secundária (o menu vira hambúrguer). */
+
   .navTopoDeslogado_secundaria {
-    display: none; /* no mobile, a navegação vira o painelMenuMobile (offcanvas) */
+    display: none;
   }
 }
 
-
-/* ==================================================================
-   Arquivo original: navegacao/painelMenuMobile.css
-   ================================================================== */
-/*
-  Estrutura-base: painelMenuMobile
-  Convertida para o Offcanvas nativo do Bootstrap (.offcanvas,
-  variante .offcanvas-top esticada para 100% da altura) — abrir,
-  fechar, overlay e Esc já vêm prontos via data-bs-toggle="offcanvas"
-  / data-bs-dismiss="offcanvas". Reutilizada por:
-    - menu deslogado mobile (variante --deslogado)
-    - menu hambúrguer logado mobile (variante --logado)
-  Aqui só sobrescrevemos as variáveis (--bs-offcanvas-*) do Bootstrap.
-*/
-
-/* Painel de menu móvel (offcanvas) em tela cheia com fundo verde e texto branco. */
 .painelMenuMobile {
   --bs-offcanvas-height: 100vh;
   --bs-offcanvas-color: var(--corBranco);
@@ -1293,7 +851,6 @@ select:focus-visible,
   --bs-offcanvas-padding-y: var(--espaco3);
 }
 
-/* Logo do menu móvel em branco, com ícone e tamanho de H3. */
 .painelMenuMobile_logo {
   display: flex;
   align-items: center;
@@ -1303,7 +860,6 @@ select:focus-visible,
   text-decoration: none;
 }
 
-/* Botão redondo (36px) de fechar o menu, branco com borda e ícone vermelhos. */
 .painelMenuMobile_botaoFechar {
   display: flex;
   align-items: center;
@@ -1317,14 +873,12 @@ select:focus-visible,
   cursor: pointer;
 }
 
-/* Lista de links do menu sem marcadores. */
 .painelMenuMobile_lista {
   list-style: none;
   margin: 0;
   padding: var(--espaco2) 0 0;
 }
 
-/* Item do menu móvel: ocupa a largura toda, texto branco em negrito, com ícone. */
 .painelMenuMobile_item {
   display: flex;
   align-items: center;
@@ -1338,7 +892,6 @@ select:focus-visible,
   cursor: pointer;
 }
 
-/* Item em hover, foco ou ativo: fundo branco e texto escuro. */
 .painelMenuMobile_item:hover,
 .painelMenuMobile_item:focus-visible,
 .painelMenuMobile_item--ativo {
@@ -1346,34 +899,18 @@ select:focus-visible,
   color: var(--corLetras);
 }
 
-/* Rodapé do menu (ex.: Sair), empurrado para o fim do painel. */
 .painelMenuMobile_rodape {
   list-style: none;
   margin-top: auto;
   padding: 0;
 }
 
-/* Variante de demonstração: mostra o painel sem animação (para a página de estilos). */
-/* Apenas para a demonstração nesta página — o Offcanvas real do
-   Bootstrap usa "position: fixed" e cobre a tela inteira ao abrir. */
 .painelMenuMobile--demo {
   position: absolute !important;
   visibility: visible !important;
   transform: none !important;
 }
 
-
-/* ==================================================================
-   Arquivo original: navegacao/navLateralLogado.css
-   ================================================================== */
-/*
-  Componente: navLateralLogado (desktop)
-  Sidebar vertical de ícones, sem sub-itens (confirmado).
-  Variante de papel (data-papel) só troca o primeiro item — ver navegacao.js.
-  Ao passar o mouse/focar, expande para mostrar os rótulos (confirmado).
-*/
-
-/* Navegação lateral do logado: fixa à esquerda, 72px recolhida, verde, com transição de largura. */
 .navLateralLogado {
   position: fixed;
   top: 0;
@@ -1388,13 +925,11 @@ select:focus-visible,
   z-index: 900;
 }
 
-/* Expande para 240px ao passar o mouse ou focar dentro. */
 .navLateralLogado:hover,
 .navLateralLogado:focus-within {
   width: 240px;
 }
 
-/* Item da lateral: ícone e rótulo em linha, texto branco, sem quebra. */
 .navLateralLogado_item {
   display: flex;
   align-items: center;
@@ -1405,13 +940,11 @@ select:focus-visible,
   white-space: nowrap;
 }
 
-/* Ícone do item maior (1.5em) e que não encolhe. */
 .navLateralLogado_item .material-symbols-outlined {
   font-size: 1.5em;
   flex-shrink: 0;
 }
 
-/* Rótulo do item escondido (opacidade 0) até a barra expandir. */
 .navLateralLogado_rotulo {
   opacity: 0;
   font-size: var(--tamanhoBody);
@@ -1419,13 +952,11 @@ select:focus-visible,
   transition: opacity 0.15s ease;
 }
 
-/* Mostra o rótulo quando a barra está expandida. */
 .navLateralLogado:hover .navLateralLogado_rotulo,
 .navLateralLogado:focus-within .navLateralLogado_rotulo {
   opacity: 1;
 }
 
-/* Item em hover, foco ou ativo: fundo branco e texto escuro. */
 .navLateralLogado_item:hover,
 .navLateralLogado_item:focus-visible,
 .navLateralLogado_item--ativo {
@@ -1433,30 +964,15 @@ select:focus-visible,
   color: var(--corLetras);
 }
 
-/* Rodapé da lateral (ex.: Sair), empurrado para baixo. */
 .navLateralLogado_rodape {
   margin-top: auto;
 }
 
-/* Variante de demonstração: posição normal, 420px de altura. */
-/* Apenas para a demonstração nesta página — o componente real usa
-   "position: fixed" para ficar preso à lateral da tela. */
 .navLateralLogado--demo {
   position: relative;
   height: 420px;
 }
 
-
-/* ==================================================================
-   Arquivo original: navegacao/navInferiorLogado.css
-   ================================================================== */
-/*
-  Componente: navInferiorLogado (mobile)
-  Bottom tab bar, sem sub-itens (confirmado). Mesma lógica de papel
-  do navLateralLogado (ver navegacao.js) — só muda o item "Buscar/Início".
-*/
-
-/* Navegação inferior do logado (celular): fixa embaixo, verde, itens em linha. */
 .navInferiorLogado {
   position: fixed;
   left: 0;
@@ -1467,7 +983,6 @@ select:focus-visible,
   z-index: 900;
 }
 
-/* Item da navegação inferior: ícone sobre o rótulo, centralizado, texto branco. */
 .navInferiorLogado_item {
   flex: 1;
   display: flex;
@@ -1479,18 +994,15 @@ select:focus-visible,
   text-decoration: none;
 }
 
-/* Ícone do item um pouco maior (1.4em). */
 .navInferiorLogado_item .material-symbols-outlined {
   font-size: 1.4em;
 }
 
-/* Rótulo do item em tamanho de legenda e negrito. */
 .navInferiorLogado_rotulo {
   font-size: var(--tamanhoCaption);
   font-weight: var(--pesoNegrito);
 }
 
-/* Item em hover, foco ou ativo: fundo branco e texto escuro. */
 .navInferiorLogado_item:hover,
 .navInferiorLogado_item:focus-visible,
 .navInferiorLogado_item--ativo {
@@ -1498,28 +1010,10 @@ select:focus-visible,
   color: var(--corLetras);
 }
 
-/* Variante de demonstração: posição normal. */
-/* Apenas para a demonstração nesta página */
 .navInferiorLogado--demo {
   position: relative;
 }
 
-
-/* ==================================================================
-   Arquivo original: navegacao/menuHamburguerLogado.css
-   ================================================================== */
-/*
-  Componente: menuHamburguerLogado (desktop)
-  Convertido para o Dropdown nativo do Bootstrap (.dropdown,
-  .dropdown-menu, .dropdown-item, data-bs-toggle="dropdown") — abrir,
-  fechar, clique fora e Esc já vêm prontos via Popper. Aqui só
-  sobrescrevemos as variáveis (--bs-dropdown-*) do Bootstrap.
-*/
-
-/*
-   Menu hambúrguer do logado: dropdown verde, mínimo de 220px, com sombra (variáveis --bs-
-   dropdown-*).
-*/
 .menuHamburguerLogado {
   --bs-dropdown-min-width: 220px;
   --bs-dropdown-bg: var(--corDestaque);
@@ -1536,7 +1030,6 @@ select:focus-visible,
   z-index: 950;
 }
 
-/* Botão do menu hambúrguer: 40px, transparente e ícone branco. */
 .menuHamburguerLogado_botao {
   display: flex;
   align-items: center;
@@ -1549,7 +1042,6 @@ select:focus-visible,
   cursor: pointer;
 }
 
-/* Item do dropdown em negrito, com ícone ao lado. */
 .menuHamburguerLogado_item {
   display: flex;
   align-items: center;
@@ -1557,23 +1049,10 @@ select:focus-visible,
   font-weight: var(--pesoNegrito);
 }
 
-/* Variante de demonstração: posição absoluta. */
-/* Apenas para a demonstração nesta página */
 .menuHamburguerLogado--demo {
   position: absolute;
 }
 
-
-
-/* ==================================================================
-   Componentes de perfil (profissional e clínica)
-   cabecalhoPerfil, abasPerfil, secaoPerfil, estadoVazio, tabelaDados,
-   seletorDias, linhaHorario, campoMinutos, formularioPerfil,
-   avisoFlutuante
-   ================================================================== */
-
-/* ---------- cabecalhoPerfil: avatar + usuário ---------- */
-/* Cabeçalho do perfil: avatar e usuário em coluna e centralizados (celular). */
 .cabecalhoPerfil {
   display: flex;
   flex-direction: column;
@@ -1582,7 +1061,6 @@ select:focus-visible,
   padding: var(--espaco5) var(--espaco4) var(--espaco3);
 }
 
-/* Avatar redondo de 112px com borda, que recorta a foto. */
 .cabecalhoPerfil_avatar {
   display: flex;
   align-items: center;
@@ -1595,20 +1073,17 @@ select:focus-visible,
   background-color: var(--corFundoClaro);
 }
 
-/* Ícone padrão (sem foto) de 72px na cor de destaque. */
 .cabecalhoPerfil_iconePadrao {
   font-size: 72px;
   color: var(--corDestaque);
 }
 
-/* Foto do perfil preenche o avatar (cover). */
 .cabecalhoPerfil_foto {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* Nome de usuário com tamanho de H3 e peso normal. */
 .cabecalhoPerfil_usuario {
   margin: 0;
   font-size: var(--tamanhoH3);
@@ -1616,25 +1091,19 @@ select:focus-visible,
   overflow-wrap: anywhere;
 }
 
-/* Em desktop, o cabeçalho do perfil alinha à esquerda. */
 @media (min-width: 992px) {
-  /* Cabeçalho alinhado à esquerda, com mais recuo. */
+
   .cabecalhoPerfil {
     align-items: flex-start;
     padding-left: var(--espaco7);
   }
 
-  /* Avatar maior (128px). */
   .cabecalhoPerfil_avatar {
     width: 128px;
     height: 128px;
   }
 }
 
-/* Barra de abas do perfil: links brancos, sem quebra de linha (variáveis --bs-nav-*). */
-/* ---------- abasPerfil: barra de abas (Bootstrap nav-tabs) ----------
-   .abasPerfil_grupo é o tablist (só as abas reais). Ele usa display: contents
-   para que as abas e os links (Documentos, Relatório) fiquem na mesma linha. */
 .abasPerfil {
   --bs-nav-link-color: var(--corBranco);
   --bs-nav-link-hover-color: var(--corBranco);
@@ -1648,12 +1117,10 @@ select:focus-visible,
   background-color: var(--corDestaque);
 }
 
-/* Grupo de abas que não cria caixa própria (display: contents). */
 .abasPerfil_grupo {
   display: contents;
 }
 
-/* Abas sem borda nem fundo, só com linha inferior transparente. */
 .abasPerfil .nav-link,
 .abasPerfil_link {
   border: 0;
@@ -1663,9 +1130,6 @@ select:focus-visible,
   white-space: nowrap;
 }
 
-/* Link de aba (modo visitante): bloco branco, sem sublinhado. */
-/* Links fora do tablist: mesma aparência das abas, sem a classe .nav-link
-   (o Bootstrap trataria o link como uma aba ao navegar com as setas) */
 .abasPerfil_link {
   display: block;
   padding: var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x);
@@ -1674,19 +1138,16 @@ select:focus-visible,
   text-decoration: none;
 }
 
-/* Mantém a cor branca no hover e foco do link de aba. */
 .abasPerfil_link:hover,
 .abasPerfil_link:focus {
   color: var(--corBranco);
 }
 
-/* Sem mudar a linha inferior no hover ou foco. */
 .abasPerfil .nav-link:hover,
 .abasPerfil .nav-link:focus {
   border-bottom-color: transparent;
 }
 
-/* Aba ativa: linha inferior branca e negrito. */
 .abasPerfil .nav-link.active {
   border-bottom-color: var(--corBranco);
   background-color: transparent;
@@ -1694,24 +1155,21 @@ select:focus-visible,
   font-weight: var(--pesoNegrito);
 }
 
-/* Contorno branco para a aba em foco de teclado. */
 .abasPerfil .nav-link:focus-visible,
 .abasPerfil_link:focus-visible {
   outline: var(--larguraFoco) solid var(--corBranco);
   outline-offset: -4px;
 }
 
-/* A partir de tablet, abas com mais espaço lateral. */
 @media (min-width: 768px) {
-  /* Preenchimento horizontal maior nas abas. */
+
   .abasPerfil {
     --bs-nav-link-padding-x: var(--espaco3);
   }
 }
 
-/* Em desktop, as abas vão para a direita. */
 @media (min-width: 992px) {
-  /* Abas alinhadas à direita, com espaçamento entre elas. */
+
   .abasPerfil {
     justify-content: flex-end;
     padding-right: var(--espaco7);
@@ -1719,20 +1177,16 @@ select:focus-visible,
   }
 }
 
-/* ---------- secaoPerfil: título + caixa com ação no canto ---------- */
-/* Seção do perfil com margem superior. */
 .secaoPerfil {
   margin-top: var(--espaco5);
 }
 
-/* Título da seção com tamanho de H3 e negrito. */
 .secaoPerfil_titulo {
   margin: 0 0 var(--espaco2);
   font-size: var(--tamanhoH3);
   font-weight: var(--pesoNegrito);
 }
 
-/* Caixa de conteúdo da seção: altura mínima, borda, cantos arredondados e fundo branco. */
 .secaoPerfil_caixa {
   position: relative;
   min-height: 96px;
@@ -1742,14 +1196,12 @@ select:focus-visible,
   background-color: var(--corBranco);
 }
 
-/* Texto da seção pequeno, deixando espaço à direita para o botão de ação. */
 .secaoPerfil_texto {
   margin: 0;
   padding-right: var(--espaco7);
   font-size: var(--tamanhoSmall);
 }
 
-/* Botão de ação (editar/adicionar) de 48px no canto superior direito da caixa. */
 .secaoPerfil_acao {
   position: absolute;
   top: var(--espaco2);
@@ -1766,7 +1218,6 @@ select:focus-visible,
   color: var(--corBranco);
 }
 
-/* Ação em hover ou foco: fundo verde escurecido e ícone branco. */
 .secaoPerfil_acao:hover,
 .secaoPerfil_acao:focus-visible {
   background-color: color-mix(in srgb, var(--corBotoes) 85%, black);
@@ -1774,19 +1225,15 @@ select:focus-visible,
   color: var(--corBranco);
 }
 
-/* Contorno de foco azul para teclado. */
 .secaoPerfil_acao:focus-visible {
   outline: var(--larguraFoco) solid var(--corFoco);
   outline-offset: 2px;
 }
 
-/* Ícone do botão de ação em 32px. */
 .secaoPerfil_acao .material-symbols-outlined {
   font-size: 32px;
 }
 
-/* ---------- estadoVazio: ícone grande + texto ---------- */
-/* Estado vazio: ícone e texto em coluna, centralizados. */
 .estadoVazio {
   display: flex;
   flex-direction: column;
@@ -1796,30 +1243,24 @@ select:focus-visible,
   text-align: center;
 }
 
-/* Ícone do estado vazio grande (96px). */
 .estadoVazio_icone {
   font-size: 96px;
   color: var(--corLetras);
 }
 
-/* Texto do estado vazio com tamanho de H3. */
 .estadoVazio_texto {
   margin: 0;
   font-size: var(--tamanhoH3);
 }
 
-/* Variante de página inteira, com margem superior. */
 .estadoVazio--pagina {
   margin-top: var(--espaco5);
 }
 
-/* Ícone ainda maior (160px) no estado vazio de página. */
 .estadoVazio--pagina .estadoVazio_icone {
   font-size: 160px;
 }
 
-/* ---------- tabelaDados ---------- */
-/* Tabela de dados: fundo transparente, bordas nas cores do design system e texto centralizado. */
 .tabelaDados {
   --bs-table-bg: transparent;
   --bs-table-border-color: var(--corBordas);
@@ -1828,35 +1269,29 @@ select:focus-visible,
   vertical-align: middle;
 }
 
-/* Cabeçalho da tabela em negrito, com linha embaixo. */
 .tabelaDados thead th {
   font-size: var(--tamanhoBody);
   font-weight: var(--pesoNegrito);
   border-bottom: 1px solid var(--corBordas);
 }
 
-/* A partir de tablet, aumenta o espaço na tabela de dados. */
 @media (min-width: 768px) {
-  /* Mais espaço à direita nos títulos de coluna. */
+
   .tabelaDados thead th {
     padding-right: var(--espaco7);
   }
 }
 
-/* Células da tabela com texto pequeno. */
 .tabelaDados td {
   font-size: var(--tamanhoSmall);
 }
 
-/* ---------- seletorDias: fieldset com checkboxes ---------- */
-/* Grupo de checkboxes dos dias da semana: sem borda e com margem superior. */
 .seletorDias {
   margin-top: var(--espaco5);
   padding: 0;
   border: 0;
 }
 
-/* Legenda do grupo de dias em negrito, ocupando a largura toda. */
 .seletorDias_legenda {
   float: none;
   width: 100%;
@@ -1865,13 +1300,11 @@ select:focus-visible,
   font-weight: var(--pesoNegrito);
 }
 
-/* Item de dia da semana em negrito, com espaço embaixo. */
 .seletorDias_item {
   margin-bottom: var(--espaco2);
   font-weight: var(--pesoNegrito);
 }
 
-/* Checkbox do dia: caixa de 1.25em, com borda e cantos arredondados. */
 .seletorDias .form-check-input {
   --bs-form-check-bg: var(--corBranco);
   width: 1.25em;
@@ -1880,21 +1313,15 @@ select:focus-visible,
   border-radius: 4px;
 }
 
-/* Checkbox marcado: fundo verde. */
 .seletorDias .form-check-input:checked {
   background-color: var(--corDestaque);
   border-color: var(--corBordas);
 }
 
-/* Em foco: anel azul. */
 .seletorDias .form-check-input:focus {
   box-shadow: 0 0 0 var(--larguraFoco) var(--corFoco);
 }
 
-/* ---------- linhaHorario: dia + abertura + fechamento ---------- */
-/*
-   Linha de horário de um dia: grade de 2 colunas (início e término) com linha separadora embaixo.
-*/
 .linhaHorario {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1904,28 +1331,24 @@ select:focus-visible,
   border-bottom: 1px solid var(--corBordas);
 }
 
-/* Nome do dia ocupa a linha toda, em negrito. */
 .linhaHorario_dia {
   grid-column: 1 / -1;
   margin: 0;
   font-weight: var(--pesoNegrito);
 }
 
-/* Campo de hora (rótulo + entrada) em coluna. */
 .linhaHorario_campo {
   display: flex;
   flex-direction: column;
   gap: var(--espaco1);
 }
 
-/* Rótulo 'Início' ou 'Término' pequeno e em negrito. */
 .linhaHorario_rotulo {
   font-size: var(--tamanhoSmall);
   font-weight: var(--pesoNegrito);
   color: var(--corLetras);
 }
 
-/* Campo de hora centralizado, em negrito, com borda do design system. */
 .linhaHorario .form-control {
   border: var(--larguraBorda) solid var(--corBordas);
   border-radius: var(--raioPequeno);
@@ -1933,32 +1356,27 @@ select:focus-visible,
   font-weight: var(--pesoNegrito);
 }
 
-/* Campo desabilitado (dia sem funcionamento): texto acinzentado. */
 .linhaHorario .form-control:disabled {
   background-color: var(--corBranco);
   color: color-mix(in srgb, var(--corLetras) 55%, white);
 }
 
-/* Em foco: anel azul. */
 .linhaHorario .form-control:focus {
   box-shadow: 0 0 0 var(--larguraFoco) var(--corFoco);
 }
 
-/* A partir de tablet, a linha de horário vira uma só linha. */
 @media (min-width: 768px) {
-  /* Três colunas (dia, início, término), até 640px, sem linha separadora. */
+
   .linhaHorario {
     grid-template-columns: 160px 1fr 1fr;
     max-width: 640px;
     border-bottom: 0;
   }
 
-  /* O nome do dia volta a ocupar só a primeira coluna. */
   .linhaHorario_dia {
     grid-column: auto;
   }
 
-  /* Rótulo e campo lado a lado. */
   .linhaHorario_campo {
     flex-direction: row;
     align-items: center;
@@ -1966,8 +1384,6 @@ select:focus-visible,
   }
 }
 
-/* ---------- campoMinutos: rótulo + número + "min" ---------- */
-/* Campo de minutos (duração): rótulo e entrada nas pontas, com quebra de linha. */
 .campoMinutos {
   display: flex;
   flex-wrap: wrap;
@@ -1977,17 +1393,14 @@ select:focus-visible,
   margin-top: var(--espaco4);
 }
 
-/* Rótulo em negrito. */
 .campoMinutos_rotulo {
   font-weight: var(--pesoNegrito);
 }
 
-/* Entrada de minutos com 120px de largura. */
 .campoMinutos_entrada {
   width: 120px;
 }
 
-/* Entrada e sufixo (min) com borda, fundo branco e negrito. */
 .campoMinutos_entrada .form-control,
 .campoMinutos_entrada .input-group-text {
   border: var(--larguraBorda) solid var(--corBordas);
@@ -1995,36 +1408,29 @@ select:focus-visible,
   font-weight: var(--pesoNegrito);
 }
 
-/* Entrada com borda direita removida e cantos esquerdos arredondados, texto à direita. */
 .campoMinutos_entrada .form-control {
   border-right: 0;
   border-radius: var(--raioPequeno) 0 0 var(--raioPequeno);
   text-align: right;
 }
 
-/* Sufixo com borda esquerda removida e cantos direitos arredondados. */
 .campoMinutos_entrada .input-group-text {
   border-left: 0;
   border-radius: 0 var(--raioPequeno) var(--raioPequeno) 0;
 }
 
-/* Em foco: anel azul. */
 .campoMinutos_entrada .form-control:focus {
   box-shadow: 0 0 0 var(--larguraFoco) var(--corFoco);
 }
 
-/* Pequena margem no texto de ajuda logo após o campo. */
 .campoMinutos + .form-text {
   margin-top: var(--espaco1);
 }
 
-/* ---------- formularioPerfil ---------- */
-/* Formulário do perfil com espaço em cima e embaixo. */
 .formularioPerfil {
   padding: var(--espaco5) 0;
 }
 
-/* Título do formulário centralizado, com tamanho de H2. */
 .formularioPerfil_titulo {
   margin: 0 0 var(--espaco4);
   font-size: var(--tamanhoH2);
@@ -2032,14 +1438,12 @@ select:focus-visible,
   text-align: center;
 }
 
-/* Rótulo do campo em bloco, em negrito. */
 .formularioPerfil_rotulo {
   display: block;
   margin-bottom: var(--espaco2);
   font-weight: var(--pesoNegrito);
 }
 
-/* Botões do formulário alinhados à direita, com quebra de linha. */
 .formularioPerfil_acoes {
   display: flex;
   flex-wrap: wrap;
@@ -2048,22 +1452,15 @@ select:focus-visible,
   margin-top: var(--espaco5);
 }
 
-/* Texto de ajuda do formulário em tamanho de legenda. */
 .formularioPerfil .form-text {
   color: var(--corLetras);
   font-size: var(--tamanhoCaption);
 }
 
-/* Campo somente leitura com fundo branco. */
 .formularioPerfil .campoTexto .form-control[readonly] {
   background-color: var(--corBranco);
 }
 
-/* ---------- avisoFlutuante (Bootstrap toast) ---------- */
-/*
-   Aviso flutuante (toast): fundo branco, borda vermelha, raio e largura máxima de 360px (variáveis
-   --bs-toast-*).
-*/
 .avisoFlutuante {
   --bs-toast-bg: var(--corBranco);
   --bs-toast-border-color: var(--corAcaoNegativa);
@@ -2074,46 +1471,34 @@ select:focus-visible,
   font-weight: var(--pesoNegrito);
 }
 
-/* Corpo do aviso: ícone e mensagem em linha. */
 .avisoFlutuante_corpo {
   display: flex;
   align-items: center;
   gap: var(--espaco3);
 }
 
-/* Ícone do aviso (32px) vermelho, que não encolhe. */
 .avisoFlutuante_icone {
   flex-shrink: 0;
   font-size: 32px;
   color: var(--corAcaoNegativa);
 }
 
-/* Mensagem do aviso sem margem. */
 .avisoFlutuante_mensagem {
   margin: 0;
 }
 
-/* Variante de atenção: borda amarela. */
 .avisoFlutuante--atencao {
   --bs-toast-border-color: var(--corAcaoAtencao);
 }
 
-/* Variante de atenção: ícone amarelo. */
 .avisoFlutuante--atencao .avisoFlutuante_icone {
   color: var(--corAcaoAtencao);
 }
 
-/* Define a altura da barra superior do logado (--alturaNavTopoLogado: 64px). */
-/* ---------- navTopoLogado: barra superior da versão logada ----------
-   Desktop e mobile: logo + nome à esquerda e hambúrguer à direita.
-   Desktop: o hambúrguer abre o dropdown (menuHamburguerLogado).
-   Mobile: o hambúrguer abre o painelMenuMobile (offcanvas).
-   A navegação lateral (desktop) passa a começar abaixo da barra. */
 :root {
   --alturaNavTopoLogado: 64px;
 }
 
-/* Barra superior do logado: fixa (sticky) no topo, verde, com logo e menu. */
 .navTopoLogado {
   position: sticky;
   top: 0;
@@ -2126,7 +1511,6 @@ select:focus-visible,
   background-color: var(--corDestaque);
 }
 
-/* Logo do logado em branco, com ícone e tamanho de H3. */
 .navTopoLogado_logo {
   display: flex;
   align-items: center;
@@ -2136,13 +1520,11 @@ select:focus-visible,
   text-decoration: none;
 }
 
-/* Mantém o branco ao passar o mouse ou focar. */
 .navTopoLogado_logo:hover,
 .navTopoLogado_logo:focus-visible {
   color: var(--corBranco);
 }
 
-/* Contorno branco de foco (logo, botão de menu e hambúrguer) para teclado. */
 .navTopoLogado_logo:focus-visible,
 .navTopoLogado_botaoMenuMobile:focus-visible,
 .navTopoLogado .menuHamburguerLogado_botao:focus-visible {
@@ -2150,7 +1532,6 @@ select:focus-visible,
   outline-offset: 2px;
 }
 
-/* Botão de menu móvel: 40px, transparente e ícone branco. */
 .navTopoLogado_botaoMenuMobile {
   display: flex;
   align-items: center;
@@ -2163,33 +1544,26 @@ select:focus-visible,
   color: var(--corBranco);
 }
 
-/* Ícones da barra superior em 36px. */
 .navTopoLogado_botaoMenuMobile .material-symbols-outlined,
 .navTopoLogado .menuHamburguerLogado_botao .material-symbols-outlined {
   font-size: 36px;
 }
 
-/* Menu hambúrguer posicionado normalmente dentro da barra. */
-/* Dentro da barra, o hambúrguer acompanha o fluxo (não fica fixo na tela) */
 .navTopoLogado .menuHamburguerLogado {
   position: static;
 }
 
-/* A navegação lateral começa abaixo da barra superior (top = altura da barra). */
 .navTopoLogado ~ .navLateralLogado {
   top: var(--alturaNavTopoLogado);
 }
 
-/* Em desktop, aumenta a logo da barra superior. */
 @media (min-width: 992px) {
-  /* Logo com tamanho de H2. */
+
   .navTopoLogado_logo {
     font-size: var(--tamanhoH2);
   }
 }
 
-/* ---------- cardEntidadeBase--selecionado: card escolhido numa lista ---------- */
-/* Card selecionado: borda azul de 4px e sombra suave. */
 .cardEntidadeBase--selecionado {
   --bs-card-border-color: var(--corAcaoSecundaria);
   --bs-card-border-width: 4px;

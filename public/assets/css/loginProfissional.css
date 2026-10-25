@@ -1,28 +1,5 @@
-/* ============================================================
-   ARQUIVO: loginProfissional.css
-
-   O QUE FAZ
-   Estilos específicos do login do profissional: limita a largura do
-   formulário em telas de tablet ou maiores.
-
-   OBSERVAÇÕES
-   - Depende de variaveis.css, componentes.css e autenticacaoBase.css.
-   - Regra quase idêntica à de loginClinica.css; só muda o id.
-
-   REGRAS (na ordem em que aparecem)
-   - @media (min-width: 768px) — A partir de tablet, aplica a largura limitada
-     do formulário.
-     - #loginProfissional — Formulário de login ocupa a largura disponível até
-       420px.
-   ============================================================ */
-
-/* loginProfissional.css — estilos específicos do login de profissional.
-   Depende de: variaveis.css, componentes.css e autenticacaoBase.css. */
-
-/* A partir de tablet, aplica a largura limitada do formulário. */
-/* TABLET+ (≥ 768px) */
 @media (min-width: 768px) {
-  /* Formulário de login ocupa a largura disponível até 420px. */
+
   #loginProfissional {
     width: 100%;
     max-width: 420px;

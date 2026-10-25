@@ -1,185 +1,60 @@
-/* ============================================================
-   ARQUIVO: perfil.css
-
-   O QUE FAZ
-   Estilos específicos da página de perfil (profissional, clínica e
-   visitante): espaço em volta da navegação fixa, esconder conteúdo enquanto
-   carrega, área de abas, formulários, barra de ações, grade de cards de
-   vínculo e seus botões.
-
-   OBSERVAÇÕES
-   - Depende de variaveis.css e componentes.css, onde ficam os componentes de
-     perfil (cabecalhoPerfil, abasPerfil, secaoPerfil, tabelaDados,
-     formularioPerfil, avisoFlutuante etc.).
-   - O JS usa conteudoPerfil[aria-busy="true"] para esconder abas e conteúdo
-     até os dados chegarem.
-   - conteudoPerfil--semNavLateral é aplicado quando a navegação lateral não
-     existe (visitante deslogado).
-   - A grade listaCards tem 3 variações: cartões de vínculo na página e, com
-     --modal, uma coluna centralizada dentro do modal.
-   - Os valores 72px (navegação lateral) e 64px (navegação inferior) se
-     repetem em outros CSS de página.
-   - O comentário original diz 'perfil (profissional)', mas o arquivo atende
-     também clínica e visitantes.
-   - Respeita prefers-reduced-motion nas abas e no botão de ação da seção.
-
-   REGRAS (na ordem em que aparecem)
-   - .conteudoPerfil — Conteúdo principal: deixa espaço embaixo para a
-     navegação inferior fixa.
-   - @media (min-width: 768px) — A partir de tablet, a navegação lateral ocupa
-     a esquerda.
-     - .conteudoPerfil — Abre 72px de margem à esquerda para a navegação
-       lateral e reduz o espaço inferior.
-   - @media (min-width: 768px) — Visitante sem navegação lateral (também a
-     partir de tablet).
-     - .conteudoPerfil--semNavLateral — Sem a navegação lateral, remove a
-       margem esquerda.
-   - .conteudoPerfil--semNavLateral — Sem navegação lateral, não precisa de
-     espaço para a navegação inferior.
-   - .conteudoPerfil[aria-busy="true"] .abasPerfil, .conteudoP… — Enquanto
-     carrega (aria-busy), esconde as abas e o conteúdo para não piscar.
-   - .conteudoAbas — Conteúdo das abas: largura máxima de 1100px,
-     centralizado, com margem lateral.
-   - @media (min-width: 992px) — Em desktop, aumenta a margem lateral do
-     conteúdo das abas.
-     - .conteudoAbas — Margem lateral maior no desktop.
-   - .visaoPerfil — Cada visão (resumo ou formulário) com espaço inferior.
-   - .campoBioAtual — Caixa de biografia com altura mínima de 96px.
-   - .campoDescricaoServico — Caixa de descrição do serviço com altura mínima
-     de 200px.
-   - .formularioPerfil .campoTexto + .form-text — Pequena margem entre o campo
-     e o texto de ajuda.
-   - .barraAcoesAba — Barra de botões da aba em linha, com quebra e
-     espaçamento.
-   - .secaoPerfil_extras — Linha de extras alinhada à direita, alinhada com o
-     botão de ação da seção.
-   - .avisosFormulario — Margem inferior do bloco de avisos do formulário.
-   - .listaCards — Grade de cards que preenche a largura (colunas de 220 a
-     260px).
-   - .listaCards--modal — Dentro do modal, uma coluna só, centralizada.
-   - .cardVinculo — Card de vínculo: referência para o botão no canto e texto
-     centralizado.
-   - .cardVinculo .card-body — Corpo do card em coluna, com espaçamento e
-     preenchimento.
-   - .cardVinculo .card-title — Título do card sem margem e com quebra de
-     texto longo.
-   - .cardVinculo .botaoBase — Botão do card centralizado.
-   - .cardVinculo_foto — Moldura quadrada de 120px, com borda, que recorta a
-     foto.
-   - .cardVinculo_iconePadrao — Ícone padrão (sem foto) de 64px na cor de
-     destaque.
-   - .cardVinculo_imagem — Foto preenche a moldura (cover).
-   - .cardVinculo_detalhes — Detalhes (ex.: endereço) alinhados à esquerda.
-   - .cardVinculo_detalhes .cardClinica_info — Remove a margem das linhas de
-     informação da clínica.
-   - .cardVinculo_botaoDesvincular, .cardVinculo_botaoSelecion… — Botão
-     redondo de 40px sobreposto no canto superior direito do card.
-   - .cardVinculo_botaoDesvincular — Ícone vermelho (desvincular).
-   - .cardVinculo_botaoSelecionar — Ícone azul (selecionar).
-   - .cardVinculo_botaoDesvincular:hover, .cardVinculo_botaoSe… — Fundo claro
-     ao passar o mouse nos dois botões do canto.
-   - .cardVinculo_botaoDesvincular:focus-visible, .cardVinculo… — Contorno de
-     foco visível para teclado nos dois botões do canto.
-   - .cardVinculo_botaoDesvincular .material-symbols-outlined,… — Ícones dos
-     botões do canto em 36px.
-   - .cardVinculo--selecionavel — Cursor de clique no card quando ele é
-     selecionável (modal de vínculo).
-   - .visaoPerfil .campoPesquisa:focus-within — Contorno de foco no campo de
-     pesquisa quando algo dentro dele recebe foco.
-   - @media (prefers-reduced-motion: reduce) — Para quem prefere menos
-     movimento.
-     - .abasPerfil .nav-link, .secaoPerfil_acao — Desliga a transição das abas
-       e do botão de ação da seção.
-   ============================================================ */
-
-/* ============================================================
-   PÁGINA: perfil (profissional)
-   Depende de: public/assets/css/variaveis.css
-              public/assets/css/componentes.css
-   (ambos devem ser carregados antes deste arquivo)
-
-   Componentes compartilhados (cabecalhoPerfil, abasPerfil,
-   secaoPerfil, estadoVazio, tabelaDados, seletorDias, linhaHorario,
-   campoMinutos, formularioPerfil, avisoFlutuante) ficam em
-   componentes.css. Aqui ficam só os ajustes específicos desta página.
-   ============================================================ */
-
-/* Conteúdo principal: deixa espaço embaixo para a navegação inferior fixa. */
-/* Espaço para a navegação fixa: inferior no mobile, lateral (72px) no desktop */
 .conteudoPerfil {
   padding-bottom: calc(64px + var(--espaco4));
 }
 
-/* A partir de tablet, a navegação lateral ocupa a esquerda. */
 @media (min-width: 768px) {
-  /* Abre 72px de margem à esquerda para a navegação lateral e reduz o espaço inferior. */
+
   .conteudoPerfil {
     margin-left: 72px;
     padding-bottom: var(--espaco5);
   }
 }
 
-/* Visitante sem navegação lateral (também a partir de tablet). */
-/* Sem navegação lateral (visitante sem login): usa a largura toda */
 @media (min-width: 768px) {
-  /* Sem a navegação lateral, remove a margem esquerda. */
+
   .conteudoPerfil--semNavLateral {
     margin-left: 0;
   }
 }
 
-/* Sem navegação lateral, não precisa de espaço para a navegação inferior. */
 .conteudoPerfil--semNavLateral {
   padding-bottom: var(--espaco5);
 }
 
-/* Enquanto carrega (aria-busy), esconde as abas e o conteúdo para não piscar. */
-/* Enquanto o perfil carrega, esconde o conteúdo para não piscar estados vazios */
 .conteudoPerfil[aria-busy="true"] .abasPerfil,
 .conteudoPerfil[aria-busy="true"] .conteudoAbas {
   visibility: hidden;
 }
 
-/* Conteúdo das abas: largura máxima de 1100px, centralizado, com margem lateral. */
-/* Área das abas: respiro lateral e largura máxima de leitura */
 .conteudoAbas {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 var(--espaco4);
 }
 
-/* Em desktop, aumenta a margem lateral do conteúdo das abas. */
 @media (min-width: 992px) {
-  /* Margem lateral maior no desktop. */
+
   .conteudoAbas {
     padding: 0 var(--espaco7);
   }
 }
 
-/* Cada visão (resumo ou formulário) com espaço inferior. */
-/* Cada visão (resumo, edição, cadastro...) ocupa a aba inteira */
 .visaoPerfil {
   padding-bottom: var(--espaco4);
 }
 
-/* Caixa de biografia com altura mínima de 96px. */
-/* Campos de texto longos */
 .campoBioAtual {
   min-height: 96px;
 }
 
-/* Caixa de descrição do serviço com altura mínima de 200px. */
 .campoDescricaoServico {
   min-height: 200px;
 }
 
-/* Pequena margem entre o campo e o texto de ajuda. */
 .formularioPerfil .campoTexto + .form-text {
   margin-top: var(--espaco1);
 }
 
-/* Barra de botões da aba em linha, com quebra e espaçamento. */
-/* Barra de ações no topo das abas (Vincular, Gerenciar) */
 .barraAcoesAba {
   display: flex;
   flex-wrap: wrap;
@@ -187,9 +62,6 @@
   padding-top: var(--espaco4);
 }
 
-/* Linha de extras alinhada à direita, alinhada com o botão de ação da seção. */
-/* Botões extras dentro de uma caixa de seção (ex.: Abrir no Maps).
-   Deixa espaço à direita para o botão circular de edição. */
 .secaoPerfil_extras {
   display: flex;
   justify-content: flex-end;
@@ -197,14 +69,10 @@
   padding-right: calc(48px + var(--espaco3));
 }
 
-/* Margem inferior do bloco de avisos do formulário. */
-/* Avisos do próprio formulário (alertas do Bootstrap criados por utilitarios.js) */
 .avisosFormulario {
   margin-bottom: var(--espaco3);
 }
 
-/* Grade de cards que preenche a largura (colunas de 220 a 260px). */
-/* Lista de cards de vínculo (clínicas ou profissionais) */
 .listaCards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 260px));
@@ -213,19 +81,16 @@
   padding-top: var(--espaco2);
 }
 
-/* Dentro do modal, uma coluna só, centralizada. */
 .listaCards--modal {
   grid-template-columns: minmax(220px, 260px);
   justify-content: center;
 }
 
-/* Card de vínculo: referência para o botão no canto e texto centralizado. */
 .cardVinculo {
   position: relative;
   text-align: center;
 }
 
-/* Corpo do card em coluna, com espaçamento e preenchimento. */
 .cardVinculo .card-body {
   display: flex;
   flex-direction: column;
@@ -233,18 +98,15 @@
   padding: var(--espaco4);
 }
 
-/* Título do card sem margem e com quebra de texto longo. */
 .cardVinculo .card-title {
   margin: 0;
   overflow-wrap: anywhere;
 }
 
-/* Botão do card centralizado. */
 .cardVinculo .botaoBase {
   align-self: center;
 }
 
-/* Moldura quadrada de 120px, com borda, que recorta a foto. */
 .cardVinculo_foto {
   display: flex;
   align-items: center;
@@ -257,31 +119,25 @@
   background-color: var(--corFundoClaro);
 }
 
-/* Ícone padrão (sem foto) de 64px na cor de destaque. */
 .cardVinculo_iconePadrao {
   font-size: 64px;
   color: var(--corDestaque);
 }
 
-/* Foto preenche a moldura (cover). */
 .cardVinculo_imagem {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* Detalhes (ex.: endereço) alinhados à esquerda. */
 .cardVinculo_detalhes {
   text-align: left;
 }
 
-/* Remove a margem das linhas de informação da clínica. */
 .cardVinculo_detalhes .cardClinica_info {
   margin: 0;
 }
 
-/* Botão redondo de 40px sobreposto no canto superior direito do card. */
-/* Botões nos cantos do card: X vermelho (desvincular) e marca (selecionar) */
 .cardVinculo_botaoDesvincular,
 .cardVinculo_botaoSelecionar {
   position: absolute;
@@ -298,52 +154,42 @@
   background-color: var(--corBranco);
 }
 
-/* Ícone vermelho (desvincular). */
 .cardVinculo_botaoDesvincular {
   color: var(--corAcaoNegativa);
 }
 
-/* Ícone azul (selecionar). */
 .cardVinculo_botaoSelecionar {
   color: var(--corAcaoSecundaria);
 }
 
-/* Fundo claro ao passar o mouse nos dois botões do canto. */
 .cardVinculo_botaoDesvincular:hover,
 .cardVinculo_botaoSelecionar:hover {
   background-color: var(--corFundoClaro);
 }
 
-/* Contorno de foco visível para teclado nos dois botões do canto. */
 .cardVinculo_botaoDesvincular:focus-visible,
 .cardVinculo_botaoSelecionar:focus-visible {
   outline: var(--larguraFoco) solid var(--corFoco);
   outline-offset: 2px;
 }
 
-/* Ícones dos botões do canto em 36px. */
 .cardVinculo_botaoDesvincular .material-symbols-outlined,
 .cardVinculo_botaoSelecionar .material-symbols-outlined {
   font-size: 36px;
 }
 
-/* Cursor de clique no card quando ele é selecionável (modal de vínculo). */
-/* Card selecionável (resultado da busca no modal de vínculo) */
 .cardVinculo--selecionavel {
   cursor: pointer;
 }
 
-/* Contorno de foco no campo de pesquisa quando algo dentro dele recebe foco. */
-/* Foco visível nos campos de busca e no seletor de dias */
 .visaoPerfil .campoPesquisa:focus-within {
   outline: var(--larguraFoco) solid var(--corFoco);
   outline-offset: 2px;
   border-radius: var(--raioTotal);
 }
 
-/* Para quem prefere menos movimento. */
 @media (prefers-reduced-motion: reduce) {
-  /* Desliga a transição das abas e do botão de ação da seção. */
+
   .abasPerfil .nav-link,
   .secaoPerfil_acao {
     transition: none;

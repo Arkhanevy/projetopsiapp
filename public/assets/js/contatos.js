@@ -1,248 +1,18 @@
-/* ============================================================
-   ARQUIVO: contatos.js
-
-   O QUE FAZ
-   Tela de contatos (cliente, clienteSimples, profissional e clínica): lista
-   os contatos de cada papel em seções (profissionais, clientes, clínicas) e,
-   para profissionais e clientes, abre um modal de documentos com as abas
-   Enviados/Recebidos e um formulário de envio de arquivo (com arrastar e
-   soltar).
-
-   OBSERVAÇÕES
-   - Só o contrato listarContatos (acao 'contato') já existe no backend.
-     listarDocumentos, enviarDocumento e baixarDocumento estão com disponivel:
-     false: a lista de documentos mostra só o estado vazio e enviar/baixar
-     mostram um aviso de indisponível.
-   - A requisição de contatos é 'invertida': cada papel chama o controller que
-     devolve a lista de que precisa (cliente -> uri=profissional; profissional
-     -> uri=cliente; clínica -> uri=clinica). O id vem de $_SESSION no
-     servidor.
-   - clienteSimples não vê telefones. A clínica só recebe profissionais (o
-     backend não devolve clientes da clínica) e não tem o botão 'Documento'.
-   - O título do documento é preenchido com o nome do arquivo (sem extensão) e
-     pode ser editado; se o usuário já mudou o título, escolher outro arquivo
-     não o sobrescreve.
-   - Regras de arquivo (tipos e tamanho) ainda não definidas: ficam em data-
-     tiposPermitidos e data-tamanhoMaximoMb; vazios = sem validação no
-     navegador. O servidor deve validar tipo e tamanho.
-   - O download usa um formulário temporário com POST, pois o controller só lê
-     $_POST.
-   - O backend não envia *_user nem *_foto: o nome é exibido no lugar do
-     usuário e fotoValida() hoje não tem efeito.
-   - O comentário original diz 'cliente e profissional', mas a tela também
-     atende clínica e clienteSimples.
-   - Atributos data-* em camelCase são lidos com .attr(); o .data() do jQuery
-     esperaria a forma com hífen. A lógica de sessão e hrefAgendaPorTipo se
-     repete em notificacoes.js e buscaComum.js.
-
-   OBJETOS E FUNÇÕES (na ordem em que aparecem)
-   - IIFE — Função autoexecutável que isola o escopo e recebe jQuery e
-     ElmoUtilitarios.
-     - moduloContatos (objeto) — Módulo da página de contatos e documentos.
-       - moduloContatos.configuracao — Tempo do aviso, seções, papéis,
-         contratos de backend, avisos e listas de documentos.
-         - configuracao.secoes — Seções de contatos (profissionais, clientes,
-           clínicas): prefixo dos campos, tipo, se tem botão Documento e lista
-           do HTML.
-         - configuracao.papeis — Para cada tipo de usuário: controller
-           consultado, mapa das listas, seções exibidas, texto de apoio e se
-           mostra telefone.
-         - configuracao.hrefAgendaPorTipo — Destino do link de agenda por tipo
-           de usuário.
-         - configuracao.contratos — Ações de backend (contatos e documentos) e
-           se já estão disponíveis.
-         - configuracao.avisos — Ícone e classe CSS de cada variação do aviso
-           flutuante (erro, atenção, sucesso).
-         - configuracao.listasDocumentos — Liga cada aba (enviados, recebidos)
-           ao campo da lista no HTML.
-       - moduloContatos.estado — Papel, contato do modal, aba de documentos,
-         controle de requisições, arquivo escolhido e envio em andamento.
-       - moduloContatos.elementos — Cache dos elementos jQuery da página.
-       - moduloContatos.iniciar() — Guarda os elementos e registra os eventos.
-       - moduloContatos.cachearElementos() — Busca no DOM seções, modelos,
-         modal, abas, campos do formulário de envio e aviso.
-       - moduloContatos.registrarEventos() — Liga sessão, 'Tentar novamente',
-         modal e abas de documentos, download e formulário de envio.
-       - moduloContatos.registrarArrastar() — Trata arrastar e soltar de um
-         arquivo na área de upload (um arquivo por vez).
-       - moduloContatos.aoDefinirSessao() — Reage à sessão: deslogado mostra o
-         aviso; logado ajusta a navegação, os textos do papel e carrega os
-         contatos.
-       - moduloContatos.exibirNaoLogado() — Mostra a mensagem 'Entre na sua
-         conta' e esconde 'Tentar novamente'.
-       - moduloContatos.aplicarTextosPapel() — Preenche o texto de apoio com
-         os tipos de contato do papel.
-       - moduloContatos.contratoDisponivel() — Diz se o contrato de backend já
-         está disponível.
-       - moduloContatos.chamarContrato() — Faz o POST do contrato (acao +
-         dados; aceita FormData) ao controller do papel.
-       - moduloContatos.exibirEstadoPagina() — Mostra só o estado informado
-         (carregando, lista, vazio ou erro) e atualiza aria-busy e o aviso.
-       - moduloContatos.carregarContatos() — Busca os contatos no backend
-         descartando respostas antigas.
-       - moduloContatos.normalizarContatos() — Converte dados1/dados2 do
-         servidor em listas por seção (profissionais, clientes, clínicas).
-       - moduloContatos.exibirErroContatos() — Mostra o estado de erro de
-         carregamento.
-       - moduloContatos.renderizarContatos() — Monta as seções do papel,
-         esconde as vazias e anuncia o total de contatos.
-       - moduloContatos.criarItemContato() — Cria o item de um contato (nome,
-         telefone, ícone/foto e botão de documentos).
-       - moduloContatos.fotoValida() — Aceita a foto só se parecer arquivo de
-         imagem; senão devolve undefined.
-       - moduloContatos.aoAbrirModal() — Guarda o contato do botão que abriu o
-         modal e mostra a visão de lista.
-       - moduloContatos.aoFecharModal() — Limpa o estado, o formulário e as
-         listas e volta para a aba Enviados.
-       - moduloContatos.mostrarVisao() — Alterna o modal entre a visão de
-         lista e a de envio.
-       - moduloContatos.$listaDocumentos() — Devolve a lista de documentos da
-         aba.
-       - moduloContatos.$vazioDocumentos() — Devolve o bloco de 'sem
-         documentos' da aba.
-       - moduloContatos.limparListasDocumentos() — Esvazia as listas de
-         documentos e esconde os estados.
-       - moduloContatos.exibirEstadoDocumentos() — Mostra o estado informado
-         (carregando ou erro) ou nenhum.
-       - moduloContatos.carregarDocumentos() — Busca os documentos enviados ou
-         recebidos do contato atual.
-       - moduloContatos.respostaDocumentosAtual() — Confere se a resposta
-         ainda vale (modal aberto, mesmo contato e mesma requisição).
-       - moduloContatos.renderizarDocumentos() — Cria os cards de documento ou
-         mostra o estado vazio.
-       - moduloContatos.baixarDocumento() — Baixa um documento via formulário
-         POST temporário (ou avisa que ainda não está disponível).
-       - moduloContatos.abrirEnvio() — Abre a visão de envio com o formulário
-         limpo.
-       - moduloContatos.voltarParaLista() — Cancela o envio e volta para a
-         lista (bloqueado durante o envio).
-       - moduloContatos.limparFormulario() — Zera o formulário de envio, o
-         arquivo e as mensagens de erro.
-       - moduloContatos.atualizarEstadoArea() — Marca a área de upload como
-         'selecionado' ou 'vazio'.
-       - moduloContatos.selecionarArquivo() — Valida e guarda o arquivo
-         escolhido, mostra nome e tamanho e sugere o título.
-       - moduloContatos.nomeSemExtensao() — Remove a extensão do nome do
-         arquivo.
-       - moduloContatos.validarArquivo() — Confere tipo e tamanho do arquivo
-         pelas regras do HTML; devolve a mensagem de erro ou vazio.
-       - moduloContatos.formatarTamanho() — Formata o tamanho em B, KB ou MB.
-       - moduloContatos.mostrarErroTitulo() — Marca o campo de título como
-         inválido com a mensagem.
-       - moduloContatos.limparErroTitulo() — Remove o erro do campo de título.
-       - moduloContatos.mostrarErroArquivo() — Marca a área de arquivo como
-         inválida com a mensagem.
-       - moduloContatos.limparErroArquivo() — Remove o erro da área de
-         arquivo.
-       - moduloContatos.definirEnviando() — Liga/desliga o estado de envio
-         (indicador, aria-busy e botão).
-       - moduloContatos.enviarDocumento() — Valida arquivo e título e envia o
-         documento (FormData) ao backend.
-       - moduloContatos.aoEnviarComSucesso() — Avisa o sucesso, limpa o
-         formulário e mostra o documento novo na aba Enviados.
-       - moduloContatos.exibirAviso() — Mostra o aviso flutuante (toast) de
-         erro, atenção ou sucesso.
-     - Callback do document ready — Executa moduloContatos.iniciar() quando o
-       DOM estiver pronto.
-   ============================================================ */
-
-/* ============================================================
-   PÁGINA: contatos (cliente e profissional)
-   Depende de: jQuery, Bootstrap 5 (bundle), componentes.js,
-               utilitarios.js (window.ElmoUtilitarios) e
-               sessaoNavegacao.js (evento "sessaoNavegacaoDefinida").
-
-   Fluxo:
-   - sessaoNavegacao.js descobre quem está logado e avisa a página.
-     Cada papel vê um conjunto de seções (config.papeis[...].secoes):
-       cliente e clienteSimples: Profissionais + Clínicas
-       profissional:             Clientes + Clínicas
-       clínica:                  Profissionais + Clientes
-     Profissionais e clientes têm o botão "Documento"; clínicas não.
-     O clienteSimples não vê telefones (nem o dele).
-   - O botão "Documento" de cada contato abre o modalDocumentos, com
-     as abas Enviados/Recebidos (cada uma consulta o seu contrato ao ser
-     aberta) e a visão de envio (título + arquivo).
-   - O título do documento é preenchido sozinho com o nome do arquivo
-     escolhido (sem a extensão) e pode ser editado. Se o usuário já
-     mudou o título, escolher outro arquivo não o sobrescreve.
-
-   Backend NÃO é alterado por este arquivo. A lista de contatos usa a
-   ação "contato", que já existe nos controllers. Os contratos de
-   documentos ainda não existem (disponivel: false): enquanto for assim,
-   a lista de documentos mostra só o estado vazio e as ações de envio e
-   download avisam que ainda não estão disponíveis.
-
-   Contratos (POST em index.php?uri=...; os controllers só leem
-   $_POST["acao"]). Resposta: { sucesso, ... } ou { sucesso: false,
-   mensagem }.
-
-   listarContatos -> acao "contato" (sem dados)
-     A requisição é "invertida": cada papel chama o controller que
-     devolve a lista de que ele precisa (o id vem de $_SESSION no servidor).
-       cliente / clienteSimples -> uri=profissional
-           dados1: profissionais, dados2: clínicas
-       profissional             -> uri=cliente
-           dados1: clientes,      dados2: clínicas
-       clinica                  -> uri=clinica
-           dados1: profissionais  (não há ação para clientes da clínica)
-     Campos do item (o backend não envia *_user nem *_foto):
-       profissional: pro_id, pro_nome, pro_tel
-       cliente:      cli_id, cli_nome, cli_tel
-       clínica:      clin_id, clin_nome, clin_tel
-
-   listarDocumentos  { idContato, tipoContato, tipo }
-     tipoContato: "profissional" | "cliente" | "clinica"
-     tipo: "enviados" | "recebidos"
-     dados: [{ idDocumento, tituloDocumento, remetente, destinatario }]
-
-   enviarDocumento (FormData, multipart)
-     { idContato, tipoContato, tituloDocumento, arquivoDocumento }
-
-   baixarDocumento  { idDocumento }
-     o servidor responde com o arquivo (download)
-
-   Regras de arquivo (tipos permitidos e tamanho máximo) ainda não foram
-   definidas: ficam em data-tiposPermitidos (lista separada por vírgula,
-   ex.: ".pdf,.jpg") e data-tamanhoMaximoMb da área do arquivo. Vazios =
-   sem validação no navegador.
-
-   Obs.: os atributos data-* em camelCase são lidos com .attr(); o .data()
-   do jQuery espera a forma com hífen (data-id-contato).
-   ============================================================ */
-
-/** Função autoexecutável que isola o escopo e recebe jQuery e ElmoUtilitarios. */
 (function ($, Utilitarios) {
   "use strict";
 
-  /** Módulo da página de contatos e documentos. */
   var moduloContatos = {
 
-    /* ---------- Configuração ---------- */
-    /** Tempo do aviso, seções, papéis, contratos de backend, avisos e listas de documentos. */
     configuracao: {
       tempoAvisoMs: 5000,
       textoIndisponivel: "Essa ação ainda não está disponível no servidor.",
 
-      /**
-       * Seções de contatos (profissionais, clientes, clínicas): prefixo dos campos, tipo, se tem
-       * botão Documento e lista do HTML.
-       */
-      // Seções de contatos (ordem da tela). Clínicas não têm o botão "Documento".
       secoes: {
         profissionais: { prefixo: "pro",  tipo: "profissional", comDocumento: true,  campoLista: "listaContatosProfissionais" },
         clientes:      { prefixo: "cli",  tipo: "cliente",      comDocumento: true,  campoLista: "listaContatosClientes" },
         clinicas:      { prefixo: "clin", tipo: "clinica",      comDocumento: false, campoLista: "listaContatosClinicas" }
       },
 
-      /**
-       * Para cada tipo de usuário: controller consultado, mapa das listas, seções exibidas, texto
-       * de apoio e se mostra telefone.
-       */
-      // A ação "contato" é "invertida": o cliente consulta o controller de profissional
-      // (que devolve profissionais e clínicas) e o profissional consulta o de cliente.
-      // "listas" liga cada campo da resposta (dados1, dados2) à seção da tela.
-      // clienteSimples usa o mesmo caminho do cliente (não há outro para ele).
       papeis: {
         cliente: {
           url: "index.php?uri=profissional",
@@ -267,14 +37,13 @@
         },
         clinica: {
           url: "index.php?uri=clinica",
-          listas: { dados1: "profissionais" }, // o backend não devolve clientes da clínica
+          listas: { dados1: "profissionais" },
           secoes: ["profissionais", "clientes"],
           apoio: "profissionais e clientes",
           mostrarTelefone: true
         }
       },
 
-      /** Destino do link de agenda por tipo de usuário. */
       hrefAgendaPorTipo: {
         cliente: "index.php?uri=consultasCli",
         clienteSimples: "index.php?uri=consultasCli",
@@ -282,57 +51,44 @@
         clinica: "index.php?uri=agendaClinica"
       },
 
-      /** Ações de backend (contatos e documentos) e se já estão disponíveis. */
       contratos: {
-        listarContatos:   { acao: "contato",          disponivel: true  }, // resposta: dados1, dados2
-        listarDocumentos: { acao: "listarDocumentos", disponivel: false }, // dados: idContato, tipoContato, tipo
-        enviarDocumento:  { acao: "enviarDocumento",  disponivel: false }, // FormData
-        baixarDocumento:  { acao: "baixarDocumento",  disponivel: false }  // dados: idDocumento
+        listarContatos:   { acao: "contato",          disponivel: true  },
+        listarDocumentos: { acao: "listarDocumentos", disponivel: false },
+        enviarDocumento:  { acao: "enviarDocumento",  disponivel: false },
+        baixarDocumento:  { acao: "baixarDocumento",  disponivel: false }
       },
 
-      /** Ícone e classe CSS de cada variação do aviso flutuante (erro, atenção, sucesso). */
-      // Aviso flutuante: ícone de cada variação (a classe avisoFlutuante--<variação> vem do CSS)
       avisos: {
         erro:    { icone: "error",        classe: "" },
         atencao: { icone: "warning",      classe: "avisoFlutuante--atencao" },
         sucesso: { icone: "check_circle", classe: "avisoFlutuante--sucesso" }
       },
 
-      /** Liga cada aba (enviados, recebidos) ao campo da lista no HTML. */
-      // Texto do campo "tipo" das listas de documentos
       listasDocumentos: {
         enviados:  "listaDocumentosEnviados",
         recebidos: "listaDocumentosRecebidos"
       }
     },
 
-    /* ---------- Estado interno ---------- */
-    /**
-     * Papel, contato do modal, aba de documentos, controle de requisições, arquivo escolhido e
-     * envio em andamento.
-     */
     estado: {
-      papel: null,                // "cliente" | "clienteSimples" | "profissional" | "clinica" | null
-      requisicaoContatos: 0,      // descarta respostas antigas
-      contatoAtual: null,         // { id, tipo, usuario } do contato do modal aberto
+      papel: null,
+      requisicaoContatos: 0,
+      contatoAtual: null,
       modalAberto: false,
       abaDocumentos: "enviados",
-      requisicoesDocumentos: {},  // tipo -> número da última requisição
-      arquivo: null,              // File escolhido ou solto
-      tituloAutomatico: "",       // último título gerado a partir do nome do arquivo
+      requisicoesDocumentos: {},
+      arquivo: null,
+      tituloAutomatico: "",
       enviando: false
     },
 
-    /** Cache dos elementos jQuery da página. */
     elementos: {},
 
-    /** Guarda os elementos e registra os eventos. */
     iniciar: function () {
       this.cachearElementos();
       this.registrarEventos();
     },
 
-    /** Busca no DOM seções, modelos, modal, abas, campos do formulário de envio e aviso. */
     cachearElementos: function () {
       var e = this.elementos;
       e.$principal = $("#conteudoContatos");
@@ -364,14 +120,10 @@
       e.$aviso = $("#avisoContatosFlutuante");
     },
 
-    /**
-     * Liga sessão, 'Tentar novamente', modal e abas de documentos, download e formulário de envio.
-     */
     registrarEventos: function () {
       var self = this;
       var e = this.elementos;
 
-      // Sessão resolvida por sessaoNavegacao.js
       $(document).on("sessaoNavegacaoDefinida", function (evento, sessao) {
         self.aoDefinirSessao(sessao);
       });
@@ -380,7 +132,6 @@
         self.carregarContatos();
       });
 
-      // Modal
       e.$modal.on("show.bs.modal", function (evento) {
         self.aoAbrirModal(evento);
       });
@@ -406,7 +157,6 @@
         self.baixarDocumento($(this).closest("[data-idDocumento]").attr("data-idDocumento"));
       });
 
-      // Envio
       e.$botaoAbrirEnvio.on("click", function () {
         self.abrirEnvio();
       });
@@ -421,7 +171,7 @@
         if (arquivos && arquivos.length) {
           self.selecionarArquivo(arquivos[0]);
         }
-        this.value = ""; // permite escolher o mesmo arquivo de novo
+        this.value = "";
       });
       e.$campoTitulo.on("input", function () {
         self.limparErroTitulo();
@@ -434,7 +184,6 @@
       this.registrarArrastar();
     },
 
-    /** Trata arrastar e soltar de um arquivo na área de upload (um arquivo por vez). */
     registrarArrastar: function () {
       var self = this;
       var $area = this.elementos.$areaArquivo;
@@ -447,7 +196,7 @@
       });
 
       $area.on("dragleave", function (evento) {
-        // Ignora o dragleave ao passar sobre os filhos da própria área
+
         var destino = evento.originalEvent && evento.originalEvent.relatedTarget;
         if (destino && $area.get(0).contains(destino)) {
           return;
@@ -475,11 +224,6 @@
       });
     },
 
-    /* ---------- Sessão e navegação ---------- */
-    /**
-     * Reage à sessão: deslogado mostra o aviso; logado ajusta a navegação, os textos do papel e
-     * carrega os contatos.
-     */
     aoDefinirSessao: function (sessao) {
       var configuracao = this.configuracao;
 
@@ -488,14 +232,13 @@
         return;
       }
 
-      // Barra superior do logado e link da agenda conforme o tipo de usuário
       $(".navTopoLogado").removeAttr("hidden");
       if (configuracao.hrefAgendaPorTipo[sessao.tipoUsuario]) {
         $("[data-itemAgenda]").attr("href", configuracao.hrefAgendaPorTipo[sessao.tipoUsuario]);
       }
 
       if (!configuracao.papeis[sessao.tipoUsuario]) {
-        // Tipo de usuário sem esta tela: não há o que listar
+
         this.exibirEstadoPagina("vazio");
         return;
       }
@@ -505,7 +248,6 @@
       this.carregarContatos();
     },
 
-    /** Mostra a mensagem 'Entre na sua conta' e esconde 'Tentar novamente'. */
     exibirNaoLogado: function () {
       this.exibirEstadoPagina("erro");
       this.elementos.$estadosPagina.filter("[data-estadoContatos='erro']")
@@ -513,14 +255,11 @@
       this.elementos.$botaoTentarContatos.attr("hidden", "hidden");
     },
 
-    /** Preenche o texto de apoio com os tipos de contato do papel. */
     aplicarTextosPapel: function (papel) {
       var config = this.configuracao.papeis[papel];
       $("[data-campo='tiposContatoApoio']").text(config.apoio);
     },
 
-    /* ---------- Contratos ---------- */
-    /** Diz se o contrato de backend já está disponível. */
     contratoDisponivel: function (nome) {
       if (this.configuracao.contratos[nome].disponivel) {
         return true;
@@ -529,7 +268,6 @@
       }
     },
 
-    /** Faz o POST do contrato (acao + dados; aceita FormData) ao controller do papel. */
     chamarContrato: function (nome, dados) {
       var contrato = this.configuracao.contratos[nome];
       var papel = this.configuracao.papeis[this.estado.papel];
@@ -551,11 +289,6 @@
       return $.ajax(pedido);
     },
 
-    /* ---------- Contatos ---------- */
-    /**
-     * Mostra só o estado informado (carregando, lista, vazio ou erro) e atualiza aria-busy e o
-     * aviso.
-     */
     exibirEstadoPagina: function (nome) {
       var e = this.elementos;
       e.$estadosPagina.attr("hidden", "hidden");
@@ -575,7 +308,6 @@
       }
     },
 
-    /** Busca os contatos no backend descartando respostas antigas. */
     carregarContatos: function () {
       var self = this;
       var numero = ++this.estado.requisicaoContatos;
@@ -583,7 +315,7 @@
       this.elementos.$botaoTentarContatos.removeAttr("hidden");
 
       if (!this.contratoDisponivel("listarContatos")) {
-        // Sem backend: só o estado vazio (sem dados de exemplo)
+
         this.renderizarContatos({});
         return;
       }
@@ -608,10 +340,6 @@
         });
     },
 
-    /**
-     * Converte dados1/dados2 do servidor em listas por seção (profissionais, clientes, clínicas).
-     */
-    // Converte { dados1, dados2 } do servidor em { profissionais, clientes, clinicas }
     normalizarContatos: function (resposta) {
       var mapa = this.configuracao.papeis[this.estado.papel].listas;
       var dados = {};
@@ -627,14 +355,12 @@
       return dados;
     },
 
-    /** Mostra o estado de erro de carregamento. */
     exibirErroContatos: function () {
       this.elementos.$estadosPagina.filter("[data-estadoContatos='erro']")
         .find(".estadoVazio_texto").text("Não foi possível carregar os contatos.");
       this.exibirEstadoPagina("erro");
     },
 
-    /** Monta as seções do papel, esconde as vazias e anuncia o total de contatos. */
     renderizarContatos: function (dados) {
       var e = this.elementos;
       var configuracao = this.configuracao;
@@ -644,7 +370,6 @@
 
       e.$secoes.attr("hidden", "hidden");
 
-      // Só as seções do papel; as demais listas que o servidor mandar são ignoradas
       $.each(papel.secoes, function (indice, nomeSecao) {
         var secao = configuracao.secoes[nomeSecao];
         var itens;
@@ -680,7 +405,6 @@
       e.$avisoPagina.text(total + sufixoTotal);
     },
 
-    /** Cria o item de um contato (nome, telefone, ícone/foto e botão de documentos). */
     criarItemContato: function (item, secao, papel) {
       var modelo = this.elementos.$modeloContato.get(0);
       var $item = $(modelo.content.firstElementChild.cloneNode(true));
@@ -693,7 +417,6 @@
         .attr("data-tipoContato", secao.tipo);
       $item.find("[data-campo='usuarioContato']").text(usuario);
 
-      // clienteSimples não vê telefones
       var $telefone = $item.find("[data-campo='telefoneContato']");
       if (papel.mostrarTelefone) {
         $telefone.text(Utilitarios.formatarMascara("telefone", item[prefixo + "_tel"]));
@@ -723,7 +446,6 @@
       return $item;
     },
 
-    /** Aceita a foto só se parecer arquivo de imagem; senão devolve undefined. */
     fotoValida: function (foto) {
       if (/\.(jpe?g|png|gif|webp)$/i.test(String(foto || ""))) {
         return foto;
@@ -732,8 +454,6 @@
       }
     },
 
-    /* ---------- Modal: abrir e fechar ---------- */
-    /** Guarda o contato do botão que abriu o modal e mostra a visão de lista. */
     aoAbrirModal: function (evento) {
       var $botao = $(evento.relatedTarget);
       var $contato = $botao.closest("[data-idContato]");
@@ -749,7 +469,6 @@
       this.mostrarVisao("lista");
     },
 
-    /** Limpa o estado, o formulário e as listas e volta para a aba Enviados. */
     aoFecharModal: function () {
       this.estado.modalAberto = false;
       this.estado.contatoAtual = null;
@@ -757,30 +476,24 @@
       this.limparFormulario();
       this.limparListasDocumentos();
 
-      // A próxima abertura sempre começa na aba Enviados
       this.estado.abaDocumentos = "enviados";
       bootstrap.Tab.getOrCreateInstance($("#abaDocumentosEnviados").get(0)).show();
     },
 
-    /** Alterna o modal entre a visão de lista e a de envio. */
     mostrarVisao: function (visao) {
       var e = this.elementos;
       e.$visaoLista.prop("hidden", visao !== "lista");
       e.$visaoEnvio.prop("hidden", visao !== "envio");
     },
 
-    /* ---------- Documentos (listas) ---------- */
-    /** Devolve a lista de documentos da aba. */
     $listaDocumentos: function (tipo) {
       return $("[data-campo='" + this.configuracao.listasDocumentos[tipo] + "']");
     },
 
-    /** Devolve o bloco de 'sem documentos' da aba. */
     $vazioDocumentos: function (tipo) {
       return $("[data-estadoVazioDocumentos='" + tipo + "']");
     },
 
-    /** Esvazia as listas de documentos e esconde os estados. */
     limparListasDocumentos: function () {
       var self = this;
       $.each(this.configuracao.listasDocumentos, function (tipo) {
@@ -790,7 +503,6 @@
       this.exibirEstadoDocumentos(null);
     },
 
-    /** Mostra o estado informado (carregando ou erro) ou nenhum. */
     exibirEstadoDocumentos: function (nome) {
       this.elementos.$estadosDocumentos.attr("hidden", "hidden");
       if (nome) {
@@ -798,7 +510,6 @@
       }
     },
 
-    /** Busca os documentos enviados ou recebidos do contato atual. */
     carregarDocumentos: function (tipo) {
       var self = this;
       var contato = this.estado.contatoAtual;
@@ -813,7 +524,7 @@
       this.$vazioDocumentos(tipo).attr("hidden", "hidden");
 
       if (!this.contratoDisponivel("listarDocumentos")) {
-        // Sem backend: só o estado vazio da aba
+
         this.exibirEstadoDocumentos(null);
         this.renderizarDocumentos(tipo, []);
         return;
@@ -844,8 +555,6 @@
         });
     },
 
-    /** Confere se a resposta ainda vale (modal aberto, mesmo contato e mesma requisição). */
-    // Descarta respostas de uma aba/contato que já não está em uso
     respostaDocumentosAtual: function (tipo, numero, contato) {
       return this.estado.modalAberto
         && this.estado.contatoAtual
@@ -853,7 +562,6 @@
         && this.estado.requisicoesDocumentos[tipo] === numero;
     },
 
-    /** Cria os cards de documento ou mostra o estado vazio. */
     renderizarDocumentos: function (tipo, itens) {
       var $lista = this.$listaDocumentos(tipo);
       var modelo = this.elementos.$modeloDocumento.get(0);
@@ -877,9 +585,6 @@
       });
     },
 
-    /**
-     * Baixa um documento via formulário POST temporário (ou avisa que ainda não está disponível).
-     */
     baixarDocumento: function (idDocumento) {
       if (!idDocumento) {
         return;
@@ -889,7 +594,6 @@
         return;
       }
 
-      // O controller só lê $_POST: um formulário temporário faz o navegador baixar o arquivo
       var contrato = this.configuracao.contratos.baixarDocumento;
       var papel = this.configuracao.papeis[this.estado.papel];
       var $formulario = $("<form>", {
@@ -903,15 +607,12 @@
       $formulario.remove();
     },
 
-    /* ---------- Envio de documento ---------- */
-    /** Abre a visão de envio com o formulário limpo. */
     abrirEnvio: function () {
       this.limparFormulario();
       this.mostrarVisao("envio");
       this.elementos.$campoTitulo.trigger("focus");
     },
 
-    /** Cancela o envio e volta para a lista (bloqueado durante o envio). */
     voltarParaLista: function () {
       if (this.estado.enviando) {
         return;
@@ -921,7 +622,6 @@
       this.elementos.$botaoAbrirEnvio.trigger("focus");
     },
 
-    /** Zera o formulário de envio, o arquivo e as mensagens de erro. */
     limparFormulario: function () {
       var e = this.elementos;
 
@@ -941,7 +641,6 @@
       this.atualizarEstadoArea();
     },
 
-    /** Marca a área de upload como 'selecionado' ou 'vazio'. */
     atualizarEstadoArea: function () {
       var estadoArea;
       if (this.estado.arquivo) {
@@ -952,7 +651,6 @@
       this.elementos.$areaArquivo.attr("data-estadoArea", estadoArea);
     },
 
-    /** Valida e guarda o arquivo escolhido, mostra nome e tamanho e sugere o título. */
     selecionarArquivo: function (arquivo) {
       var e = this.elementos;
       var erro = this.validarArquivo(arquivo);
@@ -972,7 +670,6 @@
       e.$botaoEnviar.prop("disabled", false);
       this.atualizarEstadoArea();
 
-      // O título acompanha o nome do arquivo, a não ser que o usuário já o tenha editado
       var tituloAtual = $.trim(e.$campoTitulo.val());
       if (tituloAtual === "" || tituloAtual === this.estado.tituloAutomatico) {
         var novoTitulo = this.nomeSemExtensao(arquivo.name);
@@ -982,7 +679,6 @@
       }
     },
 
-    /** Remove a extensão do nome do arquivo. */
     nomeSemExtensao: function (nome) {
       var semExtensao = nome.replace(/\.[^.]+$/, "");
       if ($.trim(semExtensao) !== "") {
@@ -992,10 +688,6 @@
       }
     },
 
-    /**
-     * Confere tipo e tamanho do arquivo pelas regras do HTML; devolve a mensagem de erro ou vazio.
-     */
-    // Regras ainda não definidas: sem data-tiposPermitidos/data-tamanhoMaximoMb não valida nada
     validarArquivo: function (arquivo) {
       var $area = this.elementos.$areaArquivo;
       var tipos = $.trim($area.attr("data-tiposPermitidos") || "");
@@ -1022,7 +714,6 @@
       return "";
     },
 
-    /** Formata o tamanho em B, KB ou MB. */
     formatarTamanho: function (bytes) {
       var formato = { maximumFractionDigits: 1 };
       if (bytes < 1024) {
@@ -1034,34 +725,28 @@
       return (bytes / (1024 * 1024)).toLocaleString("pt-BR", formato) + " MB";
     },
 
-    /* ---------- Validação e erros do formulário ---------- */
-    /** Marca o campo de título como inválido com a mensagem. */
     mostrarErroTitulo: function (mensagem) {
       this.elementos.$campoTitulo.addClass("is-invalid").attr("aria-invalid", "true");
       $("[data-mensagemCampo='tituloDocumento']").text(mensagem);
     },
 
-    /** Remove o erro do campo de título. */
     limparErroTitulo: function () {
       this.elementos.$campoTitulo.removeClass("is-invalid").removeAttr("aria-invalid");
       $("[data-mensagemCampo='tituloDocumento']").text("");
     },
 
-    /** Marca a área de arquivo como inválida com a mensagem. */
     mostrarErroArquivo: function (mensagem) {
       this.elementos.$areaArquivo.addClass("areaArquivo--invalido");
       this.elementos.$campoArquivo.attr("aria-invalid", "true");
       $("[data-mensagemCampo='arquivoDocumento']").text(mensagem);
     },
 
-    /** Remove o erro da área de arquivo. */
     limparErroArquivo: function () {
       this.elementos.$areaArquivo.removeClass("areaArquivo--invalido");
       this.elementos.$campoArquivo.removeAttr("aria-invalid");
       $("[data-mensagemCampo='arquivoDocumento']").text("");
     },
 
-    /** Liga/desliga o estado de envio (indicador, aria-busy e botão). */
     definirEnviando: function (enviando) {
       var e = this.elementos;
       this.estado.enviando = enviando;
@@ -1077,7 +762,6 @@
       e.$botaoEnviar.prop("disabled", enviando || !this.estado.arquivo);
     },
 
-    /** Valida arquivo e título e envia o documento (FormData) ao backend. */
     enviarDocumento: function () {
       var self = this;
       var e = this.elementos;
@@ -1130,23 +814,19 @@
         });
     },
 
-    /** Avisa o sucesso, limpa o formulário e mostra o documento novo na aba Enviados. */
     aoEnviarComSucesso: function () {
       this.exibirAviso("Documento enviado.", "sucesso");
       this.limparFormulario();
       this.mostrarVisao("lista");
 
-      // Mostra o documento novo na aba Enviados
       if (this.estado.abaDocumentos !== "enviados") {
-        bootstrap.Tab.getOrCreateInstance($("#abaDocumentosEnviados").get(0)).show(); // recarrega pelo evento da aba
+        bootstrap.Tab.getOrCreateInstance($("#abaDocumentosEnviados").get(0)).show();
       } else {
         this.carregarDocumentos("enviados");
       }
       this.elementos.$botaoAbrirEnvio.trigger("focus");
     },
 
-    /* ---------- Aviso flutuante (toast) ---------- */
-    /** Mostra o aviso flutuante (toast) de erro, atenção ou sucesso. */
     exibirAviso: function (mensagem, variacao) {
       var $aviso = this.elementos.$aviso;
       var avisos = this.configuracao.avisos;
@@ -1168,7 +848,6 @@
     }
   };
 
-  /** Executa moduloContatos.iniciar() quando o DOM estiver pronto. */
   $(function () {
     moduloContatos.iniciar();
   });

@@ -1,37 +1,7 @@
-/* ============================================================
-   ARQUIVO: cadastroClinica.css
-
-   O QUE FAZ
-   Estilos específicos do cadastro da clínica: esconde as etapas até o JS
-   mostrá-las, esconde o input de foto e limita a largura do formulário em
-   tablet+.
-
-   OBSERVAÇÕES
-   - Depende de variaveis.css, componentes.css e autenticacaoBase.css.
-   - O cadClinica.js alterna entre as etapas (cadastro e ativação).
-   - Quase idêntico a cadastroProfissional.css; mudam só os ids.
-
-   REGRAS (na ordem em que aparecem)
-   - #cadastroClinica, #ativacao, .cadastro — As etapas começam escondidas; o
-     JS alterna entre elas.
-   - #img_perfil_Clinica — Input de foto invisível (o clique é feito pelo
-     avatar).
-   - @media (min-width: 768px) — A partir de tablet, limita a largura do
-     formulário.
-     - #cadastroClinica — Formulário ocupa a largura disponível até 420px.
-   ============================================================ */
-
-/* cadastroClinica.css — estilos específicos do cadastro de clínica.
-   Depende de: variaveis.css, componentes.css e autenticacaoBase.css. */
-
-/* As etapas começam escondidas; o JS alterna entre elas. */
-/* As etapas começam escondidas; cadClinica.js alterna entre elas. */
 #cadastroClinica, #ativacao, .cadastro {
   display: none;
 }
 
-/* Input de foto invisível (o clique é feito pelo avatar). */
-/* Input de foto fica invisível: o clique é feito pelo avatar. */
 #img_perfil_Clinica {
   position: absolute;
   opacity: 0;
@@ -39,10 +9,8 @@
   height: 0;
 }
 
-/* A partir de tablet, limita a largura do formulário. */
-/* TABLET+ (≥ 768px) */
 @media (min-width: 768px) {
-  /* Formulário ocupa a largura disponível até 420px. */
+
   #cadastroClinica {
     width: 100%;
     max-width: 420px;
