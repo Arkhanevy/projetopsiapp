@@ -1,27 +1,19 @@
-/* ==================================================================
-   Arquivo original: fundacao/variaveis.css
-   ================================================================== */
-
-
 :root {
-  /* Paleta principal */
+
   --corLetras: #07120A;
   --corBordas: #0D2B17;
   --corDestaque: #04724D;
   --corBotoes: #39B675;
   --corFundo: #CFE9E7;
 
-  /* Paleta secundária (ações semânticas) */
-  --corAcaoExtra: #8B64CB;      /* roxo   → ações complementares/excepcionais */
-  --corAcaoSecundaria: #2418CD; /* azul   → consulta, navegação, ações secundárias */
-  --corAcaoAtencao: #E0A800;    /* amarelo → atenção / pendente */
-  --corAcaoNegativa: #CC1818;   /* vermelho → ações negativas */
+  --corAcaoExtra: #8B64CB;
+  --corAcaoSecundaria: #2418CD;
+  --corAcaoAtencao: #E0A800;
+  --corAcaoNegativa: #CC1818;
 
-  /* Superfícies auxiliares derivadas do fundo principal */
   --corFundoClaro: #E8F3F2;
   --corBranco: #FFFFFF;
 
-  /* Tipografia — mobile (padrão / mobile-first) */
   --tamanhoH1: 32px;
   --tamanhoH2: 24px;
   --tamanhoH3: 20px;
@@ -33,7 +25,6 @@
   --pesoRegular: 400;
   --pesoNegrito: 700;
 
-  /* Espaçamentos (escala baseada em 4px) */
   --espaco1: 4px;
   --espaco2: 8px;
   --espaco3: 12px;
@@ -42,19 +33,17 @@
   --espaco6: 32px;
   --espaco7: 48px;
 
-  /* Raios e bordas */
   --raioPequeno: 8px;
   --raioMedio: 16px;
   --raioTotal: 999px;
   --larguraBorda: 2px;
 
-  /* Foco (acessibilidade) */
   --corFoco: #2418CD;
   --larguraFoco: 3px;
 }
 
-/* Tipografia — desktop (>= 992px, breakpoint 'lg' do Bootstrap) */
 @media (min-width: 992px) {
+
   :root {
     --tamanhoH1: 48px;
     --tamanhoH2: 36px;
@@ -64,4 +53,3 @@
     --tamanhoCaption: 14px;
   }
 }
-

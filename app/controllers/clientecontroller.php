@@ -43,7 +43,7 @@ switch ($acao){
         
     case "login":
         $campos = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[11]];
-        $cliente = new cliente('cliente', $campos, $camposcli[2]);
+        $cliente = new cliente('cliente', $campos, $campos[2]);
         $resultado = $cliente->Login($_POST['email'],$_POST['senha']);
         echo json_encode($resultado);
         exit;
@@ -77,6 +77,16 @@ switch ($acao){
             "dados1" => $contCli['dados'],
             "dados2" => $contCLin['dados']
         ]);
+        exit;
+    
+    // TESTE - MARIA
+    case "verificarLogin":
+        // Usado por perfil.js e sessaoNavegacao.js: informa se a sessão atual é de um cliente.
+        // Lê a mesma estrutura que usuario::Login grava em $_SESSION['usuario'].
+        header('Content-Type: application/json; charset=utf-8');
+        $logado = isset($_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario'])
+            && $_SESSION['usuario']['tipoUsuario'] === 'cliente';
+        echo json_encode(['logado' => $logado]);
         exit;
     case 'atualizar':
         $diccli = [

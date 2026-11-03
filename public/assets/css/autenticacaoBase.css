@@ -1,20 +1,9 @@
-/* ============================================================
-   autenticacaoBase.css — layout compartilhado das telas de cadastro
-   e login de profissional e clínica (banner à esquerda + formulário).
-   Regras específicas de cada tela ficam em cadastroProfissional.css,
-   cadastroClinica.css, loginProfissional.css e loginClinica.css.
-   Depende de: variaveis.css e componentes.css.
-   ============================================================ */
-
-/* BASE */
 html,
 body {
     margin: 0;
     padding: 0;
 }
 
-/* overflow-x só no html: no body ele viraria um contêiner de rolagem
-   e o menu "sticky" deixaria de acompanhar a tela. */
 html {
   overflow-x: hidden;
 }
@@ -93,8 +82,8 @@ textarea {
   margin-left: 0 !important;
 }
 
-/* TABLET+ (≥ 768px) */
 @media (min-width: 768px) {
+
   #imgBox {
     display: block;
     height: 100vh;

@@ -1,34 +1,17 @@
 console.log("JS loginProfissional carregado");
-/* ============================================================
-   PÁGINA: loginProfissional (Login do Profissional)
-   Depende de: jQuery, Bootstrap 5 (bundle JS), ElmoUtilitarios
-   (ver /assets/js/utilitarios.js — deve ser carregado antes deste arquivo)
-
-   Responsabilidades deste arquivo:
-   - Validar e enviar o formulário de login via AJAX.
-   - Redirecionar para a página de serviços após o login.
-
-   O cadastro e a ativação de conta ficam em cadProfissional.js.
-   ============================================================ */
 
 (function ($, Utilitarios) {
   "use strict";
 
   var moduloLoginProfissional = {
 
-    /* ---------- Configuração ---------- */
     configuracao: {
       urlProfissional: "/projetopsi/index.php?uri=profissional",
       urlPerfil: "index.php?uri=perfil"
     },
 
-    /* ---------- Referências de elementos (cacheadas) ---------- */
     elementos: {},
 
-    /**
-     * Ponto de entrada. Deve ser chamado uma vez, quando o
-     * documento estiver pronto.
-     */
     iniciar: function () {
       this.urlElementos();
       this.registrarEventos();
@@ -42,8 +25,6 @@ console.log("JS loginProfissional carregado");
       this.elementos.$botaoLogar = $("#btnLogar");
     },
 
-    /* VALIDAÇÃO AO SAIR DO CAMPO */
-
     validarCamposAoSair: function () {
       Utilitarios.validarAoSair(this.elementos.$alertContainer, [
         { $campo: this.elementos.$loginEmail, valido: function (valor) { return Utilitarios.emailValido(valor); }, mensagem: "E-mail inválido!" }
@@ -53,14 +34,11 @@ console.log("JS loginProfissional carregado");
     registrarEventos: function () {
       this.validarCamposAoSair();
 
-      // Nenhum formulário desta página é enviado de forma nativa: o envio
-      // é sempre feito por AJAX (evita recarregar a tela e perder a requisição).
       $(document).on("submit", "form", function (evento) {
         evento.preventDefault();
       });
       var self = this;
 
-      // Remove o estado de erro assim que o usuário volta a interagir com o campo.
       $(document).on("input change", ".form-control", function () {
         $(this).removeClass("is-invalid");
       });
@@ -71,13 +49,9 @@ console.log("JS loginProfissional carregado");
       });
     },
 
-    /* ALERTAS */
-
     mostrarAlert: function (mensagem, tipo) {
       Utilitarios.mostrarAlerta(this.elementos.$alertContainer, mensagem, tipo);
     },
-
-    /* LOGIN */
 
     enviarLogin: function ($botao) {
       var self = this;

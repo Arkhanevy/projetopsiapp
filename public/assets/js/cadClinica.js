@@ -1,44 +1,24 @@
 console.log("JS cadClinica carregado");
-/*aaaaaa ============================================================
-   PÁGINA: cadClinica (Cadastro / Ativação da Clínica)
-   Depende de: jQuery, Bootstrap 5 (bundle JS), ElmoUtilitarios
-   (ver /assets/js/utilitarios.js — deve ser carregado antes deste arquivo)
-
-   Responsabilidades deste arquivo:
-   - Alternar entre as telas de cadastro e ativação
-     da clínica.
-   - Preencher automaticamente o endereço a partir do CEP (ViaCEP).
-   - Validar e enviar o formulário de cadastro via AJAX (com upload
-     da imagem de perfil).
-   - Gerar/reenviar o código de ativação por e-mail.
-   - Validar o código informado e ativar a conta.
-   ============================================================ */
 
 (function ($, Utilitarios) {
   "use strict";
 
   var moduloCadClinica = {
 
-    /* ---------- Configuração ---------- */
     configuracao: {
-      urlClinica: "/projetopsi/index.php?uri=clinica", //Axolote
+      urlClinica: "/projetopsi/index.php?uri=clinica",
       urlLogin: "index.php?uri=loginClinica"
     },
 
-    /* ---------- Estado interno ---------- */
     estado: {
       telaInicial: "cadastroClinica",
       codigoGerado: false
     },
 
-    /* ---------- Referências de elementos (cacheadas) ---------- */
     telas: {},
+
     elementos: {},
 
-    /**
-     * Ponto de entrada. Deve ser chamado uma vez, quando o
-     * documento estiver pronto.
-     */
     iniciar: function () {
       this.urlElementos();
 
@@ -82,7 +62,6 @@ console.log("JS cadClinica carregado");
       this.elementos.$cidade = $("#cidadeClinica");
       this.elementos.$form = $("#cadastroClinica");
 
-
       this.elementos.$emailAtivacao = $("#emailAtivar");
       this.elementos.$codigo = $("#codigoCliente");
 
@@ -90,8 +69,6 @@ console.log("JS cadClinica carregado");
       this.elementos.$botaoCodigo = $("#btnCodigo");
       this.elementos.$botaoAtivar = $("#btnAtivar");
     },
-
-    /* VALIDAÇÃO AO SAIR DO CAMPO */
 
     validarCamposAoSair: function () {
       Utilitarios.validarAoSair(this.elementos.$alertContainer, [
@@ -104,14 +81,11 @@ console.log("JS cadClinica carregado");
     registrarEventos: function () {
       this.validarCamposAoSair();
 
-      // Nenhum formulário desta página é enviado de forma nativa: o envio
-      // é sempre feito por AJAX (evita recarregar a tela e perder a requisição).
       $(document).on("submit", "form", function (evento) {
         evento.preventDefault();
       });
       var self = this;
 
-      // Remove o estado de erro assim que o usuário volta a interagir com o campo.
       $(document).on("input change", ".form-control, .form-select, textarea", function () {
         $(this).removeClass("is-invalid");
       });
@@ -132,8 +106,6 @@ console.log("JS cadClinica carregado");
       });
     },
 
-    /* TELAS */
-
     mostrarTela: function (nomeTela) {
       var self = this;
       Object.keys(this.telas).forEach(function (chave) {
@@ -147,13 +119,9 @@ console.log("JS cadClinica carregado");
       }
     },
 
-    /* ALERTAS */
-
     mostrarAlert: function (mensagem, tipo) {
       Utilitarios.mostrarAlerta(this.elementos.$alertContainer, mensagem, tipo);
     },
-
-    /* CADASTRO */
 
     enviarCadastro: function ($botao) {
       var self = this;
@@ -262,8 +230,6 @@ console.log("JS cadClinica carregado");
           self.mostrarAlert("Erro na requisição!", "danger");
       });
     },
-
-    /* CÓDIGO DE ATIVAÇÃO */
 
     gerarCodigo: function ($botao) {
       var self = this;

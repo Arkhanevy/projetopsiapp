@@ -1,44 +1,24 @@
 console.log("JS cadProfissional carregado");
-/* a============================================================
-   PÁGINA: cadProfissional (Cadastro / Ativação do Profissional)
-   Depende de: jQuery, Bootstrap 5 (bundle JS), ElmoUtilitarios
-   (ver /assets/js/utilitarios.js — deve ser carregado antes deste arquivo)
-
-   Responsabilidades deste arquivo:
-   - Alternar entre as telas de cadastro e ativação
-     do profissional.
-   - Preencher automaticamente o endereço a partir do CEP (ViaCEP).
-   - Validar e enviar o formulário de cadastro via AJAX (com upload
-     da imagem de perfil).
-   - Gerar/reenviar o código de ativação por e-mail.
-   - Validar o código informado e ativar a conta.
-   ============================================================ */
 
 (function ($, Utilitarios) {
   "use strict";
 
   var moduloCadProfissional = {
 
-    /* ---------- Configuração ---------- */
     configuracao: {
-      urlProfissional: "/projetopsi/index.php?uri=profissional", //Axolote
+      urlProfissional: "/projetopsi/index.php?uri=profissional",
       urlLogin: "index.php?uri=loginProfissional"
     },
 
-    /* ---------- Estado interno ---------- */
     estado: {
       telaInicial: "cadastroProfissional",
       codigoGerado: false
     },
 
-    /* ---------- Referências de elementos (cacheadas) ---------- */
     telas: {},
+
     elementos: {},
 
-    /**
-     * Ponto de entrada. Deve ser chamado uma vez, quando o
-     * documento estiver pronto.
-     */
     iniciar: function () {
       this.urlElementos();
 
@@ -86,7 +66,6 @@ console.log("JS cadProfissional carregado");
       this.elementos.$locais = $("input[name='cxproLocalAtendimento']");
       this.elementos.$form = $("#cadastroProfissional");
 
-
       this.elementos.$emailAtivacao = $("#emailAtivar");
       this.elementos.$codigo = $("#codigoCliente");
 
@@ -94,8 +73,6 @@ console.log("JS cadProfissional carregado");
       this.elementos.$botaoCodigo = $("#btnCodigo");
       this.elementos.$botaoAtivar = $("#btnAtivar");
     },
-
-    /* VALIDAÇÃO AO SAIR DO CAMPO */
 
     validarCamposAoSair: function () {
       Utilitarios.validarAoSair(this.elementos.$alertContainer, [
@@ -109,14 +86,11 @@ console.log("JS cadProfissional carregado");
     registrarEventos: function () {
       this.validarCamposAoSair();
 
-      // Nenhum formulário desta página é enviado de forma nativa: o envio
-      // é sempre feito por AJAX (evita recarregar a tela e perder a requisição).
       $(document).on("submit", "form", function (evento) {
         evento.preventDefault();
       });
       var self = this;
 
-      // Remove o estado de erro assim que o usuário volta a interagir com o campo.
       $(document).on("input change", ".form-control, .form-select, textarea", function () {
         $(this).removeClass("is-invalid");
       });
@@ -126,8 +100,7 @@ console.log("JS cadProfissional carregado");
       });
 
       this.elementos.$botaoCadastrar.on("click", function (evento) {
-        // Impede o envio nativo do formulário (que recarregaria a página
-        // e cancelaria a requisição); o envio é feito por AJAX.
+
         evento.preventDefault();
         self.enviarCadastro($(this));
       });
@@ -143,8 +116,6 @@ console.log("JS cadProfissional carregado");
       });
     },
 
-    /* TELAS */
-
     mostrarTela: function (nomeTela) {
       var self = this;
       Object.keys(this.telas).forEach(function (chave) {
@@ -158,13 +129,9 @@ console.log("JS cadProfissional carregado");
       }
     },
 
-    /* ALERTAS */
-
     mostrarAlert: function (mensagem, tipo) {
       Utilitarios.mostrarAlerta(this.elementos.$alertContainer, mensagem, tipo);
     },
-
-    /* CADASTRO */
 
     enviarCadastro: function ($botao) {
       var self = this;
@@ -297,8 +264,6 @@ console.log("JS cadProfissional carregado");
           self.mostrarAlert("Erro na requisição!", "danger");
       });
     },
-
-    /* CÓDIGO DE ATIVAÇÃO */
 
     gerarCodigo: function ($botao) {
       var self = this;

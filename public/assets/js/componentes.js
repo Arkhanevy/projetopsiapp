@@ -1,8 +1,5 @@
-/* ==================================================================
-   Arquivo original: botao/botao.js
-   ================================================================== */
-
 $(function () {
+
   $(document).on("click", ".botaoBase", function (evento) {
     const $botao = $(this);
 
@@ -20,11 +17,6 @@ $(function () {
   });
 });
 
-
-/* ==================================================================
-   Arquivo original: status/status.js
-   ================================================================== */
-
 function atualizarIndicadorStatus($elemento, novoEstado) {
   const estadosValidos = ["agendada", "confirmada", "pendente", "cancelada", "realizada"];
 
@@ -41,14 +33,8 @@ function atualizarIndicadorStatus($elemento, novoEstado) {
     .attr("data-estadoConsulta", novoEstado);
 }
 
-
-/* ==================================================================
-   Arquivo original: campo/campo.js
-   ================================================================== */
-
 $(function () {
 
-  // ---------- campoPesquisa: disparo de busca ----------
   function dispararPesquisa($campoPesquisa) {
     const termo = $campoPesquisa.find(".campoPesquisa_input").val();
     $campoPesquisa.trigger("pesquisaAcionada", { termo: termo });
@@ -65,8 +51,6 @@ $(function () {
     }
   });
 
-  // ---------- campoSelect: seleção de opção ----------
-  // Abrir/fechar já é feito pelo Bootstrap (data-bs-toggle="dropdown").
   $(document).on("click", ".campoSelect_opcao", function (evento) {
     evento.preventDefault();
     const $opcao = $(this);
@@ -79,12 +63,6 @@ $(function () {
   });
 
 });
-
-
-/* ==================================================================
-   Arquivo original: filtro/filtro.js
-   ================================================================== */
-
 
 $(function () {
 
@@ -103,23 +81,11 @@ $(function () {
 
 });
 
-
-/* ==================================================================
-   Arquivo original: calendario/calendario.js
-   ================================================================== */
 const NOMES_MES = [
   "JAN", "FEV", "MAR", "ABR", "MAI", "JUN",
   "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"
 ];
 
-/**
- * Renderiza a grade de dias de um mês dentro do calendarioBase.
- *
- * @param {jQuery} $calendario  elemento .calendarioBase
- * @param {number} ano          ex.: 2026
- * @param {number} mesIndex     0 = Janeiro ... 11 = Dezembro
- * @param {Object} estadosPorDia mapa { "1": "indisponivel", "15": "selecionado", ... }
- */
 function renderizarCalendario($calendario, ano, mesIndex, estadosPorDia) {
   estadosPorDia = estadosPorDia || {};
 
@@ -129,13 +95,11 @@ function renderizarCalendario($calendario, ano, mesIndex, estadosPorDia) {
   $tituloMes.text(`${NOMES_MES[mesIndex]} ${ano}`);
   $calendario.attr("data-mesAtual", mesIndex).attr("data-anoAtual", ano);
 
-  // Remove apenas as células de dia, mantendo o cabeçalho Dom–Sáb
   $grade.find(".calendarioBase_dia, .calendarioBase_dia--vazio").remove();
 
-  const primeiroDiaSemana = new Date(ano, mesIndex, 1).getDay(); // 0 = domingo
+  const primeiroDiaSemana = new Date(ano, mesIndex, 1).getDay();
   const totalDiasNoMes = new Date(ano, mesIndex + 1, 0).getDate();
 
-  // Preenche os espaços vazios antes do dia 1
   for (let i = 0; i < primeiroDiaSemana; i++) {
     $grade.append('<span class="calendarioBase_dia--vazio" aria-hidden="true"></span>');
   }
@@ -164,11 +128,14 @@ function renderizarCalendario($calendario, ano, mesIndex, estadosPorDia) {
 
 $(function () {
 
-  // Navegação entre meses — quem escuta este evento deve buscar os
-  // novos estados de dia (ex.: via AJAX) e chamar renderizarCalendario novamente
   $(document).on("click", ".calendarioBase_botaoNavegacao", function () {
     const $calendario = $(this).closest(".calendarioBase");
-    const direcao = $(this).data("direcao") === "proximo" ? 1 : -1;
+    let direcao;
+    if ($(this).data("direcao") === "proximo") {
+      direcao = 1;
+    } else {
+      direcao = -1;
+    }
 
     $calendario.trigger("mesAlterado", {
       direcao: direcao,
@@ -177,7 +144,6 @@ $(function () {
     });
   });
 
-  // Seleção de dia (somente dias habilitados)
   $(document).on("click", ".calendarioBase_dia:not(:disabled)", function () {
     const $dia = $(this);
     const $calendario = $dia.closest(".calendarioBase");
@@ -194,15 +160,8 @@ $(function () {
 
 });
 
-
-/* ==================================================================
-   Arquivo original: modal/modal.js
-   ================================================================== */
-
 $(function () {
 
-  // Exemplo de gancho: disparar um evento próprio sempre que qualquer
-  // modalBase for aberto/fechado, para quem quiser reagir a isso.
   $(document).on("shown.bs.modal", ".modalBase", function () {
     $(this).trigger("modalAberto");
   });
@@ -212,11 +171,6 @@ $(function () {
   });
 
 });
-
-
-/* ==================================================================
-   Arquivo original: cards/cards.js
-   ================================================================== */
 
 $(function () {
 
@@ -247,11 +201,6 @@ $(function () {
 
 });
 
-
-/* ==================================================================
-   Arquivo original: navegacao/painelMenuMobile.js
-   ================================================================== */
-
 $(function () {
 
   $(document).on("click", ".painelMenuMobile_item", function () {
@@ -263,11 +212,6 @@ $(function () {
 
 });
 
-
-/* ==================================================================
-   Arquivo original: navegacao/menuHamburguerLogado.js
-   ================================================================== */
-
 $(function () {
 
   $(document).on("click", "[data-acao='sair']", function () {
@@ -276,18 +220,13 @@ $(function () {
 
 });
 
-
-/* ==================================================================
-   Arquivo original: navegacao/navegacao.js
-   ================================================================== */
-
 const ITEM_POR_PAPEL = {
   cliente: { icone: "search", rotulo: "Buscar", acao: "buscar" },
   profissionalClinica: { icone: "home", rotulo: "Início", acao: "irParaInicio" }
 };
 
 function aplicarPapelNavegacao($navegacao) {
-  const papel = $navegacao.data("papel"); // "cliente" | "profissionalClinica"
+  const papel = $navegacao.data("papel");
   const config = ITEM_POR_PAPEL[papel];
 
   if (!config) {
@@ -306,17 +245,16 @@ $(function () {
     aplicarPapelNavegacao($(this));
   });
 
-  // Item ativo (desktop e mobile)
   $(document).on("click", ".navLateralLogado_item, .navInferiorLogado_item", function () {
     const $nav = $(this).closest(".navLateralLogado, .navInferiorLogado");
     $nav.find(".navLateralLogado_item--ativo, .navInferiorLogado_item--ativo")
       .removeClass("navLateralLogado_item--ativo navInferiorLogado_item--ativo");
-    $(this).addClass(
-      $(this).closest(".navLateralLogado").length
-        ? "navLateralLogado_item--ativo"
-        : "navInferiorLogado_item--ativo"
-    );
+    let classeAtiva;
+    if ($(this).closest(".navLateralLogado").length) {
+      classeAtiva = "navLateralLogado_item--ativo";
+    } else {
+      classeAtiva = "navInferiorLogado_item--ativo";
+    }
+    $(this).addClass(classeAtiva);
   });
 });
-
-

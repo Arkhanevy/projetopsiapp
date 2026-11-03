@@ -20,26 +20,31 @@ console.log("JS agendamentoCli carregado");
 
   var moduloAgendamentoCli = {
 
-    /* ---------- Configuração ---------- */
     configuracao: {
       urlServico: "index.php?uri=servico",
-      urlVerificarLogin: "index.php?uri=cliente", //Axalote
+      urlDetalhesServico: "index.php?uri=busca",
+      urlVerificarLogin: "index.php?uri=cliente",
       urlInfoServico: "index.php?uri=infoServico",
-      urlLogin: "index.php?uri=login", //Axalote
-      urlCadastro: "index.php?uri=cadastro"
+      urlLogin: "index.php?uri=loginCliente",
+
+      contratos: {
+
+        listarLocalizacoes: { acao: "listarLocalizacoes", disponivel: false },
+
+        mostrarSala: { acao: "mostrarSala", disponivel: true }
+      }
     },
 
-    /* ---------- Estado interno ---------- */
     estado: {
       idServico: null,
       dataExibida: new Date(),
       diasIndisponiveis: [],
       diaSelecionado: null,
       localizacaoSelecionada: null,
+      localizacoesDisponiveis: false,
       horarioSelecionado: null
     },
 
-    /* ---------- Referências de elementos (cacheadas) ---------- */
     elementos: {},
 
     iniciar: function () {
@@ -62,7 +67,8 @@ console.log("JS agendamentoCli carregado");
       this.elementos.$botaoConfirmar = $("#botaoConfirmarAgendamento");
 
       this.elementos.$dropdownLocalizacao = $("#dropdownLocalizacao");
-      //this.elementos.$botaoLocalizacao = $("#botaoDropdownLocalizacao");
+      this.elementos.$areaLocalizacao = $(".areaLocalizacao");
+      this.elementos.$botaoLocalizacao = $("#botaoDropdownLocalizacao");
       this.elementos.$textoLocalizacao = $("#textoLocalizacaoSelecionada");
       this.elementos.$listaLocalizacoes = $("#listaLocalizacoes");
       this.elementos.$inputLocalizacao = $("#inputLocalizacaoSelecionada");
@@ -111,10 +117,10 @@ console.log("JS agendamentoCli carregado");
         self.navegarMes(1);
       });
 
-      /*this.elementos.$botaoLocalizacao.on("click", function (evento) {
+      this.elementos.$botaoLocalizacao.on("click", function (evento) {
         evento.stopPropagation();
         self.alternarDropdown(self.elementos.$dropdownLocalizacao, self.elementos.$inputLocalizacao);
-      });*/
+      });
 
       this.elementos.$botaoHorario.on("click", function (evento) {
         evento.stopPropagation();
@@ -184,8 +190,6 @@ console.log("JS agendamentoCli carregado");
       window.location.href = url;
     },
 
-    /* CARREGAMENTO DE DADOS */
-
     buscarDadosAgendamento: function () {
       var self = this;
 
@@ -193,16 +197,14 @@ console.log("JS agendamentoCli carregado");
       this.elementos.$form.removeClass("estadoErro").addClass("estadoCarregando");
       Utilitarios.alternarEsqueletoAcessivel(this.elementos.$camposDinamicos, true);
 
-      console.log("ID do serviço:", this.estado.idServico);
-      console.log("URL do serviço:", this.configuracao.urlServico);
-
       $.ajax({
-        url: this.configuracao.urlServico,
+        url: this.configuracao.urlDetalhesServico,
         method: "POST",
         dataType: "json",
         data: {
           acao: "mostrardetalhes",
-          ser_id: this.estado.idServico
+          tipo: "servico",
+          id: this.estado.idServico
         }
       })
         .done(function (resposta) {
@@ -216,7 +218,7 @@ console.log("JS agendamentoCli carregado");
             self.mapearDadosServico(resposta.dados[0])
           );
           Utilitarios.alternarEsqueletoAcessivel(self.elementos.$camposDinamicos, false);
-          //self.renderizarLocalizacoes([]);
+          self.carregarLocalizacoes();
           self.buscarDiasIndisponiveis(self.estado.dataExibida);
         })
         .fail(function () {
@@ -226,10 +228,14 @@ console.log("JS agendamentoCli carregado");
 
     mapearDadosServico: function (registro) {
       var numero = Number(registro.ser_val);
+      var precoFormatado;
+      if (isNaN(numero)) {
+        precoFormatado = "";
+      } else {
+        precoFormatado = numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      }
       return {
-        precoServico: isNaN(numero)
-          ? ""
-          : numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+        precoServico: precoFormatado
       };
     },
 
@@ -239,7 +245,42 @@ console.log("JS agendamentoCli carregado");
       this.exibirModalErro();
     },
 
-    /*  LOCALIZAÇÃO 
+    carregarLocalizacoes: function () {
+      var self = this;
+      var contrato = this.configuracao.contratos.listarLocalizacoes;
+
+      this.estado.localizacoesDisponiveis = false;
+      this.elementos.$areaLocalizacao.attr("hidden", "hidden");
+
+      if (!contrato.disponivel) {
+        return;
+      }
+
+      $.ajax({
+        url: this.configuracao.urlServico,
+        method: "POST",
+        dataType: "json",
+        data: {
+          acao: contrato.acao,
+          id: this.estado.idServico
+        }
+      })
+        .done(function (resposta) {
+          if (!resposta || !resposta.sucesso || !$.isArray(resposta.dados)) {
+            self.tratarFalhaCarregamento();
+            return;
+          }
+          if (!resposta.dados.length) {
+            return;
+          }
+          self.renderizarLocalizacoes(resposta.dados);
+          self.estado.localizacoesDisponiveis = true;
+          self.elementos.$areaLocalizacao.removeAttr("hidden");
+        })
+        .fail(function () {
+          self.tratarFalhaCarregamento();
+        });
+    },
 
     renderizarLocalizacoes: function (localizacoes) {
       var self = this;
@@ -251,11 +292,11 @@ console.log("JS agendamentoCli carregado");
         );
         $item
           .find("button")
-          .attr("data-valor", local.id)
-          .attr("data-texto", local.nome)
-          .text(local.nome)
+          .attr("data-valor", local.loc_id)
+          .attr("data-texto", local.loc_nome)
+          .text(local.loc_nome)
           .append(
-            '<span class="material-symbols-outlined" aria-hidden="true">manage_search</span>'
+            '<span class="material-symbols-outlined" aria-hidden="true">location_on</span>'
           );
         self.elementos.$listaLocalizacoes.append($item);
       });
@@ -268,9 +309,7 @@ console.log("JS agendamentoCli carregado");
       this.fecharDropdown(this.elementos.$dropdownLocalizacao);
       this.removerErroCampo(this.elementos.$botaoLocalizacao);
       this.elementos.$botaoLocalizacao.trigger("focus");
-    },*/
-
-    /* CALENDÁRIO */
+    },
 
     navegarMes: function (deltaMeses) {
       this.estado.dataExibida.setMonth(this.estado.dataExibida.getMonth() + deltaMeses);
@@ -309,14 +348,18 @@ console.log("JS agendamentoCli carregado");
         });
     },
 
-
     extrairDiasIndisponiveis: function (resposta) {
       var self = this;
       var indisponiveis = [];
 
       ["folga", "indisponivel"].forEach(function (chave) {
         (resposta[chave] || []).forEach(function (item) {
-          var dataTexto = item && item.date ? item.date : item;
+          var dataTexto;
+          if (item && item.date) {
+            dataTexto = item.date;
+          } else {
+            dataTexto = item;
+          }
           if (typeof dataTexto === "string") {
             indisponiveis.push(dataTexto.substring(0, 10));
           }
@@ -352,11 +395,17 @@ console.log("JS agendamentoCli carregado");
           rotulo += " — indisponível";
         }
 
+        var ariaPressionado;
+        if (selecionado) {
+          ariaPressionado = "true";
+        } else {
+          ariaPressionado = "false";
+        }
         var $botaoDia = $('<button type="button" class="diaCalendario"></button>')
           .text(dia)
           .attr("data-data", dataChave)
           .attr("aria-label", rotulo)
-          .attr("aria-pressed", selecionado ? "true" : "false");
+          .attr("aria-pressed", ariaPressionado);
 
         if (indisponivel) {
           $botaoDia.addClass("diaIndisponivel").prop("disabled", true);
@@ -381,19 +430,22 @@ console.log("JS agendamentoCli carregado");
       this.elementos.$inputDia.val(dataChave);
       this.removerErroCampo(this.elementos.$calendario);
 
-      // Atualiza visualmente sem re-renderizar todo o calendário.
       this.elementos.$grade.find(".diaCalendario").each(function () {
         var $dia = $(this);
         var ehEsseDia = $dia.data("data") === dataChave;
         $dia.toggleClass("diaSelecionado", ehEsseDia);
-        $dia.attr("aria-pressed", ehEsseDia ? "true" : "false");
+        var ariaPressionado;
+        if (ehEsseDia) {
+          ariaPressionado = "true";
+        } else {
+          ariaPressionado = "false";
+        }
+        $dia.attr("aria-pressed", ariaPressionado);
       });
 
       this.resetarHorario();
       this.buscarHorariosDisponiveis(dataChave);
     },
-
-    /* HORÁRIO */
 
     resetarHorario: function () {
       this.estado.horarioSelecionado = null;
@@ -465,8 +517,6 @@ console.log("JS agendamentoCli carregado");
       this.elementos.$botaoHorario.trigger("focus");
     },
 
-    /* DROPDOWNS — abrir/fechar */
-
     alternarDropdown: function ($dropdown, $inputOculto) {
       var $lista = $dropdown.find(".dropdownCustomizadoLista");
       var estaAberta = !$lista.attr("hidden");
@@ -478,7 +528,6 @@ console.log("JS agendamentoCli carregado");
       }
     },
 
-    //Abre o dropdown e move o foco para a opção já selecionada (se houver) ou para a primeira opção da lista
     abrirDropdown: function ($dropdown, $inputOculto) {
       $dropdown.find(".dropdownCustomizadoLista").removeAttr("hidden");
       $dropdown.find(".dropdownCustomizadoBotao").attr("aria-expanded", "true");
@@ -488,12 +537,23 @@ console.log("JS agendamentoCli carregado");
         return;
       }
 
-      var valorAtual = $inputOculto ? $inputOculto.val() : null;
+      var valorAtual;
+      if ($inputOculto) {
+        valorAtual = $inputOculto.val();
+      } else {
+        valorAtual = null;
+      }
       var $itemSelecionado = $itens.filter(function () {
-        return $(this).data("valor") === valorAtual;
+        return String($(this).data("valor")) === String(valorAtual);
       });
 
-      ($itemSelecionado.length ? $itemSelecionado : $itens.first()).trigger("focus");
+      var $itemFoco;
+      if ($itemSelecionado.length) {
+        $itemFoco = $itemSelecionado;
+      } else {
+        $itemFoco = $itens.first();
+      }
+      $itemFoco.trigger("focus");
     },
 
     fecharDropdown: function ($dropdown) {
@@ -506,12 +566,6 @@ console.log("JS agendamentoCli carregado");
       this.fecharDropdown(this.elementos.$dropdownHorario);
     },
 
-    /* Implementa a navegação por teclado do padrão ARIA "listbox"
-     * dentro de uma lista de opções: setas para cima/baixo movem o
-     * foco entre as opções (com wrap-around), Home/End vão para a
-     * primeira/última. Enter/Espaço já funcionam nativamente, pois
-     * as opções são elementos <button>.
-     */
     registrarNavegacaoTecladoLista: function ($lista) {
       $lista.on("keydown", ".dropdownCustomizadoItem", function (evento) {
         var $itens = $lista.find(".dropdownCustomizadoItem");
@@ -540,8 +594,6 @@ console.log("JS agendamentoCli carregado");
       });
     },
 
-    /* VALIDAÇÃO E ENVIO DO AGENDAMENTO */
-
     marcarCampoComErro: function ($elemento) {
       $elemento.addClass("campoComErro");
     },
@@ -565,11 +617,11 @@ console.log("JS agendamentoCli carregado");
       var camposValidos = true;
       var $primeiroInvalido = null;
 
-      /*if (!this.estado.localizacaoSelecionada) {
+      if (this.estado.localizacoesDisponiveis && !this.estado.localizacaoSelecionada) {
         this.marcarCampoComErro(this.elementos.$botaoLocalizacao);
         $primeiroInvalido = $primeiroInvalido || this.elementos.$botaoLocalizacao;
         camposValidos = false;
-      }*/
+      }
 
       if (!this.estado.diaSelecionado) {
         this.marcarCampoComErro(this.elementos.$calendario);
@@ -601,11 +653,12 @@ console.log("JS agendamentoCli carregado");
       $.ajax({
         url: this.configuracao.urlVerificarLogin,
         method: "POST",
-        dataType: "json"
+        dataType: "json",
+        data: { acao: "verificarLogin" }
       })
         .done(function (resposta) {
           if (resposta && resposta.logado) {
-            self.enviarAgendamento();
+            self.buscarSalaLivre();
           } else {
             self.exibirModalNaoLogado();
           }
@@ -615,9 +668,63 @@ console.log("JS agendamentoCli carregado");
         });
     },
 
-    enviarAgendamento: function () {
+    obterPartesHorario: function () {
+      return (this.estado.horarioSelecionado || "").split("|");
+    },
+
+    buscarSalaLivre: function () {
       var self = this;
-      var partesHorario = (this.estado.horarioSelecionado || "").split("|");// Retornar o horario para "inicio" e "termino" separados.
+      var contrato = this.configuracao.contratos.mostrarSala;
+      var partesHorario = this.obterPartesHorario();
+      var dados = {
+        acao: contrato.acao,
+        inicio: partesHorario[0],
+        termino: partesHorario[1]
+      };
+      if (this.estado.localizacaoSelecionada) {
+        dados.localizacao = this.estado.localizacaoSelecionada;
+      }
+
+      this.elementos.$botaoConfirmar.prop("disabled", true);
+
+      $.ajax({
+        url: this.configuracao.urlServico,
+        method: "POST",
+        dataType: "json",
+        data: dados
+      })
+        .done(function (resposta) {
+          if (!resposta || !resposta.sucesso || !$.isArray(resposta.dados)) {
+            self.exibirAlertaValidacao("Não foi possível concluir o agendamento. Tente novamente.");
+            self.elementos.$botaoConfirmar.prop("disabled", false);
+            return;
+          }
+          if (!resposta.dados.length) {
+            self.exibirAlertaValidacao("Não há sala disponível nesse horário. Escolha outro horário.");
+            self.elementos.$botaoConfirmar.prop("disabled", false);
+            return;
+          }
+          self.enviarAgendamento(resposta.dados[0].sala_id);
+        })
+        .fail(function () {
+          self.exibirAlertaValidacao("Não foi possível concluir o agendamento. Tente novamente.");
+          self.elementos.$botaoConfirmar.prop("disabled", false);
+        });
+    },
+
+    enviarAgendamento: function (idSala) {
+      var self = this;
+      var partesHorario = this.obterPartesHorario();
+      var dados = {
+        acao: "agendar",
+        sala: idSala,
+        dia: this.estado.diaSelecionado,
+        inicio: partesHorario[0],
+        termino: partesHorario[1]
+      };
+      if (this.estado.localizacaoSelecionada) {
+        dados.localizacao = this.estado.localizacaoSelecionada;
+      }
 
       this.elementos.$botaoConfirmar.prop("disabled", true);
 
@@ -625,12 +732,7 @@ console.log("JS agendamentoCli carregado");
         url: this.configuracao.urlServico,
         method: "POST",
         dataType: "text",
-        data: {
-          acao: "agendar",
-          dia: this.estado.diaSelecionado,
-          inicio: partesHorario[0],
-          termino: partesHorario[1]
-        }
+        data: dados
       })
         .done(function (respostaTexto) {
           if ($.trim(respostaTexto) === "sucesso") {
@@ -658,8 +760,6 @@ console.log("JS agendamentoCli carregado");
       }
       window.location.href = url;
     },
-
-    /* MODAIS */
 
     exibirModalErro: function () {
       Utilitarios.exibirModal(this.elementos.$modalErro, {

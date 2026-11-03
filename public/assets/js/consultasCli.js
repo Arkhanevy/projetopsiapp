@@ -25,10 +25,10 @@
   var moduloConsultasCli = {
 
     configuracao: {
-      urlVerificarSessao: "/backend/verificarSessao.php", //Axalote
+      urlVerificarSessao: "/backend/verificarSessao.php",
       urlObterConsultas: "app/controllers/Servicocontroller.php",
-      urlCancelarConsulta: "/backend/cancelarConsulta.php", //Axalote
-      urlLogin: "/login/index.html" //Axalote
+      urlCancelarConsulta: "/backend/cancelarConsulta.php",
+      urlLogin: "/login/index.html"
     },
 
     elementos: {},
@@ -36,7 +36,7 @@
     iniciar: function () {
       this.cachearElementos();
       this.registrarEventos();
-      //this.verificarSessaoEBuscarConsultas();
+
     },
 
     cachearElementos: function () {
@@ -76,26 +76,6 @@
       });
     },
 
-    /*verificarSessaoEBuscarConsultas: function () {
-      var self = this;
-
-      $.ajax({
-        url: this.configuracao.urlVerificarSessao,
-        method: "GET",
-        dataType: "json"
-      })
-        .done(function (resposta) {
-          if (resposta && resposta.logado) {
-            self.buscarConsultas();
-          } else {
-            self.exibirModalSessaoExpirada();
-          }
-        })
-        .fail(function () {
-          self.exibirModalSessaoExpirada();
-        });
-    },*/
-
     exibirModalSessaoExpirada: function () {
       this.elementos.$grade.removeClass("estadoCarregando").attr("hidden", "hidden");
       Utilitarios.exibirModal(this.elementos.$modalSessaoExpirada, {
@@ -134,11 +114,13 @@
           }
 
           self.renderizarConsultas(consultas);
-          self.anunciar(
-            consultas.length === 1
-              ? "1 consulta carregada."
-              : consultas.length + " consultas carregadas."
-          );
+          var mensagem;
+          if (consultas.length === 1) {
+            mensagem = "1 consulta carregada.";
+          } else {
+            mensagem = consultas.length + " consultas carregadas.";
+          }
+          self.anunciar(mensagem);
         })
         .fail(function () {
           self.elementos.$grade.removeClass("estadoCarregando");
@@ -160,7 +142,6 @@
       this.elementos.$estadoVazio.removeAttr("hidden");
     },
 
-
     renderizarConsultas: function (consultas) {
       var self = this;
 
@@ -174,18 +155,6 @@
       this.inicializarPopovers();
     },
 
-    /**
-     * Convenção do objeto "consulta" vindo do PHP:
-     * {
-     *   id: 1,
-     *   nomeServico: "Tratamento de unha encravada",
-     *   dataHora: "17 de junho, 08:00",
-     *   preco: "R$12,50",
-     *   nomeProfissional: "Samanta Santos",
-     *   nomeClinica: "Girasol",
-     *   status: "pendente" | "agendada" | "cancelada"
-     * }
-     */
     construirCartaoConsulta: function (consulta) {
       var infoStatus = this.obterInfoStatus(consulta.status);
 

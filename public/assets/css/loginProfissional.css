@@ -1,8 +1,5 @@
-/* loginProfissional.css — estilos específicos do login de profissional.
-   Depende de: variaveis.css, componentes.css e autenticacaoBase.css. */
-
-/* TABLET+ (≥ 768px) */
 @media (min-width: 768px) {
+
   #loginProfissional {
     width: 100%;
     max-width: 420px;

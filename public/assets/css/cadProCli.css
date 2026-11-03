@@ -1,4 +1,3 @@
-/* BASE*/
  html,body {
      margin: 0;
      padding: 0;
@@ -6,54 +5,67 @@
      margin-right: 5px;
      overflow-x: hidden;
 }
+
  .container-fluid {
      padding: 0;
 }
+
  textarea.is-invalid, .form-select.is-invalid {
      border-color: #dc3545;
 }
+
  #cadastroClinica, #cadastroProfissional, #esqueciForm, #ativacao, .cadastro {
      display: none;
 }
+
  h1 {
      font-weight: 600;
 }
+
  p {
      color: #555;
      max-width: 400px;
      margin: auto;
 }
+
  .vh-100 {
      min-height: 100vh;
 }
+
  #imgBox {
      display: none;
 }
+
  #imgBox img {
      width: 100%;
      height: 100%;
      object-fit: cover;
 }
+
 #colForm > div {
     width: 100%;
     max-width: 420px;
-    margin: 0 auto;    
+    margin: 0 auto;
 }
+
  textarea {
      width: 100%;
      height: 250px;
      align-self: center;
 }
+
 .logo-titulo {
     width: 70px;
     height: auto;
     object-fit: contain;
 }
+
  .avatar-container {
      width: 120px;
      height: 120px;
      margin: auto;
 }
+
  .avatar-container img {
      width: 100%;
      height: 100%;
@@ -61,32 +73,38 @@
      border-radius: 50%;
      cursor: pointer;
 }
+
  #img_perfil, #img_perfil_Clinica {
      position: absolute;
      opacity: 0;
      width: 0;
      height: 0;
 }
+
 .form-wrapper{
     width:100%;
     max-width:420px;
     margin:auto;
 }
-/* TABLET+ (≥ 768px)*/
+
  @media (min-width: 768px) {
+
      #cadastroProfissional, #cadastroClinica, #loginProfissional, #loginClinica {
          width: 100%;
          max-width: 420px;
     }
+
      #imgBox {
          display: block;
          height: 100vh;
     }
+
      #imgBox img {
          width: 100%;
          height: 100%;
          object-fit: cover;
     }
+
      #colForm {
         height: 100vh;
         overflow-y: auto;
@@ -94,18 +112,21 @@
         box-sizing: border-box;
     }
 }
-/* DESKTOP (≥ 1200px)*/
+
  @media (min-width: 1200px) {
+
      #cadastroProfissional, #cadastroClinica, #loginProfissional, #loginClinica {
          width: 100%;
          max-width: 420px;
     }
+
     .logo-titulo {
     width: 70px;
     height: auto;
     object-fit: contain;
 }
 }
+
  .form-esquerda {
      margin-left: 0 !important;
 }

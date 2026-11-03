@@ -41,12 +41,13 @@ class profissional extends usuario {
         $camposHrser = "
             hrser_id,
             hrser_pro,
-            hrser_hora_inic,
-            hrser_hora_term,
+            hrser_hrini,
+            hrser_hrterm,
             hrser_dia";
             $pegar = new DBQuery('hr_servico', $camposHrser,'hrser_pro' );
             $where = new Where();
-            $where->addCondition('AND', 'hrser_pro', '=',$_SESSION['profissional']['id']);
+            //$where->addCondition('AND', 'hrser_pro', '=',$_SESSION['profissional']['id']);
+            $where->addCondition('AND', 'hrser_pro', '=', $_SESSION['usuario']['idUsuario']);
             $where = $where->build();
         try {
             $resultado = $pegar->selectWhere($where);
@@ -76,13 +77,14 @@ class profissional extends usuario {
     }
     
     public function hrServico($pro,$clin,$inicio,$termino,$dia) {
-        $camposStr =  "
+        /*$camposStr =  "
         'hrser_id',
         'hrser_pro',
         'hrser_clin',
-        'hrser_hora_inic',
-        'hrser_hora_term',
-        'hrser_dia' ";
+        'hrser_hrini',
+        'hrser_hrterm',
+        'hrser_dia' ";*/
+        $camposStr = "hrser_id, hrser_pro, hrser_clin, hrser_hrini, hrser_hrterm, hrser_dia";
         $dados = [0,$pro,$clin,$inicio,$termino,$dia];
         try {
             $cadastrar = new DBQuery('hr_servico', $camposStr, 'hrser_id');

@@ -1,12 +1,7 @@
-/* cadastroProfissional.css — estilos específicos do cadastro de profissional.
-   Depende de: variaveis.css, componentes.css e autenticacaoBase.css. */
-
-/* As etapas começam escondidas; cadProfissional.js alterna entre elas. */
 #cadastroProfissional, #ativacao, .cadastro {
   display: none;
 }
 
-/* Input de foto fica invisível: o clique é feito pelo avatar. */
 #img_perfil {
   position: absolute;
   opacity: 0;
@@ -14,8 +9,8 @@
   height: 0;
 }
 
-/* TABLET+ (≥ 768px) */
 @media (min-width: 768px) {
+
   #cadastroProfissional {
     width: 100%;
     max-width: 420px;

@@ -52,7 +52,7 @@
 
   <!-- NAVEGAÇÃO LATERAL (DESKTOP, LOGADO) — exibida por sessaoNavegacao.js -->
   <nav class="navLateralLogado d-none d-md-flex" data-papel="cliente" aria-label="Navegação principal" hidden>
-    <a href="index.php?uri=agendamentoCli" class="navLateralLogado_item navLateralLogado_item--ativo" aria-current="page" data-itemPapel>
+    <a href="index.php?uri=busca" class="navLateralLogado_item navLateralLogado_item--ativo" aria-current="page" data-itemPapel>
       <span class="material-symbols-outlined" aria-hidden="true">search</span>
       <span class="navLateralLogado_rotulo">Buscar</span>
     </a>
@@ -238,7 +238,7 @@
         <span class="material-symbols-outlined" aria-hidden="true">chat</span>
         <span class="navInferiorLogado_rotulo">Contatos</span>
       </a>
-      <a href="index.php?uri=agendamentoCli" class="navInferiorLogado_item navInferiorLogado_item--ativo" aria-current="page" data-itemPapel>
+      <a href="index.php?uri=busca" class="navInferiorLogado_item navInferiorLogado_item--ativo" aria-current="page" data-itemPapel>
         <span class="material-symbols-outlined" aria-hidden="true">search</span>
         <span class="navInferiorLogado_rotulo">Buscar</span>
       </a>

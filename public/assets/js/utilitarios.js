@@ -1,16 +1,3 @@
-/* ============================================================
-   UTILITÁRIOS COMPARTILHADOS
-   Usado por infoServico.js, agendamentoCli.js e consultasCli.js.
-   Depende de: jQuery, Bootstrap 5 (bundle JS).
-   Deve ser carregado ANTES do script de cada página.
-
-   Concentra aqui o que antes estava duplicado (com pequenas
-   divergências) em cada arquivo de página: leitura de parâmetro
-   de URL, controle de modal via API nativa do Bootstrap 5,
-   preenchimento de campos "data-campo" e o toggle de
-   acessibilidade do skeleton de carregamento.
-   ============================================================ */
-
 (function ($, window) {
   "use strict";
 
@@ -35,6 +22,7 @@
         instancia.hide();
       }
     },
+
     preencherCampos: function ($camposDinamicos, dados) {
       $camposDinamicos.each(function () {
         var $elemento = $(this);
@@ -90,9 +78,6 @@
       }, 3000);
     },
 
-    /**
-     * VALIDAÇÃO — helpers genéricos de formulário.
-     */
     emailValido: function (email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     },
@@ -169,7 +154,6 @@
 
           regra.$campo.addClass("is-invalid").attr("aria-invalid", "true");
 
-          // Evita alerta repetido (ex.: o mesmo aviso do envio logo em seguida).
           var jaExibido = $container.find(".alert").filter(function () {
             return $.trim($(this).text()) === regra.mensagem;
           }).length > 0;
@@ -190,14 +174,20 @@
       var f = "";
 
       if (tipo === "telefone") {
-        // Autopreenchimento pode trazer o código do país (+55).
+
         if (d.length > 11 && d.indexOf("55") === 0) d = d.substring(2);
         d = d.substring(0, 11);
         if (d.length === 0) return "";
         f = "(" + d.substring(0, 2);
         if (d.length > 2) {
           var resto = d.substring(2);
-          var corte = resto.length > 8 ? 5 : 4; // 11 dígitos: 9XXXX-XXXX; 10: XXXX-XXXX
+
+          var corte;
+          if (resto.length > 8) {
+            corte = 5;
+          } else {
+            corte = 4;
+          }
           f += ") " + resto.substring(0, corte);
           if (resto.length > corte) f += "-" + resto.substring(corte);
         }
@@ -242,11 +232,13 @@
         var depois = self.formatarMascara(tipo, antes);
         if (antes === depois) return;
 
-        // Mantém o cursor depois do mesmo dígito, mesmo editando no meio.
         var cursor = campo.selectionStart;
-        var digitosAntesDoCursor = (cursor === null || cursor === undefined)
-          ? null
-          : self.apenasNumeros(antes.substring(0, cursor)).length;
+        var digitosAntesDoCursor;
+        if (cursor === null || cursor === undefined) {
+          digitosAntesDoCursor = null;
+        } else {
+          digitosAntesDoCursor = self.apenasNumeros(antes.substring(0, cursor)).length;
+        }
 
         campo.value = depois;
 
@@ -265,7 +257,6 @@
         formatarCampo(this);
       });
 
-      // Formata valores que já estejam no campo ao carregar (ex.: autopreenchimento).
       $("[data-mascara]").each(function () {
         formatarCampo(this);
       });
@@ -275,7 +266,7 @@
       cpf = cpf.replace(/\D/g, "");
 
       if (cpf.length !== 11) return false;
-      if (/^(\d)\1+$/.test(cpf)) return false; // Elimina CPFs inválidos conhecidos
+      if (/^(\d)\1+$/.test(cpf)) return false;
 
       var soma = 0;
       var i;
@@ -300,7 +291,7 @@
       cnpj = cnpj.replace(/\D/g, "");
 
       if (cnpj.length !== 14) return false;
-      if (/^(\d)\1+$/.test(cnpj)) return false; // Elimina CNPJs inválidos conhecidos
+      if (/^(\d)\1+$/.test(cnpj)) return false;
 
       var tamanho = 12;
       var numeros = cnpj.substring(0, tamanho);
@@ -314,7 +305,12 @@
         if (pos < 2) pos = 9;
       }
 
-      var resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+      var resultado;
+      if (soma % 11 < 2) {
+        resultado = 0;
+      } else {
+        resultado = 11 - (soma % 11);
+      }
       if (resultado != digitos.charAt(0)) return false;
 
       tamanho = 13;
@@ -327,7 +323,11 @@
         if (pos < 2) pos = 9;
       }
 
-      resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+      if (soma % 11 < 2) {
+        resultado = 0;
+      } else {
+        resultado = 11 - (soma % 11);
+      }
       return resultado == digitos.charAt(1);
     },
 

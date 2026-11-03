@@ -1,0 +1,197 @@
+.conteudoPerfil {
+  padding-bottom: calc(64px + var(--espaco4));
+}
+
+@media (min-width: 768px) {
+
+  .conteudoPerfil {
+    margin-left: 72px;
+    padding-bottom: var(--espaco5);
+  }
+}
+
+@media (min-width: 768px) {
+
+  .conteudoPerfil--semNavLateral {
+    margin-left: 0;
+  }
+}
+
+.conteudoPerfil--semNavLateral {
+  padding-bottom: var(--espaco5);
+}
+
+.conteudoPerfil[aria-busy="true"] .abasPerfil,
+.conteudoPerfil[aria-busy="true"] .conteudoAbas {
+  visibility: hidden;
+}
+
+.conteudoAbas {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 var(--espaco4);
+}
+
+@media (min-width: 992px) {
+
+  .conteudoAbas {
+    padding: 0 var(--espaco7);
+  }
+}
+
+.visaoPerfil {
+  padding-bottom: var(--espaco4);
+}
+
+.campoBioAtual {
+  min-height: 96px;
+}
+
+.campoDescricaoServico {
+  min-height: 200px;
+}
+
+.formularioPerfil .campoTexto + .form-text {
+  margin-top: var(--espaco1);
+}
+
+.barraAcoesAba {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco3);
+  padding-top: var(--espaco4);
+}
+
+.secaoPerfil_extras {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--espaco3);
+  padding-right: calc(48px + var(--espaco3));
+}
+
+.avisosFormulario {
+  margin-bottom: var(--espaco3);
+}
+
+.listaCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 260px));
+  gap: var(--espaco5) var(--espaco4);
+  margin-top: var(--espaco5);
+  padding-top: var(--espaco2);
+}
+
+.listaCards--modal {
+  grid-template-columns: minmax(220px, 260px);
+  justify-content: center;
+}
+
+.cardVinculo {
+  position: relative;
+  text-align: center;
+}
+
+.cardVinculo .card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco2);
+  padding: var(--espaco4);
+}
+
+.cardVinculo .card-title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.cardVinculo .botaoBase {
+  align-self: center;
+}
+
+.cardVinculo_foto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 120px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid var(--corBordas);
+  background-color: var(--corFundoClaro);
+}
+
+.cardVinculo_iconePadrao {
+  font-size: 64px;
+  color: var(--corDestaque);
+}
+
+.cardVinculo_imagem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardVinculo_detalhes {
+  text-align: left;
+}
+
+.cardVinculo_detalhes .cardClinica_info {
+  margin: 0;
+}
+
+.cardVinculo_botaoDesvincular,
+.cardVinculo_botaoSelecionar {
+  position: absolute;
+  top: calc(-1 * var(--espaco3));
+  right: calc(-1 * var(--espaco3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: var(--corBranco);
+}
+
+.cardVinculo_botaoDesvincular {
+  color: var(--corAcaoNegativa);
+}
+
+.cardVinculo_botaoSelecionar {
+  color: var(--corAcaoSecundaria);
+}
+
+.cardVinculo_botaoDesvincular:hover,
+.cardVinculo_botaoSelecionar:hover {
+  background-color: var(--corFundoClaro);
+}
+
+.cardVinculo_botaoDesvincular:focus-visible,
+.cardVinculo_botaoSelecionar:focus-visible {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: 2px;
+}
+
+.cardVinculo_botaoDesvincular .material-symbols-outlined,
+.cardVinculo_botaoSelecionar .material-symbols-outlined {
+  font-size: 36px;
+}
+
+.cardVinculo--selecionavel {
+  cursor: pointer;
+}
+
+.visaoPerfil .campoPesquisa:focus-within {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: 2px;
+  border-radius: var(--raioTotal);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .abasPerfil .nav-link,
+  .secaoPerfil_acao {
+    transition: none;
+  }
+}

@@ -1,0 +1,413 @@
+================================================================================
+FLUXO DE DADOS ENTRE OS ARQUIVOS JS
+================================================================================
+Base: os 19 arquivos próprios da pasta js/ (bibliotecas de terceiros não entram).
+Convenção: "backend" = index.php?uri=... (controllers PHP). Todas as chamadas
+são POST com o parâmetro "acao"; as respostas são JSON, salvo onde indicado.
+
+
+--------------------------------------------------------------------------------
+1. VISÃO GERAL: AS CAMADAS
+--------------------------------------------------------------------------------
+
+  CAMADA 0 - Bibliotecas (terceiros, sem alteração)
+     jquery.min.js, bootstrap.bundle.min.js, jquery.mask.js, jquery.maskedinput.js
+
+  CAMADA 1 - Base compartilhada (carregar ANTES das páginas)
+     utilitarios.js    -> publica window.ElmoUtilitarios
+     componentes.js    -> comportamentos genéricos + funções globais + eventos
+     buscaComum.js     -> publica window.ElmoBusca
+     sessaoNavegacao.js-> descobre a sessão e dispara o evento "sessaoNavegacaoDefinida"
+
+  CAMADA 2 - Scripts de página (cada um roda numa tela)
+     Acesso:    loginCliente, loginClinica, loginProfissional,
+                cadCliente, cadClinica, cadProfissional
+     Busca:     home, busca, resultadosBusca
+     Serviço:   infoServico, agendamentoCli, consultasCli
+     Conta:     perfil, contatos, notificacoes
+
+  Regra de dependência: a camada 2 usa a camada 1; a camada 1 usa só a camada 0.
+  Páginas NÃO chamam funções umas das outras: elas conversam por (a) URL e
+  parâmetros, (b) history.state, (c) eventos jQuery e (d) o backend.
+
+  Diagrama de dependências:
+
+     jQuery / Bootstrap
+           |
+           +--> utilitarios.js  ---------> cad*, login*, infoServico, agendamentoCli,
+           |    (ElmoUtilitarios)          consultasCli, resultadosBusca, contatos,
+           |                               notificacoes, perfil
+           |
+           +--> componentes.js  ---------> (eventos) busca, home, resultadosBusca, perfil
+           |    (+ funções globais)        (função global) sessaoNavegacao, perfil
+           |
+           +--> buscaComum.js   ---------> home, busca, resultadosBusca
+           |    (ElmoBusca)
+           |
+           +--> sessaoNavegacao.js ------> (evento) buscaComum, notificacoes, contatos
+
+
+--------------------------------------------------------------------------------
+2. O QUE CADA ARQUIVO DA BASE ENTREGA
+--------------------------------------------------------------------------------
+
+2.1 utilitarios.js  ->  window.ElmoUtilitarios
+    Quem chama o quê:
+      obterParametroUrl ........ infoServico, agendamentoCli, resultadosBusca
+      exibirModal/esconderModal  infoServico, agendamentoCli, consultasCli,
+                                 notificacoes, contatos (via Bootstrap), perfil
+      preencherCampos .......... infoServico, agendamentoCli, resultadosBusca
+      alternarEsqueletoAcessivel infoServico, agendamentoCli
+      mostrarAlerta ............ login*, cad* (via mostrarAlert)
+      validarCampos, emailValido, cpfValido, cnpjValido, telefoneValido,
+      maiorDeIdade, apenasNumeros, validarAoSair, marcarCamposComErro
+                                 login*, cad*, perfil
+      configurarPreviewImagem .. cad*
+      configurarCEP ............ cadClinica, cadProfissional, perfil (localização)
+      formatarMascara .......... contatos (telefone), resultadosBusca (cep), perfil (cep)
+      aplicarMascaras .......... roda sozinha no document ready (campos [data-mascara])
+
+2.2 componentes.js  ->  eventos + 3 funções globais (sem IIFE)
+    Funções globais: atualizarIndicadorStatus, renderizarCalendario,
+    aplicarPapelNavegacao. Somente aplicarPapelNavegacao é chamada por outros
+    arquivos (sessaoNavegacao.js e perfil.js).
+    O restante é delegação de eventos em document (ver seção 5).
+
+2.3 buscaComum.js  ->  window.ElmoBusca
+      termoValido(termo) .............. home, busca, resultadosBusca
+      irParaResultados(termo) ......... home, busca (redireciona)
+      construirUrlResultados(termo) ... usada por irParaResultados
+      configurarNavegacao() ........... busca, resultadosBusca (escuta o evento
+                                        de sessão e ajusta a barra do logado)
+
+2.4 sessaoNavegacao.js  ->  evento "sessaoNavegacaoDefinida"
+    Entrada: nada (roda no carregamento).
+    Saída:   evento no document com { logado: true|false, tipoUsuario }.
+
+
+--------------------------------------------------------------------------------
+3. FLUXOS POR JORNADA
+--------------------------------------------------------------------------------
+
+3.1 SESSÃO E NAVEGAÇÃO (toda página que carrega sessaoNavegacao.js)
+
+   página carrega
+        |
+        v
+   sessaoNavegacao.iniciar() -> verificarSessao() -> testarTipo()
+        |
+        |  POST index.php?uri=cliente        { acao: "verificarLogin" }
+        |  -> se { logado: false } ou falha:
+        |  POST index.php?uri=profissional   { acao: "verificarLogin" }
+        |  -> se negativo:
+        |  POST index.php?uri=clinica        { acao: "verificarLogin" }
+        |  -> se negativo: considera deslogado
+        v
+   exibirNavegacaoLogado(tipo) / exibirNavegacaoDeslogado()
+        |  chama aplicarPapelNavegacao() (componentes.js) para trocar
+        |  Buscar/Início conforme o papel
+        v
+   $(document).trigger("sessaoNavegacaoDefinida", [{ logado, tipoUsuario }])
+        |
+        +--> buscaComum.configurarNavegacao()  (usada por busca e resultadosBusca)
+        |      mostra .navTopoLogado, ajusta links de agenda por tipo
+        +--> notificacoes.aoDefinirSessao()
+        |      deslogado: mensagem "Entre na sua conta"; logado: carrega notificações
+        +--> contatos.aoDefinirSessao()
+               deslogado: mensagem; logado: carrega contatos do papel
+
+   Observações:
+   - O tipo "clienteSimples" é tratado nos consumidores, mas a lista de tipos
+     testados é só cliente, profissional e clínica.
+   - perfil.js NÃO escuta esse evento: faz a própria verificação de login
+     (ordem profissional, clínica, cliente) com acao "verificarLogin".
+   - home.js só trata a pesquisa; não ajusta a navegação.
+
+3.2 BUSCA  (home / busca -> resultadosBusca -> infoServico ou perfil)
+
+   [home.js]  ou  [busca.js]
+      campo de pesquisa (componentes.js dispara "pesquisaAcionada" com { termo })
+        |   também: clique em sugestão (busca.js preenche o campo e pesquisa)
+        v
+      ElmoBusca.termoValido(termo)? -- não --> aviso/foco no campo
+        | sim
+        v
+      ElmoBusca.irParaResultados(termo)
+        |   redireciona para:  index.php?uri=resultadosBusca&termo=<termo>
+        v
+   [resultadosBusca.js]
+      restaurarBusca(): lê termo da URL; aba e filtros do history.state
+        |
+        v
+      carregarAba(aba): POST index.php?uri=busca
+                        { acao: "busca", tipo: servico|profissional|clinica, busca: termo }
+        |   resposta: { sucesso, dados: [ ... ] }
+        |   servico:      ser_id, ser_nome, ser_tipo, ser_val, (ser_foto)
+        |   profissional: pro_id, pro_nome, pro_foto
+        |   clinica:      clin_id, clin_nome, clin_foto
+        v
+      aplicarFiltrosLocais() (tipoServico, no navegador) -> montarCard() por item
+        |   Utilitarios.preencherCampos() preenche o <template> do card
+        |
+        |   Só nas clínicas, para cada card:
+        |     POST index.php?uri=busca { acao: "mostrardetalhes", tipo: "clinica", id }
+        |       -> clin_cep
+        |     GET  https://viacep.com.br/ws/<cep>/json/  (JSONP)
+        |       -> rua e UF exibidas no card
+        v
+      Links gerados nos cards:
+        serviço .......... index.php?uri=infoServico&id=<ser_id>
+        profissional ..... index.php?uri=perfil&tipo=profissional&id=<pro_id>
+        clínica .......... index.php?uri=perfil&tipo=clinica&id=<clin_id>
+
+   Estado que sobrevive a recarregar/voltar:
+      termo -> parâmetro ?termo= da URL
+      aba + filtros -> history.state.busca = { aba, filtros }
+      (pushState em nova pesquisa; replaceState ao trocar aba/filtro; o evento
+       popstate chama restaurarBusca() de novo)
+
+3.3 SERVIÇO -> AGENDAMENTO -> CONFIRMAÇÃO
+
+   [infoServico.js]  URL: ?id=<ser_id>
+      POST uri=busca { acao: "mostrardetalhes", tipo: "servico", id }
+        -> ser_nome, ser_desc, ser_dur, ser_val  -> preenche a tela
+      botão "Agendar agora" --> index.php?uri=agendamentoCli&servico=<id>
+        ^
+        |  volta com  ?agendado=1&id=<id>  -> modal de sucesso
+        |  (o parâmetro é removido da URL com history.replaceState)
+        |
+   [agendamentoCli.js]  URL: ?servico=<id>
+      1) POST uri=servico { acao: "mostrardetalhes", ser_id }          -> preço
+      2) POST uri=servico { acao: "MostrarDias", id, mes, ano }        -> folgas e indisponíveis
+      3) clique num dia:
+         POST uri=servico { acao: "mostrarhorario", id, dia }          -> lista de horários
+      4) confirmar:
+         POST uri=cliente  (sem acao)                                  -> { logado }
+            logado: POST uri=servico { acao: "agendar", dia, inicio, termino }
+                    resposta em TEXTO: "sucesso"
+                    -> redireciona para infoServico&agendado=1&id=<id>
+            não logado: modal com botão de login
+      "Voltar"/"Cancelar" --> index.php?uri=infoServico&id=<id>
+
+   Dados internos de agendamentoCli: o horário escolhido é guardado como
+   "inicio|termino" e separado só no envio.
+
+3.4 ACESSO: CADASTRO -> ATIVAÇÃO -> LOGIN -> PERFIL
+
+   [cadCliente | cadClinica | cadProfissional]
+      cadastrar:  POST uri=cliente|clinica|profissional (FormData, com foto)
+                  { acao: "cadastrar", ... }
+                  - clínica e profissional enviam só o CEP (o endereço vem do ViaCEP
+                    pelo Utilitarios.configurarCEP e serve para conferência)
+                  - profissional envia locaisAtendimento[]
+        |  sucesso: mostra a tela "ativacao" (sem recarregar)
+        v
+      gerar código: POST { acao: "ReGerarCodigo", email }   (botão bloqueado 60 s)
+      ativar:       POST { acao: "ativar", email, cod }
+        |  sucesso: após 1,5 s -> index.php?uri=login<Tipo>
+        v
+   [loginCliente | loginClinica | loginProfissional]
+      POST uri=cliente|clinica|profissional { acao: "login", email, senha }
+        |  sucesso -> index.php?uri=perfil
+        v
+   [perfil.js]  (ver 3.5)
+
+   Atalho: cadCliente.js redireciona ?tipo=login para loginCliente (links antigos).
+
+3.5 PERFIL (dono e visitante)
+
+   Entrada A (dono):      index.php?uri=perfil
+   Entrada B (visitante): index.php?uri=perfil&tipo=<profissional|clinica>&id=<n>
+   Entrada C (volta):     index.php?uri=perfil&meu=1
+
+   lerAlvoDaUrl():
+      - se tipo/id válidos na URL: alvo = { tipo, id }
+      - senão, tenta history.state.perfilVisitado
+      - em seguida limpa a URL (replaceState), guardando o alvo em
+        history.state.perfilVisitado
+        |
+        v
+   verificarLogin(): testa profissional -> clínica -> cliente
+        |-- logado ........ aoConfirmarLogin(papel) -> configura navegação
+        |                   (aplicarPapelNavegacao do componentes.js, só p/ cliente)
+        |-- não logado .... visitante: segue em leitura;  dono: modal sessão expirada
+        v
+   carregarPerfil():
+      dono:      POST uri=profissional { acao: "PegarPerfil" }  -> dados1, dados2, dados3
+                 POST uri=clinica      { acao: "pegarinfo" }    -> dados1
+                 (dados1 = perfil, dados2 = horários, dados3 = serviços)
+      visitante: POST uri=busca { acao: "mostrardetalhes", tipo, id } -> dados[0]
+                 (sem horários nem serviços)
+        |
+        v
+   renderizarPerfil() -> bio, serviços, horários, localização
+        |  clínica: CEP -> ViaCEP (JSONP) -> endereço e link do Google Maps
+        v
+   Ações do dono (formulários dentro do próprio perfil):
+      cadastrar serviço .. POST uri=servico { acao: "cadastrar", nome, val, tipo,
+                           desc, dur, inter, stat, loc, dia }  resposta em TEXTO "sucesso"
+                           -> recarrega o perfil
+      cadastrar horários . POST uri=profissional { acao: "atribuirHrServico",
+                           dia, inicio, termino }  (uma chamada por dia)
+      buscar vínculo ..... POST uri=busca { acao: "busca", tipo, busca: usuário }
+      editarBio, editarLocalizacao, listarVinculos, vincular, desvincular,
+      gerenciarVinculos: contratos ainda INDISPONÍVEIS (o JS só avisa)
+      sair ............... POST limparSessao.php -> index.php
+
+   Links que perfil.js gera:
+      card de vínculo ....... index.php?uri=perfil&tipo=<tipo>&id=<id>
+      modo visitante, Documentos -> index.php?uri=documentos&id=<id>
+      modo visitante, "Perfil" -> index.php?uri=perfil&meu=1
+      agenda por papel ...... agendaProfissional | agendaClinica | consultasCli
+
+3.6 CONTATOS E DOCUMENTOS
+
+   evento de sessão (3.1) -> contatos.aoDefinirSessao(sessao)
+      escolhe o controller "invertido" pelo papel:
+         cliente / clienteSimples -> POST uri=profissional { acao: "contato" }
+         profissional             -> POST uri=cliente      { acao: "contato" }
+         clínica                  -> POST uri=clinica      { acao: "contato" }
+      resposta: { sucesso, dados1, dados2 }
+      normalizarContatos() converte para { profissionais, clientes, clinicas }
+        |
+        v
+      renderizarContatos() -> um item por contato (template)
+        |  botão "Documento" (só profissionais e clientes) abre o modal
+        v
+      modal: contatoAtual = { id, tipo, usuario }
+         abas Enviados / Recebidos -> listarDocumentos   (INDISPONÍVEL)
+         formulário de envio (FormData) -> enviarDocumento (INDISPONÍVEL)
+         baixar -> formulário POST temporário -> baixarDocumento (INDISPONÍVEL)
+      Enquanto os contratos de documentos estiverem indisponíveis, a lista fica
+      vazia e enviar/baixar mostram aviso.
+
+3.7 NOTIFICAÇÕES
+
+   evento de sessão -> notificacoes.aoDefinirSessao()
+      papel logado -> carregarNotificacoes()
+         contrato listarNotificacoes: INDISPONÍVEL -> só mostra o estado vazio
+         (quando ligado: POST uri=cliente|profissional|clinica
+          { acao: "listarNotificacoes" } -> dados: [item])
+      clique no card -> modal -> marcarNotificacaoLida (INDISPONÍVEL por enquanto)
+
+3.8 CONSULTAS DO CLIENTE
+
+   [consultasCli.js]
+      Hoje só prepara elementos e eventos: a chamada que carrega as consultas
+      está comentada em iniciar(), então a lista não carrega.
+      Quando ativa: GET /backend/verificarSessao.php -> POST
+      app/controllers/Servicocontroller.php { acao: "mostrarservico" }
+      -> cartões; cancelar -> POST /backend/cancelarConsulta.php { id }
+      (URLs provisórias, diferentes do padrão index.php?uri=...)
+
+
+--------------------------------------------------------------------------------
+4. PARÂMETROS PASSADOS ENTRE TELAS (URL)
+--------------------------------------------------------------------------------
+
+   origem              -> destino              parâmetros
+   ------------------------------------------------------------------------------
+   home, busca         -> resultadosBusca      termo
+   resultadosBusca     -> infoServico          id
+   resultadosBusca     -> perfil               tipo, id
+   infoServico         -> agendamentoCli       servico
+   agendamentoCli      -> infoServico          id  (+ agendado=1 em caso de sucesso)
+   cad*                -> login*               (nenhum)
+   login*              -> perfil               (nenhum)
+   perfil (vínculos)   -> perfil               tipo, id
+   perfil (visitante)  -> perfil               meu=1  (volta ao próprio perfil)
+   perfil (visitante)  -> documentos           id
+   consultasCli/agendamentoCli (login) -> login  redirecionar=<url atual>
+
+   Dados que NÃO viajam pela URL:
+      - filtros e aba da busca (history.state.busca)
+      - perfil visitado, depois da limpeza da URL (history.state.perfilVisitado)
+      - sessão do usuário (fica no servidor, em $_SESSION)
+
+
+--------------------------------------------------------------------------------
+5. EVENTOS jQUERY ENTRE ARQUIVOS
+--------------------------------------------------------------------------------
+
+   evento                  disparado por                ouvido por
+   ------------------------------------------------------------------------------
+   pesquisaAcionada        componentes.js (lupa/Enter)  home, busca, resultadosBusca
+   opcaoSelecionada        componentes.js (campoSelect) perfil (tipo de serviço)
+   sessaoNavegacaoDefinida sessaoNavegacao.js           buscaComum, notificacoes, contatos
+   botaoAcionado           componentes.js               (nenhum nos arquivos enviados)
+   filtroAplicado          componentes.js               (nenhum)
+   mesAlterado             componentes.js               (nenhum)
+   diaSelecionado          componentes.js               (nenhum)
+   modalAberto/modalFechado componentes.js              (nenhum)
+   consultaCancelada/Aceita/Reagendada, documentoApagado/Visualizado
+                           componentes.js               (nenhum)
+   usuarioSolicitouSair    componentes.js               (nenhum; perfil.js trata o
+                                                         clique em "sair" por conta própria)
+
+   Os eventos sem ouvinte ficam à espera de páginas que os usem.
+
+
+--------------------------------------------------------------------------------
+6. ENDPOINTS E AÇÕES POR ARQUIVO
+--------------------------------------------------------------------------------
+
+   arquivo              URL                         ações
+   ------------------------------------------------------------------------------
+   sessaoNavegacao      uri=cliente|profissional|clinica   verificarLogin
+   login*               uri=cliente|clinica|profissional   login
+   cad*                 uri=cliente|clinica|profissional   cadastrar, ReGerarCodigo, ativar
+   resultadosBusca      uri=busca                          busca, mostrardetalhes
+   infoServico          uri=busca                          mostrardetalhes (tipo=servico)
+   agendamentoCli       uri=servico                        mostrardetalhes, MostrarDias,
+                                                           mostrarhorario, agendar
+                        uri=cliente                        (verificação de login, sem acao)
+   perfil               uri=profissional                   verificarLogin, PegarPerfil,
+                                                           atribuirHrServico
+                        uri=clinica                        verificarLogin, pegarinfo
+                        uri=cliente                        verificarLogin
+                        uri=busca                          mostrardetalhes, busca
+                        uri=servico                        cadastrar
+                        limparSessao.php                   (sair)
+   contatos             uri=profissional|cliente|clinica   contato
+   notificacoes         uri=cliente|profissional|clinica   (contratos indisponíveis)
+   consultasCli         Servicocontroller.php, /backend/*  mostrarservico (inativo)
+   externo              viacep.com.br                      consulta de CEP
+                        (utilitarios via getJSON/JSONP; resultadosBusca e perfil via ajax JSONP)
+
+
+--------------------------------------------------------------------------------
+7. PADRÕES QUE SE REPETEM (POR ONDE OS DADOS PASSAM)
+--------------------------------------------------------------------------------
+
+   - Estrutura de cada página: um objeto "moduloX" com configuracao, estado,
+     elementos, iniciar(), cachearElementos(), registrarEventos().
+   - Templates: cards e linhas nascem de <template> do HTML e são preenchidos com
+     .text()/.attr() (dados do banco não entram como HTML).
+   - "Contratos": notificacoes, contatos e perfil descrevem cada chamada de backend
+     em configuracao.contratos com disponivel: true/false. Contrato indisponível
+     = a tela valida, mostra estados e avisa, mas não envia nada.
+   - Respostas antigas são descartadas com um contador de requisição
+     (requisicoes, requisicaoNotificacoes, requisicaoContatos).
+   - Cadastro/login enviam FormData; consultas e buscas enviam parâmetros simples.
+   - "agendar" e "cadastrar serviço" respondem TEXTO "sucesso"; o restante, JSON.
+
+
+--------------------------------------------------------------------------------
+8. PONTOS DE ATENÇÃO NO FLUXO
+--------------------------------------------------------------------------------
+
+   1. consultasCli.js: a carga das consultas está desativada (lista não carrega).
+   2. agendamentoCli.js: "agendar" não envia o id do serviço; o servidor precisa
+      obtê-lo por outro meio (provavelmente a sessão). A verificação de login é
+      feita sem acao=verificarLogin, ao contrário de sessaoNavegacao e perfil.
+   3. perfil.js: rota hrefInicio "index.php?uri=buscar" difere de "uri=busca"
+      usada nos demais arquivos. Cadastro de serviço envia loc: 1 (valor de teste).
+   4. A lógica de sessão e o mapa de links de agenda aparecem repetidos em
+      buscaComum, notificacoes e contatos; perfil tem sua própria verificação.
+   5. O perfil visitado vive só no history.state: abrir o link copiado do
+      endereço não reabre o perfil (o link com tipo/id só vale ao clicar).
+   6. Validações no navegador (CPF, CNPJ, telefone, idade, arquivo) são
+      conveniência: o servidor precisa validar tudo de novo.
+   7. URLs fixas com /projetopsi/ (login e cadastro) e URLs provisórias em
+      consultasCli precisam ser ajustadas ao mudar de ambiente.
+================================================================================

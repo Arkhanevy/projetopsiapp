@@ -4,12 +4,13 @@
   var moduloInfoServico = {
 
     configuracao: {
-      urlObterServico: "index.php?uri=servico"
+      urlObterServico: "index.php?uri=busca"
     },
 
     estado: {
       idServico: null
     },
+
     elementos: {},
 
     iniciar: function () {
@@ -20,7 +21,13 @@
       this.elementos.$camposDinamicos = $("[data-campo]");
       this.elementos.$cartaoServico = $("#cartaoServico");
 
-      this.estado.idServico = 1; // Axalote Utilitarios.obterParametroUrl("id");
+      var id = Utilitarios.obterParametroUrl("id");
+
+      if (/^[0-9]+$/.test(id || "")) {
+        this.estado.idServico = id;
+      } else {
+        this.estado.idServico = null;
+      }
 
       this.registrarEventos();
       this.buscarDadosServico();
@@ -48,6 +55,11 @@
 
       Utilitarios.esconderModal(this.elementos.$modalErro);
       this.desabilitarBotaoAgendar();
+
+      if (!this.estado.idServico) {
+        this.tratarFalhaCarregamento();
+        return;
+      }
       this.elementos.$cartaoServico
         .removeClass("estadoErro")
         .addClass("estadoCarregando");
@@ -59,7 +71,8 @@
         dataType: "json",
         data: {
           acao: "mostrardetalhes",
-          ser_id: this.estado.idServico
+          tipo: "servico",
+          id: this.estado.idServico
         }
       })
         .done(function (resposta) {
@@ -82,10 +95,16 @@
     },
 
     mapearDadosServico: function (registro) {
+      var duracao;
+      if (registro.ser_dur) {
+        duracao = registro.ser_dur + " min";
+      } else {
+        duracao = "";
+      }
       return {
         tituloServico: registro.ser_nome,
         descricaoServico: registro.ser_desc,
-        duracaoServico: registro.ser_dur ? registro.ser_dur + " min" : "",
+        duracaoServico: duracao,
         precoServico: this.formatarPreco(registro.ser_val)
       };
     },
@@ -117,8 +136,13 @@
 
       parametros.delete("agendado");
       var novaQuerystring = parametros.toString();
-      var novaUrl =
-        window.location.pathname + (novaQuerystring ? "?" + novaQuerystring : "");
+      var sufixoQuery;
+      if (novaQuerystring) {
+        sufixoQuery = "?" + novaQuerystring;
+      } else {
+        sufixoQuery = "";
+      }
+      var novaUrl = window.location.pathname + sufixoQuery;
       window.history.replaceState({}, document.title, novaUrl);
     },
 
@@ -147,7 +171,7 @@
       if (this.estado.idServico) {
         url += "&servico=" + encodeURIComponent(this.estado.idServico);
       }
-      window.location.href = url; 
+      window.location.href = url;
     }
   };
 

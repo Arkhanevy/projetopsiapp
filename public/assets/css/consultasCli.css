@@ -1,14 +1,3 @@
-/* ============================================================
-   PÁGINA: consultasCli (Minhas consultas)
-   Depende de: public/assets/css/variaveis.css
-              public/assets/css/componentes.css
-   (ambos devem ser carregados antes deste arquivo)
-
-   As classes abaixo (cartaoConsulta, badgeStatus e variantes,
-   botaoCancelar) são geradas dinamicamente por consultasCli.js —
-   não renomear sem atualizar o JS.
-   ============================================================ */
-
 .conteudoConsultas {
   padding-top: calc(72px + var(--espaco4));
   padding-bottom: calc(64px + var(--espaco4));
@@ -19,6 +8,7 @@
 }
 
 @media (min-width: 768px) {
+
   .conteudoConsultas {
     margin-left: 72px;
     padding-top: var(--espaco5);
@@ -39,12 +29,12 @@
 }
 
 @media (min-width: 768px) {
+
   .gradeConsultas {
     grid-template-columns: repeat(2, 1fr);
     align-items: start;
   }
 }
-
 
 .cartaoConsulta {
   display: flex;
@@ -77,9 +67,6 @@
   gap: var(--espaco2);
 }
 
-/* Botão de cancelar consulta — usado tanto no card gerado por
-   consultasCli.js (.botaoCancelarConsulta) quanto no modal de
-   confirmação (#botaoConfirmarCancelamento). Não renomear. */
 .botaoCancelar {
   display: inline-flex;
   align-items: center;
@@ -99,7 +86,6 @@
   opacity: 1;
   color: var(--corBranco);
 }
-
 
 .badgeStatus {
   display: inline-flex;
@@ -127,7 +113,6 @@
   opacity: 0.85;
 }
 
-
 @keyframes animacaoEsqueleto {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
@@ -152,7 +137,6 @@
   animation: animacaoEsqueleto 1.5s ease-in-out infinite;
 }
 
-
 .estadoVazioConsultas {
   padding: var(--espaco6) var(--espaco4);
   text-align: center;
@@ -168,13 +152,13 @@
   font-size: var(--tamanhoBody);
 }
 
-
 .acoesModalConfirmacao .botaoBase,
 .acoesModalConfirmacao .botaoCancelar {
   width: 100%;
 }
 
 @media (min-width: 576px) {
+
   .acoesModalConfirmacao .botaoBase,
   .acoesModalConfirmacao .botaoCancelar {
     width: auto;
