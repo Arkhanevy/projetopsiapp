@@ -1,5 +1,6 @@
 <?php
 use models\servicos;
+use models\permissao;
 
 
 $acao = $_POST['acao'] ?? '';
@@ -36,7 +37,20 @@ switch ($acao){
         echo json_encode($mostrar);        
         exit;
     case 'agendar':
-        $agendar = $servico->agendar($_SESSION['servico']['ser_pro'],$_SESSION['usuario']['idUsuario'],$_SESSION['servico']['ser_id'],$_POST['sala'], $_POST['dia'], $_POST['inicio'], $_POST['termino']);
+        if (($_SESSION['usuario']['tipoUsuario'] ?? '') === 'profissional' && !empty($_SESSION['servico']['ser_clin'])) {
+            $permissao = new permissao('permissoes', 'perm_bin', 'perm_bin');
+            $erro = $permissao->permissao( $_SESSION['usuario']['idUsuario'], $_SESSION['servico']['ser_clin'], 1);
+            
+            if ($erro !== true) {
+                echo json_encode($erro);
+                exit;
+            };
+        }
+        $cliId = null;
+        if ($_SESSION['usuario']['tipoUsuario'] === 'cliente') {
+            $cliId = $_SESSION['usuario']['idUsuario'];
+        }
+        $agendar = $servico->agendar($_SESSION['servico']['ser_pro'],$cliId,$_SESSION['servico']['ser_id'],$_POST['sala'], $_POST['dia'], $_POST['inicio'], $_POST['termino']);
         if($agendar=== 'sucesso'){
             $_SESSION['servico'] = [];
             $_SESSION['datas'] = [];

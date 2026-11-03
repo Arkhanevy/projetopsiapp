@@ -18,8 +18,7 @@ $campos =[
     'clin_stat',
     'clin_cnpj',
     'clin_cep',
-    'clin_tel',
-    'clin_notif'];
+    'clin_tel'];
 switch ($acao){
     case "cadastrar":
         $clinica = new clinica('clinica', $campos, $campos[0]);

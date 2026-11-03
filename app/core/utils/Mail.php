@@ -152,8 +152,10 @@ class Mail{
             $mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         }
         
+        $from = $_SESSION['email']['from'] ?? $_SESSION['email']['username'];
+        
         $mailer->setFrom(
-            $_SESSION['email']['username'],
+            $from,
             $_SESSION['system']['name'] ?? 'Sistema'
             );
     }

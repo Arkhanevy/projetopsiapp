@@ -29,8 +29,8 @@ class cliente extends usuario {
                 $CPF ,
                 $telefone ,
                 $genero ,
-                0,
                 0
+                
             ];
             return $this->Cadastrar($dados);
         }

@@ -24,8 +24,8 @@ class clinica extends usuario {
                 "desativo",
                 $CNPJ,
                 $CEP,
-                $telefone,
-                0
+                $telefone
+               
             ];
             return $this->Cadastrar($dados);
         }

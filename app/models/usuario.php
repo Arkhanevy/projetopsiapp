@@ -40,7 +40,7 @@ class usuario {
         $cod = $generator->run(6);
         $dados = [$email,$cod];
         $assunto = 'codigo de validação';
-         $body = "!DOCTYPE html>
+         $body = "<!DOCTYPE html>
          <html lang='pt-BR'>
          <head>
          <meta charset='UTF-8'>
@@ -55,9 +55,16 @@ class usuario {
             $camposStr = implode(',', $this->campos);
             $codigo = new DBQuery($this->table, $camposStr, $this->primary);
             $codigo->update($dados);
+            
+            $mail = new Mail($dados[0], $assunto, $body);
+            $mail ->send();
+            if (!$mail->send()) {
+                return [
+                    'sucesso'  => false,
+                    'mensagem' => $mail->getLastError()
+                ];
+            }
             return ['sucesso' => true];
-            $email = new Mail($dados[2], $assunto, $body);
-             $email ->send();
         }catch (\Exception $e) {
             return [
                 'sucesso' => false,
@@ -242,6 +249,22 @@ class usuario {
             return [
                 'sucesso' => true,
                 'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
+            ];
+        } catch (\Exception $e) {
+            return ['sucesso' => false,
+                'mensagem' => $e->getMessage()];
+        }
+    }
+    
+    public function atualizar($valores,$id) {
+        $camposStr = implode(',', $this->campos);
+        $valoresStr = implode(',', $valores);
+        $usuario = new DBQuery($this->table, $camposStr, $this->primary);
+        try {
+            $usuario->update($valoresStr);
+            return [
+                'sucesso' => true,
+                'dados' => 'atualizado com sucesso'
             ];
         } catch (\Exception $e) {
             return ['sucesso' => false,

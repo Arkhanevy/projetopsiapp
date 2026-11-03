@@ -114,14 +114,14 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
            try {
                $dsem = new \DateTime($dia);
                $dsem = $dsem->format('w');
-               $rotina = new DBQuery('hr_servico', 'hrser_hora_inic,hrser_hora_term','hrser_dia' );
+               $rotina = new DBQuery('hr_servico', 'hrser_hrini,hrser_hrterm','hrser_dia' );
                $where = new Where();
                $where->addCondition('AND', 'hrser_dia', '=', $dsem);
                $where = $where->build();
                $resultado = $rotina->selectWhere($where);
                    if ($resultado) {
                        $dados = $resultado->fetch(\PDO::FETCH_ASSOC);
-                       $dados = ['inicio' => $dados['hrser_hora_inic'],'fim' => $dados['hrser_hora_term']];
+                       $dados = ['inicio' => $dados['hrser_hrini'],'fim' => $dados['hrser_hrterm']];
                        return $dados;
                    } else {
                        $excecao = new DBQuery('hr_excecao', 'hr_excecao_ini,hr_excecao_term','hr_excecao_dia' );

@@ -31,8 +31,8 @@ class profissional extends usuario {
             $telefone,
             $genero,
             $registro,
-            0,
             0
+            
         ];
         return $this->Cadastrar($dados);
     }

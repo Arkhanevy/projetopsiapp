@@ -86,6 +86,7 @@ $config['email']['host']	    = 'sandbox.smtp.mailtrap.io';
 $config['email']['port']	    =  2525;
 $config['email']['username']	= '327fb0d82bfa35';
 $config['email']['password']	= 'a562d06e63e067';
+$config['email']['from'] = 'nao-responda@podopsi.com';
     
 $config['path']['routes']	  = $routersFile;
 $config['path']['root']	      = $rootPath;
@@ -142,6 +143,7 @@ $_SESSION['email']['host']      = $config['email']['host'];
 $_SESSION['email']['port']      = $config['email']['port'];
 $_SESSION['email']['username']  = $config['email']['username'];
 $_SESSION['email']['password']  = $config['email']['password'];
+$_SESSION['email']['from']      = $config['email']['from'];
 
 $_SESSION['path']['routes']     = $config['path']['routes'];
 $_SESSION['path']['root']       = $config['path']['root'];

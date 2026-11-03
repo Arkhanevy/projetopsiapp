@@ -113,5 +113,17 @@
 		"sessionKey": [{"idUsuario": false}], 
 		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
 		"errorPath" : "app/views/erro.php"
+	},
+	"relatorio"	: {
+	    	"path": "app/controllers/relatoriocontroller.php",
+			"sessionKey": [{"idUsuario": false}], 
+			"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
+			"errorPath" : "app/views/erro.php"
+		},
+	"limpar": {
+		"path": "app/models/limpar.php",
+				"sessionKey": [{"idUsuario": false}], 
+				"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
+				"errorPath" : "app/views/erro.php"
 	}
 }

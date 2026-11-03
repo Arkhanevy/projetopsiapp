@@ -19,8 +19,7 @@ $campos =[
     'cli_CPF',
     'cli_tel',
     'cli_gen',
-    'cli_doc',
-    'cli_notif'];
+    'cli_doc'];
 switch ($acao){
     case "cadastrar":
         $cliente = new cliente('cliente', $campos, $campos[0]);
@@ -78,5 +77,25 @@ switch ($acao){
             "dados1" => $contCli['dados'],
             "dados2" => $contCLin['dados']
         ]);
+        exit;
+    case 'atualizar':
+        $diccli = [
+        'nome' => 'cli_nome',
+        'email' => 'cli_email',
+        'biografia' => 'cli_bio',
+        'foto' => 'cli_foto',
+        'CEP' => 'cli_CEP',
+        'telefone' => 'cli_tel',
+        ];
+        $atualizacao = $_POST['atualizacao'];
+        $campos = ['cli_id'];
+        foreach ($atualizacao as $campo){
+            $campos[] = $diccli[$campo];
+        }
+        $valores = $_POST['valores'];
+        $id = $_SESSION['idUsuario'];
+        $clinica = new clinica('clinica', $campos, $campos[0]);
+        $atualizar = $clinica->atualizar($valores, $id);
+        echo json_encode($atualizar);
         exit;
 }

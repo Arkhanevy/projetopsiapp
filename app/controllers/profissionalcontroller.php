@@ -22,8 +22,7 @@ $campos =[
     'pro_tel',
     'pro_gen',
     'pro_regi',
-    'pro_doc',
-    'pro_notif'];
+    'pro_doc'];
 switch ($acao){
     case "cadastrar":
         $profissional = new profissional('profissional', $campos, $campos[0]);
@@ -144,5 +143,25 @@ switch ($acao){
             "dados1" => $contPro['dados'],
             "dados2" => $contCLin['dados']
             ]);
+        exit;
+    case 'atualizar':
+        $dicpro = [
+            'nome' => 'pro_nome',
+            'email' => 'pro_email',
+            'biografia' => 'pro_bio',
+            'foto' => 'pro_foto',
+            'CEP' => 'pro_CEP',
+            'telefone' => 'pro_tel',
+            ];
+        $atualizacao = $_POST['atualizacao'];
+        $campos = ['pro_id'];
+        foreach ($atualizacao as $campo){
+            $campos[] = $dicpro[$campo];
+        }
+        $valores = $_POST['valores'];
+        $id = $_SESSION['idUsuario'];
+        $profissional = new profissional('profissional', $campos, $campos[0]);
+        $atualizar = $profissional->atualizar($valores, $id);
+        echo json_encode($atualizar);
         exit;
 }

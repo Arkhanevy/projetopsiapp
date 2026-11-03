@@ -17,8 +17,7 @@ create table clinica( -- tabela com os dados do perifil da clinica
 	clin_stat varchar(8),-- status da clinica -- se o perfil está ativo ou desativado
 	clin_cnpj varchar(14) unique, -- cnpj da clinica
 	clin_cep varchar(8), -- cep da clinica
-	clin_tel varchar(11), -- telefone da clinica
-	clin_notif int null -- notifição da clinica -- vai guardar o id da notificação padrão
+	clin_tel varchar(11) -- telefone da clinica
 );
 
 
@@ -40,8 +39,7 @@ create table profissional ( -- tabela do perfil do profissional
     pro_tel varchar(11),-- telefone do profissional
     pro_gen varchar(1), -- genero do profissional
     pro_regi varchar(20),-- registro do profissional -- ainda não vi mas deve ter algum documento pra podologa poder atuar dps tem que ver tbm como verifica -- seriamente eu tenho que ver isso dês de o começo do ano
-    pro_doc varchar(90), -- documento do profissional -- por enquanto o campo tá ai mais pra dizer que tem isso pq tô esperando o cleber passar a tabela de upload que ele falou quando perguntei sobre
-    pro_notif int -- notifição do profissional
+    pro_doc varchar(90) -- documento do profissional -- por enquanto o campo tá ai mais pra dizer que tem isso pq tô esperando o cleber passar a tabela de upload que ele falou quando perguntei sobre
 );
 
 create table cliente ( -- tabela do cliente
@@ -60,8 +58,7 @@ create table cliente ( -- tabela do cliente
     cli_CPF varchar(11) unique not null,-- cpf do cliente
     cli_tel varchar(11),-- telefone do cliente
     cli_gen varchar(6),-- genero do cliente
-    cli_doc varchar(100),-- documento do cliente
-    cli_notif int -- notifição do cliente 
+    cli_doc varchar(100)-- documento do cliente
 );
 
 create table servico (
@@ -77,29 +74,24 @@ create table servico (
     ser_stat varchar(8),-- status do serviço -- se uma podologa deixar de fazer um serviço dar soft delete para manter o relatorio e atentimento sem dar problema
     ser_dia int null,-- dias em que a podóloga realiza tal serviço 0 = domingo 1 = segunda
     ser_loc int null, -- id da localização
-    foreign key (ser_pro) references profissional(pro_id)on delete cascade on update cascade
-);
-
-create table permissoes (-- tabela que vai estar os tipos de permissoes que tem
-	perm_id int auto_increment primary key,-- id da permissão -- só tem o id pq vai ser as mesma permissões para todo mundo só vai mudar no menu de permissões que permissão vai restringir
-    perm_desc text -- descrição da permissão
+    foreign key (ser_pro) references profissional(pro_id)
 );
 
 create table profissional_clinica (-- essa tabela relaciona o profissional com a clinica  -- como faremos de forma que o podologo pode ter + de 1 associação tipo ela oferece um serviço no proprio nome já que a clinica não oferece esse serviço por isso uma tabela relacionanto os 2 e não um campo com null pra poder não ter associação
     pc_id int auto_increment primary key, -- id dessa tabela
     pc_pro int not null, -- id do profissional nessa tabela
     pc_clin int not null, -- id da clinica nessa tabela
-    foreign key (pc_pro) references profissional(pro_id) on delete cascade on update cascade,
-    foreign key (pc_clin) references clinica(clin_id) on delete cascade on update cascade
+    foreign key (pc_pro) references profissional(pro_id),
+    foreign key (pc_clin) references clinica(clin_id)
 );
 
-create table menu_permissao ( -- tabela que vai associar as permissoes e clinicas e seus associados
-	mnperm_id int auto_increment primary key, -- id dessa tabela
-    mnperm_perm int null, -- id da permissão nessa tabela
-    mnperm_pc int null, -- id da associção nessa tabela
-    foreign key (mnperm_perm) references permissoes(perm_id) on delete cascade on update cascade,
-	foreign key (mnperm_pc) references profissional_clinica(pc_id) on delete set null on update cascade
-);
+create table permissoes (-- tabela que vai estar os tipos de permissoes que tem
+	perm_id int auto_increment primary key,-- id da permissão -- só tem o id pq vai ser as mesma permissões para todo mundo só vai mudar no menu de permissões que permissão vai restringir
+    perm_tipo int not null, -- descrição da permissão
+    perm_bin boolean default true, -- tem ou não a permissão por padrão tem
+	perm_pc int null, -- id da associção nessa tabela
+	foreign key (perm_pc) references profissional_clinica(pc_id)
+    );
 
 create table localizacao (-- criei essa tabela pra fazer um 1vn com as salas
 	loc_id int auto_increment primary key, -- id dessa tabela
@@ -107,15 +99,15 @@ create table localizacao (-- criei essa tabela pra fazer um 1vn com as salas
     loc_clin int null,   -- id da clinica nessa tabela
     loc_nome varchar(90), -- nome da localização
     loc_tipo enum('clin','casa','domi'), -- tipo de localização: clinica, casa, à domicíolio
-    foreign key (loc_pro) references profissional(pro_id) on delete cascade on update cascade,
-    foreign key (loc_clin) references clinica(clin_id) on delete cascade on update cascade
+    foreign key (loc_pro) references profissional(pro_id),
+    foreign key (loc_clin) references clinica(clin_id) 
 );
 
 create table sala (-- crie essa tabela para controlar o agendamento de forma que não aja um agendamento na mesma sala no mesmo horario
 	sala_id int auto_increment primary key,-- id dessa tabela
     sala_loc int not null, -- id da localização nessa tabela
     sala_nome varchar(90), -- nome da sala
-    foreign key (sala_loc) references localizacao(loc_id) on delete cascade on update cascade
+    foreign key (sala_loc) references localizacao(loc_id) 
 ); -- não tem status pq eu só vou usar para verificar no agendamento se já tem gente usando esssa sala
 
 create table relatorio (-- como queremos guardar os relatorios e que as clinicas possam acessar ela então criamos uma tabela pra isso
@@ -125,8 +117,8 @@ create table relatorio (-- como queremos guardar os relatorios e que as clinicas
     dt_relatorio datetime, -- data do relatorio
     ttl_atendimentos int, -- total de atentimentos
     ttl_gnh decimal(10,2), -- ganho. Provavelmente vou ter que acrecentrar coisas 
-    foreign key (rel_pro) references profissional(pro_id) on delete set null on update cascade,
-    foreign key (rel_clin) references clinica(clin_id) on delete set null on update cascade
+    foreign key (rel_pro) references profissional(pro_id) ,
+    foreign key (rel_clin) references clinica(clin_id) 
 );
 
 create table hr_servico ( -- para cada dia em que a podologa trabralhar vai ter um horario de inicio e terminio e vai servir tbm pra verificar se o horario corresponde ao horario livre
@@ -136,7 +128,7 @@ create table hr_servico ( -- para cada dia em que a podologa trabralhar vai ter 
     hrser_hrini time not null, -- horario do inicio do trabalho 
     hrser_hrterm time not null, -- horario do termino do trabalho 
     hrser_dia int, -- dias de trabalho 0 = domingo 1 = segunda ...
-    foreign key (hrser_pro) references profissional(pro_id) on delete cascade
+    foreign key (hrser_pro) references profissional(pro_id) 
 );
 create table hr_excecao ( -- para cada dia em que a podologa trabralhar vai ter um horario de inicio e terminio e vai servir tbm pra verificar se o horario corresponde ao horario livre
     hr_excecao_id int auto_increment primary key,-- id dessa tabela
@@ -146,14 +138,14 @@ create table hr_excecao ( -- para cada dia em que a podologa trabralhar vai ter 
     hr_excecao_ini time,-- inicio da exceção -- pode ser vazio pq caso seja uma folga total ficará vazio, se for uma incompleta aqui ficara o periodo que folgará o mesmo é falido pra hora/dia extra
     hr_excecao_term time,-- termino da exceção
     hr_excecao_desc text, -- descrição/motivo da exceção
-    foreign key (hr_excecao_pro) references profissional(pro_id) on delete cascade
+    foreign key (hr_excecao_pro) references profissional(pro_id) 
 );
 
 
 create table agenda (-- aqui vai estar os horarios das consultas
     agnd_id int primary key auto_increment, -- id dessa tabela
     agnd_pro int not null,-- id do profissional nessa tabela
-    agnd_cli int not null,-- id do cliente nessa tabela
+    agnd_cli int null,-- id do cliente nessa tabela, pode ser null para o caso de o profissioinal que agendar para a cliente do whatsapp por exemplo
     agnd_clin int null,-- id da clinica
     agnd_ser int not null,-- id do servico nessa tabela
     agnd_sala int not null,-- id da sala nessa tabela
@@ -170,15 +162,53 @@ create table agenda (-- aqui vai estar os horarios das consultas
 create table atendimento ( -- esse vai salvar pra fazer o relatorio e mander no historico -- basicamente depois da consulta vai salvar aqui para poder calcular os relatorio
 	atd_id int primary key auto_increment, -- id dessa tabela
 	atd_pro int, -- id do profissional nessa tabela
+    atd_clin int, -- id da clinica nessa tabela
 	atd_agnd int, -- id da agenda nessa tabela
 	atd_cli int, -- id do cliente nessa tabela
     atd_ser int not null,-- id do servico nessa tabela
-    atd_stat enum('atentido','desmarcado','não compareceu'), -- status do atentimento para gerar relatorios
-	foreign key (atd_pro) references profissional(pro_id) on delete set null, 
-	foreign key (atd_agnd) references agenda(agnd_id) on delete set null, 
-	foreign key (atd_cli) references cliente(cli_id) on delete set null,
-    foreign key (atd_ser) references servico(ser_id)  on delete cascade
+    atd_stat enum('atendido','desmarcado','não compareceu'), -- status do atentimento para gerar relatorios
+	foreign key (atd_pro) references profissional(pro_id), 
+	foreign key (atd_agnd) references agenda(agnd_id), 
+    foreign key (atd_clin) references clinica(clin_id),
+	foreign key (atd_cli) references cliente(cli_id),
+    foreign key (atd_ser) references servico(ser_id) 
 );
+
+create table padrao_notif (
+	pdNotif_id int auto_increment primary key,
+    pdNotif_pro int null,
+    pdNotif_clin int null,
+    pdNotif_tipo varchar(60),
+    pdNotif_msg text,
+    foreign key (pdNotif_pro) references profissional(pro_id) , 
+	foreign key (pdNotif_clin) references clinica(clin_id)  
+);
+
+create table notificacao (
+	notif_id int auto_increment primary key,
+    notif_pd int not null,
+    notif_pro int null,
+    notif_clin int null,
+    notif_cli int null,
+    notif_dest int not null,
+    notif_tipo varchar(60),
+    notif_msg text,
+    notif_data datetime,
+    notif_status boolean,
+    foreign key (notif_pd) references padrao_notif(pdNotif_id), 
+    foreign key (notif_pro) references profissional(pro_id), 
+    foreign key (notif_clin) references clinica(clin_id),
+    foreign key (notif_cli) references cliente(cli_id)
+);
+
+CREATE TABLE ctrlFiles (
+    owner       INT          NOT NULL,
+    filePath    VARCHAR(255) NOT NULL,   -- caminho completo do arquivo .base64
+    accessCtrl  TINYINT      NOT NULL DEFAULT 0,  -- 0 = público, 1 = privado
+    shareMails  TEXT         NULL,       -- "a@x.com,b@y.com"
+    PRIMARY KEY (filePath)
+);
+
 
 select * from cliente;
 
