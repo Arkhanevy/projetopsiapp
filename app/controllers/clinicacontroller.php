@@ -83,7 +83,7 @@ switch ($acao){
         $camposPro = ['pro_id','pro_nome','pro_tel'];
         
         $condicao = ['agnd_pro','agnd_clin'];
-        $id = 1;//$_SESSION['usuario']['idUsuario'];
+        $id = $_SESSION['usuario']['idUsuario'];
         
         $profissional = new profissional('profissional', $camposPro, $camposPro[0]);
         

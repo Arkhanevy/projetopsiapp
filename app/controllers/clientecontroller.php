@@ -23,7 +23,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $cliente = new cliente('cliente', $campos, $campos[0]);
-        $resultado = $cliente->Cadastrarcliente($_POST['nome'], $_POST['email'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['telefone'],$_POST['genero']);
+        $resultado = $cliente->Cadastrarcliente($_POST['nome'] ?? '', $_POST['email'], $_POST['username'] ?? '', $_POST['senha'],$_POST['bio'] ?? '', $_POST['dtNas'] ?? '', $_POST['CPF'],$_POST['telefone'] ?? '',$_POST['genero'] ?? '');
         echo json_encode($resultado);
         exit;
         
@@ -54,13 +54,13 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case 'contato':
-        $camposCli = [$campos[0],$campos[1],$campos[13]];
+        $campospro = ['pro_id','pro_nome','pro_tel'];
         $camposCLin = ['clin_id','clin_nome','clin_tel'];
         
         $condicao = ['agnd_cli','agnd_pro'];
         $id = 1;//$_SESSION['usuario']['idUsuario'];
         
-        $contCli = new cliente('cliente', $camposCli, $camposCli[0]);
+        $contCli = new cliente('profissional', $campospro, $campospro[0]);
         $clinica= new clinica('clinica', $camposCLin, $camposCLin[0]);
         
         $contCli = $contCli->contatoProCli($condicao, $id);

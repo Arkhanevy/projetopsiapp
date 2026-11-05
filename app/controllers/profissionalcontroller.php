@@ -2,6 +2,7 @@
 use models\profissional;
 use models\busca;
 use models\clinica;
+use models\notificacao;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -120,13 +121,13 @@ switch ($acao){
         ]);
         exit;
     case 'contato':
-        $camposPro = [$campos[0],$campos[1],$campos[14]];
+        $camposCli = ['cli_id','cli_nome','cli_tel'];
         $camposCLin = ['clin_id','clin_nome','clin_tel'];
         
-        $condicao = ['agnd_pro','agnd_cli'];
-        $id = 1;//$_SESSION['usuario']['idUsuario'];
+        $condicao = ['agnd_cli','agnd_pro'];
+        $id = $_SESSION['usuario']['idUsuario'];
         
-        $profissional = new profissional('profissional', $camposPro, $camposPro[0]);
+        $profissional = new profissional('cliente', $camposCli, $camposCli[0]);
         $clinica= new clinica('clinica', $camposCLin, $camposCLin[0]);
         
         $contPro = $profissional->contatoProCli($condicao, $id);
@@ -165,14 +166,30 @@ switch ($acao){
             'telefone' => 'pro_tel',
             ];
         $atualizacao = $_POST['atualizacao'];
+
         $campos = ['pro_id'];
         foreach ($atualizacao as $campo){
+            if (!array_key_exists($campo, $dicpro)) {
+                echo json_encode(['sucesso' => false,'mensagem' => 'Campo de atualização não válido']);
+                exit;
+            }
             $campos[] = $dicpro[$campo];
         }
+
         $valores = $_POST['valores'];
-        $id = $_SESSION['idUsuario'];
+        $id = $_SESSION['usuario']['idUsuario'];
         $profissional = new profissional('profissional', $campos, $campos[0]);
         $atualizar = $profissional->atualizar($valores, $id);
         echo json_encode($atualizar);
         exit;
+    case 'aceitar':
+        $notificacâo = new notificacao('notificacao', 'notif_dest,notif_cli', 'notif_cli', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        $aceitar = $notificacâo->aceitar($_POST['cli']);
+        echo json_encode($aceitar);
+        exit;
+    case 'rejeitar':
+            $notificacâo = new notificacao('notificacao', 'notif_dest,notif_cli', 'notif_cli', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+            $rejeitar = $notificacâo->rejeitar($_POST['cli']);
+            echo json_encode($rejeitar);
+            exit;
 }

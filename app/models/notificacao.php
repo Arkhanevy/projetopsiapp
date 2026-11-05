@@ -1,6 +1,14 @@
 <?php
+/*
+'agendar' = notificação de consulta para aceita
+'reagendar' = notificação reagendamento de consulta para aceita
+'aceita' = notificação de consulta  aceita
+'rejeitar' = notificação de consulta  rejeitada
+'cancelar' = notificação de cancelamento de consulta
 
 
+
+*/
 namespace models;
 
 use core\database\DBQuery;
@@ -11,26 +19,28 @@ class notificacao {
     private $campos = '';
     private $primary = '';
     private $id = '';
+    private $usuario = '';
     
-    public function __construct($table,$campo,$primary,$id) {
+    public function __construct($table,$campo,$primary,$id,$usuario) {
         $this->table = $table;
-        $this->campo = $campo;
+        $this->campos = $campo;
         $this->primary = $primary;
         $this->id = $id;
+        $this->usuario = $usuario;
     }
-    private function contruircampos($usuario,$prefixo) {
+    private function contruircampos($prefixo) {
         $mapa = [
             'profissional' => 'pro',
             'clinica'      => 'clin',
             'cliente'      => 'cli',
         ];
-        return [$prefixo.$mapa[$usuario]];
+        return [$prefixo.$mapa[$this->usuario]];
         
     }
     
-    private function padao($tipo,$msg,$usuario) {
+    public function padao($tipo,$msg) {
         $campospd = ['pdnotif_id'];
-        $campospd[] = $this->contruircampos($usuario, 'pdNotif_');
+        $campospd[] = $this->contruircampos($this->usuario, 'pdNotif_');
         $campospd[] = ['pdNotif_tipo','pdNotif_msg'];
         $camposStr = implode(',', $campospd);
         $dados = [
@@ -55,8 +65,8 @@ class notificacao {
         
     }
     
-   public function enviar($tipo,$usuario,$dest) {
-       $cod = $this->contruircampos($usuario, 'pdNotif_');
+   public function enviar($tipo,$dest) {
+       $cod = $this->contruircampos($this->usuario, 'pdNotif_');
        $cod = implode(',',$cod);
        $where = new Where();
        $where->addCondition('AND', 'pdNotif_tipo', '=', $tipo);
@@ -84,7 +94,7 @@ class notificacao {
        $tipo,
        $resultado[0]['pdNotif_msg'],
        $hoje,
-       0
+       false
        ];
        $camposStr = implode(',', $this->campos);
        $enviar = new DBQuery($this->table, $camposStr, $this->primary);
@@ -94,6 +104,106 @@ class notificacao {
        }
        catch (\Exception $e) {
            return [
+               'sucesso' => false,
+               'mensagem' => $e->getMessage()
+           ];
+       }
+   }
+   
+   public function listar() {
+       $cod = $this->contruircampos($this->usuario, 'Notif_');
+       $cod = implode(',',$cod);
+       $where = new Where();
+       $where->addCondition('AND', $cod, '=', $this->id);
+       $where = $where->build();
+       $padao = new DBQuery('notificacao','*','');
+       
+       try {
+           $resultado = $padao->selectWhere($where);
+           $dados = $resultado->fetchall(\PDO::FETCH_ASSOC);
+           return [
+               'sucesso' => true,
+               'dados' => $dados
+           ];
+       }
+       catch (\Exception $e) {
+           return [
+               'sucesso' => false,
+               'mensagem' => $e->getMessage()
+           ];
+       };
+   }
+   public function aceitar($cli) {
+       $agenda = new DBQuery('agenda', 'agnd_id', 'agnd_id');
+       
+       
+       $where = new Where();
+       $where->addCondition('AND', 'agnd_cli', '=', $cli);
+       $where->addCondition('AND', 'agnd_pro', '=', $this->id);
+       $where->addCondition('AND', 'agnd_stat', '=', 'esperando');
+       $where = $where->build();
+       
+       try {
+           $resultado = $agenda->selectWhere($where);
+          
+       }
+       catch (\Exception $e) {
+           return [
+               'sucesso' => false,
+               'mensagem' => $e->getMessage()
+           ];
+       };
+       $dado = $resultado->fetchall(\PDO::FETCH_ASSOC);
+       $valores = [
+           $dado[0]['agnd_id'],
+           'aceita'
+       ];
+       $aceitar = new DBQuery('agenda', 'agnd_id,agnd_stat', 'agnd_id');
+       try {
+           $aceitar->update($valores);
+           return[
+               'sucesso' => true
+           ];
+       } catch (\Exception $e) {
+               return[
+                   'sucesso' => false,
+                   'mensagem' => $e->getMessage()
+                   ];
+       }
+   }
+   
+   public function rejeitar($cli) {
+       $agenda = new DBQuery('agenda', 'agnd_id', 'agnd_id');
+       
+       
+       $where = new Where();
+       $where->addCondition('AND', 'agnd_cli', '=', $cli);
+       $where->addCondition('AND', 'agnd_pro', '=', $this->id);
+       $where->addCondition('AND', 'agnd_stat', '=', 'esperando');
+       $where = $where->build();
+       
+       try {
+           $resultado = $agenda->selectWhere($where);
+           
+       }
+       catch (\Exception $e) {
+           return [
+               'sucesso' => false,
+               'mensagem' => $e->getMessage()
+           ];
+       };
+       $dado = $resultado->fetchall(\PDO::FETCH_ASSOC);
+       $valores = [
+           $dado[0]['agnd_id']
+       ];
+       $aceitar = new DBQuery('agenda', 'agnd_id', 'agnd_id');
+       try {
+           $aceitar->delete($valores);
+           return[
+               'sucesso' => true
+           ];
+       } catch (\Exception $e) {
+           return[
                'sucesso' => false,
                'mensagem' => $e->getMessage()
            ];

@@ -45,8 +45,8 @@ create table profissional ( -- tabela do perfil do profissional
 create table cliente ( -- tabela do cliente
     cli_id int auto_increment primary key,-- id do cliente
     cli_nome varchar(90),-- nome do cliente
-    cli_email varchar(90) unique,-- email do cliente
-    cli_user varchar(20) unique not null,-- usuario do cliente
+    cli_email varchar(90) unique not null,-- email do cliente
+    cli_user varchar(20) unique null,-- usuario do cliente
     cli_senha varchar(255) not null,-- senha do cliente
     cli_bio text,-- biografia do cliente
     cli_foto varchar(100),-- foto do cliente
@@ -63,7 +63,7 @@ create table cliente ( -- tabela do cliente
 
 create table servico (
 	ser_id int auto_increment primary key, -- id do serviço
-    ser_pro int not null,-- id do profissional na tabela serviço
+    ser_pro int null,-- id do profissional na tabela serviço
     ser_clin int null,
     ser_nome varchar(100) not null,-- nome do serviço
     ser_tipo varchar(50),-- tipo do serviço --
@@ -152,6 +152,7 @@ create table agenda (-- aqui vai estar os horarios das consultas
     agnd_dt date, -- data da consulta
     agnd_hrIni time,-- data de inicio da consulta
     agnd_hrTerm time, -- data de termino da consulta
+    agnd_stat enum('aceita', 'esperando'),
     foreign key (agnd_pro) references profissional(pro_id),
 	foreign key (agnd_cli) references cliente(cli_id),
 	foreign key (agnd_clin) references clinica(clin_id),
@@ -163,12 +164,12 @@ create table atendimento ( -- esse vai salvar pra fazer o relatorio e mander no 
 	atd_id int primary key auto_increment, -- id dessa tabela
 	atd_pro int, -- id do profissional nessa tabela
     atd_clin int, -- id da clinica nessa tabela
-	atd_agnd int, -- id da agenda nessa tabela
+	atd_agnd int null, -- id da agenda nessa tabela
 	atd_cli int, -- id do cliente nessa tabela
     atd_ser int not null,-- id do servico nessa tabela
     atd_stat enum('atendido','desmarcado','não compareceu'), -- status do atentimento para gerar relatorios
 	foreign key (atd_pro) references profissional(pro_id), 
-	foreign key (atd_agnd) references agenda(agnd_id), 
+	foreign key (atd_agnd) references agenda(agnd_id) on delete set null, 
     foreign key (atd_clin) references clinica(clin_id),
 	foreign key (atd_cli) references cliente(cli_id),
     foreign key (atd_ser) references servico(ser_id) 
@@ -194,7 +195,7 @@ create table notificacao (
     notif_tipo varchar(60),
     notif_msg text,
     notif_data datetime,
-    notif_status boolean,
+    notif_stat boolean,
     foreign key (notif_pd) references padrao_notif(pdNotif_id), 
     foreign key (notif_pro) references profissional(pro_id), 
     foreign key (notif_clin) references clinica(clin_id),

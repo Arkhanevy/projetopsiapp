@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $base64Files->base64ToFile($fileContent, $uploadPathDir . $fileBase64Name);
 
     // Registrar o arquivo
-    $owner = $_SESSION["idUsuario"];
+    $owner = $_SESSION['usuario']["idUsuario"];
     $filePath = $uploadPathDir . $fileBase64Name;
     $uploader->registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails);
 

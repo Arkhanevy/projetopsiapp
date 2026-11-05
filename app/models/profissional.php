@@ -19,9 +19,9 @@ class profissional extends usuario {
             $email,
             $username,
             password_hash($senha,PASSWORD_BCRYPT),
-            $senha,
             $bio,
             'cxfoto',
+            null,
             $dtNas,
             date('Y-m-d H:i:s'),
             null,
@@ -77,13 +77,6 @@ class profissional extends usuario {
     }
     
     public function hrServico($pro,$clin,$inicio,$termino,$dia) {
-        /*$camposStr =  "
-        'hrser_id',
-        'hrser_pro',
-        'hrser_clin',
-        'hrser_hrini',
-        'hrser_hrterm',
-        'hrser_dia' ";*/
         $camposStr = "hrser_id, hrser_pro, hrser_clin, hrser_hrini, hrser_hrterm, hrser_dia";
         $dados = [0,$pro,$clin,$inicio,$termino,$dia];
         try {
@@ -101,13 +94,13 @@ class profissional extends usuario {
     
     public function hrExcecao($pro,$dia,$trabalho,$inicio,$termino,$desc) {
         $camposStr =  " 
-            'hr_excecao_id',
-            'hr_excecao_pro',
-            'hr_excecao_dia',
-            'hr_excecao_trab',
-            'hr_excecao_ini',
-            'hr_excecao_term',
-            'hr_excecao_desc'";
+            hr_excecao_id,
+            hr_excecao_pro,
+            hr_excecao_dia,
+            hr_excecao_trab,
+            hr_excecao_ini,
+            hr_excecao_term,
+            hr_excecao_desc";
         $dados = [0,$pro,$dia,$trabalho,$inicio,$termino,$desc];
         try {
             $cadastrar = new DBQuery('hr_excecao', $camposStr, 'hr_excecao_id');

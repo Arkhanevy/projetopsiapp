@@ -55,7 +55,7 @@ class usuario {
             $camposStr = implode(',', $this->campos);
             $codigo = new DBQuery($this->table, $camposStr, $this->primary);
             $codigo->update($dados);
-            
+            /*
             $mail = new Mail($dados[0], $assunto, $body);
             $mail ->send();
             if (!$mail->send()) {
@@ -63,7 +63,7 @@ class usuario {
                     'sucesso'  => false,
                     'mensagem' => $mail->getLastError()
                 ];
-            }
+            }*/
             return ['sucesso' => true];
         }catch (\Exception $e) {
             return [
@@ -161,7 +161,7 @@ class usuario {
     
     public function MostrarConsulta() {
         //nessa função o $campo vai ser sting com o campo: agnd_(id do usuario)
-        $campoSelect = "agnd_id,agnd_pro,profissional.pro_nome,agnd_cli,cliente.cli_nome,agnd_clin,clinica.clin_nome,agnd_ser,servico.ser_nome,agnd_dt,agnd_hrIni,agnd_hrTerm";
+        $campoSelect = "agnd_id,agnd_pro,agnd_stat,profissional.pro_nome,agnd_cli,cliente.cli_nome,agnd_clin,clinica.clin_nome,agnd_ser,servico.ser_id,servico.ser_nome,servico.ser_dur,servico.ser_inter,servico.ser_loc,agnd_dt,agnd_hrIni,agnd_hrTerm";
         $campospro = "pro_id,pro_nome";
         $campocli = "cli_id,cli_nome";
         $camposClin = "clin_id,clin_nome";
@@ -180,6 +180,7 @@ class usuario {
         
         $where = new Where();
         $where->addCondition('AND', $this->campos, '=', $_SESSION[$this->table]['idUsuario']);
+        $where->addCondition('AND', 'agnd_stat', '=', 'aceita');
         
         try {
             $resultado = $agenda->selectFiltered($where);
@@ -258,10 +259,11 @@ class usuario {
     
     public function atualizar($valores,$id) {
         $camposStr = implode(',', $this->campos);
-        $valoresStr = implode(',', $valores);
         $usuario = new DBQuery($this->table, $camposStr, $this->primary);
         try {
-            $usuario->update($valoresStr);
+            array_unshift($valores, $id);
+            
+            $usuario->update($valores);
             return [
                 'sucesso' => true,
                 'dados' => 'atualizado com sucesso'

@@ -15,14 +15,14 @@ class cliente extends usuario {
         public function Cadastrarcliente($nome,$email,$username,$senha,$bio,$dtNas,$CPF,$telefone,$genero) {
             $dados =[
                 0,
-                $nome ,
+                $nome,
                 $email ,
                 $username ,
                 password_hash($senha ,PASSWORD_BCRYPT),
-                $bio  ?? '',
+                $bio ,
                 'cxfoto',//$cxproFoto ,
                 0,
-                $dtNas  ?? '',
+                $dtNas,
                 date('Y-m-d H:i:s'),
                 null,
                 "desativo",

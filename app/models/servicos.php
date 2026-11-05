@@ -110,13 +110,14 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
            return $dias;
        }
     
-    private function PegarPeriodo($dia) {
+    private function PegarPeriodo($dia,$pro) {
            try {
                $dsem = new \DateTime($dia);
                $dsem = $dsem->format('w');
                $rotina = new DBQuery('hr_servico', 'hrser_hrini,hrser_hrterm','hrser_dia' );
                $where = new Where();
                $where->addCondition('AND', 'hrser_dia', '=', $dsem);
+               $where->addCondition('AND', 'hrser_pro', '=', $pro);
                $where = $where->build();
                $resultado = $rotina->selectWhere($where);
                    if ($resultado) {
@@ -283,7 +284,7 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
         }
         
     public function PegarHoraVaga($dia,$dur,$inter,$pro){
-            $periodo = $this->PegarPeriodo($dia);
+            $periodo = $this->PegarPeriodo($dia,$pro);
             $agenda = $this->Agenda($dia,$pro);
             $agenda = array_map(fn($e) => [
                 'agnd_hrIni' => substr($e['agnd_hrIni'], 0, 5),
@@ -377,7 +378,8 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                 agnd_sala,
                 agnd_dt,
                 agnd_hrIni,
-                agnd_hrTerm"
+                agnd_hrTerm,
+                agnd_stat"
                 ;
             $dados =[
                 0,
@@ -387,7 +389,8 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                 $sala,
                 $dia,
                 $inicio,
-                $termino
+                $termino,
+                'esperando'
             ];
             try {
                 $agendar = new DBQuery('agenda', $camposagnd,'agnd_id' );
@@ -405,7 +408,76 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
             };
         }
        
-        
+        public function reagendar($agnd,$pro, $cli, $ser, $sala, $dia, $inicio, $termino) {
+            $camposagnd ="
+                agnd_id,
+                agnd_pro,
+                agnd_cli,
+                agnd_ser,
+                agnd_sala,
+                agnd_dt,
+                agnd_hrIni,
+                agnd_hrTerm,
+                agnd_stat"
+                ;
+                $dados =[
+                    $agnd,
+                    $pro,
+                    $cli,
+                    $ser,
+                    $sala,
+                    $dia,
+                    $inicio,
+                    $termino,
+                    'esperando'
+                ];
+                try {
+                    $agendar = new DBQuery('agenda', $camposagnd,'agnd_id' );
+                    $resultado = $agendar->update($dados);
+                    
+                    if ($resultado) {
+                        return  "sucesso";
+                    } else {
+                        return "erro ao inserir";
+                    }
+                } catch (\InvalidArgumentException $e) {
+                    return "Erro de validação: " . $e->getMessage();
+                } catch (\Exception $e) {
+                    return "Erro no banco: " . $e->getMessage();
+                };
+        }
+        public function cancelarconsulta($pro,$clin,$agnd,$cli,$ser) {
+            $campos = 'atd_id,atd_pro,atd_clin,atd_agnd,atd_cli,atd_ser,atd_stat';
+            $dados = [
+                0,
+                $pro,
+                $clin,
+                $agnd,
+                $cli,
+                $ser,
+                'desmarcado'
+            ];
+            $desmarcar = new DBQuery('atendimento', $campos, 'atd_id');
+            try {
+                $desmarcar->insert($dados);
+            }
+            catch (\Exception $e) {
+                return [
+                    'sucesso' => false,
+                    'mensagem' => $e->getMessage()
+                ];
+            };
+            $deletar = new DBQuery('agenda', 'agnd_id', 'agnd_id');
+            try {
+                $deletar->delete($agnd);
+                return ['sucesso' => true];
+            } catch (\Exception $e) {
+                return [
+                    'sucesso' => false,
+                    'mensagem' => $e->getMessage()
+                ];
+            }
+        }
+    }    
     
-}
 ?>
