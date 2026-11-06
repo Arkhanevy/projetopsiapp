@@ -10,11 +10,11 @@ $servico = new servicos();
 switch ($acao){
     case "cadastrar":
         if ($_SESSION['usuario']['tipoUsuario'] === 'clinica') {
-            $pro = 0;
+            $pro = null;
             $clin = $_SESSION['usuario']['idUsuario'];
         }
         if ($_SESSION['usuario']['tipoUsuario'] === 'profissional') {
-            $clin = 0;
+            $clin = null;
             $pro = $_SESSION['usuario']['idUsuario'];
         }
         $cadastro = $servico->cadastrar(0, $pro ,$clin, $_POST['nome'], $_POST['tipo'], $_POST['desc'], $_POST['dur'], $_POST['inter'], $_POST['val'], $_POST['dia'], $_POST['loc']);

@@ -79,6 +79,7 @@ switch ($acao){
                 $_SESSION['servico'] = [
                     'ser_id'    => $busca['ser_id'],
                     'ser_pro'   => $busca['ser_pro'],
+                    'ser_clin'   => $busca['ser_clin'],
                     'ser_dur'   => $busca['ser_dur'],
                     'ser_inter' => $busca['ser_inter'],
                     'ser_loc'   => $busca['ser_loc']

@@ -175,11 +175,11 @@ class usuario {
         
         $agenda->addJoin('INNER', 'agnd_pro', $profissional, 'pro_id');
         $agenda->addJoin('INNER', 'agnd_cli', $cliente, 'cli_id');
-        $agenda->addJoin('INNER', 'agnd_clin', $clinica, 'clin_id');
+        $agenda->addJoin('LEFT', 'agnd_clin', $clinica, 'clin_id');
         $agenda->addJoin('INNER', 'agnd_ser', $servico, 'ser_id');
         
         $where = new Where();
-        $where->addCondition('AND', $this->campos, '=', $_SESSION[$this->table]['idUsuario']);
+        $where->addCondition('AND', $this->campos, '=', $_SESSION['usuario']['idUsuario']);
         $where->addCondition('AND', 'agnd_stat', '=', 'aceita');
         
         try {

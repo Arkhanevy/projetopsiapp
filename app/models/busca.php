@@ -18,24 +18,49 @@ class busca {
     public function Buscar($busca,$valor){
         $camposStr = implode(',',$this->campos);
         $where = new Where();
+        if ($this->table != 'servico' && $this->table != 'profissional' && $this->table != 'clinica') {
+            return ['sucesso' => false, 'mensagem' => 'tipo de busca invalida'];
+        }
         if ($this->table === 'servico') {
+            
             if ($valor !== null && $valor !== '') {
-                $where->addCondition('AND', 'ser_val', '=', $valor);
-                $where->addLike('AND', 'ser_nome', $busca);
-                $where->addCondition('OR', 'ser_val', '=', $valor);
-                $where->addLike('AND', 'ser_tipo', $busca);
+                
+                $grupo = new Where();
+                
+                $grupo->addCondition('AND', 'ser_val', '=', $valor);
+                $grupo->addLike('AND', 'ser_nome', $busca);
+                
+                $grupo->addCondition('OR', 'ser_val', '=', $valor);
+                $grupo->addLike('AND', 'ser_tipo', $busca);
+                
+                $where->addGroup('AND', $grupo);
+                $where->addCondition('AND', 'ser_stat', '=', 'ativo');
+                
             } else {
-                $where->addLike('AND', 'ser_nome', $busca);
-                $where->addLike('OR', 'ser_tipo', $busca);
+                
+                $grupo = new Where();
+                
+                $grupo->addLike('AND', 'ser_nome', $busca);
+                $grupo->addLike('OR', 'ser_tipo', $busca);
+                
+                $where->addGroup('AND', $grupo);
+                $where->addCondition('AND', 'ser_stat', '=', 'ativo');
             }
+            
+            $where = $where->buildGroup();
+            
+        } else {
+            if ($this->table === 'profissional') {
+                $where->addLike('AND', 'pro_nome', $busca);
+                $where = $where->build();
+            }
+            if ($this->table === 'clinica') {
+                $where->addLike('AND', 'clin_nome', $busca);
+                $where = $where->build();
+            }  
+            
         }
-        if ($this->table === 'profissional') {
-            $where->addLike('AND', 'pro_nome', $busca);
-        }
-        if ($this->table === 'clinica') {
-            $where->addLike('AND', 'clin_nome', $busca);
-        }     
-        $where = $where->build();
+           
         $mostrar = new DBQuery($this->table, $camposStr,$this->primary);
         try {
             $resultado = $mostrar->selectWhere($where);
@@ -70,6 +95,7 @@ class busca {
         $where = new Where();
         if ($this->table === 'servico') {
             $where->addCondition('AND', 'ser_id', '=',$id);
+            $where->addCondition('AND', 'ser_stat', '=','ativo');
         }
         if ($this->table === 'profissional') {
             $where->addCondition('AND', 'pro_id', '=',$id);

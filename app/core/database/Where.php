@@ -22,6 +22,7 @@ use core\utils\Sanitize;
 class Where {
     
     private $conditions = array();
+    private $groups = array();
     
     public function __construct(){
         
@@ -163,6 +164,32 @@ class Where {
      *
      * @return array As condições armazenadas.
      */
+    /**
+     * Adiciona um grupo de condições, sem alterar o funcionamento do build() tradicional.
+     *
+     * @param string $logicOperator Operador que conecta o grupo (AND ou OR).
+     * @param Where $where Objeto Where com as condições do grupo.
+     * @return Where
+     */
+    public function addGroup($logicOperator, Where $where) {
+        $this->groups[] = array(
+            "logicOperator" => strtoupper($logicOperator),
+            "conditions" => $where->getConditions(),
+            "groups" => $where->getGroups()
+        );
+        
+        return $this;
+    }
+    
+    /**
+     * Retorna os grupos armazenados (uso interno para permitir grupos aninhados).
+     *
+     * @return array
+     */
+    public function getGroups() {
+        return $this->groups;
+    }
+    
     public function getConditions() {
         return $this->conditions;
     }
@@ -172,6 +199,7 @@ class Where {
      */
     public function clearConditions() {
         $this->conditions = array();
+        $this->groups = array();
     }
     
     /**
@@ -179,6 +207,106 @@ class Where {
      *
      * @return string $whereClause cláusula WHERE construída.
      */
+    /**
+     * Constrói uma cláusula WHERE com grupos entre parênteses.
+     * Use este método somente nas consultas que utilizam addGroup().
+     *
+     * @return string
+     */
+    public function buildGroup() {
+        $parts = array();
+        
+        foreach ($this->conditions as $condition) {
+            $sql = $this->buildSingleCondition($condition);
+            if ($sql !== "") {
+                $parts[] = array(
+                    "logicOperator" => $condition["logicOperator"],
+                    "sql" => $sql
+                );
+            }
+        }
+        
+        foreach ($this->groups as $group) {
+            $nested = $this->buildGroupExpression($group["conditions"], $group["groups"]);
+            if ($nested !== "") {
+                $parts[] = array(
+                    "logicOperator" => $group["logicOperator"],
+                    "sql" => "(" . $nested . ")"
+                );
+            }
+        }
+        
+        if (empty($parts)) {
+            return "";
+        }
+        
+        $expression = $parts[0]["sql"];
+        for ($i = 1; $i < count($parts); $i++) {
+            $expression .= " " . strtoupper($parts[$i]["logicOperator"]) . " " . $parts[$i]["sql"];
+        }
+        
+        return " WHERE " . $expression;
+    }
+    
+    private function buildGroupExpression($conditions, $groups) {
+        $parts = array();
+        
+        foreach ($conditions as $condition) {
+            $sql = $this->buildSingleCondition($condition);
+            if ($sql !== "") {
+                $parts[] = array(
+                    "logicOperator" => $condition["logicOperator"],
+                    "sql" => $sql
+                );
+            }
+        }
+        
+        foreach ($groups as $group) {
+            $nested = $this->buildGroupExpression($group["conditions"], $group["groups"]);
+            if ($nested !== "") {
+                $parts[] = array(
+                    "logicOperator" => $group["logicOperator"],
+                    "sql" => "(" . $nested . ")"
+                );
+            }
+        }
+        
+        if (empty($parts)) {
+            return "";
+        }
+        
+        $expression = $parts[0]["sql"];
+        for ($i = 1; $i < count($parts); $i++) {
+            $expression .= " " . strtoupper($parts[$i]["logicOperator"]) . " " . $parts[$i]["sql"];
+        }
+        
+        return $expression;
+    }
+    
+    private function buildSingleCondition($condition) {
+        if (empty($condition["value"])) {
+            return "";
+        }
+        
+        $fieldName = $condition["fieldName"];
+        $operator = $condition["operator"];
+        $value = $condition["value"];
+        
+        switch ($operator) {
+            case "IN":
+            case "NOT IN":
+                return $fieldName . " " . $operator . " (" . implode(",", $value) . ")";
+            case "BETWEEN":
+            case "NOT BETWEEN":
+                return $fieldName . " " . $operator . " " . $value[0] . " AND " . $value[1];
+            case "LIKE":
+            case "NOT LIKE":
+                return $fieldName . " " . $operator . " '" . $value . "'";
+            default:
+                return $fieldName . " " . $operator . " '" . $value . "'";
+        }
+    }
+    
     public function build() {
         $whereClause = "";
         $hasConditions = false;
@@ -221,50 +349,50 @@ class Where {
 }
 
 /**
-  *   Exemplos de uso da classe Where
-  *   
-  *   Instanciando a classe
-  *   $where = new Where();
-  *   
-  *   addCondition
-  *   Exemplo: SELECT  *   FROM tabela WHERE campo = 'valor'
-  *   $where->addCondition('AND', 'campo', '=', 'valor');
-  *   
-  *   addLike
-  *   Exemplo: SELECT  *   FROM tabela WHERE campo LIKE '%valor%'
-  *   $where->addLike('AND', 'campo', 'valor');
-  *   
-  *   addNotLike
-  *   Exemplo: SELECT  *   FROM tabela WHERE campo NOT LIKE '%valor%'
-  *   $where->addNotLike('AND', 'campo', 'valor');
-  *   
-  *   addIn
-  *   Exemplo: SELECT  *   FROM tabela WHERE campo IN ('valor1', 'valor2')
-  *   $where->addIn('AND', 'campo', ['valor1', 'valor2']);
-  *  
-  *   addNotIn
-  *   Exemplo: SELECT  *   FROM tabela WHERE campo NOT IN ('valor1', 'valor2')
-  *   $where->addNotIn('AND', 'campo', ['valor1', 'valor2']);
-  *   
-  *   addBetween
-  *   Exemplo: SELECT  *   FROM tabela WHERE campo BETWEEN 'valor1' AND 'valor2'
-  *   $where->addBetween('AND', 'campo', 'valor1', 'valor2');
-  *  
-  *   addNotBetween
-  *   Exemplo: SELECT  *   FROM tabela WHERE campo NOT BETWEEN 'valor1' AND 'valor2'
-  *   $where->addNotBetween('OR', 'campo', 'valor1', 'valor2');
-  *   
-  *   build
-  *   Cria a cláusula WHERE baseada nas condições adicionadas
-  *   $whereClause = $where->build();
-  *   
-  *   getConditions
-  *   Retorna as condições adicionadas
-  *   $conditions = $where->getConditions();
-  *   
-  *   clearConditions
-  *   Limpa todas as condições adicionadas
-  *   $where->clearConditions();
-*/
+ *   Exemplos de uso da classe Where
+ *
+ *   Instanciando a classe
+ *   $where = new Where();
+ *
+ *   addCondition
+ *   Exemplo: SELECT  *   FROM tabela WHERE campo = 'valor'
+ *   $where->addCondition('AND', 'campo', '=', 'valor');
+ *
+ *   addLike
+ *   Exemplo: SELECT  *   FROM tabela WHERE campo LIKE '%valor%'
+ *   $where->addLike('AND', 'campo', 'valor');
+ *
+ *   addNotLike
+ *   Exemplo: SELECT  *   FROM tabela WHERE campo NOT LIKE '%valor%'
+ *   $where->addNotLike('AND', 'campo', 'valor');
+ *
+ *   addIn
+ *   Exemplo: SELECT  *   FROM tabela WHERE campo IN ('valor1', 'valor2')
+ *   $where->addIn('AND', 'campo', ['valor1', 'valor2']);
+ *
+ *   addNotIn
+ *   Exemplo: SELECT  *   FROM tabela WHERE campo NOT IN ('valor1', 'valor2')
+ *   $where->addNotIn('AND', 'campo', ['valor1', 'valor2']);
+ *
+ *   addBetween
+ *   Exemplo: SELECT  *   FROM tabela WHERE campo BETWEEN 'valor1' AND 'valor2'
+ *   $where->addBetween('AND', 'campo', 'valor1', 'valor2');
+ *
+ *   addNotBetween
+ *   Exemplo: SELECT  *   FROM tabela WHERE campo NOT BETWEEN 'valor1' AND 'valor2'
+ *   $where->addNotBetween('OR', 'campo', 'valor1', 'valor2');
+ *
+ *   build
+ *   Cria a cláusula WHERE baseada nas condições adicionadas
+ *   $whereClause = $where->build();
+ *
+ *   getConditions
+ *   Retorna as condições adicionadas
+ *   $conditions = $where->getConditions();
+ *
+ *   clearConditions
+ *   Limpa todas as condições adicionadas
+ *   $where->clearConditions();
+ */
 
 ?>
