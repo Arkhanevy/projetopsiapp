@@ -99,6 +99,22 @@ switch ($acao){
         ]);
         exit;
     
+
+    case "efetuarLogin":
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+        $senha = $_POST['senha'] ?? '';
+
+        $usuario = new models\clinica(); 
+        
+        // Chama a função que já está pronta usuario.php
+        $resultado = $usuario->Login($email, $senha);
+        
+        // Retorna a resposta para o seu formulário
+        echo json_encode($resultado);
+        exit;
+
     // TESTE - MARIA
     case "verificarLogin":
         // Usado por perfil.js: informa se a sessão atual é de uma clínica.
@@ -112,5 +128,15 @@ switch ($acao){
         $notificacâo = new notificacao('notificacao', '*', '', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
         $listar = $notificacâo->listar();
         echo json_encode($listar);
+        exit;
+        
+    // --- ROTA PARA DESLOGAR ---
+    case "logout":
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        unset($_SESSION['usuario']);
+        session_destroy();
+        header("Location: /login.php");
         exit;
 }
