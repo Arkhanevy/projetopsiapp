@@ -161,11 +161,13 @@ class usuario {
     
     public function MostrarConsulta() {
         //nessa função o $campo vai ser sting com o campo: agnd_(id do usuario)
-        $campoSelect = "agnd_id,agnd_pro,agnd_stat,profissional.pro_nome,agnd_cli,cliente.cli_nome,agnd_clin,clinica.clin_nome,agnd_ser,servico.ser_id,servico.ser_nome,servico.ser_dur,servico.ser_inter,servico.ser_loc,agnd_dt,agnd_hrIni,agnd_hrTerm";
+        $campoSelect = "agnd_id,agnd_pro,agnd_stat,profissional.pro_nome,agnd_cli,cliente.cli_nome,agnd_clin,clinica.clin_id,clinica.clin_nome,agnd_ser,servico.ser_id,servico.ser_nome,servico.ser_dur,servico.ser_inter,servico.ser_loc,agnd_dt,agnd_hrIni,agnd_hrTerm";
         $campospro = "pro_id,pro_nome";
         $campocli = "cli_id,cli_nome";
         $camposClin = "clin_id,clin_nome";
         $campoServ = "ser_id,ser_nome";
+        $atual = new \DateTime();
+        $atual = $atual->format('Y-m-d');
         
         $agenda = new DBQuery('agenda', $campoSelect, 'agnd_id');
         $profissional = new DBQuery('profissional', $campospro, 'pro_id');
@@ -174,13 +176,14 @@ class usuario {
         $servico = new DBQuery('servico', $campoServ, 'ser_id');
         
         $agenda->addJoin('INNER', 'agnd_pro', $profissional, 'pro_id');
-        $agenda->addJoin('INNER', 'agnd_cli', $cliente, 'cli_id');
-        $agenda->addJoin('LEFT', 'agnd_clin', $clinica, 'clin_id');
+        $agenda->addJoin('LEFT', 'agnd_cli', $cliente, 'cli_id');// pode ser o profissional que cadastrou
+        $agenda->addJoin('LEFT', 'agnd_clin', $clinica, 'clin_id');//pode não ter clinica/autonomo
         $agenda->addJoin('INNER', 'agnd_ser', $servico, 'ser_id');
         
         $where = new Where();
         $where->addCondition('AND', $this->campos, '=', $_SESSION['usuario']['idUsuario']);
         $where->addCondition('AND', 'agnd_stat', '=', 'aceita');
+        $where->addCondition('AND', 'agnd_dt', '>=', $atual);
         
         try {
             $resultado = $agenda->selectFiltered($where);

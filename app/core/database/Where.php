@@ -203,6 +203,19 @@ class Where {
     }
     
     /**
+     * Informa se o valor de uma condição deve ser ignorado (condição não entra no WHERE).
+     *
+     * Ignora null, '', false e array vazio, como o empty() fazia, mas NÃO ignora
+     * 0 nem '0' (ex.: domingo = 0 em hrser_dia).
+     *
+     * @param mixed $value O valor da condição.
+     * @return bool
+     */
+    private function valorVazio($value) {
+        return empty($value) && $value !== 0 && $value !== '0' && $value !== 0.0;
+    }
+    
+    /**
      * Constrói a cláusula WHERE com base nas condições armazenadas.
      *
      * @return string $whereClause cláusula WHERE construída.
@@ -284,7 +297,7 @@ class Where {
     }
     
     private function buildSingleCondition($condition) {
-        if (empty($condition["value"])) {
+        if ($this->valorVazio($condition["value"])) {
             return "";
         }
         
@@ -312,7 +325,7 @@ class Where {
         $hasConditions = false;
         
         foreach ($this->conditions as $condition) {
-            if (!empty($condition["value"])) {
+            if (!$this->valorVazio($condition["value"])) {
                 if ($hasConditions) {
                     $whereClause .= " " . $condition["logicOperator"] . " ";
                 }
@@ -348,51 +361,5 @@ class Where {
     }
 }
 
-/**
- *   Exemplos de uso da classe Where
- *
- *   Instanciando a classe
- *   $where = new Where();
- *
- *   addCondition
- *   Exemplo: SELECT  *   FROM tabela WHERE campo = 'valor'
- *   $where->addCondition('AND', 'campo', '=', 'valor');
- *
- *   addLike
- *   Exemplo: SELECT  *   FROM tabela WHERE campo LIKE '%valor%'
- *   $where->addLike('AND', 'campo', 'valor');
- *
- *   addNotLike
- *   Exemplo: SELECT  *   FROM tabela WHERE campo NOT LIKE '%valor%'
- *   $where->addNotLike('AND', 'campo', 'valor');
- *
- *   addIn
- *   Exemplo: SELECT  *   FROM tabela WHERE campo IN ('valor1', 'valor2')
- *   $where->addIn('AND', 'campo', ['valor1', 'valor2']);
- *
- *   addNotIn
- *   Exemplo: SELECT  *   FROM tabela WHERE campo NOT IN ('valor1', 'valor2')
- *   $where->addNotIn('AND', 'campo', ['valor1', 'valor2']);
- *
- *   addBetween
- *   Exemplo: SELECT  *   FROM tabela WHERE campo BETWEEN 'valor1' AND 'valor2'
- *   $where->addBetween('AND', 'campo', 'valor1', 'valor2');
- *
- *   addNotBetween
- *   Exemplo: SELECT  *   FROM tabela WHERE campo NOT BETWEEN 'valor1' AND 'valor2'
- *   $where->addNotBetween('OR', 'campo', 'valor1', 'valor2');
- *
- *   build
- *   Cria a cláusula WHERE baseada nas condições adicionadas
- *   $whereClause = $where->build();
- *
- *   getConditions
- *   Retorna as condições adicionadas
- *   $conditions = $where->getConditions();
- *
- *   clearConditions
- *   Limpa todas as condições adicionadas
- *   $where->clearConditions();
- */
 
 ?>

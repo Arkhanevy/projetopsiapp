@@ -2,6 +2,7 @@
 <?php
 use models\clinica;
 use models\profissional;
+use models\notificacao;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -106,5 +107,10 @@ switch ($acao){
         $logado = isset($_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario'])
             && $_SESSION['usuario']['tipoUsuario'] === 'clinica';
         echo json_encode(['logado' => $logado]);
+        exit;
+    case 'notificação':
+        $notificacâo = new notificacao('notificacao', '*', '', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        $listar = $notificacâo->listar();
+        echo json_encode($listar);
         exit;
 }

@@ -112,6 +112,22 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
     
     private function PegarPeriodo($dia,$pro) {
            try {
+               $excecao = new DBQuery('hr_excecao', 'hr_excecao_trab,hr_excecao_ini,hr_excecao_term', 'hr_excecao_dia');
+               $where = new Where();
+               $where->addCondition('AND', 'hr_excecao_dia', '=', $dia);
+               $where->addCondition('AND', 'hr_excecao_pro', '=', $pro);
+               $ex = $excecao->selectWhere($where->build())->fetch(\PDO::FETCH_ASSOC);
+               
+               if ($ex) {
+                   if (empty($ex['hr_excecao_ini'])) {
+                       return null;
+                   }
+                   if ($ex['hr_excecao_trab']) {
+                       return ['inicio' => $ex['hr_excecao_ini'], 'fim' => $ex['hr_excecao_term']]; 
+                   }
+               }
+               
+               
                $dsem = new \DateTime($dia);
                $dsem = $dsem->format('w');
                $rotina = new DBQuery('hr_servico', 'hrser_hrini,hrser_hrterm','hrser_dia' );
@@ -124,19 +140,6 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                        $dados = $resultado->fetch(\PDO::FETCH_ASSOC);
                        $dados = ['inicio' => $dados['hrser_hrini'],'fim' => $dados['hrser_hrterm']];
                        return $dados;
-                   } else {
-                       $excecao = new DBQuery('hr_excecao', 'hr_excecao_ini,hr_excecao_term','hr_excecao_dia' );
-                       $where = new Where();
-                       $where->addCondition('AND', 'hr_excecao_dia', '=', $dia);
-                       $where = $where->build();
-                       $resultado = $excecao->selectWhere($where);
-                       if ($resultado) {
-                           $dados = $resultado->fetch(\PDO::FETCH_ASSOC);
-                           $dados = array_map(fn($row) => ['inicio' => $row['hr_excecao_ini'],'fim' => $row['hr_excecao_term'] ], $dados);
-                           return $dados;
-                       } else {
-                           return "erro ao resgatar a informação";
-                       }
                    }
                } catch (\InvalidArgumentException $e) {
                    return "Erro de validação: " . $e->getMessage();
@@ -185,14 +188,14 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                 
             } else {
                 return ['sucesso' => false,
-                        'msg' => "erro ao resgatar a informação"];
+                        'mensagem' => "erro ao resgatar a informação"];
             }
         } catch (\InvalidArgumentException $e) {
             return  ['sucesso' => false,
-                     'msg' => "Erro de validação: " . $e->getMessage()];
+                     'mensagem' => "Erro de validação: " . $e->getMessage()];
         } catch (\Exception $e) {
             return  ['sucesso' => false,
-                     'msg' => "Erro no banco: " . $e->getMessage()];
+                     'mensagem' => "Erro no banco: " . $e->getMessage()];
         };
     }
         
@@ -209,16 +212,69 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                             'dados' =>$resultado->fetchAll(\PDO::FETCH_ASSOC)];
                 }else {
                     return ['sucesso' => false,
-                            'msg' => 'Erro ao resgatar informação'];
+                            'mensagem' => 'Erro ao resgatar informação'];
                 }
             } catch (\InvalidArgumentException $e) {
                 return ['sucesso' => false,
-                        'msg' => 'Erro de validação: ' . $e->getMessage()];
+                        'mensagem' => 'Erro de validação: ' . $e->getMessage()];
             } catch (\Exception $e) {
                 return ['sucesso' => false,
-                        'msg' => 'Erro no banco: ' . $e->getMessage()];
+                        'mensagem' => 'Erro no banco: ' . $e->getMessage()];
             }
         }
+        
+        private function minhaAgenda($agnd, $pro,$cli) {
+            if (empty($cli)) {
+                $mostrar = new DBQuery('agenda', 'agnd_pro', 'agnd_pro');
+                
+                $where = new Where();
+                
+                $where->addCondition('AND', 'agnd_id', '=', $agnd);
+                $where->addCondition('AND', 'agnd_pro', '=', $pro);
+            }
+            else {
+                $mostrar = new DBQuery('agenda', 'agnd_cli', 'agnd_cli');
+                
+                $where = new Where();
+                
+                $where->addCondition('AND', 'agnd_id', '=', $agnd);
+                $where->addCondition('AND', 'agnd_cli', '=', $cli);
+            }
+            $where = $where->build();
+            
+            try {
+                
+                $resultado = $mostrar->selectWhere($where);
+                
+            } catch (\InvalidArgumentException $e) {
+                
+                return [
+                    'sucesso' => false,
+                    'mensagem' => 'Erro de validação: ' . $e->getMessage()
+                ];
+                
+            } catch (\Exception $e) {
+                
+                return [
+                    'sucesso' => false,
+                    'mensagem' => 'Erro no banco: ' . $e->getMessage()
+                ];
+            }
+            
+            $resultado = $resultado->fetchAll(\PDO::FETCH_ASSOC);
+            
+            if (empty($resultado)) {
+                return [
+                    'sucesso' => false,
+                    'mensagem' => 'Agendamento não encontrado ou não é seu'
+                ];
+            }
+            
+            return [
+                'sucesso' => true
+            ];
+        }
+
         
     public function MostrarDatas($id,$pro,$ano,$mes,$dia) {
             $hrser = $this->GetDiaTrabalho($pro);
@@ -295,8 +351,6 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                 
                 $horarios = [];
                 $duracao = new \DateInterval('PT'.($dur + $inter).'M'); 
-                $intervalo = new \DateInterval('PT'.($inter).'M'); 
-                
                 
                 
                 $Inper = \DateTime::createFromFormat('H:i:s', $periodo['inicio']);
@@ -320,14 +374,10 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                     
                 }
                 
-                $horarios = array_filter($horarios, function($slot) use ($agenda, $intervalo) {
+                $horarios =  array_values(array_filter($horarios, function($slot) use ($agenda) {
                     foreach ($agenda as $agnd) {
                         $agnd_ini = \DateTime::createFromFormat('H:i', $agnd['agnd_hrIni']);
-                        $agnd_term = \DateTime::createFromFormat('H:i', $agnd['agnd_hrTerm']);
-                       
-                        
-                        $agnd_ini->sub($intervalo); 
-                        $agnd_term->add($intervalo); 
+                        $agnd_term = \DateTime::createFromFormat('H:i', $agnd['agnd_hrTerm']); 
                         
                         $slot_ini = \DateTime::createFromFormat('H:i', $slot['inicio']);
                         $slot_term = \DateTime::createFromFormat('H:i', $slot['termino']);
@@ -339,11 +389,12 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                         }
                     }
                     return true; 
-                });
+                }));
                 
                     return $horarios;}
                     else {
                         return  json_encode([
+                            'sucesso' => false,
                             'periodo' => $periodo,
                             'agenda' => $agenda
                         ]);
@@ -370,6 +421,35 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
         }
     
     public function agendar($pro, $cli, $ser, $sala, $dia, $inicio, $termino) {
+            $agenda = $this->Agenda($dia,$pro);
+            $agenda = array_map(fn($e) => [
+                'agnd_hrIni' => substr($e['agnd_hrIni'], 0, 5),
+                'agnd_hrTerm' => substr($e['agnd_hrTerm'], 0, 5)
+            ], $agenda);
+            foreach ($agenda as $agnd) {
+                $agnd_ini = \DateTime::createFromFormat('H:i', $agnd['agnd_hrIni']);
+                $agnd_term = \DateTime::createFromFormat('H:i', $agnd['agnd_hrTerm']);
+
+                
+                $hr_ini = \DateTime::createFromFormat('H:i', $inicio);
+                $hr_term = \DateTime::createFromFormat('H:i', $termino);
+                
+                if ($hr_ini < $agnd_term && $hr_term > $agnd_ini){
+                    return ['sucesso' => false, 'mensagem' => 'horario ocupado'];
+                }};
+                
+            $salasOcupadas = $this->SalasAgendadas($inicio, $termino, $dia);
+            if (!$salasOcupadas['sucesso']) {
+                return $salasOcupadas;
+            }
+            $idsOcupados = array_column($salasOcupadas['dados'], 'agnd_sala');
+            if (in_array((int)$sala, array_map('intval', $idsOcupados), true)) {
+                return [
+                    'sucesso' => false,
+                    'mensagem' => 'Sala ocupada'
+                ];
+            }
+        
             $camposagnd ="
                 agnd_id,
                 agnd_pro,
@@ -409,28 +489,72 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
         }
        
         public function reagendar($agnd,$pro, $cli, $ser, $sala, $dia, $inicio, $termino) {
-            $camposagnd ="
-                agnd_id,
-                agnd_pro,
-                agnd_cli,
-                agnd_ser,
-                agnd_sala,
-                agnd_dt,
-                agnd_hrIni,
-                agnd_hrTerm,
-                agnd_stat"
-                ;
+            
+            $minha = $this->minhaAgenda($agnd, $pro,$cli);
+            if (!$minha['sucesso']) {
+                return $minha;
+            }
+            
+            $agendas = $this->Agenda($dia,$pro);
+            $agendas = array_map(fn($e) => [
+                'agnd_hrIni' => substr($e['agnd_hrIni'], 0, 5),
+                'agnd_hrTerm' => substr($e['agnd_hrTerm'], 0, 5)
+            ], $agendas);
+            foreach ($agendas as $agenda) {
+                $agnd_ini = \DateTime::createFromFormat('H:i', $agenda['agnd_hrIni']);
+                $agnd_term = \DateTime::createFromFormat('H:i', $agenda['agnd_hrTerm']);
+                
+                
+                $hr_ini = \DateTime::createFromFormat('H:i', $inicio);
+                $hr_term = \DateTime::createFromFormat('H:i', $termino);
+                
+                if ($hr_ini < $agnd_term && $hr_term > $agnd_ini){
+                    return ['sucesso' => false, 'mensagem' => 'horario ocupado'];
+                }};
+                
+                $salasOcupadas = $this->SalasAgendadas($inicio, $termino, $dia);
+                if (!$salasOcupadas['sucesso']) {
+                    return $salasOcupadas;
+                }
+                $idsOcupados = array_column($salasOcupadas['dados'], 'agnd_sala');
+                if (in_array((int)$sala, array_map('intval', $idsOcupados), true)) {
+                    return [
+                        'sucesso' => false,
+                        'mensagem' => 'Sala ocupada'
+                    ];
+                }
+            
+                $hrini = \DateTime::createFromFormat('H:i:s',$inicio);
+                $hrterm = \DateTime::createFromFormat('H:i:s',$termino);
+                
+                $camposagnd ="
+                    agnd_id,
+                    agnd_ser,
+                    agnd_sala,
+                    agnd_dt,
+                    agnd_hrIni,
+                    agnd_hrTerm,
+                    agnd_stat";
+                
                 $dados =[
                     $agnd,
-                    $pro,
-                    $cli,
                     $ser,
                     $sala,
                     $dia,
-                    $inicio,
-                    $termino,
+                    $hrini,
+                    $hrterm,
                     'esperando'
                 ];
+                if (!empty($pro)) {
+                    $camposagnd = $camposagnd . ',agnd_pro';
+                    $dados[] = $pro;
+                }
+                if (!empty($cli)) {
+                    $camposagnd = $camposagnd . ',agnd_cli';
+                    $dados[] = $cli;
+                }
+                
+                
                 try {
                     $agendar = new DBQuery('agenda', $camposagnd,'agnd_id' );
                     $resultado = $agendar->update($dados);
@@ -446,7 +570,25 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                     return "Erro no banco: " . $e->getMessage();
                 };
         }
-        public function cancelarconsulta($pro,$clin,$agnd,$cli,$ser) {
+        public function atentimento($pro,$clin,$agnd,$cli,$ser,$tipo) {
+            $verificacao = new DBQuery('agenda', 'agnd_id', 'agnd_id');
+            $where = new Where();
+            $where->addCondition('AND', 'agnd_pro', '=', $pro);
+            $where->addCondition('AND', 'agnd_clin', '=', $clin);
+            $where->addCondition('AND', 'agnd_cli', '=', $cli);
+            $where->addCondition('AND', 'agnd_id', '=', $agnd);
+            $where = $where->build();
+            try {
+                $verificaar = $verificacao->selectWhere($where);
+            }
+            catch (\Exception $e) {
+                return [
+                    'sucesso' => false,
+                    'mensagem' => $e->getMessage()
+                ];}
+                if (!$verificaar->fetch(\PDO::FETCH_ASSOC)) {
+                    return ['sucesso' => false,'mensagem' => 'consulta não encontrada'];
+                } 
             $campos = 'atd_id,atd_pro,atd_clin,atd_agnd,atd_cli,atd_ser,atd_stat';
             $dados = [
                 0,
@@ -455,11 +597,11 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                 $agnd,
                 $cli,
                 $ser,
-                'desmarcado'
+                $tipo
             ];
-            $desmarcar = new DBQuery('atendimento', $campos, 'atd_id');
+            $atentimento = new DBQuery('atendimento', $campos, 'atd_id');
             try {
-                $desmarcar->insert($dados);
+                $atentimento->insert($dados);
             }
             catch (\Exception $e) {
                 return [
@@ -467,17 +609,21 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                     'mensagem' => $e->getMessage()
                 ];
             };
-            $deletar = new DBQuery('agenda', 'agnd_id', 'agnd_id');
-            try {
-                $deletar->delete($agnd);
-                return ['sucesso' => true];
-            } catch (\Exception $e) {
-                return [
-                    'sucesso' => false,
-                    'mensagem' => $e->getMessage()
-                ];
+            if ($tipo === 'desmarcado') {
+                $deletar = new DBQuery('agenda', 'agnd_id', 'agnd_id');
+                try {
+                    $deletar->delete($agnd);
+                    return ['sucesso' => true];
+                } catch (\Exception $e) {
+                    return [
+                        'sucesso' => false,
+                        'mensagem' => $e->getMessage()
+                    ];
+                }
             }
+            return ['sucesso' => true];
         }
+        
     }    
     
 ?>

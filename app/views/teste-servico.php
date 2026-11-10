@@ -392,6 +392,7 @@ function criarTestes() {
         return !!l && JSON.stringify(l.map(s => s.inicio)) === JSON.stringify(esperados);
     };
     const semVagas = j => Array.isArray(j) && j.length === 0;
+    const sem = (base, tirar) => base.filter(h => !tirar.includes(h));
     const igualCal = (j, esp) => ['disponivel', 'folga', 'indisponivel'].every(k => Array.isArray(j?.[k]) && JSON.stringify(j[k]) === JSON.stringify(esp[k]));
 
     /* horários esperados */
@@ -524,6 +525,28 @@ function criarTestes() {
           req: { acao: 'mostrarhorario', dia: '2026-12-03' }, esp: '4 horários: 09:00, 09:40, 10:20 e 11:00', ok: j => inicios(j, bruno) },
         { n: 'sessão guarda o dia escolhido', req: { acao: 'ver_sessao' }, esp: 'sessão.datas = 2026-12-03 (o mostrarSala usa)',
           ok: j => String(j?.datas) === '2026-12-03' },
+
+        { n: 'consulta 12:00-12:40 (21/12) tira 2 horários: 11:20 e 12:10', sessao: S.um,
+          req: { ...baseHorario, dia: '2026-12-21' }, esp: '10 horários: a grade de 12 sem 11:20 e 12:10 (exatamente 2 a menos). O intervalo de limpeza já está dentro do horário (40+10 = 50 min) e não é somado de novo: o horário sai se cruza ou encosta na consulta',
+          ok: j => inicios(j, sem(dia14, ['11:20', '12:10'])) },
+        { n: 'consulta no começo do dia 08:00-08:40 (23/12) tira só o 08:00', sessao: S.um,
+          req: { ...baseHorario, dia: '2026-12-23' }, esp: '11 horários, de 08:50 a 17:10 (o 08:50 só começa depois do fim da consulta, 08:40)', ok: j => inicios(j, sem(dia14, ['08:00'])) },
+        { n: 'consulta no fim do dia 17:10-17:50 (28/12) tira 2: 16:20 e 17:10', sessao: S.um,
+          req: { ...baseHorario, dia: '2026-12-28' }, esp: '10 horários, de 08:00 a 15:30 (o 16:20 termina às 17:10, justo quando a consulta começa, e encostar conta)', ok: j => inicios(j, sem(dia14, ['16:20', '17:10'])) },
+        { n: 'duas consultas no mesmo dia (12:00 e 15:00, 29/12) tiram 2 horários cada, 4 no total', sessao: S.um,
+          req: { ...baseHorario, dia: '2026-12-29' }, esp: '8 horários: a grade sem 11:20, 12:10, 14:40 e 15:30', ok: j => inicios(j, sem(dia14, ['11:20', '12:10', '14:40', '15:30'])) },
+        { n: 'consulta igual a um horário da grade (11:20-12:10, 22/12) tira o próprio horário e os 2 vizinhos', sessao: S.um,
+          req: { ...baseHorario, dia: '2026-12-22' }, esp: '9 horários: sem 10:30, 11:20 e 12:10. Documenta o comportamento atual: os vizinhos encostam na consulta (término 11:20 e início 12:10) e a comparação usa < e >, então encostar conta como colisão. Se o certo for tirar só o próprio horário, este teste passa a falhar quando o código mudar',
+          ok: j => inicios(j, sem(dia14, ['10:30', '11:20', '12:10'])) },
+        { n: 'pedido "esperando" (08/12, 09:00-09:40) também ocupa o horário', sessao: S.um,
+          req: { ...baseHorario, dia: '2026-12-08' }, esp: '10 horários: a grade sem 08:50 e 09:40 (a consulta esperando conta como ocupada; o 08:00 termina às 08:50, antes das 09:00)', ok: j => inicios(j, sem(dia14, ['08:50', '09:40'])) },
+        { n: 'consulta de outro profissional no mesmo dia (Bruno, 30/12) não tira nada da Ana', sessao: S.um,
+          req: { ...baseHorario, dia: '2026-12-30' }, esp: '12 horários, a grade inteira da Ana', ok: j => inicios(j, dia14) },
+        { n: 'Bruno (30+10 min), consulta 10:00-10:30 em 24/12 tira 2 horários', sessao: S.um,
+          req: { acao: 'mostrarhorario', dia: '2026-12-24', ser_dur: '30', ser_inter: '10', agnd_pro: '412' },
+          esp: '2 horários: sobram 09:00 e 11:00 (a grade é 09:00, 09:40, 10:20, 11:00; saem 09:40 e 10:20)', ok: j => inicios(j, ['09:00', '11:00']) },
+        { n: 'a resposta continua sendo lista JSON (array) com consulta no dia', sessao: S.um,
+          req: { ...baseHorario, dia: '2026-12-29' }, esp: 'array JSON', ok: j => Array.isArray(j) },
 
         { grupo: 'mostrarSala (continua o fluxo do serviço 402, na clínica)', n: 'horários do dia 07/12 pelo serviço 402', sessao: S.um, servico: 'ser402',
           req: { acao: 'mostrarhorario', dia: '2026-12-07' }, esp: 'mesmos 10 horários da Ana nesse dia', ok: j => inicios(j, dia07) },

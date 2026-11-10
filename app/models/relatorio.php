@@ -12,9 +12,9 @@ class relatorio {
     private $usuario = '';
     private $id = 0;
     
-    public function __construct($table/*,$campo*/,$primary,$usuario,$id) {
+    public function __construct($table,$campo,$primary,$usuario,$id) {
         $this->table = $table;//atendimento
-        /*$this->campo = $campo;*/// vai variar dependendo do que o select quer tá comentado pq no momento nenhum metodo usa
+        $this->campo = $campo;// vai variar dependendo do que o select quer tá comentado pq no momento nenhum metodo usa
         $this->primary = $primary;// atd_id
         $this->usuario = $usuario;// profissional ou clinica
         $this->id = $id;
@@ -132,6 +132,50 @@ class relatorio {
             'dados' => (float) ($resultado['total'] ?? 0)
         ];
     }
+    
+    public function historico() {
+        //nessa função o $campo vai ser sting com o campo: agnd_(id do usuario)
+        $campoSelect = "agnd_id,agnd_pro,agnd_stat,profissional.pro_nome,agnd_cli,cliente.cli_nome,agnd_clin,clinica.clin_id,clinica.clin_nome,agnd_ser,servico.ser_id,servico.ser_nome,servico.ser_dur,servico.ser_inter,servico.ser_loc,agnd_dt,agnd_hrIni,agnd_hrTerm";
+        $campospro = "pro_id,pro_nome";
+        $campocli = "cli_id,cli_nome";
+        $camposClin = "clin_id,clin_nome";
+        $campoServ = "ser_id,ser_nome";
+        $atual = new \DateTime();
+        $atual = $atual->format('Y-m-d');
+        
+        $agenda = new DBQuery('agenda', $campoSelect, 'agnd_id');
+        $profissional = new DBQuery('profissional', $campospro, 'pro_id');
+        $cliente = new DBQuery('cliente', $campocli, 'cli_id');
+        $clinica = new DBQuery('clinica', $camposClin, 'clin_id');
+        $servico = new DBQuery('servico', $campoServ, 'ser_id');
+        
+        $agenda->addJoin('INNER', 'agnd_pro', $profissional, 'pro_id');
+        $agenda->addJoin('LEFT', 'agnd_cli', $cliente, 'cli_id');
+        $agenda->addJoin('LEFT', 'agnd_clin', $clinica, 'clin_id');
+        $agenda->addJoin('INNER', 'agnd_ser', $servico, 'ser_id');
+        
+        $where = new Where();
+        $where->addCondition('AND', $this->campo, '=', $this->id);
+        $where->addCondition('AND', 'agnd_stat', '=', 'aceita');
+        $where->addCondition('AND', 'agnd_dt', '<=', $atual);
+        
+        try {
+            $resultado = $agenda->selectFiltered($where);
+            if ($resultado) {
+                return [
+                    'sucesso' => true,
+                    'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
+                ];
+            } else {
+                return ['sucesso' => false,
+                    'mensagem' => "erro ao inserir"];
+            }
+        } catch (\Exception $e) {
+            return ['sucesso' => false,
+                'mensagem' => $e->getMessage()];
+        };
+    }
+    
 }
    
     

@@ -63,21 +63,28 @@ switch ($acao){
         if($agendar=== 'sucesso'){
             $camposnot= ['notif_id',
                 'notif_pd',
-                'notif_pro',
                 'notif_clin',
-                'notif_cli',
                 'notif_dest',
                 'notif_tipo',
                 'notif_msg',
                 'notif_data',
-                'notif_status'];
-            $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario']);
-            $notificacao->enviar(1, $_SESSION['usuario']['tipoUsuario'], $_SESSION['servico']['ser_pro']);
+                'notif_stat'];
+            
+            if ($_SESSION['usuario']['tipoUsuario'] === 'cliente') {
+                $dest = $_SESSION['servico']['ser_pro'];
+                $camposnot[] = 'notif_cli';
+            }
+            else {
+                $dest = $_POST['agnd_cli'];
+                $camposnot[] = 'notif_pro';
+            }
+            $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+            $notificacao->enviar(1,$_SESSION['servico']['ser_pro'],$_SESSION['servico']['ser_clin']);
             $_SESSION['servico'] = [];
             $_SESSION['datas'] = [];
             $_SESSION['horarios'] = [];
         }
-        echo $agendar;
+        echo json_encode($agendar);
         exit;
     case 'reagendar':
         if (($_SESSION['usuario']['tipoUsuario'] ?? '') === 'profissional' && !empty($_SESSION['servico']['ser_clin'])) {
@@ -97,51 +104,70 @@ switch ($acao){
         if($reagendar=== 'sucesso'){
             $camposnot= ['notif_id',
                 'notif_pd',
-                'notif_pro',
                 'notif_clin',
-                'notif_cli',
                 'notif_dest',
                 'notif_tipo',
                 'notif_msg',
                 'notif_data',
-                'notif_status'];
-            $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario']);
-            $notificacao->enviar(2, $_SESSION['usuario']['tipoUsuario'], $_SESSION['servico']['ser_pro']);
+                'notif_stat'];
+            
+            if ($_SESSION['usuario']['tipoUsuario'] === 'cliente') {
+                $dest = $_POST['agnd_pro'];
+                $camposnot[] = 'notif_cli';
+            }
+            else {
+                $dest = $_POST['agnd_cli'];
+                $camposnot[] = 'notif_pro';
+            }
+            $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+            $notificacao->enviar(2,$_SESSION['servico']['ser_pro'],$_SESSION['servico']['ser_clin']);
             $_SESSION['datas'] = [];
             $_SESSION['horarios'] = [];
         }
-        echo $reagendar;
+        echo json_encode($reagendar);
         exit;
     case 'cancelar':
-        if (($_SESSION['usuario']['tipoUsuario'] ?? '') === 'profissional' && !empty($_SESSION['servico']['ser_clin'])) {
+        if (($_SESSION['usuario']['tipoUsuario'] ?? '') === 'profissional' && !empty($_POST['agnd_clin'])) {
             $permissao = new permissao('permissoes', 'perm_bin', 'perm_bin');
-            $erro = $permissao->permissao( $_SESSION['usuario']['idUsuario'], $_SESSION['servico']['ser_clin'], 3);
+            $erro = $permissao->permissao( $_SESSION['usuario']['idUsuario'], $_POST['agnd_clin'], 3);
             
             if ($erro !== true) {
                 echo json_encode($erro);
                 exit;
             };
+        }
             
-        $cancelar = $servico->cancelarconsulta($_POST['agnd_pro'], $_POST['agnd_clin'], $_POST['agnd_id'], $_POST['agnd_cli'], $_POST['agnd_ser']);
-        if($cancelar === 'sucesso'){
-            $dest = $_POST['agnd_cli'];
-            if ($_SESSION['usuario']['tipoUsuario'] === 'cliente') {
-                $dest = $_POST['agnd_pro'] ;
-            }
+        $cancelar = $servico->atentimento($_POST['agnd_pro'], $_POST['agnd_clin'] ?? 0, $_POST['agnd_id'], $_POST['agnd_cli'], $_POST['agnd_ser'],'desmarcado');
+        if($cancelar['sucesso'] === true){
             $camposnot= ['notif_id',
                 'notif_pd',
-                'notif_pro',
                 'notif_clin',
-                'notif_cli',
                 'notif_dest',
                 'notif_tipo',
                 'notif_msg',
                 'notif_data',
-                'notif_status'];
-            $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario']);
-            $notificacao->enviar(5, $_SESSION['usuario']['tipoUsuario'], $dest);
-
+                'notif_stat'];
+            
+            if ($_SESSION['usuario']['tipoUsuario'] === 'cliente') {
+                $dest = $_POST['agnd_pro'];
+                $camposnot[] = 'notif_cli';
+            }
+            else {
+                $dest = $_POST['agnd_cli'];
+                $camposnot[] = 'notif_pro';
+            }
+            
+            $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+            $enviar = $notificacao->enviar(5, $dest,$_POST['agnd_clin'] ?? 0);
+            echo json_encode($enviar);
+            exit;
         }
-        echo $reagendar;
-        }
+        
+        echo json_encode($cancelar);
+        exit;
+    case "atendimento":
+        if($_SESSION['usuario']['tipoUsuario'] != 'profissional'){echo json_encode(['sucesso' => false, 'mensagem' => 'somente profissionais podem dizer se o clinte foi atendido ou não compareceu']);}
+        $atendimento = $servico->atentimento($_POST['agnd_pro'], $_POST['agnd_clin'] ?? 0, $_POST['agnd_id'], $_POST['agnd_cli'], $_POST['agnd_ser'],$_POST['tipo']);        
+        echo json_encode($atendimento);
+        exit;
 }

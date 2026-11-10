@@ -1,6 +1,7 @@
 <?php
 use models\cliente;
 use models\clinica;
+use models\notificacao;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -110,5 +111,10 @@ switch ($acao){
         $cliente = new cliente('cliente', $campos, $campos[0]);
         $atualizar = $cliente->atualizar($valores, $id);
         echo json_encode($atualizar);
+        exit;
+    case 'notificação':
+        $notificacâo = new notificacao('notificacao', '*', '', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        $listar = $notificacâo->listar();
+        echo json_encode($listar);
         exit;
 }

@@ -1,6 +1,5 @@
 <?php
 use models\relatorio;
-file_put_contents(__DIR__ . '/debug_controller.txt', date('c') . " chegou\n", FILE_APPEND);
 
 $acao = $_POST['acao'] ?? '';
 if ($acao === '') {
@@ -9,8 +8,8 @@ if ($acao === '') {
         'mensagem' => 'Ação não enviada'
     ]);
 };
-/*$campos = [
-    'atd_id',
+/*$campos = [// para caso seja usado em outros relatorios futuros
+    'atd_id', // é atendimento pq essa tabela que serve de parametro para a construção do relatorio
     'atd_pro',
     'atd_clin',
     'atd_agnd',
@@ -23,7 +22,7 @@ if ($acao === '') {
 
 switch ($acao){
     case "quantidade":
-        $relatorio = new relatorio('atendimento'/*, $campos*/, 'atd_id'/*$campos[0]*/, $_SESSION['usuario']['tipoUsuario'], $_SESSION['usuario']['idUsuario']);
+        $relatorio = new relatorio('atendimento','atd_id'/*, $campos*/, 'atd_id'/*$campos[0]*/, $_SESSION['usuario']['tipoUsuario'], $_SESSION['usuario']['idUsuario']);
         $mostrar = $relatorio->consultadas();
         echo json_encode($mostrar);
         exit;
@@ -40,8 +39,26 @@ switch ($acao){
                 $dia = $_POST['data'];
             break;
         }
-        $relatorio = new relatorio('atendimento'/*, $campos*/, 'atd_id'/*$campos[0]*/, $_SESSION['usuario']['tipoUsuario'], $_SESSION['usuario']['idUsuario']);
+        $relatorio = new relatorio('atendimento','atd_id'/*, $campos*/, 'atd_id'/*$campos[0]*/, $_SESSION['usuario']['tipoUsuario'], $_SESSION['usuario']['idUsuario']);
         $mostrar = $relatorio->ganhos($dia, $_POST['periodo']);
         echo json_encode($mostrar);
         exit;
+    case 'historico':
+        $tipo = $_SESSION['usuario']['tipoUsuario'];
+        $campo = '';
+        if ($tipo === 'profissional') {
+            $campo = 'pro_id';
+        }
+        if ($tipo === 'clinica') {
+            $campo = 'clin_id';
+        }
+        if ($tipo === 'cliente') {
+            $campo = 'cli_id';
+        }
+        $relatorio = new relatorio('atendimento',$campo, 'atd_id',$tipo, $_SESSION['usuario']['idUsuario']);
+        $historico = $relatorio->historico();
+        echo json_encode($historico);
+        exit;
+        
+        
 }

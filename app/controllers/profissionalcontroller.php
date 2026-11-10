@@ -182,14 +182,44 @@ switch ($acao){
         $atualizar = $profissional->atualizar($valores, $id);
         echo json_encode($atualizar);
         exit;
+    case 'notificação':
+        $notificacâo = new notificacao('notificacao', '*', '', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        $listar = $notificacâo->listar();
+        echo json_encode($listar);
+        exit;
     case 'aceitar':
         $notificacâo = new notificacao('notificacao', 'notif_dest,notif_cli', 'notif_cli', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
         $aceitar = $notificacâo->aceitar($_POST['cli']);
+        $camposnot= ['notif_id',
+            'notif_pd',
+            'notif_clin',
+            'notif_dest',
+            'notif_tipo',
+            'notif_msg',
+            'notif_data',
+            'notif_stat',
+            'notif_pro'
+        ];
+
+        $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        $notificacâo = $notificacâo->enviar(3, $_POST['cli'],$_POST['clinica']);
         echo json_encode($aceitar);
         exit;
     case 'rejeitar':
-            $notificacâo = new notificacao('notificacao', 'notif_dest,notif_cli', 'notif_cli', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-            $rejeitar = $notificacâo->rejeitar($_POST['cli']);
-            echo json_encode($rejeitar);
-            exit;
+        $notificacâo = new notificacao('notificacao', 'notif_dest,notif_cli', 'notif_cli', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        $rejeitar = $notificacâo->rejeitar($_POST['cli']);
+        $camposnot= ['notif_id',
+            'notif_pd',
+            'notif_clin',
+            'notif_dest',
+            'notif_tipo',
+            'notif_msg',
+            'notif_data',
+            'notif_stat',
+            'notif_pro'
+        ];
+        $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        $notificacâo = $notificacâo->enviar(4, $_POST['cli'],$_POST['clinica']);
+        echo json_encode($rejeitar);
+        exit;
 }
