@@ -87,7 +87,7 @@
 
   <!-- NAVEGAÇÃO LATERAL (DESKTOP, LOGADO) — exibida por perfil.js -->
   <nav class="navLateralLogado d-none d-md-flex" data-papel="profissionalClinica" aria-label="Navegação principal" hidden>
-    <a href="index.php" class="navLateralLogado_item" data-itemPapel>
+    <a href="index.php?uri=inicioProfissional" class="navLateralLogado_item" data-itemPapel>
       <span class="material-symbols-outlined" aria-hidden="true">home</span>
       <span class="navLateralLogado_rotulo">Início</span>
     </a>
@@ -131,16 +131,16 @@
         <p class="estadoVazio_texto" data-campo="textoPerfilIndisponivel"></p>
       </div>
 
-      <!-- Abas do perfil (Bootstrap nav-tabs). Só as abas reais ficam no tablist;
-           Documentos e Relatório são links para outras páginas e ficam fora dele. -->
+      <!-- Abas do perfil (Bootstrap nav-tabs). Todas são painéis desta mesma página;
+           Clínica/Profissionais dependem do tipo de perfil e Relatório é só do dono. -->
       <div class="nav nav-tabs abasPerfil" id="abasPerfil">
         <div class="abasPerfil_grupo" role="tablist" aria-label="Seções do perfil">
           <button type="button" class="nav-link abasPerfil_aba active" id="abaPerfil" data-bs-toggle="tab" data-bs-target="#painelPerfil" role="tab" aria-controls="painelPerfil" aria-selected="true">Perfil</button>
           <button type="button" class="nav-link abasPerfil_aba" id="abaClinica" data-perfilDe="profissional" hidden data-bs-toggle="tab" data-bs-target="#painelClinica" role="tab" aria-controls="painelClinica" aria-selected="false">Clínica</button>
           <button type="button" class="nav-link abasPerfil_aba" id="abaProfissionais" data-perfilDe="clinica" hidden data-bs-toggle="tab" data-bs-target="#painelProfissionais" role="tab" aria-controls="painelProfissionais" aria-selected="false">Profissionais</button>
+          <button type="button" class="nav-link abasPerfil_aba" id="abaDocumentos" data-bs-toggle="tab" data-bs-target="#painelDocumentos" role="tab" aria-controls="painelDocumentos" aria-selected="false">Documentos</button>
+          <button type="button" class="nav-link abasPerfil_aba" id="abaRelatorio" data-somenteDono data-bs-toggle="tab" data-bs-target="#painelRelatorio" role="tab" aria-controls="painelRelatorio" aria-selected="false">Relatório</button>
         </div>
-        <a class="abasPerfil_aba abasPerfil_link" id="linkDocumentos" href="index.php?uri=documentos" data-perfilDe="profissional" hidden>Documentos</a>
-        <a class="abasPerfil_aba abasPerfil_link" href="index.php?uri=relatorio" data-somenteDono>Relatório</a>
       </div>
 
       <div class="tab-content conteudoAbas">
@@ -387,6 +387,19 @@
                 </div>
                 <div class="col-12 col-md-6">
                   <div class="form-floating campoTexto">
+                    <input type="text" class="form-control" id="campoNumeroLocalizacao" name="numeroLocalizacao" maxlength="10" placeholder="Número" aria-describedby="mensagemNumeroLocalizacao" required>
+                    <label for="campoNumeroLocalizacao">Número</label>
+                    <div class="invalid-feedback" id="mensagemNumeroLocalizacao" data-mensagemCampo="numeroLocalizacao">Informe o número.</div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-floating campoTexto">
+                    <input type="text" class="form-control" id="campoComplementoLocalizacao" name="complementoLocalizacao" maxlength="60" placeholder="Complemento">
+                    <label for="campoComplementoLocalizacao">Complemento</label>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="form-floating campoTexto">
                     <input type="text" class="form-control" id="campoBairroLocalizacao" readonly name="bairroLocalizacao" placeholder="Bairro" required>
                     <label for="campoBairroLocalizacao">Bairro</label>
                   </div>
@@ -410,7 +423,7 @@
                   </div>
                 </div>
               </div>
-              <p class="form-text">Rua, bairro, cidade, estado e IBGE são preenchidos automaticamente a partir do CEP.</p>
+              <p class="form-text">Rua, bairro, cidade, estado e IBGE são preenchidos automaticamente a partir do CEP. Informe o número e, se houver, o complemento.</p>
 
               <div class="formularioPerfil_acoes">
                 <button type="button" class="btn botaoBase botaoBase--opositora" data-acao="cancelarEdicao">
@@ -450,15 +463,10 @@
         <!-- ===================== ABA CLÍNICA (profissional) ===================== -->
         <div class="tab-pane fade" id="painelClinica" role="tabpanel" aria-labelledby="abaClinica" tabindex="0" data-perfilDe="profissional" hidden>
           <div class="visaoPerfil" data-visao="clinicaResumo">
-            <div class="barraAcoesAba" data-somenteDono>
-              <button type="button" class="btn botaoBase botaoBase--primario" data-acao="abrirVinculo">
-                <span class="material-symbols-outlined" aria-hidden="true">add_home_work</span>Vincular nova clínica
-              </button>
-            </div>
-
             <div class="estadoVazio estadoVazio--pagina" data-estadoVazio="clinicas">
               <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">home_work</span>
-              <p class="estadoVazio_texto">Nenhuma clínica vinculada</p>
+              <p class="estadoVazio_texto">Nenhuma clínica vinculada.</p>
+              <p class="textoCaption" data-somenteDono>Para vincular, a clínica deve enviar uma solicitação.</p>
             </div>
             <div class="listaCards" data-lista="clinicas" hidden></div>
           </div>
@@ -471,7 +479,7 @@
               <button type="button" class="btn botaoBase botaoBase--primario" data-acao="abrirVinculo">
                 <span class="material-symbols-outlined" aria-hidden="true">person_add</span>Vincular profissional
               </button>
-              <button type="button" class="btn botaoBase botaoBase--secundario" data-acao="gerenciarVinculos">
+              <button type="button" class="btn botaoBase botaoBase--secundario" data-acao="gerenciarVinculos" data-visaoDestino="profissionaisGerenciamento">
                 <span class="material-symbols-outlined" aria-hidden="true">manage_accounts</span>Gerenciar profissionais
               </button>
             </div>
@@ -481,6 +489,247 @@
               <p class="estadoVazio_texto">Nenhum profissional vinculado</p>
             </div>
             <div class="listaCards" data-lista="profissionais" hidden></div>
+          </div>
+
+          <!-- Visão: gerenciamento das permissões dos profissionais (só do dono) -->
+          <div class="visaoPerfil" data-visao="profissionaisGerenciamento" data-somenteDono hidden>
+            <div class="barraAcoesAba">
+              <button type="button" class="btn botaoBase botaoBase--secundario" data-visaoDestino="profissionaisResumo">
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>Voltar
+              </button>
+            </div>
+
+            <section aria-labelledby="tituloGerenciamento">
+              <h2 class="formularioPerfil_titulo" id="tituloGerenciamento">Gerenciamento dos Profissionais</h2>
+
+              <div class="estadoCarregando" data-carregando="gerenciamento" role="status" hidden>
+                <span class="spinner-border" aria-hidden="true"></span>
+                <span class="visually-hidden">Carregando profissionais...</span>
+              </div>
+
+              <div class="estadoVazio" data-estadoErro="gerenciamento" hidden>
+                <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">error</span>
+                <p class="estadoVazio_texto">Não foi possível carregar os profissionais.</p>
+                <button type="button" class="btn botaoBase botaoBase--secundario" data-acao="tentarNovamenteGerenciamento">
+                  <span class="material-symbols-outlined" aria-hidden="true">refresh</span>Tentar novamente
+                </button>
+              </div>
+
+              <div class="estadoVazio" data-estadoVazio="gerenciamento" hidden>
+                <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">person_off</span>
+                <p class="estadoVazio_texto">Nenhum profissional vinculado.</p>
+              </div>
+
+              <div class="accordion gerenciamentoProfissionais" id="acordeaoGerenciamento" data-lista="gerenciamento">
+                <div class="accordion-item itemGerenciamento" data-item="todosProfissionais">
+                  <h3 class="accordion-header">
+                    <button type="button" class="accordion-button collapsed itemGerenciamento_gatilho" data-bs-toggle="collapse" data-bs-target="#painelPermissoesTodos" aria-expanded="false" aria-controls="painelPermissoesTodos">
+                      Gerenciar todos os profissionais
+                    </button>
+                  </h3>
+                  <div class="accordion-collapse collapse" id="painelPermissoesTodos">
+                    <div class="accordion-body" data-lista="permissoesTodos"></div>
+                  </div>
+                </div>
+                <div data-lista="gerenciamentoProfissionais"></div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- ===================== ABA DOCUMENTOS (profissional e clínica) ===================== -->
+        <div class="tab-pane fade" id="painelDocumentos" role="tabpanel" aria-labelledby="abaDocumentos" tabindex="0">
+          <div class="visaoPerfil" data-visao="documentosResumo">
+            <div class="barraAcoesAba" data-somenteDono>
+              <button type="button" class="btn botaoBase botaoBase--secundario" id="botaoAdicionarDocumento" data-acao="abrirAdicionarDocumento">
+                <span class="material-symbols-outlined" aria-hidden="true">add</span>Adicionar documento
+              </button>
+            </div>
+
+            <div class="estadoCarregando" data-carregando="documentos" role="status" hidden>
+              <span class="spinner-border" aria-hidden="true"></span>
+              <span class="visually-hidden">Carregando documentos...</span>
+            </div>
+
+            <div class="estadoVazio estadoVazio--pagina" data-estadoErro="documentos" hidden>
+              <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">error</span>
+              <p class="estadoVazio_texto">Não foi possível carregar os documentos.</p>
+              <button type="button" class="btn botaoBase botaoBase--secundario" data-acao="tentarNovamenteDocumentos">
+                <span class="material-symbols-outlined" aria-hidden="true">refresh</span>Tentar novamente
+              </button>
+            </div>
+
+            <div class="estadoVazio estadoVazio--pagina" data-estadoVazio="documentos">
+              <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">description</span>
+              <p class="estadoVazio_texto">Nenhum documento adicionado.</p>
+            </div>
+
+            <div class="listaCards" data-lista="documentos" hidden></div>
+          </div>
+        </div>
+
+        <!-- ===================== ABA RELATÓRIO (só o dono) ===================== -->
+        <div class="tab-pane fade" id="painelRelatorio" role="tabpanel" aria-labelledby="abaRelatorio" tabindex="0" data-somenteDono>
+          <div class="visaoPerfil" data-visao="relatorioResumo">
+
+            <!-- Resumo de compromissos -->
+            <section class="secaoRelatorio" aria-labelledby="tituloResumoRelatorio">
+              <h2 class="visually-hidden" id="tituloResumoRelatorio">Resumo de compromissos</h2>
+
+              <div class="seletorPeriodo">
+                <span class="visually-hidden" id="rotuloPeriodoRelatorio">Período do relatório</span>
+                <div class="dropdown campoSelect" id="campoPeriodoRelatorio" data-valorSelecionado="diario">
+                  <button type="button" class="campoSelect_gatilho dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-labelledby="rotuloPeriodoRelatorio">
+                    <span class="campoSelect_valor">Relatório diário</span>
+                    <span class="campoSelect_iconeChevron material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
+                  </button>
+                  <ul class="dropdown-menu campoSelect_lista">
+                    <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="diario">Relatório diário</a></li>
+                    <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="semanal">Relatório semanal</a></li>
+                    <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="mensal">Relatório mensal</a></li>
+                    <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="anual">Relatório anual</a></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="estadoCarregando" data-carregando="relatorio" role="status" hidden>
+                <span class="spinner-border" aria-hidden="true"></span>
+                <span class="visually-hidden">Carregando relatório...</span>
+              </div>
+
+              <div class="estadoVazio" data-estadoErro="relatorio" hidden>
+                <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">error</span>
+                <p class="estadoVazio_texto">Não foi possível carregar o relatório.</p>
+                <button type="button" class="btn botaoBase botaoBase--secundario" data-acao="tentarNovamenteRelatorio">
+                  <span class="material-symbols-outlined" aria-hidden="true">refresh</span>Tentar novamente
+                </button>
+              </div>
+
+              <div class="relatorioResumo" data-conteudo="relatorio">
+                <figure class="graficoPizza" data-grafico="compromissos">
+                  <svg class="graficoPizza_svg" viewBox="0 0 100 100" role="img" aria-labelledby="tituloGraficoRelatorio descricaoGraficoRelatorio">
+                    <title id="tituloGraficoRelatorio">Distribuição dos compromissos</title>
+                    <desc id="descricaoGraficoRelatorio" data-campo="descricaoGrafico">Sem compromissos no período.</desc>
+                    <circle class="graficoPizza_base" cx="50" cy="50" r="50"></circle>
+                    <g transform="rotate(-90 50 50)">
+                      <circle class="graficoPizza_fatia graficoPizza_fatia--realizadas" data-fatia="realizadas" cx="50" cy="50" r="25"></circle>
+                      <circle class="graficoPizza_fatia graficoPizza_fatia--canceladas" data-fatia="canceladas" cx="50" cy="50" r="25"></circle>
+                      <circle class="graficoPizza_fatia graficoPizza_fatia--pendentes" data-fatia="pendentes" cx="50" cy="50" r="25"></circle>
+                    </g>
+                    <text class="graficoPizza_rotulo" data-rotuloFatia="realizadas" aria-hidden="true"></text>
+                    <text class="graficoPizza_rotulo" data-rotuloFatia="canceladas" aria-hidden="true"></text>
+                    <text class="graficoPizza_rotulo" data-rotuloFatia="pendentes" aria-hidden="true"></text>
+                  </svg>
+                  <figcaption class="graficoPizza_vazio" data-estadoGrafico="vazio">Sem compromissos.</figcaption>
+                </figure>
+
+                <div class="relatorioResumo_dados">
+                  <ul class="legendaGrafico" aria-label="Legenda do gráfico">
+                    <li class="legendaGrafico_item"><span class="marcadorCor marcadorCor--realizadas" aria-hidden="true"></span>Realizadas</li>
+                    <li class="legendaGrafico_item"><span class="marcadorCor marcadorCor--canceladas" aria-hidden="true"></span>Canceladas</li>
+                    <li class="legendaGrafico_item"><span class="marcadorCor marcadorCor--pendentes" aria-hidden="true"></span>Pendentes</li>
+                  </ul>
+
+                  <div class="table-responsive">
+                    <table class="table tabelaDados tabelaResumo">
+                      <caption class="visually-hidden">Resumo dos compromissos do período</caption>
+                      <thead>
+                        <tr>
+                          <th scope="col">Compromisso</th>
+                          <th scope="col">Quantidade</th>
+                          <th scope="col">Valor</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row"><span class="marcadorCor marcadorCor--realizadas" aria-hidden="true"></span>Consultas realizadas</th>
+                          <td data-campo="quantidadeRealizadas">0</td>
+                          <td data-campo="valorRealizadas">R$ 0,00</td>
+                        </tr>
+                        <tr>
+                          <th scope="row"><span class="marcadorCor marcadorCor--canceladas" aria-hidden="true"></span>Consultas canceladas</th>
+                          <td data-campo="quantidadeCanceladas">0</td>
+                          <td data-campo="valorCanceladas">R$ 0,00</td>
+                        </tr>
+                        <tr>
+                          <th scope="row"><span class="marcadorCor marcadorCor--pendentes" aria-hidden="true"></span>Consultas pendentes</th>
+                          <td data-campo="quantidadePendentes">0</td>
+                          <td data-campo="valorPendentes">R$ 0,00</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Consultas com não comparecimento</th>
+                          <td data-campo="quantidadeNaoCompareceu">0</td>
+                          <td data-campo="valorNaoCompareceu">R$ 0,00</td>
+                        </tr>
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <th scope="row">Total de compromissos</th>
+                          <td data-campo="quantidadeTotal">0</td>
+                          <td data-campo="valorTotal">R$ 0,00</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Histórico de consultas -->
+            <section class="secaoRelatorio" aria-labelledby="tituloHistoricoConsultas">
+              <h2 class="formularioPerfil_titulo" id="tituloHistoricoConsultas">Histórico de Consultas</h2>
+
+              <div class="seletorPeriodo">
+                <span class="visually-hidden" id="rotuloPeriodoHistorico">Período do histórico</span>
+                <div class="dropdown campoSelect" id="campoPeriodoHistorico" data-valorSelecionado="diario">
+                  <button type="button" class="campoSelect_gatilho dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-labelledby="rotuloPeriodoHistorico">
+                    <span class="campoSelect_valor">Histórico diário</span>
+                    <span class="campoSelect_iconeChevron material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
+                  </button>
+                  <ul class="dropdown-menu campoSelect_lista">
+                    <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="diario">Histórico diário</a></li>
+                    <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="semanal">Histórico semanal</a></li>
+                    <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="mensal">Histórico mensal</a></li>
+                    <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="anual">Histórico anual</a></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="estadoCarregando" data-carregando="historico" role="status" hidden>
+                <span class="spinner-border" aria-hidden="true"></span>
+                <span class="visually-hidden">Carregando histórico...</span>
+              </div>
+
+              <div class="estadoVazio" data-estadoErro="historico" hidden>
+                <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">error</span>
+                <p class="estadoVazio_texto">Não foi possível carregar o histórico.</p>
+                <button type="button" class="btn botaoBase botaoBase--secundario" data-acao="tentarNovamenteHistorico">
+                  <span class="material-symbols-outlined" aria-hidden="true">refresh</span>Tentar novamente
+                </button>
+              </div>
+
+              <div class="estadoVazio" data-estadoVazio="historico">
+                <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">assignment</span>
+                <p class="estadoVazio_texto">Nenhuma consulta foi realizada até agora.</p>
+              </div>
+
+              <div class="table-responsive" data-tabela="historico" hidden>
+                <table class="table tabelaDados tabelaHistorico">
+                  <caption class="visually-hidden">Histórico de consultas do período</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Cliente</th>
+                      <th scope="col">Serviço</th>
+                      <th scope="col" data-perfilDe="clinica" hidden>Profissional</th>
+                      <th scope="col">Data</th>
+                      <th scope="col">Horário</th>
+                    </tr>
+                  </thead>
+                  <tbody data-lista="historico"></tbody>
+                </table>
+              </div>
+            </section>
+
           </div>
         </div>
 
@@ -497,7 +746,7 @@
         <span class="material-symbols-outlined" aria-hidden="true">chat</span>
         <span class="navInferiorLogado_rotulo">Contatos</span>
       </a>
-      <a href="index.php" class="navInferiorLogado_item" data-itemPapel>
+      <a href="index.php?uri=inicioProfissional" class="navInferiorLogado_item" data-itemPapel>
         <span class="material-symbols-outlined" aria-hidden="true">home</span>
         <span class="navInferiorLogado_rotulo">Início</span>
       </a>
@@ -570,7 +819,7 @@
           <button type="button" class="btn botaoBase botaoBase--opositora" data-bs-dismiss="modal">
             <span class="material-symbols-outlined" aria-hidden="true">cancel</span>Cancelar
           </button>
-          <button type="submit" class="btn botaoBase botaoBase--primario">
+          <button type="submit" class="btn botaoBase botaoBase--primario" data-campo="botaoConfirmarVinculo" aria-disabled="true">
             <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Confirmar
           </button>
         </div>
@@ -589,16 +838,136 @@
           </button>
         </div>
         <div class="modal-body modalBase_corpo" id="textoModalDesvincular">
-          <p data-campo="textoDesvinculoAbertura"></p>
+          <p><span data-campo="textoDesvinculoAbertura"></span><strong data-campo="nomeDesvinculo"></strong>!</p>
           <p data-campo="textoDesvinculoConsequencia"></p>
           <p>Deseja continuar com essa ação?</p>
         </div>
         <div class="modal-footer modalBase_rodape">
-          <button type="button" class="btn botaoBase botaoBase--opositora" id="botaoConfirmarDesvinculo">
-            <span class="material-symbols-outlined" aria-hidden="true">cancel</span><span data-campo="rotuloBotaoDesvincular"></span>
+          <button type="button" class="btn botaoBase botaoBase--opositora" data-bs-dismiss="modal">
+            <span class="material-symbols-outlined" aria-hidden="true">cancel</span>Cancelar
           </button>
-          <button type="button" class="btn botaoBase botaoBase--primario" data-bs-dismiss="modal">
-            <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Manter vínculo
+          <button type="button" class="btn botaoBase botaoBase--primario" id="botaoConfirmarDesvinculo">
+            <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>Continuar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PEDIDO DE VINCULAMENTO ENVIADO (clínica → profissional) -->
+  <div class="modal fade modalBase" id="modalVinculoEnviado" tabindex="-1" aria-labelledby="tituloModalVinculoEnviado" aria-describedby="textoModalVinculoEnviado" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content modalBase_conteudo">
+        <div class="modal-header modalBase_cabecalho">
+          <h2 class="modal-title modalBase_titulo" id="tituloModalVinculoEnviado">Pedido de vinculamento enviado!</h2>
+          <button type="button" class="modalBase_botaoFechar" data-bs-dismiss="modal" aria-label="Fechar">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+        <div class="modal-body modalBase_corpo" id="textoModalVinculoEnviado">
+          <p>Seu pedido de vinculamento foi enviado para <strong data-campo="nomeProfissionalPedido"></strong>. No momento, seu pedido aguarda a confirmação do profissional.</p>
+          <p>Quando ele confirmar, você receberá uma mensagem e o vínculo começará a aparecer no seu perfil, para que você possa gerenciar as permissões dele e os clientes possam visualizá-lo por meio do seu perfil.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADICIONAR DOCUMENTO (profissional e clínica; tipos conforme data-perfilDe) -->
+  <div class="modal fade modalBase" id="modalAdicionarDocumento" tabindex="-1" aria-labelledby="tituloModalAdicionarDocumento" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <form class="modal-content modalBase_conteudo" id="formularioDocumento" novalidate>
+        <div class="modal-header modalBase_cabecalho">
+          <h2 class="modal-title modalBase_titulo" id="tituloModalAdicionarDocumento">Documentos</h2>
+          <button type="button" class="modalBase_botaoFechar" data-bs-dismiss="modal" aria-label="Fechar">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+        <div class="modal-body modalBase_corpo">
+          <div class="avisosFormulario" id="avisosDocumento" aria-live="polite"></div>
+
+          <div class="form-floating campoTexto">
+            <input type="text" class="form-control" id="campoTituloDocumento" name="tituloDocumento" placeholder="Título do documento" maxlength="100" aria-describedby="mensagemTituloDocumento">
+            <label for="campoTituloDocumento">Título do documento</label>
+            <div class="invalid-feedback" id="mensagemTituloDocumento" data-mensagemCampo="tituloDocumento">Informe o título do documento.</div>
+          </div>
+
+          <div class="campoTexto">
+            <span class="visually-hidden" id="rotuloTipoDocumento">Tipo de documento</span>
+            <div class="dropdown campoSelect" id="campoTipoDocumento" data-valorSelecionado="">
+              <button type="button" class="campoSelect_gatilho dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-labelledby="rotuloTipoDocumento" aria-describedby="mensagemTipoDocumento">
+                <span class="campoSelect_valor">Selecione o tipo de documento</span>
+                <span class="campoSelect_iconeChevron material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
+              </button>
+              <ul class="dropdown-menu campoSelect_lista">
+                <li data-perfilDe="profissional" hidden><a class="dropdown-item campoSelect_opcao" href="#" data-valor="diploma">Diploma</a></li>
+                <li data-perfilDe="profissional" hidden><a class="dropdown-item campoSelect_opcao" href="#" data-valor="certificadoEspecializacao">Certificado de especialização</a></li>
+                <li data-perfilDe="profissional" hidden><a class="dropdown-item campoSelect_opcao" href="#" data-valor="licencaAlvaraSanitario">Licença ou alvará sanitário</a></li>
+                <li data-perfilDe="clinica" hidden><a class="dropdown-item campoSelect_opcao" href="#" data-valor="alvaraFuncionamento">Alvará de funcionamento</a></li>
+                <li data-perfilDe="clinica" hidden><a class="dropdown-item campoSelect_opcao" href="#" data-valor="licencaAlvaraSanitario">Licença ou alvará sanitário</a></li>
+              </ul>
+            </div>
+            <div class="invalid-feedback" id="mensagemTipoDocumento" data-mensagemCampo="tipoDocumento">Selecione o tipo de documento.</div>
+          </div>
+
+          <!-- Área de arquivo: tipos e tamanho máximo ainda não definidos -->
+          <div class="areaArquivo" data-areaArquivo data-tiposPermitidos="" data-tamanhoMaximoMb="">
+            <div class="areaArquivo_conteudo" data-estadoArquivo="vazio">
+              <span class="material-symbols-outlined areaArquivo_icone" aria-hidden="true">description</span>
+              <input type="file" class="visually-hidden" id="campoArquivoDocumento" name="arquivoDocumento" tabindex="-1" aria-describedby="dicaArquivoDocumento">
+              <button type="button" class="btn botaoBase botaoBase--secundario" data-acao="escolherArquivo">
+                <span class="material-symbols-outlined" aria-hidden="true">upload_file</span>Escolha um arquivo
+              </button>
+              <p class="areaArquivo_dica" id="dicaArquivoDocumento">Ou solte um arquivo aqui</p>
+            </div>
+            <div class="areaArquivo_conteudo" data-estadoArquivo="selecionado" hidden>
+              <span class="material-symbols-outlined areaArquivo_icone" aria-hidden="true">task</span>
+              <p class="areaArquivo_nome" data-campo="nomeArquivoSelecionado"></p>
+              <button type="button" class="btn botaoBase botaoBase--opositora" data-acao="removerArquivo">
+                <span class="material-symbols-outlined" aria-hidden="true">close</span>Remover arquivo
+              </button>
+            </div>
+            <div class="invalid-feedback" data-mensagemCampo="arquivoDocumento">Escolha um arquivo.</div>
+          </div>
+        </div>
+        <div class="modal-footer modalBase_rodape">
+          <button type="button" class="btn botaoBase botaoBase--opositora" data-bs-dismiss="modal">
+            <span class="material-symbols-outlined" aria-hidden="true">cancel</span>Cancelar
+          </button>
+          <button type="submit" class="btn botaoBase botaoBase--primario" data-campo="botaoEnviarDocumento">
+            <span class="spinner-border spinner-border-sm" data-campo="carregandoEnvioDocumento" aria-hidden="true" hidden></span>
+            <span class="material-symbols-outlined" aria-hidden="true">send</span>Enviar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: APAGAR DOCUMENTO -->
+  <div class="modal fade modalBase" id="modalApagarDocumento" tabindex="-1" aria-labelledby="tituloModalApagarDocumento" aria-describedby="textoModalApagarDocumento" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content modalBase_conteudo">
+        <div class="modal-header modalBase_cabecalho">
+          <h2 class="modal-title modalBase_titulo" id="tituloModalApagarDocumento">Cuidado!</h2>
+          <button type="button" class="modalBase_botaoFechar" data-bs-dismiss="modal" aria-label="Fechar">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+        <div class="modal-body modalBase_corpo" id="textoModalApagarDocumento">
+          <p>Você está prestes a apagar seu documento <strong data-campo="nomeDocumentoApagar"></strong>!</p>
+          <p>Se continuar com isso, o documento sairá do seu perfil e ficará indisponível para
+            <span data-perfilDe="profissional" hidden>o cliente e a clínica acessarem.</span>
+            <span data-perfilDe="clinica" hidden>o cliente.</span>
+          </p>
+          <p>Essa ação não pode ser desfeita. Deseja continuar com essa ação?</p>
+          <div class="avisosFormulario" id="avisosApagarDocumento" aria-live="polite"></div>
+        </div>
+        <div class="modal-footer modalBase_rodape">
+          <button type="button" class="btn botaoBase botaoBase--secundario" data-bs-dismiss="modal">
+            <span class="material-symbols-outlined" aria-hidden="true">check_box</span>Voltar para o perfil
+          </button>
+          <button type="button" class="btn botaoBase botaoBase--opositora" id="botaoConfirmarApagarDocumento">
+            <span class="spinner-border spinner-border-sm" data-campo="carregandoApagarDocumento" aria-hidden="true" hidden></span>
+            <span class="material-symbols-outlined" aria-hidden="true">cancel</span>Apagar documento
           </button>
         </div>
       </div>
@@ -665,6 +1034,98 @@
     </article>
   </template>
 
+  <template id="modeloCardDocumento">
+    <article class="card cardDocumento">
+      <div class="card-body">
+        <h3 class="card-title cardDocumento_titulo" data-campo="tituloDocumento"></h3>
+        <ul class="cardDocumento_dados">
+          <li>Tipo: <span data-campo="tipoDocumento"></span></li>
+        </ul>
+      </div>
+      <div class="card-footer cardDocumento_rodape">
+        <button type="button" class="btn botaoBase botaoBase--opositora" data-somenteDono data-acao="apagarDocumento">
+          <span class="material-symbols-outlined" aria-hidden="true">cancel</span>Apagar
+        </button>
+        <a class="btn botaoBase botaoBase--primario" data-campo="linkBaixarDocumento" href="#" download>
+          <span class="material-symbols-outlined" aria-hidden="true">download</span>Baixar
+        </a>
+      </div>
+    </article>
+  </template>
+
+  <template id="modeloLinhaHistorico">
+    <tr>
+      <td data-campo="clienteConsulta"></td>
+      <td data-campo="servicoConsulta"></td>
+      <td data-campo="profissionalConsulta" data-perfilDe="clinica" hidden></td>
+      <td data-campo="dataConsulta"></td>
+      <td data-campo="horarioConsulta"></td>
+    </tr>
+  </template>
+
+  <template id="modeloItemGerenciamento">
+    <div class="accordion-item itemGerenciamento">
+      <h3 class="accordion-header">
+        <button type="button" class="accordion-button collapsed itemGerenciamento_gatilho" data-bs-toggle="collapse" data-campo="gatilhoPermissoes" aria-expanded="false">
+          <span class="itemGerenciamento_avatar">
+            <span class="material-symbols-outlined" aria-hidden="true">person</span>
+            <img class="itemGerenciamento_foto" data-campo="fotoProfissional" alt="" hidden>
+          </span>
+          <span data-campo="usuarioProfissional"></span>
+        </button>
+      </h3>
+      <div class="accordion-collapse collapse" data-campo="painelPermissoes">
+        <div class="accordion-body" data-lista="permissoesProfissional"></div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Lista de permissões: cada linha é um interruptor (checkbox role="switch"); o selo muda por CSS conforme o estado -->
+  <template id="modeloListaPermissoes">
+    <ul class="listaPermissoes">
+      <li>
+        <label class="listaPermissoes_linha">
+          <span class="listaPermissoes_rotulo">Cancelar consultas</span>
+          <input type="checkbox" role="switch" class="visually-hidden listaPermissoes_controle" data-permissao="cancelarConsultas" checked>
+          <span class="indicadorStatus listaPermissoes_selo" aria-hidden="true">
+            <span class="listaPermissoes_estado listaPermissoes_estado--permitido"><span class="material-symbols-outlined">check_circle</span>Permitido</span>
+            <span class="listaPermissoes_estado listaPermissoes_estado--proibido"><span class="material-symbols-outlined">cancel</span>Proibido</span>
+          </span>
+        </label>
+      </li>
+      <li>
+        <label class="listaPermissoes_linha">
+          <span class="listaPermissoes_rotulo">Reagendar consultas</span>
+          <input type="checkbox" role="switch" class="visually-hidden listaPermissoes_controle" data-permissao="reagendarConsultas" checked>
+          <span class="indicadorStatus listaPermissoes_selo" aria-hidden="true">
+            <span class="listaPermissoes_estado listaPermissoes_estado--permitido"><span class="material-symbols-outlined">check_circle</span>Permitido</span>
+            <span class="listaPermissoes_estado listaPermissoes_estado--proibido"><span class="material-symbols-outlined">cancel</span>Proibido</span>
+          </span>
+        </label>
+      </li>
+      <li>
+        <label class="listaPermissoes_linha">
+          <span class="listaPermissoes_rotulo">Agendar consultas</span>
+          <input type="checkbox" role="switch" class="visually-hidden listaPermissoes_controle" data-permissao="agendarConsultas" checked>
+          <span class="indicadorStatus listaPermissoes_selo" aria-hidden="true">
+            <span class="listaPermissoes_estado listaPermissoes_estado--permitido"><span class="material-symbols-outlined">check_circle</span>Permitido</span>
+            <span class="listaPermissoes_estado listaPermissoes_estado--proibido"><span class="material-symbols-outlined">cancel</span>Proibido</span>
+          </span>
+        </label>
+      </li>
+      <li>
+        <label class="listaPermissoes_linha">
+          <span class="listaPermissoes_rotulo">Enviar documentos</span>
+          <input type="checkbox" role="switch" class="visually-hidden listaPermissoes_controle" data-permissao="enviarDocumentos" checked>
+          <span class="indicadorStatus listaPermissoes_selo" aria-hidden="true">
+            <span class="listaPermissoes_estado listaPermissoes_estado--permitido"><span class="material-symbols-outlined">check_circle</span>Permitido</span>
+            <span class="listaPermissoes_estado listaPermissoes_estado--proibido"><span class="material-symbols-outlined">cancel</span>Proibido</span>
+          </span>
+        </label>
+      </li>
+    </ul>
+  </template>
+
   <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -673,5 +1134,9 @@
   <script src="public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
   <script src="public/assets/js/utilitarios.js"></script>
   <script src="public/assets/js/perfil.js" defer></script>
+  <script src="public/assets/js/perfilDocumentos.js" defer></script>
+  <script src="public/assets/js/perfilGerenciamento.js" defer></script>
+  <script src="public/assets/js/perfilRelatorio.js" defer></script>
+
 </body>
 </html>

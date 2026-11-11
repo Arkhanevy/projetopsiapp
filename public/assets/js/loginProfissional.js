@@ -6,7 +6,7 @@ console.log("JS loginProfissional carregado");
   var moduloLoginProfissional = {
 
     configuracao: {
-      urlProfissional: "/projetopsi/index.php?uri=profissional",
+      urlProfissional: "index.php?uri=profissional",
       urlPerfil: "index.php?uri=perfil"
     },
 

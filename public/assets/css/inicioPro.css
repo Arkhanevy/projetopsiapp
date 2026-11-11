@@ -1,0 +1,232 @@
+:root {
+  --larguraNavLateralInicioPro: 72px;
+  --alturaNavInferiorInicioPro: 72px;
+  --alturaFaixaInicioPro: 32px;
+  --larguraPainelInicioPro: 560px;
+  --larguraListaInicioPro: 440px;
+  --alturaMinPainelInicioPro: 480px;
+}
+
+
+.conteudoInicioPro.container-fluid {
+  padding: 0 0 calc(var(--alturaNavInferiorInicioPro) + var(--espaco5));
+}
+
+@media (min-width: 768px) {
+
+  .conteudoInicioPro.container-fluid {
+    margin-left: var(--larguraNavLateralInicioPro);
+    width: auto;
+    padding-bottom: var(--espaco6);
+  }
+}
+
+
+.cabecalhoInicioPro {
+  padding: var(--espaco5) var(--espaco5) var(--espaco3);
+  border-bottom: var(--alturaFaixaInicioPro) solid var(--corDestaque);
+}
+
+.tituloInicioPro {
+  margin: 0;
+  font-size: var(--tamanhoH2);
+  font-weight: var(--pesoRegular);
+  line-height: 1.1;
+}
+
+.tituloInicioPro [data-campo="quantidadeConsultasHoje"] {
+  font-size: var(--tamanhoH1);
+}
+
+@media (min-width: 768px) {
+
+  .cabecalhoInicioPro {
+    padding-inline: var(--espaco6);
+  }
+}
+
+
+.painelAgendamentosPro {
+  display: flex;
+  flex-direction: column;
+  width: min(calc(100% - 2 * var(--espaco4)), var(--larguraPainelInicioPro));
+  min-height: var(--alturaMinPainelInicioPro);
+  margin: var(--espaco5) auto 0;
+  padding: var(--espaco5) var(--espaco4) var(--espaco4);
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: var(--raioMedio);
+  background-color: var(--corBranco);
+}
+
+.painelAgendamentosPro_titulo {
+  margin: 0 0 var(--espaco5);
+  color: var(--corBordas);
+  font-size: var(--tamanhoH2);
+  font-weight: var(--pesoNegrito);
+  text-align: center;
+}
+
+.painelAgendamentosPro_acoes {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: var(--espaco5);
+}
+
+.painelAgendamentosPro_acoes .botaoBase {
+  min-width: 220px;
+}
+
+@media (min-width: 768px) {
+
+  .painelAgendamentosPro {
+    min-height: calc(var(--alturaMinPainelInicioPro) + var(--espaco7));
+    padding: var(--espaco6) var(--espaco6) var(--espaco5);
+  }
+}
+
+.listaAgendamentosPro[hidden],
+.estadoVazioAgendamentosPro[hidden],
+.painelAgendamentosPro_acoes[hidden] {
+  display: none;
+}
+
+
+.listaAgendamentosPro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco4);
+  width: 100%;
+  max-width: var(--larguraListaInicioPro);
+  margin-inline: auto;
+}
+
+.listaAgendamentosPro .cardConsultaProfissional {
+  --bs-card-spacer-x: var(--espaco3);
+  --bs-card-spacer-y: var(--espaco3);
+  max-width: 100%;
+}
+
+.cardConsultaProfissional_cabecalho {
+  gap: var(--espaco3);
+  font-size: var(--tamanhoSmall);
+}
+
+.cardConsultaProfissional_servico {
+  margin: 0;
+  font-size: inherit;
+}
+
+.cardConsultaProfissional_dataHora {
+  margin: 0;
+  font-size: inherit;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cardConsultaProfissional[data-estadoConsulta="pendente"] {
+  --bs-card-border-style: dashed;
+  border-style: dashed;
+}
+
+.listaAgendamentosPro .cardConsultaProfissional_acoes {
+  justify-content: stretch;
+}
+
+.listaAgendamentosPro .cardConsultaProfissional_acoes .botaoBase {
+  flex: 1 1 120px;
+}
+
+@media (min-width: 576px) {
+
+  .listaAgendamentosPro .cardConsultaProfissional {
+    --bs-card-spacer-x: var(--espaco4);
+    --bs-card-spacer-y: var(--espaco4);
+  }
+
+  .listaAgendamentosPro .cardConsultaProfissional_acoes {
+    justify-content: flex-end;
+  }
+
+  .listaAgendamentosPro .cardConsultaProfissional_acoes .botaoBase {
+    flex: 0 0 auto;
+  }
+}
+
+.estadoCarregando .cardConsultaProfissional {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  .estadoCarregando .cardConsultaProfissional {
+    animation: pulsoCarregandoInicioPro 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes pulsoCarregandoInicioPro {
+
+  0%, 100% { opacity: 0.55; }
+
+  50% { opacity: 0.3; }
+}
+
+
+.estadoVazioAgendamentosPro {
+  flex: 1;
+  justify-content: center;
+}
+
+.estadoVazioAgendamentosPro .estadoVazio_icone {
+  font-size: 128px;
+}
+
+@media (min-width: 768px) {
+
+  .estadoVazioAgendamentosPro .estadoVazio_icone {
+    font-size: 176px;
+  }
+}
+
+
+.botaoBase--compacto {
+  --bs-btn-padding-x: var(--espaco4);
+  --bs-btn-padding-y: var(--espaco2);
+  --bs-btn-font-size: var(--tamanhoSmall);
+}
+
+.painelAgendamentosPro .botaoBase:focus-visible,
+.modalBase .botaoBase:focus-visible {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: 2px;
+}
+
+
+.modalBase_conteudo > .modal-body {
+  text-align: left;
+}
+
+@media (min-width: 576px) {
+
+  #modalConfirmarCancelamento .modal-dialog {
+    --bs-modal-width: 640px;
+  }
+}
+
+.acoesModalConfirmacao {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding-inline: var(--espaco4);
+}
+
+@media (max-width: 575.98px) {
+
+  .acoesModalConfirmacao {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .acoesModalConfirmacao .botaoBase {
+    width: min(100%, 260px);
+  }
+}

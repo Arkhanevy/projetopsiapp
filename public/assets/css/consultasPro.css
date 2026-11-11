@@ -1,0 +1,333 @@
+
+:root {
+  --larguraNavLateralPro: 72px;
+  --alturaNavInferiorPro: 72px;
+  --larguraCalendarioPro: 700px;
+  --larguraPainelConsultasPro: 440px;
+}
+
+
+.conteudoConsultasPro {
+  padding: var(--espaco4) var(--espaco4) calc(var(--alturaNavInferiorPro) + var(--espaco4));
+}
+
+.tituloConsultasPro {
+  margin-bottom: var(--espaco4);
+  text-align: center;
+}
+
+.gradeConsultasPro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--espaco4);
+  justify-items: center;
+}
+
+.painelCalendarioPro,
+.painelConsultasPro {
+  width: 100%;
+  max-width: var(--larguraCalendarioPro);
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+
+  .conteudoConsultasPro {
+    padding: var(--espaco5) var(--espaco5) var(--espaco5) calc(var(--larguraNavLateralPro) + var(--espaco5));
+  }
+
+  .tituloConsultasPro {
+    margin-bottom: var(--espaco5);
+  }
+}
+
+@media (min-width: 992px) {
+
+  .gradeConsultasPro {
+    grid-template-columns:
+      minmax(0, var(--larguraCalendarioPro))
+      minmax(0, var(--larguraPainelConsultasPro));
+    justify-content: center;
+    justify-items: stretch;
+    gap: var(--espaco7);
+  }
+
+  .painelCalendarioPro,
+  .painelConsultasPro {
+    max-width: none;
+  }
+}
+
+
+.botaoBase--compacto {
+  --bs-btn-padding-x: var(--espaco4);
+  --bs-btn-padding-y: var(--espaco2);
+  --bs-btn-font-size: var(--tamanhoSmall);
+}
+
+.indicadorStatus--pendente.indicadorStatus--compacto {
+  color: var(--corLetras);
+}
+
+.indicadorStatus--compacto {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco2);
+  padding: var(--espaco2) var(--espaco4);
+  border-radius: var(--raioPequeno);
+  font-size: var(--tamanhoSmall);
+}
+
+
+.painelCalendarioPro .calendarioBase {
+  max-width: var(--larguraCalendarioPro);
+}
+
+.calendarioBase_cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco4);
+  margin-bottom: var(--espaco4);
+}
+
+.calendarioBase_cabecalho .calendarioBase_tituloMes {
+  margin: 0;
+}
+
+.painelCalendarioPro .calendarioBase_dia {
+  font-weight: var(--pesoNegrito);
+}
+
+.painelCalendarioPro .calendarioBase_dia--indisponivel,
+.painelCalendarioPro .calendarioBase_dia--folga {
+  border-width: 3px;
+  border-radius: 4px;
+}
+
+.painelCalendarioPro .calendarioBase_dia--indisponivel:disabled,
+.painelCalendarioPro .calendarioBase_dia--folga:disabled {
+  color: var(--corLetras);
+}
+
+.painelCalendarioPro .calendarioBase_dia--pendente {
+  border-width: 3px;
+  border-color: var(--corAcaoAtencao);
+}
+
+.painelCalendarioPro .calendarioBase_dia--pendente::after {
+  content: none;
+}
+
+.painelCalendarioPro .calendarioBase_dia--confirmada {
+  background-color: var(--corBotoes);
+}
+
+.painelCalendarioPro .calendarioBase_dia--confirmada::after {
+  content: none;
+}
+
+.painelCalendarioPro .calendarioBase_dia--selecionado {
+  background-color: var(--corAcaoSecundaria);
+  color: var(--corBranco);
+}
+
+.calendarioBase_botaoNavegacao:focus-visible,
+.calendarioBase_dia:focus-visible {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: 2px;
+}
+
+.calendarioBase_legenda {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--espaco3) var(--espaco4);
+  margin: var(--espaco4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calendarioBase_itemLegenda {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco2);
+  font-size: var(--tamanhoSmall);
+  font-weight: var(--pesoNegrito);
+}
+
+.painelConsultasPro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco4);
+  min-height: 320px;
+  padding: var(--espaco3);
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: var(--raioMedio);
+  background-color: var(--corBranco);
+}
+
+.painelConsultasPro_acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--espaco3);
+}
+
+
+.filtroConsultas_gatilho {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco2);
+  min-width: 140px;
+  padding: var(--espaco2) var(--espaco4);
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: var(--raioTotal);
+  background-color: var(--corFundoClaro);
+  color: var(--corLetras);
+  font-size: var(--tamanhoSmall);
+}
+
+.filtroConsultas_gatilho:hover,
+.filtroConsultas_gatilho.show {
+  background-color: var(--corFundo);
+  color: var(--corLetras);
+  border-color: var(--corBordas);
+}
+
+.filtroConsultas_gatilho.dropdown-toggle::after {
+  display: none;
+}
+
+.filtroConsultas_gatilho:focus-visible {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: 2px;
+}
+
+.filtroConsultas .painelFiltro {
+  display: none;
+  min-width: 260px;
+  margin-top: var(--espaco2);
+}
+
+.filtroConsultas .painelFiltro.show {
+  display: flex;
+}
+
+.filtroConsultas .grupoFiltro {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+
+.listaConsultasPro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco3);
+}
+
+.listaConsultasPro .cardConsultaProfissional {
+  max-width: 100%;
+}
+
+.cardConsultaProfissional_servico {
+  margin: 0;
+  font-size: var(--tamanhoBody);
+}
+
+.cardConsultaProfissional_dataHora {
+  margin: 0;
+  max-width: none;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cardConsultaProfissional_cabecalho {
+  gap: var(--espaco3);
+}
+
+.estadoCarregando .cardConsultaProfissional {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+  .estadoCarregando .cardConsultaProfissional {
+    animation: pulsoCarregandoPro 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes pulsoCarregandoPro {
+
+  0%, 100% { opacity: 0.55; }
+
+  50% { opacity: 0.3; }
+}
+
+
+.estadoVazioConsultasPro {
+  flex: 1;
+  justify-content: center;
+}
+
+.estadoVazioConsultasPro .estadoVazio_icone {
+  font-size: 120px;
+}
+
+@media (min-width: 992px) {
+
+  .painelConsultasPro {
+    min-height: 480px;
+    padding: var(--espaco4);
+  }
+
+  .estadoVazioConsultasPro .estadoVazio_icone {
+    font-size: 200px;
+  }
+}
+
+.modalBase_conteudo > .modal-body {
+  text-align: left;
+}
+
+.detalhesConsulta_linhaTopo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--espaco3);
+  margin-bottom: var(--espaco4);
+  font-size: var(--tamanhoSmall);
+  font-weight: var(--pesoNegrito);
+}
+
+.detalhesConsulta_dataHora,
+.detalhesConsulta_preco {
+  margin: 0;
+  max-width: none;
+}
+
+.detalhesConsulta_linha {
+  margin: 0 0 var(--espaco2);
+  max-width: none;
+  font-size: var(--tamanhoSmall);
+}
+
+.acoesModalConfirmacao {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding-inline: var(--espaco4);
+}
+
+@media (max-width: 575.98px) {
+
+  .acoesModalConfirmacao {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acoesModalConfirmacao .botaoBase {
+    width: 100%;
+  }
+}

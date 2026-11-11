@@ -38,7 +38,7 @@
     </div>
   </nav>
 
-  <!-- BARRA SUPERIOR (LOGADO — DESKTOP E MOBILE) — exibida por JS quando há sessão -->
+  <!-- BARRA SUPERIOR (LOGADO — DESKTOP E MOBILE) — exibida por perfil.js quando o login é confirmado -->
   <header class="navTopoLogado" hidden>
     <a href="index.php" class="navTopoLogado_logo">
       <img src="public/assets/images/logo.png" alt="" width="40" height="40">
@@ -62,6 +62,7 @@
       <span class="material-symbols-outlined" aria-hidden="true">menu</span>
     </button>
   </header>
+
 
   <!-- PAINEL DO MENU (MOBILE, LOGADO) -->
   <div class="offcanvas offcanvas-top painelMenuMobile d-md-none" tabindex="-1" id="painelMenuMobileNotificacoes" aria-labelledby="tituloPainelMenuMobileNotificacoes">

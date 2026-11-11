@@ -113,7 +113,11 @@
     },
 
     maiorDeIdade: function (dataNascimento, idadeMinima) {
-      idadeMinima = idadeMinima || 18;
+      idadeMinima = idadeMinima ?? 18;
+
+      //Mudar para aceitar 16 no cliente
+      /*var idadeMinima = tipoUsuario === "cliente" ? 16 : 18;
+      var idadeValida = utilitario.maiorDeIdade(dataNascimento, idadeMinima);*/
 
       if (!dataNascimento || isNaN(new Date(dataNascimento + "T00:00:00").getTime())) {
         return false;
@@ -174,7 +178,6 @@
       var f = "";
 
       if (tipo === "telefone") {
-
         if (d.length > 11 && d.indexOf("55") === 0) d = d.substring(2);
         d = d.substring(0, 11);
         if (d.length === 0) return "";

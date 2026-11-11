@@ -11,16 +11,10 @@
       url: "index.php?uri=profissional",
       urlLogin: "index.php?uri=loginProfissional",
       hrefAgenda: "index.php?uri=agendaProfissional",
+      hrefInicio: "index.php?uri=inicioProfissional",
       listaVinculos: "clinicas",
       iconeVinculo: "apartment",
       textos: {
-        tituloVinculo: "Vincular Clínica",
-        rotuloVinculo: "Digite o usuário da clínica que deseja vincular:",
-        placeholderVinculo: "Digite o usuário da clínica",
-        buscaVazia: "Digite o usuário da clínica.",
-        naoEncontrado: "Clínica não encontrada.",
-        selecioneAntes: "Antes de confirmar, você precisa selecionar uma clínica.",
-        rotuloSelecionar: "Selecionar clínica",
         rotuloDesvincular: "Desvincular clínica",
         desvinculoAbertura: "Você está prestes a desvincular a clínica ",
         desvinculoConsequencia: "Se continuar com isso, ela não aparecerá mais como uma clínica em que você trabalha. Dessa forma, os clientes não poderão agendar uma consulta com você nessa localização e suas futuras consultas não aparecerão no relatório dessa clínica."
@@ -31,6 +25,7 @@
       url: "index.php?uri=clinica",
       urlLogin: "index.php?uri=loginClinica",
       hrefAgenda: "index.php?uri=agendaClinica",
+      hrefInicio: "index.php?uri=inicioClinica",
       listaVinculos: "profissionais",
       iconeVinculo: "person",
       textos: {
@@ -60,7 +55,7 @@
   var moduloPerfil = {
 
     configuracao: {
-      urlSair: "limparSessao.php",
+      urlSair: "index.php?uri=limpar",
       urlInicio: "index.php",
       duracaoAviso: 4000,
       ocultarParametrosNaUrl: true,
@@ -77,13 +72,12 @@
 
         buscarVinculo: { url: "index.php?uri=busca", acao: "busca", disponivel: true },
 
-        editarBio:         { acao: "editarBio",          disponivel: false },
+        editarBio: { acao: { profissional: "atualizar" }, disponivel: true },
         editarLocalizacao: { acao: "editarLocalizacao",  disponivel: false },
         listarVinculos:    { acao: "listarVinculos",     disponivel: false },
 
         vincular:          { acao: "vincular",           disponivel: false },
-        desvincular:       { acao: "desvincular",        disponivel: false },
-        gerenciarVinculos: { acao: "gerenciarVinculos",  disponivel: false }
+        desvincular:       { acao: "desvincular",        disponivel: false }
       }
     },
 
@@ -102,6 +96,8 @@
 
     elementos: {},
 
+    modulos: [],
+
     iniciar: function () {
       this.cachearElementos();
       this.sincronizarAriaInvalid();
@@ -118,6 +114,7 @@
       e.$modalSessaoExpirada = $("#modalSessaoExpirada");
       e.$modalVincular = $("#modalVincular");
       e.$modalDesvincular = $("#modalDesvincular");
+      e.$modalVinculoEnviado = $("#modalVinculoEnviado");
       e.$aviso = $("#avisoPerfil");
 
       e.$formularioBio = $("#formularioBio");
@@ -131,6 +128,7 @@
       e.$campoValorServico = $("#campoValorServico");
       e.$listaLinhasHorario = $('[data-lista="linhasHorario"]');
       e.$botaoSalvarHorarios = $("#botaoSalvarHorarios");
+      e.$botaoConfirmarVinculo = $('[data-campo="botaoConfirmarVinculo"]');
       e.$campoUsuarioVinculo = $("#campoUsuarioVinculo");
       e.$mensagemUsuarioVinculo = $("#mensagemUsuarioVinculo");
       e.$resultadoVinculo = $('[data-lista="resultadoVinculo"]');
@@ -142,6 +140,11 @@
         cidade: $("#campoCidadeLocalizacao"),
         uf: $("#campoEstadoLocalizacao"),
         ibge: $("#campoIbgeLocalizacao")
+      };
+
+      e.$camposEnderecoExtra = {
+        numero: $("#campoNumeroLocalizacao"),
+        complemento: $("#campoComplementoLocalizacao")
       };
     },
 
@@ -205,10 +208,10 @@
       return this.tipoPerfil() === "clinica";
     },
 
-    aplicarPapel: function () {
+    aplicarPerfilDeEm: function ($escopo) {
       var tipo = this.tipoPerfil();
 
-      $("[data-perfilDe]").each(function () {
+      $escopo.filter("[data-perfilDe]").add($escopo.find("[data-perfilDe]")).each(function () {
         var atributoHidden;
         if ($(this).attr("data-perfilDe") === tipo) {
           atributoHidden = null;
@@ -217,12 +220,24 @@
         }
         $(this).attr("hidden", atributoHidden);
       });
+    },
+
+    aplicarPapel: function () {
+      this.aplicarPerfilDeEm($(document.body));
 
       if (this.ehVisitante()) {
         $("[data-somenteDono]").attr("hidden", "hidden");
-
-        $("#linkDocumentos").attr("href", "index.php?uri=documentos&id=" + encodeURIComponent(this.estado.alvo.id));
       }
+    },
+
+    iniciarModulos: function () {
+      var self = this;
+
+      $.each(window.ElmoPerfilModulos || [], function (_, modulo) {
+        $.extend(self.configuracao.contratos, modulo.contratos || {});
+        self.modulos.push(modulo);
+        modulo.iniciar(self);
+      });
     },
 
     lerAlvoDaUrl: function () {
@@ -288,12 +303,22 @@
         acao = contrato.acao;
       }
 
-      return $.ajax({
+      var opcoes = {
         url: contrato.url || papeis[papel].url,
         method: "POST",
-        dataType: tipoResposta || "json",
-        data: $.extend({ acao: acao }, dados || {})
-      });
+        dataType: tipoResposta || "json"
+      };
+
+      if (typeof FormData !== "undefined" && dados instanceof FormData) {
+        dados.append("acao", acao);
+        opcoes.data = dados;
+        opcoes.processData = false;
+        opcoes.contentType = false;
+      } else {
+        opcoes.data = $.extend({ acao: acao }, dados || {});
+      }
+
+      return $.ajax(opcoes);
     },
 
     avisarIndisponivel: function () {
@@ -354,9 +379,14 @@
             aplicarPapelNavegacao($(this));
           }
         });
-        $("[data-itemPapel]").attr("href", config.hrefInicio);
       }
+      $("[data-itemPapel]").attr("href", config.hrefInicio);
       $("[data-itemAgenda]").attr("href", config.hrefAgenda);
+
+      if (papel === "cliente") {
+        $navs.find("[data-itemPerfil]").closest(".navLateralLogado_rodape").remove();
+        $navs.find("[data-itemPerfil]").remove();
+      }
 
       if (this.ehVisitante()) {
 
@@ -373,6 +403,7 @@
         this.aplicarPapel();
         this.prepararModalVinculo();
         this.carregarPerfil();
+        this.iniciarModulos();
         return;
       }
 
@@ -617,9 +648,9 @@
       return resultado.promise();
     },
 
-    textoEndereco: function (dadosViaCep) {
+    textoEndereco: function (dadosViaCep, numero, complemento) {
       var cidadeUf = [dadosViaCep.localidade, dadosViaCep.uf].filter(Boolean).join(" - ");
-      return [dadosViaCep.logradouro, dadosViaCep.bairro, cidadeUf].filter(Boolean).join(", ");
+      return [dadosViaCep.logradouro, numero, complemento, dadosViaCep.bairro, cidadeUf].filter(Boolean).join(", ");
     },
 
     atualizarLinkMaps: function (cepFormatado, endereco) {
@@ -641,7 +672,10 @@
 
     renderizarLocalizacao: function () {
       var self = this;
-      var cepBruto = (this.estado.perfil || {}).clin_cep || "";
+      var perfil = this.estado.perfil || {};
+      var cepBruto = perfil.clin_cep || "";
+      var numero = $.trim(perfil.clin_num || "");
+      var complemento = $.trim(perfil.clin_comp || "");
       var cep;
       if (cepBruto) {
         cep = Utilitarios.formatarMascara("cep", cepBruto);
@@ -665,7 +699,7 @@
           if (Utilitarios.apenasNumeros((self.estado.perfil || {}).clin_cep || "") !== Utilitarios.apenasNumeros(cepBruto)) {
             return;
           }
-          var endereco = self.textoEndereco(dados);
+          var endereco = self.textoEndereco(dados, numero, complemento);
           $endereco.text(endereco || "Não informado");
           self.atualizarLinkMaps(cep, endereco);
         })
@@ -792,6 +826,12 @@
       if (nomeVisao === "cadastroHorarios") {
         this.preencherFormularioHorarios();
       }
+
+      $.each(this.modulos, function (_, modulo) {
+        if (modulo.aoPrepararVisao) {
+          modulo.aoPrepararVisao(nomeVisao);
+        }
+      });
     },
 
     cancelarEdicao: function ($botao) {
@@ -836,7 +876,7 @@
       }
 
       var self = this;
-      this.chamarContrato("editarBio", { bio: bio })
+      this.chamarContrato("editarBio", { atualizacao: ["biografia"], valores: [bio] })
         .done(function (resposta) {
           if (resposta && resposta.sucesso) {
             self.definirBioDoPerfil(bio);
@@ -857,13 +897,17 @@
     },
 
     preencherFormularioLocalizacao: function () {
-      var cep = (this.estado.perfil || {}).clin_cep || "";
+      var perfil = this.estado.perfil || {};
+      var cep = perfil.clin_cep || "";
       var c = this.elementos.$camposLocalizacao;
+      var extra = this.elementos.$camposEnderecoExtra;
 
       $("#avisosLocalizacao").empty();
       $.each(c, function (_, $campo) {
         $campo.removeClass("is-invalid").val("");
       });
+      extra.numero.removeClass("is-invalid").val(perfil.clin_num || "");
+      extra.complemento.removeClass("is-invalid").val(perfil.clin_comp || "");
       var cepExibido;
       if (cep) {
         cepExibido = Utilitarios.formatarMascara("cep", cep);
@@ -886,7 +930,11 @@
       var perfil = this.estado.perfil || {};
       var $avisos = $("#avisosLocalizacao");
       var cep = Utilitarios.apenasNumeros(c.cep.val());
+      var extra = this.elementos.$camposEnderecoExtra;
+      var numero = $.trim(extra.numero.val());
+      var complemento = $.trim(extra.complemento.val());
 
+      extra.numero.removeClass("is-invalid");
       var vazios = [];
       $.each(c, function (_, $campo) {
         $campo.removeClass("is-invalid");
@@ -901,6 +949,9 @@
         c.cep.trigger("focus");
         return;
       }
+      if (!numero) {
+        vazios.push(extra.numero);
+      }
       if (vazios.length) {
         $.each(vazios, function (_, $campo) {
           $campo.addClass("is-invalid");
@@ -909,7 +960,9 @@
         this.focarPrimeiroInvalido(this.elementos.$formularioLocalizacao);
         return;
       }
-      if (cep === Utilitarios.apenasNumeros(perfil.clin_cep || "")) {
+      if (cep === Utilitarios.apenasNumeros(perfil.clin_cep || "")
+        && numero === $.trim(perfil.clin_num || "")
+        && complemento === $.trim(perfil.clin_comp || "")) {
         this.exibirAviso("Nenhuma alteração foi feita!", "atencao");
         return;
       }
@@ -919,10 +972,12 @@
       }
 
       var self = this;
-      this.chamarContrato("editarLocalizacao", { cep: cep })
+      this.chamarContrato("editarLocalizacao", { cep: cep, numero: numero, complemento: complemento })
         .done(function (resposta) {
           if (resposta && resposta.sucesso) {
             self.estado.perfil.clin_cep = cep;
+            self.estado.perfil.clin_num = numero;
+            self.estado.perfil.clin_comp = complemento;
             self.renderizarLocalizacao();
             self.limparFormulario(self.elementos.$formularioLocalizacao);
             self.mostrarVisao("resumo");
@@ -1256,15 +1311,35 @@
     },
 
     prepararModalVinculo: function () {
+      if (!this.ehClinica()) {
+        return;
+      }
       var t = this.textos();
 
       $('[data-campo="tituloVinculo"]').text(t.tituloVinculo);
       $('[data-campo="rotuloVinculo"]').text(t.rotuloVinculo);
       this.elementos.$campoUsuarioVinculo.attr("placeholder", t.placeholderVinculo);
-      $('[data-campo="rotuloBotaoDesvincular"]').text(t.rotuloDesvincular);
+    },
+
+    atualizarBotaoConfirmarVinculo: function () {
+      var semSelecao = !this.estado.vinculoSelecionado;
+      this.elementos.$botaoConfirmarVinculo.attr("aria-disabled", String(semSelecao));
+    },
+
+    mostrarVinculoEnviado: function (nome) {
+      var self = this;
+
+      $('[data-campo="nomeProfissionalPedido"]').text(nome);
+      this.elementos.$modalVincular.one("hidden.bs.modal", function () {
+        Utilitarios.exibirModal(self.elementos.$modalVinculoEnviado);
+      });
+      Utilitarios.esconderModal(this.elementos.$modalVincular);
     },
 
     abrirVinculo: function () {
+      if (!this.ehClinica() || this.ehVisitante()) {
+        return;
+      }
       this.limparBuscaVinculo();
       Utilitarios.exibirModal(this.elementos.$modalVincular);
     },
@@ -1275,6 +1350,7 @@
       this.elementos.$campoUsuarioVinculo.val("").removeClass("is-invalid");
       this.elementos.$mensagemUsuarioVinculo.removeClass("d-block").text("");
       this.elementos.$resultadoVinculo.empty().attr("hidden", "hidden");
+      this.atualizarBotaoConfirmarVinculo();
     },
 
     mostrarErroBusca: function (mensagem) {
@@ -1295,6 +1371,7 @@
       this.elementos.$campoUsuarioVinculo.removeClass("is-invalid");
       this.elementos.$mensagemUsuarioVinculo.removeClass("d-block");
       this.estado.vinculoSelecionado = null;
+      this.atualizarBotaoConfirmarVinculo();
       this.elementos.$resultadoVinculo.empty().attr("hidden", "hidden");
 
       if (!usuario) {
@@ -1345,6 +1422,7 @@
 
       if (jaSelecionado) {
         this.estado.vinculoSelecionado = null;
+        this.atualizarBotaoConfirmarVinculo();
         return;
       }
 
@@ -1354,6 +1432,7 @@
         .attr("aria-pressed", "true")
         .find(".material-symbols-outlined")
         .text("check_circle");
+      this.atualizarBotaoConfirmarVinculo();
     },
 
     enviarVinculo: function () {
@@ -1372,7 +1451,7 @@
       this.chamarContrato("vincular", { idVinculo: this.normalizarVinculo(selecionado).id })
         .done(function (resposta) {
           if (resposta && resposta.sucesso) {
-            Utilitarios.esconderModal(self.elementos.$modalVincular);
+            self.mostrarVinculoEnviado(self.normalizarVinculo(selecionado).titulo);
             self.carregarVinculos();
           } else {
             self.exibirAviso("Não foi possível vincular. Tente novamente.", "erro");
@@ -1386,13 +1465,10 @@
     abrirModalDesvincular: function ($botao) {
       var vinculo = $botao.closest(".cardVinculo").data("vinculo");
       var t = this.textos();
-      var $abertura = $('[data-campo="textoDesvinculoAbertura"]');
 
       this.estado.vinculoParaDesvincular = vinculo;
-      $abertura.empty()
-        .append(document.createTextNode(t.desvinculoAbertura))
-        .append($("<strong>").text(vinculo.titulo))
-        .append(document.createTextNode("!"));
+      $('[data-campo="textoDesvinculoAbertura"]').text(t.desvinculoAbertura);
+      $('[data-campo="nomeDesvinculo"]').text(vinculo.titulo);
       $('[data-campo="textoDesvinculoConsequencia"]').text(t.desvinculoConsequencia);
 
       Utilitarios.exibirModal(this.elementos.$modalDesvincular);
@@ -1486,10 +1562,6 @@
       $(document).on("click", '[data-acao="abrirVinculo"]', function () {
         self.abrirVinculo();
       });
-      $(document).on("click", '[data-acao="gerenciarVinculos"]', function () {
-        self.exibirAviso("Gerenciar profissionais ainda não está disponível.", "atencao");
-      });
-
       $("#botaoBuscarVinculo").on("click", function () {
         self.buscarVinculo();
       });

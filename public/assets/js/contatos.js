@@ -15,21 +15,21 @@
 
       papeis: {
         cliente: {
-          url: "index.php?uri=profissional",
+          url: "index.php?uri=cliente",
           listas: { dados1: "profissionais", dados2: "clinicas" },
           secoes: ["profissionais", "clinicas"],
           apoio: "clínicas e profissionais",
           mostrarTelefone: true
         },
         clienteSimples: {
-          url: "index.php?uri=profissional",
+          url: "index.php?uri=cliente",
           listas: { dados1: "profissionais", dados2: "clinicas" },
           secoes: ["profissionais", "clinicas"],
           apoio: "clínicas e profissionais",
           mostrarTelefone: false
         },
         profissional: {
-          url: "index.php?uri=cliente",
+          url: "index.php?uri=profissional",
           listas: { dados1: "clientes", dados2: "clinicas" },
           secoes: ["clientes", "clinicas"],
           apoio: "clínicas e clientes",

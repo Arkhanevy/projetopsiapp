@@ -38,21 +38,56 @@
     </div>
   </nav>
 
-  <!-- MENU HAMBÚRGUER (DESKTOP, LOGADO) — exibido por sessaoNavegacao.js -->
-  <div class="dropdown menuHamburguerLogado d-none d-md-block" hidden>
-    <button type="button" class="menuHamburguerLogado_botao dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menu">
+  <!-- BARRA SUPERIOR (LOGADO — DESKTOP E MOBILE) — exibida por sessaoNavegacao.js quando há sessão -->
+  <header class="navTopoLogado" hidden>
+    <a href="index.php" class="navTopoLogado_logo">
+      <img src="public/assets/images/logo.png" alt="" width="40" height="40">
+      <span data-nomePlataforma="">Podopsi</span>
+    </a>
+
+    <!-- Desktop: menu hambúrguer em dropdown -->
+    <div class="dropdown menuHamburguerLogado d-none d-md-block">
+      <button type="button" class="menuHamburguerLogado_botao dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menu">
+        <span class="material-symbols-outlined" aria-hidden="true">menu</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end menuHamburguerLogado_lista">
+        <li><a href="index.php?uri=configuracao" class="dropdown-item menuHamburguerLogado_item"><span class="material-symbols-outlined" aria-hidden="true">settings</span>Configuração</a></li>
+        <li><a href="index.php?uri=centralAjuda" class="dropdown-item menuHamburguerLogado_item"><span class="material-symbols-outlined" aria-hidden="true">support_agent</span>Central de ajuda</a></li>
+        <li><a href="#" class="dropdown-item menuHamburguerLogado_item" data-acao="sair"><span class="material-symbols-outlined" aria-hidden="true">logout</span>Sair</a></li>
+      </ul>
+    </div>
+
+    <!-- Mobile: o hambúrguer abre o painelMenuMobile (offcanvas) -->
+    <button type="button" class="navTopoLogado_botaoMenuMobile d-md-none" data-bs-toggle="offcanvas" data-bs-target="#painelMenuMobileAgendamento" aria-controls="painelMenuMobileAgendamento" aria-label="Abrir menu">
       <span class="material-symbols-outlined" aria-hidden="true">menu</span>
     </button>
-    <ul class="dropdown-menu menuHamburguerLogado_lista">
-      <li><a href="#" class="dropdown-item menuHamburguerLogado_item"><span class="material-symbols-outlined" aria-hidden="true">help</span>Como funciona</a></li>
-      <li><a href="index.php?uri=centralAjuda" class="dropdown-item menuHamburguerLogado_item"><span class="material-symbols-outlined" aria-hidden="true">support_agent</span>Central de ajuda</a></li>
-      <li><a href="#" class="dropdown-item menuHamburguerLogado_item" data-acao="sair"><span class="material-symbols-outlined" aria-hidden="true">logout</span>Sair</a></li>
-    </ul>
+  </header>
+
+  <!-- PAINEL DO MENU (MOBILE, LOGADO) -->
+  <div class="offcanvas offcanvas-top painelMenuMobile d-md-none" tabindex="-1" id="painelMenuMobileAgendamento" aria-labelledby="tituloPainelMenuMobileAgendamento">
+    <div class="offcanvas-header">
+      <a href="index.php" class="painelMenuMobile_logo" id="tituloPainelMenuMobileAgendamento">
+        <img src="public/assets/images/logo.png" alt="" width="40" height="40">
+        <span data-nomePlataforma="">Podopsi</span>
+      </a>
+      <button type="button" class="painelMenuMobile_botaoFechar" data-bs-dismiss="offcanvas" aria-label="Fechar menu">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+      <ul class="painelMenuMobile_lista">
+        <li><a href="index.php?uri=configuracao" class="painelMenuMobile_item"><span class="material-symbols-outlined" aria-hidden="true">settings</span>Configuração</a></li>
+        <li><a href="index.php?uri=centralAjuda" class="painelMenuMobile_item"><span class="material-symbols-outlined" aria-hidden="true">support_agent</span>Central de ajuda</a></li>
+      </ul>
+      <ul class="painelMenuMobile_rodape">
+        <li><a href="#" class="painelMenuMobile_item" data-acao="sair"><span class="material-symbols-outlined" aria-hidden="true">logout</span>Sair</a></li>
+      </ul>
+    </div>
   </div>
 
   <!-- NAVEGAÇÃO LATERAL (DESKTOP, LOGADO) — exibida por sessaoNavegacao.js -->
   <nav class="navLateralLogado d-none d-md-flex" data-papel="cliente" aria-label="Navegação principal" hidden>
-    <a href="index.php?uri=busca" class="navLateralLogado_item navLateralLogado_item--ativo" aria-current="page" data-itemPapel>
+    <a href="index.php?uri=buscar" class="navLateralLogado_item navLateralLogado_item--ativo" aria-current="page" data-itemPapel>
       <span class="material-symbols-outlined" aria-hidden="true">search</span>
       <span class="navLateralLogado_rotulo">Buscar</span>
     </a>
@@ -68,12 +103,6 @@
       <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
       <span class="navLateralLogado_rotulo">Agenda</span>
     </a>
-    <div class="navLateralLogado_rodape">
-      <a href="index.php?uri=perfil" class="navLateralLogado_item">
-        <span class="material-symbols-outlined" aria-hidden="true">person</span>
-        <span class="navLateralLogado_rotulo">Perfil</span>
-      </a>
-    </div>
   </nav>
 
   <div>
@@ -238,17 +267,13 @@
         <span class="material-symbols-outlined" aria-hidden="true">chat</span>
         <span class="navInferiorLogado_rotulo">Contatos</span>
       </a>
-      <a href="index.php?uri=busca" class="navInferiorLogado_item navInferiorLogado_item--ativo" aria-current="page" data-itemPapel>
+      <a href="index.php?uri=buscar" class="navInferiorLogado_item navInferiorLogado_item--ativo" aria-current="page" data-itemPapel>
         <span class="material-symbols-outlined" aria-hidden="true">search</span>
         <span class="navInferiorLogado_rotulo">Buscar</span>
       </a>
       <a href="index.php?uri=consultasCli" class="navInferiorLogado_item">
         <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
         <span class="navInferiorLogado_rotulo">Agenda</span>
-      </a>
-      <a href="index.php?uri=perfil" class="navInferiorLogado_item">
-        <span class="material-symbols-outlined" aria-hidden="true">person</span>
-        <span class="navInferiorLogado_rotulo">Perfil</span>
       </a>
     </nav>
 

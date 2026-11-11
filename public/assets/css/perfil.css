@@ -188,10 +188,461 @@
   border-radius: var(--raioTotal);
 }
 
+/* ==========================================================================
+   ESTADOS GENÉRICOS DA PÁGINA (carregando e botão com aria-disabled)
+   ========================================================================== */
+
+.estadoCarregando {
+  display: flex;
+  justify-content: center;
+  padding: var(--espaco6) 0;
+  color: var(--corDestaque);
+}
+
+.estadoCarregando .spinner-border {
+  --bs-spinner-width: 48px;
+  --bs-spinner-height: 48px;
+  --bs-spinner-border-width: 5px;
+}
+
+.estadoVazio .botaoBase {
+  margin-top: var(--espaco2);
+}
+
+.botaoBase[aria-disabled="true"] {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.campoSelect--erro ~ .invalid-feedback {
+  display: block;
+}
+
+/* ==========================================================================
+   HORÁRIOS — no mobile os campos de hora só aparecem no dia marcado;
+   a partir de 768px todos os dias mostram os campos (desabilitados até marcar)
+   ========================================================================== */
+
+@media (max-width: 767.98px) {
+
+  .formularioPerfil .linhaHorario:not(:has(.form-check-input:checked)) .linhaHorario_campo {
+    display: none;
+  }
+
+  .formularioPerfil .linhaHorario:not(:has(.form-check-input:checked)) {
+    padding-bottom: var(--espaco1);
+  }
+}
+
+/* ==========================================================================
+   GERENCIAMENTO DOS PROFISSIONAIS (accordion + interruptores de permissão)
+   ========================================================================== */
+
+.gerenciamentoProfissionais,
+.gerenciamentoProfissionais > [data-lista="gerenciamentoProfissionais"] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco2);
+}
+
+.gerenciamentoProfissionais {
+  --bs-accordion-bg: var(--corBranco);
+  --bs-accordion-color: var(--corLetras);
+  --bs-accordion-border-color: var(--corBordas);
+  --bs-accordion-border-width: var(--larguraBorda);
+  --bs-accordion-border-radius: var(--raioPequeno);
+  --bs-accordion-btn-color: var(--corLetras);
+  --bs-accordion-btn-bg: var(--corBranco);
+  --bs-accordion-active-color: var(--corLetras);
+  --bs-accordion-active-bg: var(--corBranco);
+  --bs-accordion-btn-padding-x: var(--espaco4);
+  --bs-accordion-btn-padding-y: var(--espaco3);
+  --bs-accordion-body-padding-x: var(--espaco4);
+  --bs-accordion-body-padding-y: var(--espaco2);
+  --bs-accordion-btn-focus-box-shadow: none;
+}
+
+.gerenciamentoProfissionais .accordion-item.itemGerenciamento {
+  overflow: hidden;
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: var(--raioPequeno);
+}
+
+.itemGerenciamento_gatilho {
+  gap: var(--espaco3);
+  font-size: var(--tamanhoSmall);
+  font-weight: var(--pesoNegrito);
+  box-shadow: none;
+}
+
+.itemGerenciamento_gatilho:focus-visible {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: -4px;
+}
+
+.itemGerenciamento_gatilho::after {
+  flex-shrink: 0;
+  width: auto;
+  height: auto;
+  background-image: none;
+  content: "expand_more";
+  font-family: "Material Symbols Outlined";
+  font-size: 28px;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  font-feature-settings: "liga";
+  color: var(--corLetras);
+}
+
+.itemGerenciamento_avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  overflow: hidden;
+  border: 1px solid var(--corBordas);
+  border-radius: 50%;
+  background-color: var(--corFundoClaro);
+  color: var(--corDestaque);
+}
+
+.itemGerenciamento_foto {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.listaPermissoes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.listaPermissoes_linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco3);
+  padding: var(--espaco2) 0;
+  font-size: var(--tamanhoSmall);
+  font-weight: var(--pesoNegrito);
+  cursor: pointer;
+}
+
+.listaPermissoes_selo {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: var(--espaco1) var(--espaco3);
+  font-size: var(--tamanhoCaption);
+}
+
+.listaPermissoes_estado {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco1);
+}
+
+.listaPermissoes_controle:checked + .listaPermissoes_selo {
+  background-color: var(--corBotoes);
+}
+
+.listaPermissoes_controle:not(:checked) + .listaPermissoes_selo {
+  background-color: var(--corAcaoNegativa);
+}
+
+.listaPermissoes_controle:checked + .listaPermissoes_selo .listaPermissoes_estado--proibido,
+.listaPermissoes_controle:not(:checked) + .listaPermissoes_selo .listaPermissoes_estado--permitido {
+  display: none;
+}
+
+.listaPermissoes_controle:focus-visible + .listaPermissoes_selo {
+  outline: var(--larguraFoco) solid var(--corFoco);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   DOCUMENTOS
+   ========================================================================== */
+
+.listaCards[data-lista="documentos"] {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 300px));
+}
+
+.listaCards .cardDocumento {
+  max-width: 300px;
+}
+
+.listaCards .cardDocumento_rodape {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco2);
+  padding: 0 var(--espaco4) var(--espaco4);
+  border-top: 0;
+  background-color: transparent;
+}
+
+.listaCards .cardDocumento_rodape .botaoBase {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.areaArquivo {
+  margin-top: var(--espaco4);
+  padding: var(--espaco5) var(--espaco4);
+  border: var(--larguraBorda) solid var(--corBordas);
+  border-radius: var(--raioPequeno);
+  background-color: var(--corBranco);
+  text-align: center;
+}
+
+.areaArquivo_conteudo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco3);
+}
+
+.areaArquivo_icone {
+  font-size: 96px;
+  color: var(--corLetras);
+}
+
+.areaArquivo_dica {
+  margin: 0;
+  font-size: var(--tamanhoSmall);
+  color: color-mix(in srgb, var(--corLetras) 80%, white);
+}
+
+.areaArquivo_nome {
+  margin: 0;
+  font-size: var(--tamanhoBody);
+  font-weight: var(--pesoNegrito);
+  overflow-wrap: anywhere;
+}
+
+.areaArquivo--arrastando {
+  border-style: dashed;
+  border-color: var(--corAcaoSecundaria);
+  background-color: var(--corFundoClaro);
+}
+
+.areaArquivo--erro {
+  border-color: var(--corAcaoNegativa);
+}
+
+.areaArquivo--erro .invalid-feedback {
+  display: block;
+}
+
+/* ==========================================================================
+   RELATÓRIO
+   ========================================================================== */
+
+.secaoRelatorio {
+  margin-top: var(--espaco5);
+}
+
+.secaoRelatorio + .secaoRelatorio {
+  margin-top: var(--espaco7);
+}
+
+.seletorPeriodo {
+  margin-bottom: var(--espaco4);
+}
+
+@media (min-width: 768px) {
+
+  .seletorPeriodo {
+    max-width: 240px;
+  }
+}
+
+.relatorioResumo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco5);
+}
+
+.relatorioResumo_dados {
+  width: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+
+  .relatorioResumo {
+    flex-direction: row;
+    gap: var(--espaco6);
+  }
+
+  .relatorioResumo_dados {
+    flex: 1 1 0;
+  }
+}
+
+.graficoPizza {
+  position: relative;
+  flex-shrink: 0;
+  width: min(220px, 70vw);
+  margin: 0;
+}
+
+.graficoPizza_svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.graficoPizza_base {
+  fill: var(--corAcaoExtra);
+  stroke: var(--corBordas);
+  stroke-width: 0.6;
+}
+
+.graficoPizza_fatia {
+  fill: none;
+  stroke-width: 50;
+}
+
+.graficoPizza_fatia:not([stroke-dasharray]) {
+  stroke-opacity: 0;
+}
+
+.graficoPizza_fatia--realizadas {
+  stroke: var(--corAcaoSecundaria);
+}
+
+.graficoPizza_fatia--canceladas {
+  stroke: var(--corAcaoNegativa);
+}
+
+.graficoPizza_fatia--pendentes {
+  stroke: var(--corAcaoExtra);
+}
+
+.graficoPizza_rotulo {
+  fill: var(--corBranco);
+  font-size: 7px;
+  font-weight: var(--pesoNegrito);
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.graficoPizza_vazio {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco5);
+  color: var(--corBranco);
+  font-size: var(--tamanhoH3);
+  font-weight: var(--pesoNegrito);
+  text-align: center;
+  pointer-events: none;
+}
+
+.legendaGrafico {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--espaco2) var(--espaco4);
+  margin: 0 0 var(--espaco3);
+  padding: 0;
+  list-style: none;
+  font-size: var(--tamanhoSmall);
+}
+
+.legendaGrafico_item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.marcadorCor {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin-right: var(--espaco2);
+  border: 1px solid var(--corBordas);
+  border-radius: 50%;
+  vertical-align: -2px;
+}
+
+.marcadorCor--realizadas {
+  background-color: var(--corAcaoSecundaria);
+}
+
+.marcadorCor--canceladas {
+  background-color: var(--corAcaoNegativa);
+}
+
+.marcadorCor--pendentes {
+  background-color: var(--corAcaoExtra);
+}
+
+.relatorioResumo_dados .table-responsive,
+.secaoRelatorio > .table-responsive {
+  border-radius: var(--raioPequeno);
+  background-color: var(--corBranco);
+}
+
+.tabelaResumo thead th,
+.tabelaResumo tbody th,
+.tabelaResumo tfoot th {
+  text-align: left;
+}
+
+.tabelaResumo thead th:not(:first-child),
+.tabelaResumo tbody td,
+.tabelaResumo tfoot td {
+  text-align: right;
+}
+
+@media (min-width: 768px) {
+
+  .tabelaResumo thead th {
+    padding-right: var(--bs-table-cell-padding-x);
+  }
+}
+
+.tabelaResumo tbody th {
+  font-size: var(--tamanhoSmall);
+  font-weight: var(--pesoRegular);
+}
+
+.tabelaResumo tfoot th,
+.tabelaResumo tfoot td {
+  font-size: var(--tamanhoSmall);
+  font-weight: var(--pesoNegrito);
+}
+
+.tabelaHistorico thead th,
+.tabelaHistorico td {
+  text-align: left;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+
+  .tabelaHistorico thead th {
+    padding-right: var(--bs-table-cell-padding-x);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
 
   .abasPerfil .nav-link,
-  .secaoPerfil_acao {
+  .secaoPerfil_acao,
+  .itemGerenciamento_gatilho,
+  .itemGerenciamento_gatilho::after {
     transition: none;
   }
 }

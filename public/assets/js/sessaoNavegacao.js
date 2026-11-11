@@ -2,13 +2,34 @@
   "use strict";
 
   var moduloSessaoNavegacao = {
-
+    
     configuracao: {
-
       tiposParaVerificar: ["cliente", "profissional", "clinica"],
-
       urlVerificarSessaoPorTipo: function (tipo) {
         return "index.php?uri=" + tipo;
+      },
+      urlSair: "index.php?uri=limpar",
+      urlAposSair: "index.php"
+    },
+
+    caminhosMenuPorTipo: {
+      cliente: {
+        inicio: "index.php?uri=buscar",
+        agenda: "index.php?uri=consultasCli"
+      },
+      clienteSimples: {
+        inicio: "index.php?uri=buscar",
+        agenda: "index.php?uri=consultasCli"
+      },
+      profissional: {
+        inicio: "index.php?uri=inicioProfissional",
+        agenda: "index.php?uri=agendaProfissional",
+        perfil: "index.php?uri=perfil"
+      },
+      clinica: {
+        inicio: "index.php?uri=inicioClinica",
+        agenda: "index.php?uri=agendaClinica",
+        perfil: "index.php?uri=perfil"
       }
     },
 
@@ -20,14 +41,55 @@
 
     iniciar: function () {
       this.cachearElementos();
+      this.configurarSair();
       this.verificarSessao();
+    },
+
+    configurarSair: function () {
+      var configuracao = this.configuracao;
+
+      $(document).on("usuarioSolicitouSair", function () {
+        $.ajax({ url: configuracao.urlSair, method: "POST" }).always(function () {
+          window.location.href = configuracao.urlAposSair;
+        });
+      });
     },
 
     cachearElementos: function () {
       this.elementos.$navTopoDeslogado = $(".navTopoDeslogado");
+      this.elementos.$navTopoLogado = $(".navTopoLogado");
       this.elementos.$navsLogado = $(".navLateralLogado, .navInferiorLogado");
       this.elementos.$menuHamburguer = $(".menuHamburguerLogado");
       this.elementos.$itemContatos = $("[data-itemContatos]");
+      this.elementos.$itemPapel = $("[data-itemPapel]");
+      this.elementos.$itemAgenda = $("[data-itemAgenda]");
+      this.elementos.$itemPerfil = $("[data-itemPerfil]");
+    },
+
+    aplicarCaminhosDoMenu: function (tipoUsuario) {
+      var caminhos = this.caminhosMenuPorTipo[tipoUsuario];
+
+      if (!caminhos) {
+        return;
+      }
+
+      this.elementos.$itemPapel.attr("href", caminhos.inicio);
+      this.elementos.$itemAgenda.attr("href", caminhos.agenda);
+
+      if (caminhos.perfil) {
+        this.elementos.$itemPerfil.attr("href", caminhos.perfil);
+      } else {
+        this.removerItemPerfil();
+      }
+    },
+
+    removerItemPerfil: function () {
+      var $rodapes = this.elementos.$itemPerfil.closest(".navLateralLogado_rodape");
+
+      this.elementos.$itemPerfil.remove();
+      $rodapes.filter(function () {
+        return $(this).children().length === 0;
+      }).remove();
     },
 
     verificarSessao: function () {
@@ -64,6 +126,7 @@
 
     exibirNavegacaoDeslogado: function () {
       this.elementos.$navTopoDeslogado.removeAttr("hidden");
+      this.elementos.$navTopoLogado.attr("hidden", "hidden");
       this.elementos.$navsLogado.attr("hidden", "hidden");
       this.elementos.$menuHamburguer.attr("hidden", "hidden");
 
@@ -83,7 +146,10 @@
         .data("papel", papel)
         .removeAttr("hidden");
       this.elementos.$menuHamburguer.removeAttr("hidden");
+      this.elementos.$navTopoLogado.removeAttr("hidden");
       this.elementos.$navTopoDeslogado.attr("hidden", "hidden");
+
+      this.aplicarCaminhosDoMenu(tipoUsuario);
 
       var configContatos = this.itemContatosPorTipo[tipoUsuario];
       if (configContatos) {

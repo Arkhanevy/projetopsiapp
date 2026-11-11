@@ -5,7 +5,6 @@
 
     configuracao: {
       urlResultados: "index.php?uri=resultadosBusca",
-      urlInicioProfissionalClinica: "index.php",
 
       hrefAgendaPorTipo: {
         cliente: "index.php?uri=consultasCli",
@@ -43,9 +42,7 @@
         }
 
         if (tipo === "profissional" || tipo === "clinica") {
-          $("[data-itemPapel]")
-            .attr("href", configuracao.urlInicioProfissionalClinica)
-            .removeAttr("aria-current");
+          $("[data-itemPapel]").removeAttr("aria-current");
           $(".navLateralLogado_item--ativo, .navInferiorLogado_item--ativo")
             .removeClass("navLateralLogado_item--ativo navInferiorLogado_item--ativo");
         }

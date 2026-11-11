@@ -37,8 +37,10 @@ console.log("JS agendamentoCli carregado");
 
     estado: {
       idServico: null,
+      servico: null,          // <-- novo
       dataExibida: new Date(),
       diasIndisponiveis: [],
+      diasLivres: [],
       diaSelecionado: null,
       localizacaoSelecionada: null,
       localizacoesDisponiveis: false,
@@ -213,10 +215,13 @@ console.log("JS agendamentoCli carregado");
             return;
           }
 
+          self.estado.servico = resposta.dados[0];   // <-- novo
+
           Utilitarios.preencherCampos(
             self.elementos.$camposDinamicos,
             self.mapearDadosServico(resposta.dados[0])
           );
+
           Utilitarios.alternarEsqueletoAcessivel(self.elementos.$camposDinamicos, false);
           self.carregarLocalizacoes();
           self.buscarDiasIndisponiveis(self.estado.dataExibida);
@@ -340,6 +345,7 @@ console.log("JS agendamentoCli carregado");
           }
 
           self.estado.diasIndisponiveis = self.extrairDiasIndisponiveis(resposta);
+          self.estado.diasLivres = self.calcularDiasLivres(data);
           self.elementos.$form.removeClass("estadoCarregando estadoErro");
           self.renderizarCalendario(data);
         })
@@ -352,7 +358,9 @@ console.log("JS agendamentoCli carregado");
       var self = this;
       var indisponiveis = [];
 
-      ["folga", "indisponivel"].forEach(function (chave) {
+      // Só os dias marcados como "indisponivel" pelo backend são bloqueados.
+      // Todo o resto (disponivel, folga ou ausente) entra como disponível.
+      ["indisponivel"].forEach(function (chave) {
         (resposta[chave] || []).forEach(function (item) {
           var dataTexto;
           if (item && item.date) {
@@ -367,6 +375,31 @@ console.log("JS agendamentoCli carregado");
       });
 
       return indisponiveis;
+    },
+
+    obterChaveHoje: function () {
+      var hoje = new Date();
+      return this.formatarDataChave(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    },
+
+    calcularDiasLivres: function (data) {
+      var ano = data.getFullYear();
+      var mes = data.getMonth();
+      var totalDias = new Date(ano, mes + 1, 0).getDate();
+      var chaveHoje = this.obterChaveHoje();
+      var livres = [];
+
+      for (var dia = 1; dia <= totalDias; dia++) {
+        var dataChave = this.formatarDataChave(ano, mes, dia);
+        var jaPassou = dataChave < chaveHoje;
+        var estaIndisponivel = this.estado.diasIndisponiveis.indexOf(dataChave) !== -1;
+
+        if (!jaPassou && !estaIndisponivel) {
+          livres.push(dataChave);
+        }
+      }
+
+      return livres;
     },
 
     renderizarCalendario: function (data) {
@@ -386,7 +419,7 @@ console.log("JS agendamentoCli carregado");
 
       for (var dia = 1; dia <= totalDias; dia++) {
         var dataChave = this.formatarDataChave(ano, mes, dia);
-        var indisponivel = this.estado.diasIndisponiveis.indexOf(dataChave) !== -1;
+        var indisponivel = this.estado.diasLivres.indexOf(dataChave) === -1;
         var selecionado = dataChave === this.estado.diaSelecionado;
         var nomeDiaSemana = NOMES_DIA_SEMANA[new Date(ano, mes, dia).getDay()];
 
@@ -410,6 +443,8 @@ console.log("JS agendamentoCli carregado");
         if (indisponivel) {
           $botaoDia.addClass("diaIndisponivel").prop("disabled", true);
           $botaoDia.attr("aria-disabled", "true");
+        } else {
+          $botaoDia.addClass("diaDisponivel");
         }
         if (selecionado) {
           $botaoDia.addClass("diaSelecionado");
@@ -676,14 +711,17 @@ console.log("JS agendamentoCli carregado");
       var self = this;
       var contrato = this.configuracao.contratos.mostrarSala;
       var partesHorario = this.obterPartesHorario();
+      var servico = this.estado.servico || {};
+      var idLocal = this.estado.localizacaoSelecionada || servico.ser_loc || "";
+
       var dados = {
         acao: contrato.acao,
         inicio: partesHorario[0],
-        termino: partesHorario[1]
+        termino: partesHorario[1],
+        ser_loc: idLocal,
+        ser_id: this.estado.idServico,
+        dia: this.estado.diaSelecionado
       };
-      if (this.estado.localizacaoSelecionada) {
-        dados.localizacao = this.estado.localizacaoSelecionada;
-      }
 
       this.elementos.$botaoConfirmar.prop("disabled", true);
 
@@ -735,7 +773,9 @@ console.log("JS agendamentoCli carregado");
         data: dados
       })
         .done(function (respostaTexto) {
-          if ($.trim(respostaTexto) === "sucesso") {
+          // O PHP responde com json_encode, então vem "sucesso" (com aspas).
+          var resultado = $.trim(respostaTexto).replace(/^"+|"+$/g, "");
+          if (resultado === "sucesso") {
             self.irParaInfoServicoComSucesso();
             return;
           }
@@ -743,6 +783,7 @@ console.log("JS agendamentoCli carregado");
             "Não foi possível concluir o agendamento. Tente novamente."
           );
         })
+        
         .fail(function () {
           self.exibirAlertaValidacao(
             "Não foi possível concluir o agendamento. Tente novamente."

@@ -1,7 +1,7 @@
   .fundo {
     position: relative;
     min-height: 100vh;
-    background-image: url("/projetopsi/public/assets/images/bannerHorizontal.jpg");
+    background-image: url("/projetopsiapp/public/assets/images/bannerHorizontal.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;

@@ -1,5 +1,4 @@
-$(function () {
-
+$(function () {//INATIVO
   $(document).on("click", ".botaoBase", function (evento) {
     const $botao = $(this);
 
@@ -17,7 +16,7 @@ $(function () {
   });
 });
 
-function atualizarIndicadorStatus($elemento, novoEstado) {
+function atualizarIndicadorStatus($elemento, novoEstado) {//INATIVO
   const estadosValidos = ["agendada", "confirmada", "pendente", "cancelada", "realizada"];
 
   if (estadosValidos.indexOf(novoEstado) === -1) {
@@ -64,7 +63,7 @@ $(function () {
 
 });
 
-$(function () {
+$(function () {//INATIVO
 
   $(document).on("click", ".painelFiltro_botaoAplicar", function () {
     const $painel = $(this).closest(".painelFiltro");
@@ -160,7 +159,7 @@ $(function () {
 
 });
 
-$(function () {
+$(function () {//INATIVO
 
   $(document).on("shown.bs.modal", ".modalBase", function () {
     $(this).trigger("modalAberto");
@@ -174,7 +173,7 @@ $(function () {
 
 $(function () {
 
-  $(document).on("click", "[data-acao='cancelarConsulta']", function () {
+  $(document).on("click", "[data-acao='cancelarConsulta']", function () {//INATIVO
     const $card = $(this).closest("[data-idConsulta]");
     $card.trigger("consultaCancelada", { idConsulta: $card.data("idconsulta") });
   });
@@ -189,12 +188,12 @@ $(function () {
     $card.trigger("consultaReagendada", { idConsulta: $card.data("idconsulta") });
   });
 
-  $(document).on("click", "[data-acao='apagarDocumento']", function () {
+  $(document).on("click", "[data-acao='apagarDocumento']", function () {//INATIVO
     const $card = $(this).closest("[data-idDocumento]");
     $card.trigger("documentoApagado", { idDocumento: $card.data("iddocumento") });
   });
 
-  $(document).on("click", "[data-acao='visualizarDocumento']", function () {
+  $(document).on("click", "[data-acao='visualizarDocumento']", function () {//INATIVO
     const $card = $(this).closest("[data-idDocumento]");
     $card.trigger("documentoVisualizado", { idDocumento: $card.data("iddocumento") });
   });
@@ -212,9 +211,10 @@ $(function () {
 
 });
 
-$(function () {
+$(function () {//INATIVO
 
-  $(document).on("click", "[data-acao='sair']", function () {
+  $(document).on("click", "[data-acao='sair']", function (evento) {
+    evento.preventDefault();
     $(document).trigger("usuarioSolicitouSair");
   });
 

@@ -6,7 +6,7 @@ console.log("JS cadProfissional carregado");
   var moduloCadProfissional = {
 
     configuracao: {
-      urlProfissional: "/projetopsi/index.php?uri=profissional",
+      urlProfissional: "index.php?uri=profissional",
       urlLogin: "index.php?uri=loginProfissional"
     },
 

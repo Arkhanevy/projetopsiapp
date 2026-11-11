@@ -6,7 +6,7 @@ console.log("JS cadCliente carregado");
   var moduloCadCliente = {
 
     configuracao: {
-      urlCliente: "/projetopsi/index.php?uri=cliente",
+      urlCliente: "index.php?uri=cliente",
       urlLogin: "index.php?uri=loginCliente"
     },
 

@@ -6,7 +6,7 @@ console.log("JS loginClinica carregado");
   var moduloLoginClinica = {
 
     configuracao: {
-      urlClinica: "/projetopsi/index.php?uri=clinica",
+      urlClinica: "index.php?uri=clinica",
       urlPerfil: "index.php?uri=perfil"
     },
 

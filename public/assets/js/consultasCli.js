@@ -22,22 +22,33 @@
     }
   };
 
+  // valores gravados em agenda.agnd_stat -> chaves de INFORMACOES_STATUS
+  var STATUS_BANCO = {
+    esperando: "pendente",
+    aceita: "agendada",
+    desmarcado: "cancelada",
+    cancelada: "cancelada"
+  };
+
   var moduloConsultasCli = {
 
     configuracao: {
-      urlVerificarSessao: "/backend/verificarSessao.php",
-      urlObterConsultas: "app/controllers/Servicocontroller.php",
-      urlCancelarConsulta: "/backend/cancelarConsulta.php",
-      urlLogin: "/login/index.html"
+      urlObterConsultas:   "index.php?uri=cliente",
+      urlCancelarConsulta: "index.php?uri=servico",
+      urlLogin:            "index.php?uri=loginCliente"
     },
+
+
 
     elementos: {},
 
     iniciar: function () {
       this.cachearElementos();
       this.registrarEventos();
-
+      this.buscarConsultas();            // <- faltava chamar
     },
+
+
 
     cachearElementos: function () {
       this.elementos.$grade = $("#gradeConsultas");
@@ -91,9 +102,7 @@
         url: this.configuracao.urlObterConsultas,
         method: "POST",
         dataType: "json",
-        data: {
-          acao: "mostrarservico"
-        }
+        data: { acao: "MostrarConsulta" }
       })
         .done(function (resposta) {
           self.elementos.$grade.removeClass("estadoCarregando");
@@ -106,7 +115,17 @@
             return;
           }
 
-          var consultas = resposta.dados.consultas || [];
+          var consultas = (resposta.dados || []).map(function (c) {
+            return {
+              id: c.agnd_id,
+              status: STATUS_BANCO[c.agnd_stat] || "pendente",
+              nomeServico: c.ser_nome,
+              nomeProfissional: c.pro_nome,
+              nomeClinica: c.clin_nome || "—",
+              dataHora: c.agnd_dt + " " + c.agnd_hrIni
+              // preco: depende de a query trazer ser_val
+            };
+          });
           if (!consultas.length) {
             self.exibirEstadoVazio();
             self.anunciar("Nenhuma consulta agendada.");
@@ -246,7 +265,7 @@
         url: this.configuracao.urlCancelarConsulta,
         method: "POST",
         dataType: "json",
-        data: { id: idConsulta }
+        data: { acao: "cancelar",  id: idConsulta }
       })
         .done(function (resposta) {
           if (resposta && resposta.sucesso) {

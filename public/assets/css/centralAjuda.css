@@ -1,0 +1,81 @@
+/* ==========================================================
+   Central de Ajuda - "Fale conosco"
+   Apenas ajustes específicos da tela. Todo o resto vem de
+   variaveis.css e componentes.css.
+   ========================================================== */
+
+/* ---------- Campo de mensagem ---------- */
+.centralAjuda_rotuloMensagem {
+  display: block;
+  margin-bottom: var(--espaco1);
+}
+
+.centralAjuda_mensagem {
+  resize: vertical;
+  min-height: 240px;
+  border-width: var(--larguraBorda);
+  border-radius: var(--raioPequeno);
+}
+
+.centralAjuda_mensagem:focus {
+  border-color: var(--corBordas);
+  box-shadow: 0 0 0 var(--larguraFoco) var(--corFoco);
+}
+
+/* Estado bloqueado (antes de escolher o assunto): visual do Figma */
+.centralAjuda_mensagem:disabled {
+  background-color: var(--corBranco);
+  border-color: #7D7D7D;
+  color: var(--corLetras);
+  cursor: not-allowed;
+}
+
+.campoTexto:has(.centralAjuda_mensagem:disabled) .centralAjuda_rotuloMensagem {
+  color: #7D7D7D;
+}
+
+/* Estado de erro */
+.campoTexto:has(.centralAjuda_mensagem.is-invalid) .centralAjuda_rotuloMensagem {
+  color: var(--corAcaoNegativa);
+}
+
+.centralAjuda_mensagem.is-invalid {
+  border-color: var(--corAcaoNegativa);
+  background-image: none;
+  color: var(--corAcaoNegativa);
+}
+
+.centralAjuda_mensagem.is-invalid::placeholder {
+  color: var(--corAcaoNegativa);
+}
+
+/* ---------- Campo somente leitura ---------- */
+.centralAjuda_formulario .campoTexto .form-control[readonly] {
+  background-color: var(--corBranco);
+}
+
+/* ---------- Botão Enviar ---------- */
+/* aria-disabled mantém o botão clicável para disparar a validação */
+#botaoEnviar[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Select: o gatilho ocupa toda a largura e a lista fica sobre a mensagem ---------- */
+.centralAjuda_formulario .campoSelect {
+  margin-top: 0;
+}
+
+.centralAjuda_formulario .campoSelect_lista {
+  background-color: var(--corBranco);
+}
+
+/* ---------- Modal de sucesso ---------- */
+#modalSucessoCentralAjuda .modalMidia_imagem {
+  object-fit: contain;
+  padding: var(--espaco3);
+}
+
+#modalSucessoCentralAjuda .modalFeedback_mensagem {
+  padding: 0 var(--espaco4);
+}

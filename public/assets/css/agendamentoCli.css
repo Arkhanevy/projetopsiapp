@@ -1,4 +1,6 @@
 .conteudoAgendamento {
+  box-sizing: border-box;
+  max-width: 100%;
   padding-top: calc(72px + var(--espaco4));
   padding-bottom: calc(64px + var(--espaco4));
   padding-left: var(--espaco4);
@@ -8,6 +10,7 @@
 @media (min-width: 768px) {
 
   .conteudoAgendamento {
+    width: calc(100% - 72px);
     margin-left: 72px;
     padding-top: var(--espaco5);
     padding-bottom: var(--espaco5);
@@ -32,7 +35,7 @@
 
 .gradeAgendamento {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--espaco5);
   max-width: 1200px;
   margin: 0 auto;
@@ -50,7 +53,7 @@
 @media (min-width: 768px) {
 
   .gradeAgendamento {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: start;
     grid-template-areas:
       "titulo       titulo"
@@ -62,6 +65,8 @@
       "calendario   botoes";
   }
 }
+
+.gradeAgendamento > * { min-width: 0; }
 
 .areaTitulo { grid-area: titulo; }
 
@@ -212,6 +217,8 @@
 }
 
 .calendarioAgendamento {
+  box-sizing: border-box;
+  max-width: 100%;
   padding: var(--espaco4);
   border: 1px solid var(--corBordas);
   border-radius: 12px;
@@ -249,7 +256,8 @@
 }
 
 .calendarioTitulo {
-  min-width: 140px;
+  min-width: 0;
+  flex: 1;
   margin: 0;
   font-size: var(--tamanhoH3);
   text-align: center;
@@ -258,7 +266,7 @@
 
 .calendarioDiasSemana {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: var(--espaco1);
   margin-bottom: var(--espaco2);
   font-weight: var(--pesoNegrito);
@@ -267,12 +275,15 @@
 
 .calendarioGrade {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: var(--espaco1);
   margin-bottom: var(--espaco4);
 }
 
 .diaCalendario {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 0;
   aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
@@ -291,6 +302,15 @@
   cursor: default;
 }
 
+.diaCalendario.diaDisponivel {
+  border-color: var(--corBotoes);
+  border-radius: 50%;
+}
+
+.diaCalendario.diaDisponivel:hover {
+  background-color: var(--corFundoClaro);
+}
+
 .diaCalendario.diaIndisponivel {
   border-color: var(--corAcaoNegativa);
   color: var(--corAcaoNegativa);
@@ -298,6 +318,7 @@
 }
 
 .diaCalendario.diaSelecionado {
+  border-radius: 50%;
   background-color: var(--corAcaoSecundaria);
   border-color: var(--corAcaoSecundaria);
   color: var(--corBranco);

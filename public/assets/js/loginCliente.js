@@ -6,7 +6,7 @@ console.log("JS loginCliente carregado");
   var moduloLoginCliente = {
 
     configuracao: {
-      urlCliente: "/projetopsi/index.php?uri=cliente",
+      urlCliente: "index.php?uri=cliente",
       urlPerfil: "index.php?uri=perfil"
     },
 

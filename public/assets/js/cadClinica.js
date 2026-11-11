@@ -6,7 +6,7 @@ console.log("JS cadClinica carregado");
   var moduloCadClinica = {
 
     configuracao: {
-      urlClinica: "/projetopsi/index.php?uri=clinica",
+      urlClinica: "index.php?uri=clinica",
       urlLogin: "index.php?uri=loginClinica"
     },
 
