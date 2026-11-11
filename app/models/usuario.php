@@ -109,10 +109,10 @@ class usuario {
                         'mensagem' => $e->getMessage()
                     ];
                 }
-        /*$foto = $this->fotodePerfil($dados[2]);
+        $foto = $this->fotodePerfil($dados[2]);
         if ($foto['sucesso'] === false) {
             return json_encode($foto);
-        }*/
+        }
         return ['sucesso' => true];
     }
     
