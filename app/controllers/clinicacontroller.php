@@ -55,7 +55,7 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case "pegarinfo":
-        $camposclin = [$campos[0],$campos[1],$campos[5],$campos[6],$campos[12]];
+        $camposclin = [$campos[0],$campos[1],$campos[5]/*,$campos[6]*/,$campos[12]];
         $clinica = new clinica('clinica', $camposclin, $camposclin[0]);
         $download  =new download();
         
@@ -68,10 +68,10 @@ switch ($acao){
             exit;
         }
         
-        if (!empty($clinperfil['dados'])) {
+        /*if (!empty($clinperfil['dados'])) {
             $arq = $download->arquivoParaDataUri($clinperfil['dados'][0]['clin_foto']);
             $clinperfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
-        }
+        }*/
         
         $proHrser = $clinica->pegarHrser();
         if ($proHrser['sucesso'] === false) {
