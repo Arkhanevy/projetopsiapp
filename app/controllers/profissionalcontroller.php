@@ -28,7 +28,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $profissional = new profissional('profissional', $campos, $campos[0]);
-        $resultado = $profissional->Cadastrarprofissional($_POST['nome'], $_POST['email'],$_FILES['foto'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['CEP'],$_POST['telefone'],$_POST['genero'],$_POST['registro']);
+        $resultado = $profissional->Cadastrarprofissional($_POST['nome'], $_POST['email']/*,$_FILES['foto']*/, $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['CEP'],$_POST['telefone'],$_POST['genero'],$_POST['registro']);
         echo json_encode($resultado);
         exit;
         
@@ -70,7 +70,7 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case "PegarPerfil":
-        $camposPro = [$campos[0],$campos[1],$campos[5],$campos[6]];
+        $camposPro = [$campos[0],$campos[1],$campos[5]/*,$campos[6]*/];
         $camposSer = ['ser_id',
             'ser_pro',
             'ser_clin',
@@ -95,10 +95,10 @@ switch ($acao){
             ]);
             exit;
         }
-        if (!empty($properfil['dados'])) {
+        /*if (!empty($properfil['dados'])) {
             $arq = $download->arquivoParaDataUri($properfil['dados'][0]['pro_foto']);
             $properfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
-        }
+        }*/
         
         
         $proHrser = $profissional->pegarHrser();
