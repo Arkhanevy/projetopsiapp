@@ -350,7 +350,9 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
             if (is_array($periodo) && is_array($agenda)) {
                 
                 $horarios = [];
-                $duracao = new \DateInterval('PT'.($dur + $inter).'M'); 
+                $duracao = new \DateInterval('PT'.($dur).'M'); 
+                $intervalo = new \DateInterval('PT'.($inter).'M'); 
+                
                 
                 
                 $Inper = \DateTime::createFromFormat('H:i:s', $periodo['inicio']);
@@ -374,10 +376,14 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
                     
                 }
                 
-                $horarios =  array_values(array_filter($horarios, function($slot) use ($agenda) {
+                $horarios =  array_values(array_filter($horarios, function($slot) use ($agenda, $intervalo) {
                     foreach ($agenda as $agnd) {
                         $agnd_ini = \DateTime::createFromFormat('H:i', $agnd['agnd_hrIni']);
-                        $agnd_term = \DateTime::createFromFormat('H:i', $agnd['agnd_hrTerm']); 
+                        $agnd_term = \DateTime::createFromFormat('H:i', $agnd['agnd_hrTerm']);
+                       
+                        
+                        $agnd_ini->sub($intervalo); 
+                        $agnd_term->add($intervalo); 
                         
                         $slot_ini = \DateTime::createFromFormat('H:i', $slot['inicio']);
                         $slot_term = \DateTime::createFromFormat('H:i', $slot['termino']);

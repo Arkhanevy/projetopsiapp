@@ -6,11 +6,14 @@ use core\database\DBQuery;
 use core\utils\CodeGenerator;
 use core\utils\Mail;
 use core\database\Where;
+use core\utils\Base64Files;
+use core\utils\UploadedCtrl;
 
 class usuario {
     private $table = '';
     private  $campos = '';
     private  $primary = '';
+    private $foto = '';
     
     protected function __construct($table,$campos,$primary) {
         $this->table = $table;
@@ -18,12 +21,87 @@ class usuario {
         $this->primary = $primary;
     }
     
+    
+    protected function setFoto($foto){
+        $this->foto = $foto;
+    }
+    
+    private function fotodePerfil($email){
+        $mapa = [
+            'profissional' => 'pro',
+            'clinica'      => 'clin',
+            'cliente'      => 'cli',
+        ];
+        $cod = $mapa[$this->table].'_id';
+        
+        
+        
+        $camposStr = implode(',', $this->campos);
+        $resgatar = new DBQuery($this->table, $camposStr, $this->primary);
+        $where = new Where();
+        $where->addCondition('AND', $this->campos[2], '=',$email);
+        $where = $where->build();
+        
+        $resultado = $resgatar->selectWhere($where);
+        $usuario = $resultado->fetch(\PDO::FETCH_ASSOC);
+        
+        
+        $uploadPathDir = __DIR__."/../../"."app/uploads/";
+        $uploader = new UploadedCtrl();
+        
+        
+        $file = $this->foto;
+        $accessCtrl = 0;
+        $shareMails = ""; 
+        
+        $tempPath = $file['tmp_name'];
+        $fileName = $file['name'];
+        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+        $fileBase64Name = "up" . date('YmdHisv') . ".{$fileExtension}.base64";
+        
+        /**
+         * Instancia a classe Base64Files.
+         * Converter o arquivo para base64.
+         * Salvar o arquivo base64 no diretório especificado.
+         */
+        $base64Files = new Base64Files();
+        $fileContent = $base64Files->fileToBase64($tempPath);
+        $base64Files->base64ToFile($fileContent, $uploadPathDir . $fileBase64Name);
+        
+        // Registrar o arquivo
+        $owner = $usuario[$cod];
+        $filePath = $uploadPathDir . $fileBase64Name;
+        $filePath = str_replace('\\', '/', $filePath);
+        $uploader->registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails,$this->table);
+        
+        $campos = [
+            'profissional' => 'pro_id,pro_foto',
+            'clinica'      => 'clin_id,clin_foto',
+            'cliente'      => 'cli_id,cli_foto',
+        ];
+        
+        $dados = [$usuario[$cod],$filePath];
+        
+        $salvar = new DBQuery($this->table, $campos[$this->table], $cod);
+        try {
+            $salvar->update($dados);
+            return ['sucesso' =>true];
+        } catch (\Exception $e) {
+            return ['sucesso' => false,
+                'mensagem' => 'erro ao salvar foto: '.$e->getMessage()
+            ];
+        }
+        
+        // Retornar o nome do arquivo para o cliente
+        echo $fileBase64Name;
+    }
+    
+    
     protected function Cadastrar($dados) {
         $camposStr = implode(',', $this->campos);//nessa função o $campo vai ser um array com todos os campos
         try {
             $cadastrar = new DBQuery($this->table, $camposStr, $this->primary);
             $cadastrar->insert($dados);
-            return ['sucesso' => true];
         } 
         catch (\Exception $e) {
                     return [
@@ -31,7 +109,11 @@ class usuario {
                         'mensagem' => $e->getMessage()
                     ];
                 }
-                
+        $foto = $this->fotodePerfil($dados[2]);
+        if ($foto['sucesso'] === false) {
+            return json_encode($foto);
+        }
+        return ['sucesso' => true];
     }
     
     public function GerarCodigo($email) {
@@ -202,12 +284,11 @@ class usuario {
         };
         
     }
-    public function PegarPerfil($id = null){
-    //public function PegarPerfil($id) {
+    public function PegarPerfil($id){
         $camposStr = implode(',', $this->campos);
         $usuario = new DBQuery($this->table, $camposStr, $this->primary);
         $where = new Where();
-        $where->addCondition('AND', $this->primary, '=', $_SESSION['usuario']['idUsuario']);
+        $where->addCondition('AND', $this->primary, '=', $id);
         $where = $where->build();
         try {
             $resultado = $usuario->selectWhere($where);

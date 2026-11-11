@@ -12,7 +12,7 @@ class profissional extends usuario {
     public function __construct($table,$campo,$primary) {
         parent::__construct($table,$campo,$primary);}
 
-    public function Cadastrarprofissional($nome,$email,$username,$senha,$bio,$dtNas,$CPF,$CEP,$telefone,$genero,$registro) {
+    public function Cadastrarprofissional($nome,$email,$foto,$username,$senha,$bio,$dtNas,$CPF,$CEP,$telefone,$genero,$registro) {
         $dados =[
             0,
             $nome,
@@ -34,6 +34,7 @@ class profissional extends usuario {
             0
             
         ];
+        $this->setFoto($foto);
         return $this->Cadastrar($dados);
     }
     

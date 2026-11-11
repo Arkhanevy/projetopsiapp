@@ -42,9 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $base64Files->base64ToFile($fileContent, $uploadPathDir . $fileBase64Name);
 
     // Registrar o arquivo
+    $tipo = $_SESSION['usuario']["tipoUsuario"];
     $owner = $_SESSION['usuario']["idUsuario"];
     $filePath = $uploadPathDir . $fileBase64Name;
-    $uploader->registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails);
+    $filePath = str_replace('\\', '/', $filePath);
+    $uploader->registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails,$tipo);
 
     // Retornar o nome do arquivo para o cliente
     echo $fileBase64Name;

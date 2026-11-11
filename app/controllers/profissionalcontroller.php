@@ -3,6 +3,7 @@ use models\profissional;
 use models\busca;
 use models\clinica;
 use models\notificacao;
+use models\download;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -27,7 +28,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $profissional = new profissional('profissional', $campos, $campos[0]);
-        $resultado = $profissional->Cadastrarprofissional($_POST['nome'], $_POST['email'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['CEP'],$_POST['telefone'],$_POST['genero'],$_POST['registro']);
+        $resultado = $profissional->Cadastrarprofissional($_POST['nome'], $_POST['email'],$_FILES['foto'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['CEP'],$_POST['telefone'],$_POST['genero'],$_POST['registro']);
         echo json_encode($resultado);
         exit;
         
@@ -69,7 +70,7 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case "PegarPerfil":
-        $camposPro = [$campos[0],$campos[1],$campos[5]];
+        $camposPro = [$campos[0],$campos[1],$campos[5],$campos[6]];
         $camposSer = ['ser_id',
             'ser_pro',
             'ser_clin',
@@ -84,9 +85,9 @@ switch ($acao){
             'ser_loc'];
         $profissional = new profissional('profissional', $camposPro, $camposPro[0]);
         $busca = new busca('servico',$camposSer,$camposSer[0]);
+        $download = new download();
         
-        
-        $properfil = $profissional->PegarPerfil();
+        $properfil = $profissional->PegarPerfil($_SESSION['usuario']['idUsuario']);
         if ($properfil['sucesso'] === false) {
             echo json_encode([
                 "sucesso" => false,
@@ -94,6 +95,11 @@ switch ($acao){
             ]);
             exit;
         }
+        if (!empty($properfil['dados'])) {
+            $arq = $download->arquivoParaDataUri($properfil['dados'][0]['pro_foto']);
+            $properfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
+        }
+        
         
         $proHrser = $profissional->pegarHrser();
         if ($proHrser['sucesso'] === false) {
@@ -221,5 +227,15 @@ switch ($acao){
         $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
         $notificacâo = $notificacâo->enviar(4, $_POST['cli'],$_POST['clinica']);
         echo json_encode($rejeitar);
+        exit;
+    case 'meusArquivos':
+        $arquivos = new download();
+        $resultado = $arquivos->meusarquivos($_SESSION['usuario']['idUsuario'], 'profissional', 'pro_id');
+        echo json_encode($resultado);
+        exit;
+    case 'arquivosCompartilhados':
+        $arquivos = new download();
+        $resultado = $arquivos->arquivoscompartilhado($_POST['id'],$_SESSION['usuario']['email']);
+        echo json_encode($resultado);
         exit;
 }

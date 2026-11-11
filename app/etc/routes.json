@@ -109,7 +109,7 @@
 		"errorPath": "app/views/erro.php"
 	},
 	"teste": {
-    	"path": "app/views/teste-servico.php",
+    	"path": "app/views/teste-upload.php",
 		"sessionKey": [{"idUsuario": false}], 
 		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
 		"errorPath" : "app/views/erro.php"
@@ -149,5 +149,11 @@
 				"sessionKey": [{"idUsuario": false}], 
 				"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
 				"errorPath" : "app/views/erro.php"
-   }
+   },
+   "upload":   {
+   		"path": "app/core/utils/upload.php",
+   				"sessionKey": [{"idUsuario": false}], 
+   				"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
+   				"errorPath" : "app/views/erro.php"
+      }
 }

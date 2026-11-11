@@ -2,6 +2,7 @@
 use models\cliente;
 use models\clinica;
 use models\notificacao;
+use models\download;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -24,7 +25,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $cliente = new cliente('cliente', $campos, $campos[0]);
-        $resultado = $cliente->Cadastrarcliente($_POST['nome'] ?? '', $_POST['email'], $_POST['username'] ?? '', $_POST['senha'],$_POST['bio'] ?? '', $_POST['dtNas'] ?? null, $_POST['CPF'],$_POST['telefone'] ?? '',$_POST['genero'] ?? '');
+        $resultado = $cliente->Cadastrarcliente($_POST['nome'] ?? '', $_POST['email'],$_FILES['foto'], $_POST['username'] ?? '', $_POST['senha'],$_POST['bio'] ?? '', $_POST['dtNas'] ?? null, $_POST['CPF'],$_POST['telefone'] ?? '',$_POST['genero'] ?? '');
         echo json_encode($resultado);
         exit;
         
@@ -89,6 +90,30 @@ switch ($acao){
             && $_SESSION['usuario']['tipoUsuario'] === 'cliente';
         echo json_encode(['logado' => $logado]);
         exit;
+    case "PegarPerfil":
+        $camposcli = [$campos[0],$campos[1],$campos[5],$campos[6]];
+        $cliente = new cliente('cliente', $camposcli, $camposcli[0]);
+        $download  =new download();
+            
+        $cliperfil = $cliente->PegarPerfil($_SESSION['usuario']['idUsuario']);
+        if ($cliperfil['sucesso'] === false) {
+            echo json_encode([
+                "sucesso" => false,
+                "erro" => $cliperfil['erro']
+            ]);
+            exit;
+        }
+        
+        if (!empty($cliperfil['dados'])) {
+            $arq = $download->arquivoParaDataUri($cliperfil['dados'][0]['cli_foto']);
+            $cliperfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
+        }
+        
+        echo json_encode([
+            'sucesso' => true,
+            'dados1' => $cliperfil['dados']
+        ]);
+        exit;
     case 'atualizar':
         $diccli = [
         'nome' => 'cli_nome',
@@ -116,5 +141,15 @@ switch ($acao){
         $notificacâo = new notificacao('notificacao', '*', '', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
         $listar = $notificacâo->listar();
         echo json_encode($listar);
+        exit;
+    case 'meusArquivos':
+        $arquivos = new download();
+        $resultado = $arquivos->meusarquivos($_SESSION['usuario']['idUsuario'], 'cliente', 'cli_id');
+        echo json_encode($resultado);
+        exit;
+    case 'arquivosCompartilhados':
+        $arquivos = new download();
+        $resultado = $arquivos->arquivoscompartilhado($_POST['id'],$_SESSION['usuario']['email']);
+        echo json_encode($resultado);
         exit;
 }

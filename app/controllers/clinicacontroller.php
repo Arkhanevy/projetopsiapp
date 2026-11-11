@@ -3,6 +3,7 @@
 use models\clinica;
 use models\profissional;
 use models\notificacao;
+use models\download;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -23,7 +24,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $clinica = new clinica('clinica', $campos, $campos[0]);
-        $resultado = $clinica->Cadastrarclinica($_POST['nome'], $_POST['email'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['CNPJ'],$_POST['CEP'],$_POST['telefone']);
+        $resultado = $clinica->Cadastrarclinica($_POST['nome'], $_POST['email'],$_FILES['foto'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['CNPJ'],$_POST['CEP'],$_POST['telefone']);
         echo json_encode($resultado);
         exit;
         
@@ -54,16 +55,22 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case "pegarinfo":
-        $camposclin = [$campos[0],$campos[1],$campos[5],$campos[12]];
+        $camposclin = [$campos[0],$campos[1],$campos[5],$campos[6],$campos[12]];
         $clinica = new clinica('clinica', $camposclin, $camposclin[0]);
+        $download  =new download();
         
-        $clinperfil = $clinica->PegarPerfil();
+        $clinperfil = $clinica->PegarPerfil($_SESSION['usuario']['idUsuario']);
         if ($clinperfil['sucesso'] === false) {
             echo json_encode([
                 "sucesso" => false,
                 "erro" => $clinperfil['erro']
             ]);
             exit;
+        }
+        
+        if (!empty($clinperfil['dados'])) {
+            $arq = $download->arquivoParaDataUri($clinperfil['dados'][0]['clin_foto']);
+            $clinperfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
         }
         
         $proHrser = $clinica->pegarHrser();
@@ -138,5 +145,15 @@ switch ($acao){
         unset($_SESSION['usuario']);
         session_destroy();
         header("Location: /login.php");
+        exit;
+    case 'meusArquivos':
+        $arquivos = new download();
+        $resultado = $arquivos->meusarquivos($_SESSION['usuario']['idUsuario'], 'clinica', 'clin_id');
+        echo json_encode($resultado);
+        exit;
+    case 'arquivosCompartilhados':
+        $arquivos = new download();
+        $resultado = $arquivos->arquivoscompartilhado($_POST['id'],$_SESSION['usuario']['email']);
+        echo json_encode($resultado);
         exit;
 }

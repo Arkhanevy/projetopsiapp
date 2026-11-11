@@ -12,7 +12,7 @@ class cliente extends usuario {
     public function __construct($table,$campo,$primary) {
         parent::__construct($table,$campo,$primary);}
         
-        public function Cadastrarcliente($nome,$email,$username,$senha,$bio,$dtNas,$CPF,$telefone,$genero) {
+        public function Cadastrarcliente($nome,$email,$foto,$username,$senha,$bio,$dtNas,$CPF,$telefone,$genero) {
             $dados =[
                 0,
                 $nome,
@@ -32,6 +32,7 @@ class cliente extends usuario {
                 0
                 
             ];
+            $this->setFoto($foto);
             return $this->Cadastrar($dados);
         }
         
