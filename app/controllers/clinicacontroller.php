@@ -24,7 +24,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $clinica = new clinica('clinica', $campos, $campos[0]);
-        $resultado = $clinica->Cadastrarclinica($_POST['nome'], $_POST['email'],$_FILES['foto'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['CNPJ'],$_POST['CEP'],$_POST['telefone']);
+        $resultado = $clinica->Cadastrarclinica($_POST['nome'], $_POST['email']/*,$_FILES['foto']*/, $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['CNPJ'],$_POST['CEP'],$_POST['telefone']);
         echo json_encode($resultado);
         exit;
         
