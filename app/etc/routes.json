@@ -1,159 +1,180 @@
 {
-	"home" : { 
-		"path" : "app/views/home.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
-	"cadastroCliente" : { 
-		"path" : "app/views/cadastroCliente.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
-	"cadastroClinica" : { 
-		"path" : "app/views/cadastroClinica.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
-	"cadastroProfissional" : { 
-		"path" : "app/views/cadastroProfissional.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
-	"loginCliente" : { 
-		"path" : "app/views/loginCliente.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
-	"loginClinica" : { 
-		"path" : "app/views/loginClinica.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
-	"loginProfissional" : { 
-		"path" : "app/views/loginProfissional.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
-	
-	"profissional": {
-    	"path": "app/controllers/profissionalcontroller.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
-	"clinica": {
-		"path": "app/controllers/clinicacontroller.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
+  "home": {
+    "path": "app/views/home.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "cadastroCliente": {
+    "path": "app/views/cadastroCliente.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "cadastroClinica": {
+    "path": "app/views/cadastroClinica.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "cadastroProfissional": {
+    "path": "app/views/cadastroProfissional.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "loginCliente": {
+    "path": "app/views/loginCliente.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "loginClinica": {
+    "path": "app/views/loginClinica.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "loginProfissional": {
+    "path": "app/views/loginProfissional.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "profissional": {
+    "path": "app/controllers/profissionalcontroller.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "clinica": {
+    "path": "app/controllers/clinicacontroller.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "cliente": {
+    "path": "app/controllers/clientecontroller.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "servicos": {
+    "path": "app/controllers/Servicocontroller.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "servico": {
+    "path": "app/controllers/Servicocontroller.php"
+  },
+  "busca": {
+    "path": "app/controllers/buscacontroller.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
 
-	"cliente": {
-    	"path": "app/controllers/clientecontroller.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
-	"servicos": {
-	    	"path": "app/controllers/Servicocontroller.php",
-			"sessionKey": [{"idUsuario": false}], 
-			"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-			"errorPath" : "app/views/erro.php"
-		},
-	"servico": {
-		"path": "app/controllers/Servicocontroller.php"
-	},
-	"busca": {
-		    	"path": "app/controllers/buscacontroller.php",
-				"sessionKey": [{"idUsuario": false}], 
-				"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-				"errorPath" : "app/views/erro.php"
-			},
-	"infoServico": {
-		"path": "app/views/infoServico.php",
-		"sessionKey": [{"idUsuario": false}],
-		"sanitize": {"requestVars": true,"code": true,"sql": true},
-		"errorPath": "app/views/erro.php"
-	},
-	"agendamentoCli": {
-		"path": "app/views/agendamentoCliente.php",
-		"sessionKey": [{"idUsuario": false}],
-		"sanitize": {"requestVars": true,"code": true,"sql": true},
-		"errorPath": "app/views/erro.php"
-	},
-	"consultasCli": {
-		"path": "app/views/consultaCliente.php",
-		"sessionKey": [
-			{
-				"idUsuario": true, "tipoUsuario": ["cliente"]
-			}
-		],
-		"sanitize": {
-			"requestVars": true,
-			"code": true,
-			"sql": true
-		},
-		"errorPath": "app/views/erro.php"
-	},
-	"perfil": {
-		"path": "app/views/perfil.php",
-		"sessionKey": [{"idUsuario": false}],
-		"sanitize": {"requestVars": true,"code": true,"sql": true},
-		"errorPath": "app/views/erro.php"
-	},
-	"teste": {
-    	"path": "app/views/teste-upload.php",
-		"sessionKey": [{"idUsuario": false}], 
-		"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-		"errorPath" : "app/views/erro.php"
-	},
-	"buscar": {
-		"path": "app/views/busca.php",
-		"sessionKey": [{"idUsuario": false}],
-		"sanitize": {"requestVars": true, "code": true, "sql": true},
-		"errorPath": "app/views/erro.php"
-	},
-	"resultadosBusca": {
-		"path": "app/views/resultadosBusca.php",
-		"sessionKey": [{"idUsuario": false}],
-		"sanitize": {"requestVars": true, "code": true, "sql": true},
-		"errorPath": "app/views/erro.php"
-	},
-	"mensagens": {
-		"path": "app/views/contatos.php",
-		"sessionKey": [{"idUsuario": false}],
-		"sanitize": {"requestVars": true, "code": true, "sql": true},
-		"errorPath": "app/views/erro.php"
-	},
-	"notificacoes": {
-       "path": "app/views/notificacoes.php",
-       "sessionKey": [{"idUsuario": false}],
-       "sanitize": {"requestVars": true, "code": true, "sql": true},
-       "errorPath": "app/views/erro.php"
-	},
-	"relatorio"	: {
-	    	"path": "app/controllers/relatoriocontroller.php",
-			"sessionKey": [{"idUsuario": false}], 
-			"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-			"errorPath" : "app/views/erro.php"
-		},
-	"limpar": {
-		"path": "app/models/limpar.php",
-				"sessionKey": [{"idUsuario": false}], 
-				"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-				"errorPath" : "app/views/erro.php"
-   },
-   "upload":   {
-   		"path": "app/core/utils/upload.php",
-   				"sessionKey": [{"idUsuario": false}], 
-   				"sanitize"  : {"requestVars" : true, "code" : true, "sql" : true},
-   				"errorPath" : "app/views/erro.php"
-      }
+  "infoServico": {
+    "path": "app/views/infoServico.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "agendamentoCli": {
+    "path": "app/views/agendamentoCliente.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "consultasCli": {
+    "path": "app/views/consultaCliente.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "agendaClinica": {
+    "path": "app/views/consultaClinica.php",
+    "sessionKey": [{"idUsuario": true, "tipoUsuario": ["clinica"]}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "agendaProfissional": {
+    "path": "app/views/consultaProfissional.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "perfil": {
+    "path": "app/views/perfil.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "teste": {
+    "path": "app/views/teste-servico.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "buscar": {
+    "path": "app/views/busca.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "resultadosBusca": {
+    "path": "app/views/resultadosBusca.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "mensagens": {
+    "path": "app/views/contatos.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "notificacoes": {
+    "path": "app/views/notificacoes.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "relatorio": {
+    "path": "app/controllers/relatoriocontroller.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "limpar": {
+    "path": "app/models/limpar.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "inicioProfissional": {
+    "path": "app/views/inicioProfissional.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "inicioClinica": {
+    "path": "app/views/inicioClinica.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "configuracao": {
+    "path": "app/views/configuracao.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "centralAjuda": {
+    "path": "app/views/centralAjuda.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  }
 }
