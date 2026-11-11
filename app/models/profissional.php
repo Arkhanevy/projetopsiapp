@@ -34,8 +34,8 @@ class profissional extends usuario {
             0
             
         ];
-        /*$this->setFoto($foto);
-        return $this->Cadastrar($dados);*/
+        /*$this->setFoto($foto);*/
+        return $this->Cadastrar($dados);
     }
     
     public function pegarHrser() {
