@@ -37,7 +37,7 @@ console.log("JS agendamentoCli carregado");
 
     estado: {
       idServico: null,
-      servico: null,          // <-- novo
+      servico: null,
       dataExibida: new Date(),
       diasIndisponiveis: [],
       diasLivres: [],
@@ -215,7 +215,7 @@ console.log("JS agendamentoCli carregado");
             return;
           }
 
-          self.estado.servico = resposta.dados[0];   // <-- novo
+          self.estado.servico = resposta.dados[0];
 
           Utilitarios.preencherCampos(
             self.elementos.$camposDinamicos,
@@ -358,8 +358,7 @@ console.log("JS agendamentoCli carregado");
       var self = this;
       var indisponiveis = [];
 
-      // Só os dias marcados como "indisponivel" pelo backend são bloqueados.
-      // Todo o resto (disponivel, folga ou ausente) entra como disponível.
+
       ["indisponivel"].forEach(function (chave) {
         (resposta[chave] || []).forEach(function (item) {
           var dataTexto;
@@ -773,7 +772,6 @@ console.log("JS agendamentoCli carregado");
         data: dados
       })
         .done(function (respostaTexto) {
-          // O PHP responde com json_encode, então vem "sucesso" (com aspas).
           var resultado = $.trim(respostaTexto).replace(/^"+|"+$/g, "");
           if (resultado === "sucesso") {
             self.irParaInfoServicoComSucesso();
