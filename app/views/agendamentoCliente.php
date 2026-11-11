@@ -149,7 +149,7 @@
         </div>
 
         <!-- ---------- Localização de atendimento ---------- -->
-        <!--<div class="campoFormulario areaLocalizacao">
+        <div class="campoFormulario areaLocalizacao">
           <span id="labelLocalizacao" class="tituloCampo">Localização de atendimento</span>
           <div class="dropdownCustomizado" id="dropdownLocalizacao">
             <button
@@ -175,7 +175,7 @@
             </ul>
           </div>
           <input type="hidden" id="inputLocalizacaoSelecionada" name="localizacaoSelecionada" />
-        </div> -->
+        </div>
 
         <!-- ---------- Calendário ---------- -->
         <div class="campoFormulario areaCalendario">
@@ -363,7 +363,7 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><!-- jQuery -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><!-- Bootstrap 5 -->
   <script src="public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
-  <script src="public/assets/js/sessaoNavegacao.js"></script><!-- Decide qual navegação exibir -->
+  <script src="public/assets/js/sessaoNavegacao.js"></script>
   <script src="public/assets/js/utilitarios.js"></script>
   <script src="public/assets/js/agendamentoCli.js" defer></script>
 
