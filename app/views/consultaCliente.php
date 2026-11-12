@@ -4,17 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Minhas consultas </title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" /><!-- Bootstrap 5 -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /><!-- Material Symbols (Google) -->
-  <link rel="stylesheet" href="public/assets/css/variaveis.css" /><!-- Variáveis globais -->
-  <link rel="stylesheet" href="public/assets/css/componentes.css" /><!-- Componentes  -->
-  <link rel="stylesheet" href="public/assets/css/consultasCli.css" /><!-- CSS próprio -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="public/assets/css/variaveis.css" />
+  <link rel="stylesheet" href="public/assets/css/componentes.css" />
+  <link rel="stylesheet" href="public/assets/css/consultasCli.css" />
 </head>
 <body>
 
   <a href="#conteudoConsultas" class="linkPularConteudo">Pular para o conteúdo principal</a>
 
-  <!-- NAVEGAÇÃO (DESLOGADO) — exibida por sessaoNavegacao.js quando não há sessão -->
   <nav class="navTopoDeslogado" aria-label="Navegação principal" hidden>
     <div class="navTopoDeslogado_barra navTopoDeslogado_acoes">
       <a href="index.php" class="navTopoDeslogado_logo">
@@ -38,14 +37,12 @@
     </div>
   </nav>
 
-  <!-- BARRA SUPERIOR (LOGADO — DESKTOP E MOBILE) — exibida por sessaoNavegacao.js quando há sessão -->
   <header class="navTopoLogado" hidden>
     <a href="index.php" class="navTopoLogado_logo">
       <img src="public/assets/images/logo.png" alt="" width="40" height="40">
       <span data-nomePlataforma="">Podopsi</span>
     </a>
 
-    <!-- Desktop: menu hambúrguer em dropdown -->
     <div class="dropdown menuHamburguerLogado d-none d-md-block">
       <button type="button" class="menuHamburguerLogado_botao dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menu">
         <span class="material-symbols-outlined" aria-hidden="true">menu</span>
@@ -57,13 +54,11 @@
       </ul>
     </div>
 
-    <!-- Mobile: o hambúrguer abre o painelMenuMobile (offcanvas) -->
     <button type="button" class="navTopoLogado_botaoMenuMobile d-md-none" data-bs-toggle="offcanvas" data-bs-target="#painelMenuMobileConsultas" aria-controls="painelMenuMobileConsultas" aria-label="Abrir menu">
       <span class="material-symbols-outlined" aria-hidden="true">menu</span>
     </button>
   </header>
 
-  <!-- PAINEL DO MENU (MOBILE, LOGADO) -->
   <div class="offcanvas offcanvas-top painelMenuMobile d-md-none" tabindex="-1" id="painelMenuMobileConsultas" aria-labelledby="tituloPainelMenuMobileConsultas">
     <div class="offcanvas-header">
       <a href="index.php" class="painelMenuMobile_logo" id="tituloPainelMenuMobileConsultas">
@@ -85,7 +80,6 @@
     </div>
   </div>
 
-  <!-- NAVEGAÇÃO LATERAL (DESKTOP, LOGADO) — exibida por sessaoNavegacao.js -->
   <nav class="navLateralLogado d-none d-md-flex" data-papel="cliente" aria-label="Navegação principal" hidden>
     <a href="index.php?uri=buscar" class="navLateralLogado_item" data-itemPapel>
       <span class="material-symbols-outlined" aria-hidden="true">search</span>
@@ -107,7 +101,6 @@
 
   <div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main id="conteudoConsultas" class="conteudoConsultas container-fluid">
 
       <h1 class="tituloConsultas">Minhas consultas</h1>
@@ -142,7 +135,6 @@
         </article>
       </div>
 
-      <!-- Estado vazio -->
       <div id="estadoVazioConsultas" class="estadoVazioConsultas" hidden>
         <span class="material-symbols-outlined iconeEstadoVazio" aria-hidden="true">assignment_ind</span>
         <p class="textoEstadoVazio">
@@ -154,7 +146,6 @@
 
     </main>
 
-    <!-- NAVEGAÇÃO INFERIOR (MOBILE) -->
     <nav class="navInferiorLogado d-flex d-md-none" data-papel="cliente" aria-label="Navegação principal" hidden>
       <a href="index.php?uri=notificacoes" class="navInferiorLogado_item">
         <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
@@ -176,7 +167,6 @@
 
   </div>
 
-  <!-- MODAL: SESSÃO EXPIRADA -->
   <div
     class="modal fade modalBase"
     id="modalSessaoExpirada"
@@ -215,7 +205,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIRMAR CANCELAMENTO -->
   <div
     class="modal fade modalBase"
     id="modalConfirmarCancelamento"
@@ -259,13 +248,11 @@
     </div>
   </div>
 
-  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-  <!-- Bootstrap 5 (bundle com Popper) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
-  <script src="public/assets/js/sessaoNavegacao.js"></script><!-- Decide qual navegação exibir -->
+  <script src="public/assets/js/componentes.js"></script>
+  <script src="public/assets/js/sessaoNavegacao.js"></script>
   <script src="public/assets/js/utilitarios.js"></script>
   <script src="public/assets/js/consultasCli.js" defer></script>
 </body>

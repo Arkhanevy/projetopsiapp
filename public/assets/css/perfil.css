@@ -188,10 +188,6 @@
   border-radius: var(--raioTotal);
 }
 
-/* ==========================================================================
-   ESTADOS GENÉRICOS DA PÁGINA (carregando e botão com aria-disabled)
-   ========================================================================== */
-
 .estadoCarregando {
   display: flex;
   justify-content: center;
@@ -218,11 +214,6 @@
   display: block;
 }
 
-/* ==========================================================================
-   HORÁRIOS — no mobile os campos de hora só aparecem no dia marcado;
-   a partir de 768px todos os dias mostram os campos (desabilitados até marcar)
-   ========================================================================== */
-
 @media (max-width: 767.98px) {
 
   .formularioPerfil .linhaHorario:not(:has(.form-check-input:checked)) .linhaHorario_campo {
@@ -233,10 +224,6 @@
     padding-bottom: var(--espaco1);
   }
 }
-
-/* ==========================================================================
-   GERENCIAMENTO DOS PROFISSIONAIS (accordion + interruptores de permissão)
-   ========================================================================== */
 
 .gerenciamentoProfissionais,
 .gerenciamentoProfissionais > [data-lista="gerenciamentoProfissionais"] {
@@ -366,10 +353,6 @@
   outline-offset: 2px;
 }
 
-/* ==========================================================================
-   DOCUMENTOS
-   ========================================================================== */
-
 .listaCards[data-lista="documentos"] {
   grid-template-columns: repeat(auto-fill, minmax(260px, 300px));
 }
@@ -439,10 +422,6 @@
 .areaArquivo--erro .invalid-feedback {
   display: block;
 }
-
-/* ==========================================================================
-   RELATÓRIO
-   ========================================================================== */
 
 .secaoRelatorio {
   margin-top: var(--espaco5);

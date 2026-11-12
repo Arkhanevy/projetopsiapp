@@ -5,13 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Design System — Componentes</title>
 
-  <!-- Bootstrap 5 -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Material Symbols -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-  <!-- Design System (fundação + todos os componentes consolidados) -->
   <link rel="stylesheet" href="componentes.css">
 </head>
 <body>
@@ -19,9 +16,6 @@
   <main class="container py-5">
     <h1 class="mb-5">Design System — Componentes</h1>
 
-    <!-- ============================= -->
-    <!-- Componente: botaoBase          -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloBotoes">
       <h2 id="tituloBotoes" class="mb-4">Botão</h2>
 
@@ -53,9 +47,6 @@
       </button>
     </section>
 
-    <!-- ============================= -->
-    <!-- Componente: indicadorStatus    -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloStatus">
       <h2 id="tituloStatus" class="mb-4">Indicador de status</h2>
 
@@ -81,9 +72,6 @@
         </span>
       </div>
     </section>
-    <!-- ============================= -->
-    <!-- Componente: campoTexto (.form-floating) -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloCampoTexto">
       <h2 id="tituloCampoTexto" class="mb-4">Campo de texto</h2>
 
@@ -111,9 +99,6 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Componente: campoPesquisa (.input-group) -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloPesquisa">
       <h2 id="tituloPesquisa" class="mb-4">Campo de pesquisa</h2>
 
@@ -125,9 +110,6 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Componente: campoSelect (.dropdown) -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloSelect">
       <h2 id="tituloSelect" class="mb-4">Select</h2>
 
@@ -162,9 +144,6 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Componente: painelFiltro (.form-check) -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloFiltro">
       <h2 id="tituloFiltro" class="mb-4">Painel de filtro</h2>
 
@@ -221,9 +200,6 @@
         </div>
       </form>
     </section>
-    <!-- ============================= -->
-    <!-- Componente: calendarioBase     -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloCalendario">
       <h2 id="tituloCalendario" class="mb-4">Calendário</h2>
 
@@ -306,9 +282,6 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Componente: modalBase (Modal nativo do Bootstrap) -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloModal">
       <h2 id="tituloModal" class="mb-4">Modal</h2>
 
@@ -319,7 +292,6 @@
         <button type="button" class="btn botaoBase botaoBase--opositora" data-bs-toggle="modal" data-bs-target="#modalPermissaoNegada">Simular permissão negada</button>
       </div>
 
-      <!-- Variante: modalTexto -->
       <div class="modal modalBase" id="modalTextoExemplo" tabindex="-1" aria-hidden="true" aria-labelledby="modalTextoTitulo">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content modalBase_conteudo">
@@ -342,7 +314,6 @@
         </div>
       </div>
 
-      <!-- Variante: modalMidia -->
       <div class="modal modalBase" id="modalMidiaExemplo" tabindex="-1" aria-hidden="true" aria-labelledby="modalMidiaTitulo">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content modalBase_conteudo">
@@ -366,7 +337,6 @@
         </div>
       </div>
 
-      <!-- Variante: modalFeedback — sessão expirada -->
       <div class="modal modalBase" id="modalSessaoExpirada" tabindex="-1" aria-hidden="true" aria-labelledby="modalSessaoTitulo">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content modalBase_conteudo">
@@ -389,7 +359,6 @@
         </div>
       </div>
 
-      <!-- Variante: modalFeedback — permissão negada -->
       <div class="modal modalBase" id="modalPermissaoNegada" tabindex="-1" aria-hidden="true" aria-labelledby="modalPermissaoTitulo">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content modalBase_conteudo">
@@ -416,14 +385,10 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Cards: Profissional / Clínica / Serviço -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloCardsEntidade">
       <h2 id="tituloCardsEntidade" class="mb-4">Cards — Profissional, Clínica e Serviço</h2>
 
       <div class="d-flex flex-wrap gap-4">
-        <!-- cardProfissional -->
         <article class="card cardEntidadeBase" data-idProfissional="">
           <img class="card-img-top cardEntidadeBase_imagem" alt="" data-fotoProfissional="">
           <div class="card-body text-center d-flex flex-column align-items-center gap-3">
@@ -437,7 +402,6 @@
           </div>
         </article>
 
-        <!-- cardClinica (estende cardEntidadeBase) -->
         <article class="card cardEntidadeBase" data-idClinica="">
           <img class="card-img-top cardEntidadeBase_imagem" alt="" data-fotoClinica="">
           <div class="card-body text-center d-flex flex-column align-items-center gap-3">
@@ -455,7 +419,6 @@
           </div>
         </article>
 
-        <!-- cardServico (estende cardEntidadeBase) -->
         <article class="card cardEntidadeBase" data-idServico="">
           <img class="card-img-top cardEntidadeBase_imagem" alt="" data-fotoServico="">
           <div class="card-body text-center d-flex flex-column align-items-center gap-3">
@@ -475,9 +438,6 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Card: Documento                -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloCardDocumento">
       <h2 id="tituloCardDocumento" class="mb-4">Card — Documento</h2>
 
@@ -502,14 +462,10 @@
       </article>
     </section>
 
-    <!-- ============================= -->
-    <!-- Card: Consulta (visão cliente) -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloCardConsulta">
       <h2 id="tituloCardConsulta" class="mb-4">Card — Consulta (visão cliente)</h2>
 
       <div class="d-flex flex-wrap gap-4">
-        <!-- Estado: Agendada -->
         <article class="card cardConsulta" data-idConsulta="1" data-estadoConsulta="agendada">
           <div class="card-body d-flex flex-column gap-4">
             <h3 class="card-title cardConsulta_titulo" data-nomeServico="">Serviço</h3>
@@ -534,7 +490,6 @@
           </div>
         </article>
 
-        <!-- Estado: Pendente -->
         <article class="card cardConsulta" data-idConsulta="2" data-estadoConsulta="pendente">
           <div class="card-body d-flex flex-column gap-4">
             <h3 class="card-title cardConsulta_titulo" data-nomeServico="">Serviço</h3>
@@ -559,7 +514,6 @@
           </div>
         </article>
 
-        <!-- Estado: Cancelada -->
         <article class="card cardConsulta" data-idConsulta="3" data-estadoConsulta="cancelada">
           <div class="card-body d-flex flex-column gap-4">
             <h3 class="card-title cardConsulta_titulo" data-nomeServico="">Serviço</h3>
@@ -580,7 +534,6 @@
           </div>
         </article>
 
-        <!-- Estado: Realizada -->
         <article class="card cardConsulta" data-idConsulta="4" data-estadoConsulta="realizada">
           <div class="card-body d-flex flex-column gap-4">
             <h3 class="card-title cardConsulta_titulo" data-nomeServico="">Serviço</h3>
@@ -603,14 +556,10 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Card: Consulta (visão profissional) -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloCardConsultaProfissional">
       <h2 id="tituloCardConsultaProfissional" class="mb-4">Card — Consulta (visão profissional)</h2>
 
       <div class="d-flex flex-column gap-3" style="max-width: 480px;">
-        <!-- Nova solicitação: botão Aceitar + botão Ver detalhes -->
         <article class="card cardConsultaProfissional" data-idConsulta="10" data-estadoConsulta="novaSolicitacao">
           <div class="card-body d-flex flex-column gap-3">
             <div class="cardConsultaProfissional_cabecalho">
@@ -630,7 +579,6 @@
           </div>
         </article>
 
-        <!-- Confirmada: botão Cancelar + botão Reagendar -->
         <article class="card cardConsultaProfissional" data-idConsulta="11" data-estadoConsulta="confirmada">
           <div class="card-body d-flex flex-column gap-3">
             <div class="cardConsultaProfissional_cabecalho">
@@ -650,7 +598,6 @@
           </div>
         </article>
 
-        <!-- Aguardando: botão Cancelar + status Pendente -->
         <article class="card cardConsultaProfissional" data-idConsulta="12" data-estadoConsulta="pendente">
           <div class="card-body d-flex flex-column gap-3">
             <div class="cardConsultaProfissional_cabecalho">
@@ -670,7 +617,6 @@
           </div>
         </article>
 
-        <!-- Cancelada: apenas status -->
         <article class="card cardConsultaProfissional" data-idConsulta="13" data-estadoConsulta="cancelada">
           <div class="card-body d-flex flex-column gap-3">
             <div class="cardConsultaProfissional_cabecalho">
@@ -686,7 +632,6 @@
           </div>
         </article>
 
-        <!-- Realizada: apenas status -->
         <article class="card cardConsultaProfissional" data-idConsulta="14" data-estadoConsulta="realizada">
           <div class="card-body d-flex flex-column gap-3">
             <div class="cardConsultaProfissional_cabecalho">
@@ -704,9 +649,6 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Navegação: navTopoDeslogado (Navbar do Bootstrap) -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloNavDeslogado">
       <h2 id="tituloNavDeslogado" class="mb-4">Navegação — Desktop deslogado</h2>
 
@@ -737,14 +679,10 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Navegação: painelMenuMobile (Offcanvas do Bootstrap) -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloPainelMenu">
       <h2 id="tituloPainelMenu" class="mb-4">Navegação — Painel mobile (off-canvas)</h2>
 
       <div class="row g-4">
-        <!-- Variante: deslogado -->
         <div class="col-12 col-md-6">
           <p class="textoSmall mb-2"><strong>Variante deslogado</strong></p>
           <div style="position: relative; height: 520px; border: 2px solid var(--corBordas); border-radius: var(--raioMedio); overflow: hidden;">
@@ -775,7 +713,6 @@
           </div>
         </div>
 
-        <!-- Variante: logado -->
         <div class="col-12 col-md-6">
           <p class="textoSmall mb-2"><strong>Variante logado (conteúdo do menu hambúrguer)</strong></p>
           <div style="position: relative; height: 520px; border: 2px solid var(--corBordas); border-radius: var(--raioMedio); overflow: hidden;">
@@ -802,9 +739,6 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Navegação: navLateralLogado    -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloNavLateral">
       <h2 id="tituloNavLateral" class="mb-4">Navegação — Sidebar desktop (logado)</h2>
       <p class="textoSmall mb-3">Passe o mouse ou dê foco na sidebar para ver os rótulos expandirem.</p>
@@ -872,9 +806,6 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Navegação: navInferiorLogado   -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloNavInferior">
       <h2 id="tituloNavInferior" class="mb-4">Navegação — Bottom tab bar mobile (logado)</h2>
 
@@ -937,9 +868,6 @@
       </div>
     </section>
 
-    <!-- ============================= -->
-    <!-- Navegação: menuHamburguerLogado -->
-    <!-- ============================= -->
     <section class="mb-5" aria-labelledby="tituloMenuHamburguer">
       <h2 id="tituloMenuHamburguer" class="mb-4">Navegação — Menu hambúrguer (desktop, logado)</h2>
 
@@ -958,17 +886,13 @@
     </section>
   </main>
 
-  <!-- jQuery -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
-  <!-- Bootstrap 5 JS — necessário para Modal, Offcanvas, Dropdown e Navbar -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Componentes (todos consolidados) -->
   <script src="componentes.js"></script>
 
   <script>
-    // Exemplo de inicialização — os dados reais virão do Back-End
     $(function () {
       renderizarCalendario($("#calendarioCliente"), 2026, 6, {
         "10": "selecionado",

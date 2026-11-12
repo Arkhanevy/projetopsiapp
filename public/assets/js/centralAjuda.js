@@ -37,7 +37,6 @@
         self.atualizarBotaoEnviar();
       });
 
-      // Evento disparado pelo componente campoSelect (componentes.js)
       this.elementos.$campoAssunto.on("opcaoSelecionada", function (evento, dados) {
         self.aoSelecionarAssunto(dados.valor);
       });
@@ -52,7 +51,6 @@
       });
     },
 
-    // ---------- Assunto ----------
 
     aoSelecionarAssunto: function (valor) {
       var $mensagem = this.elementos.$campoMensagem;
@@ -67,7 +65,6 @@
       this.atualizarBotaoEnviar();
     },
 
-    // ---------- Validação visual ----------
 
     campoEstaPreenchido: function ($campo) {
       return $.trim($campo.val()) !== "";
@@ -115,7 +112,6 @@
       bootstrap.Toast.getOrCreateInstance(this.elementos.$avisoErro[0], { delay: 4000 }).show();
     },
 
-    // ---------- Envio ----------
 
     aoEnviar: function () {
       if (!this.formularioEstaCompleto()) {
@@ -124,8 +120,6 @@
         return;
       }
 
-      // O envio ao PHP é responsabilidade de quem escutar este evento.
-      // Quando o backend responder com sucesso, chamar exibirSucesso().
       this.elementos.$formulario.trigger("mensagemAjudaSolicitada", {
         destinatario: this.elementos.$campoDestinatario.val(),
         emailUsuario: $.trim(this.elementos.$campoEmailUsuario.val()),
@@ -146,7 +140,6 @@
       }
     },
 
-    // ---------- Dados vindos do banco ----------
 
     preencherDados: function (dados) {
       if (dados.emailDestinatario) {
@@ -159,7 +152,6 @@
     }
   };
 
-  // API pública para o restante do projeto (ex.: callback do AJAX de envio)
   window.centralAjuda = {
     exibirSucesso: function () { moduloCentralAjuda.exibirSucesso(); },
     preencherDados: function (dados) { moduloCentralAjuda.preencherDados(dados); }

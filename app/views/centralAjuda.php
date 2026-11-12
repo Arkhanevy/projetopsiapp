@@ -4,18 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" /><!-- Bootstrap 5 -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /><!-- Material Symbols (Google) -->
-    <link rel="stylesheet" href="public/assets/css/variaveis.css" /><!-- Variáveis globais de design -->
-    <link rel="stylesheet" href="public/assets/css/componentes.css" /><!-- Componentes compartilhados -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="public/assets/css/variaveis.css" />
+    <link rel="stylesheet" href="public/assets/css/componentes.css" />
     <title>Fale conosco - Central de Ajuda</title>
-    <link rel="stylesheet" href="public/assets/css/centralAjuda.css" /><!-- CSS próprio -->
+    <link rel="stylesheet" href="public/assets/css/centralAjuda.css" />
 </head>
 
 <body>
     <a href="#conteudoCentralAjuda" class="linkPularConteudo">Pular para o conteúdo principal</a>
 
-    <!-- AVISO DE ERRO DE VALIDAÇÃO (componente avisoFlutuante) -->
     <div id="avisoContainer" class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
         <div id="avisoErroCentralAjuda" class="toast avisoFlutuante" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="toast-body avisoFlutuante_corpo">
@@ -25,7 +24,6 @@
         </div>
     </div>
 
-    <!-- NAVEGAÇÃO: página de usuário logado (navTopoLogado + menuHamburguerLogado) -->
     <nav class="navTopoLogado" aria-label="Navegação principal">
         <a href="index.php?uri=home" class="navTopoLogado_logo">
             <img src="public/assets/images/logo.png" alt="" width="50" height="50">
@@ -54,19 +52,16 @@
 
                 <form id="formularioCentralAjuda" class="centralAjuda_formulario" novalidate>
 
-                    <!-- Destinatário: valor vindo do sistema -->
                     <div class="form-floating campoTexto mb-4">
                         <input name="cxajuDestinatario" id="campoDestinatario" data-emailDestinatario="" class="form-control" type="email" placeholder="Destinatário" value="" readonly>
                         <label for="campoDestinatario">Destinatário</label>
                     </div>
 
-                    <!-- E-mail: valor vindo do usuário logado -->
                     <div class="form-floating campoTexto mb-4">
                         <input name="cxajuEmail" id="campoEmailUsuario" data-emailUsuario="" class="form-control" type="email" placeholder="Digite seu e-mail" autocomplete="email" required>
                         <label for="campoEmailUsuario">E-mail</label>
                     </div>
 
-                    <!-- Assunto: componente campoSelect -->
                     <div class="dropdown campoSelect mb-4" id="campoAssunto" data-valorSelecionado="">
                         <span id="rotuloAssunto" class="visually-hidden">Assunto do e-mail</span>
                         <button type="button" class="campoSelect_gatilho dropdown-toggle" id="gatilhoAssunto" data-bs-toggle="dropdown" aria-expanded="false" aria-labelledby="rotuloAssunto valorAssunto">
@@ -83,7 +78,6 @@
                         <input type="hidden" name="cxajuAssunto" id="campoAssuntoValor" value="">
                     </div>
 
-                    <!-- Mensagem: liberada somente após escolher o assunto -->
                     <div class="campoTexto mb-4">
                         <label for="campoMensagem" id="rotuloMensagem" class="centralAjuda_rotuloMensagem">Nos conte o que você precisa</label>
                         <textarea name="cxajuMensagem" id="campoMensagem" class="form-control centralAjuda_mensagem" rows="10" maxlength="2000" required disabled
@@ -104,7 +98,6 @@
         </div>
     </main>
 
-    <!-- MODAL DE SUCESSO (componente modalBase) -->
     <div class="modal fade modalBase" id="modalSucessoCentralAjuda" tabindex="-1" aria-labelledby="tituloModalSucesso" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content modalBase_conteudo">
@@ -125,9 +118,9 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><!-- jQuery -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><!-- Bootstrap 5 (bundle com Popper) -->
-    <script src="public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="public/assets/js/componentes.js"></script>
     <script src="public/assets/js/utilitarios.js"></script>
     <script src="public/assets/js/centralAjuda.js" defer></script>
 

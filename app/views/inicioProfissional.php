@@ -4,24 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Início — Profissional</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" /><!-- Bootstrap 5 -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /><!-- Material Symbols (Google) -->
-  <link rel="stylesheet" href="public/assets/css/variaveis.css" /><!-- Variáveis globais -->
-  <link rel="stylesheet" href="public/assets/css/componentes.css" /><!-- Componentes compartilhados -->
-  <link rel="stylesheet" href="public/assets/css/inicioPro.css" /><!-- CSS próprio (layout compartilhado: profissional e clínica) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="public/assets/css/variaveis.css" />
+  <link rel="stylesheet" href="public/assets/css/componentes.css" />
+  <link rel="stylesheet" href="public/assets/css/inicioPro.css" />
 </head>
 <body>
 
   <a href="#conteudoInicioProfissional" class="linkPularConteudo">Pular para o conteúdo principal</a>
 
-  <!-- BARRA SUPERIOR (LOGADO — DESKTOP E MOBILE) -->
   <header class="navTopoLogado">
     <a href="index.php" class="navTopoLogado_logo">
       <img src="public/assets/images/logo.png" alt="" width="40" height="40" />
       <span data-nomePlataforma="">Podopsi</span>
     </a>
 
-    <!-- Desktop: menu hambúrguer em dropdown -->
     <div class="dropdown menuHamburguerLogado d-none d-md-block">
       <button type="button" class="menuHamburguerLogado_botao dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menu">
         <span class="material-symbols-outlined" aria-hidden="true">menu</span>
@@ -33,13 +31,11 @@
       </ul>
     </div>
 
-    <!-- Mobile: o hambúrguer abre o painelMenuMobile (offcanvas) -->
     <button type="button" class="navTopoLogado_botaoMenuMobile d-md-none" data-bs-toggle="offcanvas" data-bs-target="#painelMenuMobileInicio" aria-controls="painelMenuMobileInicio" aria-label="Abrir menu">
       <span class="material-symbols-outlined" aria-hidden="true">menu</span>
     </button>
   </header>
 
-  <!-- PAINEL DO MENU (MOBILE, LOGADO) -->
   <div class="offcanvas offcanvas-top painelMenuMobile d-md-none" tabindex="-1" id="painelMenuMobileInicio" aria-labelledby="tituloPainelMenuMobileInicio">
     <div class="offcanvas-header">
       <a href="index.php" class="painelMenuMobile_logo" id="tituloPainelMenuMobileInicio">
@@ -61,7 +57,6 @@
     </div>
   </div>
 
-  <!-- NAVEGAÇÃO LATERAL (DESKTOP, LOGADO) — exibida por sessaoNavegacao.js -->
   <nav class="navLateralLogado d-none d-md-flex" data-papel="profissionalClinica" aria-label="Navegação principal" hidden>
     <a href="index.php?uri=inicioProfissional" class="navLateralLogado_item navLateralLogado_item--ativo" aria-current="page" data-itemPapel>
       <span class="material-symbols-outlined" aria-hidden="true">home</span>
@@ -89,13 +84,10 @@
 
   <div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main id="conteudoInicioProfissional" class="conteudoInicioPro conteudoInicioProfissional container-fluid">
 
-      <!-- Anuncia o resultado do carregamento para leitores de tela (preenchido pelo JS) -->
       <p id="mensagemStatusInicioPro" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
 
-      <!-- CABEÇALHO DA PÁGINA: contador de consultas do dia -->
       <div class="cabecalhoInicioPro">
         <h1 class="tituloInicioPro">
           <span data-campo="quantidadeConsultasHoje">2</span>
@@ -103,11 +95,9 @@
         </h1>
       </div>
 
-      <!-- PAINEL DE AGENDAMENTOS -->
       <section class="painelAgendamentosPro" aria-labelledby="tituloPainelAgendamentosPro">
         <h2 id="tituloPainelAgendamentosPro" class="painelAgendamentosPro_titulo">Agendamentos</h2>
 
-        <!-- Lista: os 2 cards abaixo são modelos de pré-visualização; o JS os substitui pelos dados do banco -->
         <div id="listaAgendamentosPro" class="listaAgendamentosPro estadoCarregando" aria-busy="true" inert>
 
           <article class="card cardConsultaProfissional" data-idConsulta="" data-estadoConsulta="confirmada">
@@ -150,13 +140,11 @@
 
         </div>
 
-        <!-- Estado vazio -->
         <div id="estadoVazioAgendamentosPro" class="estadoVazio estadoVazioAgendamentosPro" hidden>
           <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">event_busy</span>
           <p class="estadoVazio_texto">Nenhuma consulta foi encontrada</p>
         </div>
 
-        <!-- Ação do painel (oculta junto com a lista quando não há consultas) -->
         <div id="acoesAgendamentosPro" class="painelAgendamentosPro_acoes">
           <a href="index.php?uri=agendaProfissional" id="botaoVisualizarMaisConsultas" class="btn botaoBase botaoBase--secundario" data-acao="visualizarMaisConsultas">
             <span class="material-symbols-outlined" aria-hidden="true">assignment_turned_in</span>
@@ -167,7 +155,6 @@
 
     </main>
 
-    <!-- NAVEGAÇÃO INFERIOR (MOBILE) -->
     <nav class="navInferiorLogado d-flex d-md-none" data-papel="profissionalClinica" aria-label="Navegação principal" hidden>
       <a href="index.php?uri=notificacoes" class="navInferiorLogado_item">
         <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
@@ -193,7 +180,6 @@
 
   </div>
 
-  <!-- MODAL: SESSÃO EXPIRADA (não pode ser fechado) -->
   <div
     class="modal fade modalBase"
     id="modalSessaoExpirada"
@@ -224,7 +210,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIRMAR CANCELAMENTO -->
   <div
     class="modal fade modalBase"
     id="modalConfirmarCancelamento"
@@ -266,15 +251,13 @@
     </div>
   </div>
 
-  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-  <!-- Bootstrap 5 (bundle com Popper) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
-  <script src="public/assets/js/sessaoNavegacao.js"></script><!-- Decide qual navegação exibir -->
+  <script src="public/assets/js/componentes.js"></script>
+  <script src="public/assets/js/sessaoNavegacao.js"></script>
   <script src="public/assets/js/utilitarios.js"></script>
-  <script src="public/assets/js/inicioPro.js"></script><!-- Módulo compartilhado da home Pro (profissional e clínica) -->
+  <script src="public/assets/js/inicioPro.js"></script>
   <script src="public/assets/js/inicioProfissional.js" defer></script>
 </body>
 </html>

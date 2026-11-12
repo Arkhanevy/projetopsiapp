@@ -22,7 +22,6 @@
     }
   };
 
-  // valores gravados em agenda.agnd_stat -> chaves de INFORMACOES_STATUS
   var STATUS_BANCO = {
     esperando: "pendente",
     aceita: "agendada",
@@ -45,7 +44,7 @@
     iniciar: function () {
       this.cachearElementos();
       this.registrarEventos();
-      this.buscarConsultas();            // <- faltava chamar
+      this.buscarConsultas();
     },
 
 
@@ -123,7 +122,6 @@
               nomeProfissional: c.pro_nome,
               nomeClinica: c.clin_nome || "—",
               dataHora: c.agnd_dt + " " + c.agnd_hrIni
-              // preco: depende de a query trazer ser_val
             };
           });
           if (!consultas.length) {

@@ -4,24 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Minhas consultas — Clínica</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" /><!-- Bootstrap 5 -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /><!-- Material Symbols (Google) -->
-  <link rel="stylesheet" href="public/assets/css/variaveis.css" /><!-- Variáveis globais -->
-  <link rel="stylesheet" href="public/assets/css/componentes.css" /><!-- Componentes compartilhados -->
-  <link rel="stylesheet" href="public/assets/css/consultasPro.css" /><!-- CSS próprio (layout compartilhado: profissional e clínica) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="public/assets/css/variaveis.css" />
+  <link rel="stylesheet" href="public/assets/css/componentes.css" />
+  <link rel="stylesheet" href="public/assets/css/consultasPro.css" />
 </head>
 <body>
 
   <a href="#conteudoConsultasClinica" class="linkPularConteudo">Pular para o conteúdo principal</a>
 
-  <!-- BARRA SUPERIOR (LOGADO — DESKTOP E MOBILE) -->
   <header class="navTopoLogado">
     <a href="index.php" class="navTopoLogado_logo">
       <img src="public/assets/images/logo.png" alt="" width="40" height="40" />
       <span data-campo="nomePlataforma">Podopsi</span>
     </a>
 
-    <!-- Desktop: menu hambúrguer em dropdown -->
     <div class="dropdown menuHamburguerLogado d-none d-md-block">
       <button type="button" class="menuHamburguerLogado_botao dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menu">
         <span class="material-symbols-outlined" aria-hidden="true">menu</span>
@@ -33,13 +31,11 @@
       </ul>
     </div>
 
-    <!-- Mobile: o hambúrguer abre o painelMenuMobile (offcanvas) -->
     <button type="button" class="navTopoLogado_botaoMenuMobile d-md-none" data-bs-toggle="offcanvas" data-bs-target="#painelMenuMobile" aria-controls="painelMenuMobile" aria-label="Abrir menu">
       <span class="material-symbols-outlined" aria-hidden="true">menu</span>
     </button>
   </header>
 
-  <!-- PAINEL DO MENU (MOBILE, LOGADO) -->
   <div class="offcanvas offcanvas-top painelMenuMobile d-md-none" tabindex="-1" id="painelMenuMobile" aria-labelledby="tituloPainelMenuMobile">
     <div class="offcanvas-header">
       <a href="index.php" class="painelMenuMobile_logo" id="tituloPainelMenuMobile">
@@ -61,7 +57,6 @@
     </div>
   </div>
 
-  <!-- NAVEGAÇÃO LATERAL (DESKTOP, LOGADO) — exibida por sessaoNavegacao.js -->
   <nav class="navLateralLogado d-none d-md-flex" data-papel="profissionalClinica" aria-label="Navegação principal" hidden>
     <a href="index.php?uri=inicioClinica" class="navLateralLogado_item" data-itemPapel>
       <span class="material-symbols-outlined" aria-hidden="true">home</span>
@@ -89,7 +84,6 @@
 
   <div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main id="conteudoConsultasClinica" class="conteudoConsultasPro conteudoConsultasClinica container-fluid">
 
       <h1 class="tituloConsultasPro"><span class="d-none d-md-inline">Minhas </span>Consultas</h1>
@@ -97,7 +91,6 @@
 
       <div class="gradeConsultasPro">
 
-        <!-- ---------- Calendário ---------- -->
         <section class="painelCalendarioPro" aria-labelledby="tituloCalendarioPro">
           <h2 id="tituloCalendarioPro" class="visually-hidden">Calendário de consultas</h2>
 
@@ -112,7 +105,6 @@
               </button>
             </div>
 
-            <!-- Os dias abaixo são apenas pré-visualização (JUL 2026); renderizarCalendario() os substitui -->
             <div class="calendarioBase_grade" id="gradeCalendarioConsultas">
               <span class="calendarioBase_diaSemana">Dom</span>
               <span class="calendarioBase_diaSemana">Seg</span>
@@ -178,14 +170,12 @@
           </div>
         </section>
 
-        <!-- ---------- Painel de consultas ---------- -->
         <section class="painelConsultasPro" aria-labelledby="tituloPainelConsultasPro">
           <h2 id="tituloPainelConsultasPro" class="visually-hidden" tabindex="-1">Consultas do dia selecionado</h2>
 
           <div class="painelConsultasPro_acoes">
             <a href="index.php?uri=agendamentoClinica" id="botaoAdicionarConsulta" class="btn botaoBase botaoBase--primario botaoBase--compacto">Adicionar consulta</a>
 
-            <!-- Filtro: opções são apenas um exemplo de preenchimento; virão do backend -->
             <div class="dropdown filtroConsultas">
               <button
                 type="button"
@@ -222,10 +212,8 @@
             </div>
           </div>
 
-          <!-- Lista: os 3 cards abaixo são modelos de pré-visualização (um por estado); o JS os substitui pelos dados do banco -->
           <div id="listaConsultasPro" class="listaConsultasPro estadoCarregando" aria-busy="true" inert>
 
-            <!-- Modelo 1: pendente, solicitada pelo cliente -->
             <article class="card cardConsultaProfissional" data-idConsulta="" data-estadoConsulta="pendente">
               <div class="card-body d-flex flex-column gap-3">
                 <div class="cardConsultaProfissional_cabecalho">
@@ -245,7 +233,6 @@
               </div>
             </article>
 
-            <!-- Modelo 2: confirmada -->
             <article class="card cardConsultaProfissional" data-idConsulta="" data-estadoConsulta="confirmada">
               <div class="card-body d-flex flex-column gap-3">
                 <div class="cardConsultaProfissional_cabecalho">
@@ -265,7 +252,6 @@
               </div>
             </article>
 
-            <!-- Modelo 3: pendente, aguardando confirmação do paciente -->
             <article class="card cardConsultaProfissional" data-idConsulta="" data-estadoConsulta="pendente">
               <div class="card-body d-flex flex-column gap-3">
                 <div class="cardConsultaProfissional_cabecalho">
@@ -287,7 +273,6 @@
 
           </div>
 
-          <!-- Estado vazio -->
           <div id="estadoVazioConsultasPro" class="estadoVazio estadoVazioConsultasPro" hidden>
             <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">event_busy</span>
             <p class="estadoVazio_texto">Nenhuma consulta agendada</p>
@@ -297,7 +282,6 @@
       </div>
     </main>
 
-    <!-- NAVEGAÇÃO INFERIOR (MOBILE) -->
     <nav class="navInferiorLogado d-flex d-md-none" data-papel="profissionalClinica" aria-label="Navegação principal" hidden>
       <a href="index.php?uri=notificacoes" class="navInferiorLogado_item">
         <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
@@ -323,7 +307,6 @@
 
   </div>
 
-  <!-- MODAL: SESSÃO EXPIRADA (não pode ser fechado) -->
   <div
     class="modal fade modalBase"
     id="modalSessaoExpirada"
@@ -354,7 +337,6 @@
     </div>
   </div>
 
-  <!-- MODAL: DETALHES DA CONSULTA -->
   <div
     class="modal fade modalBase"
     id="modalDetalhesConsulta"
@@ -391,7 +373,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIRMAR CANCELAMENTO -->
   <div
     class="modal fade modalBase"
     id="modalConfirmarCancelamento"
@@ -431,7 +412,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CONSULTA ADICIONADA À AGENDA -->
   <div
     class="modal fade modalBase"
     id="modalConsultaAdicionada"
@@ -460,15 +440,13 @@
     </div>
   </div>
 
-  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-  <!-- Bootstrap 5 (bundle com Popper) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
-  <script src="public/assets/js/sessaoNavegacao.js"></script><!-- Decide qual navegação exibir -->
+  <script src="public/assets/js/componentes.js"></script>
+  <script src="public/assets/js/sessaoNavegacao.js"></script>
   <script src="public/assets/js/utilitarios.js"></script>
-  <script src="public/assets/js/consultasPro.js"></script><!-- Módulo compartilhado das consultas Pro -->
+  <script src="public/assets/js/consultasPro.js"></script>
   <script src="public/assets/js/consultasClinica.js" defer></script>
 </body>
 </html>
