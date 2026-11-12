@@ -204,6 +204,7 @@ create table notificacao (
 
 CREATE TABLE ctrlFiles (
     owner       INT          NOT NULL,
+    ownertipo varchar(20) not null,
     filePath    VARCHAR(255) NOT NULL,   -- caminho completo do arquivo .base64
     accessCtrl  TINYINT      NOT NULL DEFAULT 0,  -- 0 = público, 1 = privado
     shareMails  TEXT         NULL,       -- "a@x.com,b@y.com"

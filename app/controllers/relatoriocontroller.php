@@ -22,8 +22,20 @@ if ($acao === '') {
 
 switch ($acao){
     case "quantidade":
+        switch ($_POST['periodo']) {
+            case 'mensal':
+                $data = new DateTime();
+                $dia = $data->format('Y') . $_POST['data'] . '-01';
+                break;
+            case 'anual':
+                $dia = $_POST['data'] . '-01-01' ;
+                break;
+            default:
+                $dia = $_POST['data'];
+                break;
+        }
         $relatorio = new relatorio('atendimento','atd_id'/*, $campos*/, 'atd_id'/*$campos[0]*/, $_SESSION['usuario']['tipoUsuario'], $_SESSION['usuario']['idUsuario']);
-        $mostrar = $relatorio->consultadas();
+        $mostrar = $relatorio->consultadas($dia, $_POST['periodo']);
         echo json_encode($mostrar);
         exit;
     case 'ganho':

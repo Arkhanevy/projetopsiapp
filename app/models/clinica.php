@@ -9,7 +9,7 @@ class clinica extends usuario {
     public function __construct($table,$campo,$primary) {
         parent::__construct($table,$campo,$primary);}
         
-    public function Cadastrarclinica($nome,$email/*,$foto*/,$username,$senha,$bio,$CNPJ,$CEP,$telefone) {
+    public function Cadastrarclinica($nome,$email,$foto,$username,$senha,$bio,$CNPJ,$CEP,$telefone) {
             $dados =[
                 0,
                 $nome,
@@ -27,7 +27,7 @@ class clinica extends usuario {
                 $telefone
                
             ];
-            /*$this->setFoto($foto);*/
+            $this->setFoto($foto);
             return $this->Cadastrar($dados);
         }
     public function pegarHrser() {
@@ -39,7 +39,6 @@ class clinica extends usuario {
             hrser_dia";
             $pegar = new DBQuery('hr_servico', $camposHrser,'hrser_clin' );
             $where = new Where();
-            //$where->addCondition('AND', 'hrser_clin', '=',$_SESSION['clinica']['id']);
             $where->addCondition('AND', 'hrser_clin', '=', $_SESSION['usuario']['idUsuario']);
             $where = $where->build();
             try {

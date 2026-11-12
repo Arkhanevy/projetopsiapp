@@ -35,15 +35,21 @@ class relatorio {
         
     }
     
-    private function qtdatedimento ($status) {
+    private function qtdatedimento ($status,$inicio,$proxima) {
         $cod = $this->contruirCampos('atd_');
         $atendido = new DBQuery($this->table, 'COUNT(*) AS total', $this->primary);
+        $agenda = new DBQuery('agenda', 'agnd_id,agnd_dt', 'agnd_id');
+        
+        $atendido->addJoin('INNER', 'atd_agnd', $agenda, 'agnd_id');
+        
         $where = new Where();
         $where->addCondition('AND', $cod, '=', $this->id);
         $where->addCondition('AND', 'atd_stat', '=', $status);
-        $where = $where -> build();
+        $where->addCondition('AND', 'agnd_dt', '>=', $inicio->format('Y-m-d'));
+        $where->addCondition('AND', 'agnd_dt', '<',  $proxima->format('Y-m-d'));
+
         try {
-            $resultado = $atendido->selectWhere($where);
+            $resultado = $atendido->selectFiltered($where);
         } catch (\Exception $e) {
             return ['sucesso' => false,
                 'mensagem' => $e->getMessage()
@@ -53,25 +59,83 @@ class relatorio {
         return (int) $resultado['total'];
     }
     
-    public function consultadas() {
-        $atendidos = $this->qtdatedimento('atendido');
+    private function qtdpendente ($inicio,$proxima) {
+        $cod = $this->contruirCampos('agnd_');
+        $atendido = new DBQuery($this->table, 'atd_id', $this->primary);
+        $agenda = new DBQuery('agenda', 'COUNT(*) - COUNT(atd_id) AS total', 'agnd_id');
+        
+        $agenda->addJoin('LEFT', 'agnd_id', $atendido, 'atd_agnd');
+        
+        $where = new Where();
+        $where->addCondition('AND', $cod, '=', $this->id);
+        $where->addCondition('AND', 'agnd_dt', '>=', $inicio->format('Y-m-d'));
+        $where->addCondition('AND', 'agnd_dt', '<',  $proxima->format('Y-m-d'));
+        try {
+            $resultado = $agenda->selectFiltered($where);
+        } catch (\Exception $e) {
+            return ['sucesso' => false,
+                'mensagem' => $e->getMessage()
+            ];
+        };
+        $resultado = $resultado->fetch(\PDO::FETCH_ASSOC);
+        return (int) $resultado['total'];
+    }
+    
+    public function consultadas($dia,$periodo) {
+        try {
+            $data = new \DateTimeImmutable($dia);
+        } catch (\Exception $e) {
+            return ['sucesso' => false,
+                'mensagem' => $e->getMessage()
+            ];
+        };
+        
+        switch ($periodo) {
+            case 'diario':
+                $inicio  = $data;
+                $proxima = $data->modify('+1 day');
+                break;
+            case 'semanal':
+                $inicio  = $data->modify('-' . $data->format('w') . ' days');
+                $proxima = $inicio->modify('+7 days');
+                break;
+            case 'mensal':
+                $inicio  = $data;
+                $proxima = $inicio->modify('+1 month');
+                break;
+            case 'anual':
+                $inicio  = $data;
+                $proxima = $inicio->modify('+1 year');
+                break;
+            default:
+                throw new \InvalidArgumentException('Período inválido');
+        }
+        
+        
+        $atendidos = $this->qtdatedimento('atendido',$inicio,$proxima);
         if (!is_int($atendidos)) {
             return $atendidos;
         }
-        $desmarcado = $this->qtdatedimento('desmarcado');
+        $desmarcado = $this->qtdatedimento('desmarcado',$inicio,$proxima);
         if (!is_int($desmarcado)) {
             return $desmarcado;
         }
-        $ncompareceu = $this->qtdatedimento('não compareceu');
+        $ncompareceu = $this->qtdatedimento('não compareceu',$inicio,$proxima);
         if (!is_int($ncompareceu)) {
             return $ncompareceu;
         }
+        $pendente = $this->qtdpendente($inicio, $proxima);
+        if (!is_int($pendente)) {
+            return $pendente;
+        }
+        
         
         return [
             'sucesso' => true,
             'dados1' => $atendidos,
             'dados2' => $desmarcado,
-            'dados3' => $ncompareceu
+            'dados3' => $ncompareceu,
+            'dados4' => $pendente
         ];       
     }
     
