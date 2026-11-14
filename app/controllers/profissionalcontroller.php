@@ -214,14 +214,13 @@ switch ($acao){
     //ver se tá dando certo
     case 'aceitar_vinculo':
         $proId  = $_SESSION['usuario']['idUsuario'];
-        $clinId = $_POST['clinica_id']; // ID da clínica enviado pelo clique do botão
-        $notifId = $_POST['notif_id'];  // ID da notificação para dar baixa
-
+        $clinId = $_POST['clinica_id'];
+        $notifId = $_POST['notif_id'];
         try {
             $pdo = Conexao::getInstancia(); // ou $this->db dependendo de qual propriedade está na classe profissional
             $pdo->beginTransaction(); // Inicia transação para garantir que tudo ocorra ou nada mude
 
-            // 1. Inserir o profissional na tabela profissional_clinica
+            // Inserir o profissional na tabela profissional_clinica
             $sqlPc = "INSERT INTO profissional_clinica (pc_pro, pc_clin) VALUES (:pro_id, :clin_id)";
             $stmtPc = $pdo->prepare($sqlPc);
             $stmtPc->execute([':pro_id' => $proId, ':clin_id' => $clinId]);
@@ -229,14 +228,13 @@ switch ($acao){
             // Pega o ID gerado para esse novo vínculo (pc_id)
             $novoPcId = $pdo->lastInsertId();
 
-            // 2. HERANÇA DE PERMISSÕES: Busca o modelo padrão de permissões (ex: pc_id pioneiro da clínica ou template)
-            // Vamos buscar as permissões do primeiro profissional da clínica (pc_id = 1 no seu dump) como base do "cargo"
+            // Buscar as permissões do primeiro profissional da clínica
             $sqlGetPerm = "SELECT perm_tipo, perm_bin FROM permissoes WHERE perm_pc = 1"; 
             $stmtGetPerm = $pdo->prepare($sqlGetPerm);
             $stmtGetPerm->execute();
             $permissoesModelo = $stmtGetPerm->fetchAll(PDO::FETCH_ASSOC);
 
-            // 3. Clona em lote as permissões para o novo profissional vinculado (novo pc_id)
+            // Clona em lote as permissões para o novo profissional vinculado
             $sqlInsertPerm = "INSERT INTO permissoes (perm_tipo, perm_bin, perm_pc) VALUES (:tipo, :bin, :pc)";
             $stmtInsertPerm = $pdo->prepare($sqlInsertPerm);
 
@@ -247,7 +245,7 @@ switch ($acao){
                     ':pc'   => $novoPcId
                 ]);
             }
-            // 4. Atualiza o status da notificação do convite para lido/resolvido (notif_stat = 1)
+            // Atualiza o status da notificação do convite para lido/resolvido
             $sqlUpdateNotif = "UPDATE notificacao SET notif_stat = 1 WHERE notif_id = :notif_id";
             $stmtUpdateNotif = $pdo->prepare($sqlUpdateNotif);
             $stmtUpdateNotif->execute([':notif_id' => $notifId]);
