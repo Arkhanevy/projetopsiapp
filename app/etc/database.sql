@@ -211,8 +211,13 @@ CREATE TABLE ctrlFiles (
     PRIMARY KEY (filePath)
 );
 
-
-select * from cliente;
+insert into padrao_notif (pdNotif_pro, pdNotif_clin, pdNotif_tipo, pdNotif_msg) values
+(null, null, 'agendar',   'Nova solicitação de consulta de {cliente} para {servico} no dia {data} às {hora}. Acesse a agenda para aceitar ou recusar.'),
+(null, null, 'reagendar', '{cliente} solicitou o reagendamento da consulta de {servico} para o dia {data} às {hora}. Acesse a agenda para aceitar ou recusar.'),
+(null, null, 'aceita',    'Sua consulta de {servico} com {profissional} foi aceita! Te esperamos no dia {data} às {hora}.'),
+(null, null, 'rejeitar',  'Infelizmente sua solicitação de consulta de {servico} para o dia {data} às {hora} não pôde ser aceita. Escolha outro horário na agenda.'),
+(null, null, 'cancelar',  'A consulta de {servico} marcada para o dia {data} às {hora} foi cancelada.');
+select * from profissional;
 
 /*INSERT INTO servico (ser_id, ser_pro, ser_nome, ser_tipo, ser_desc, ser_dur, ser_inter, ser_val, ser_stat, ser_dia) VALUES (0, 1, 'mao de pão', 'mãos', 'sua mão vira pão', 30, 10, 50.20, 'ativado', 0);
 INSERT INTO hr_servico (hrser_id, hrser_pro, hrser_hora_inic, hrser_hora_term, hrser_dia) VALUES (0, 1, '08:00:00','18:00:00','1');

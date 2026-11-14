@@ -164,6 +164,19 @@ class DBQuery {
         return $this->conn->query($sql);
     }
     
+    public function selectFilteredgroup(Where $where) {
+        $fields = implode(', ', $this->fieldsName);
+        $sql = "SELECT {$fields} FROM {$this->tableName}";
+        foreach ($this->joins as $join) {
+            $sql .= " " . $join;
+        }
+        foreach ($this->outerJoins as $outerJoin) {
+            $sql .= " " . $outerJoin;
+        }
+        $sql .= $where->buildGroup();
+        return $this->conn->query($sql);
+    }
+    
     /**
      * Executa uma consulta de inserção de dados na tabela
      *
