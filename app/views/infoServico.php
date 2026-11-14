@@ -111,13 +111,7 @@
 
         <div class="col-12 col-md-6">
           <figure class="figuraServico">
-            <img
-              src="public/assets/images/servico.jpg"
-              alt="Profissional realizando procedimento de remoção de unha encravada no pé do paciente"
-              class="imagemServico img-fluid rounded"
-              data-campo="imagemServico"
-              data-campo-alt="legendaImagemServico"
-            />
+            <img src="public/assets/images/imagemIndisponivel.png" alt="Profissional realizando procedimento de remoção de unha encravada no pé do paciente" class="imagemServico img-fluid rounded" data-campo="imagemServico" data-campo-alt="legendaImagemServico"/>
           </figure>
         </div>
 
