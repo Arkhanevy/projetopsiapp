@@ -67,5 +67,52 @@ class clinica extends usuario {
                 ];
             }
         }
+        //Ver se tá prestando (está vinculado ao clinicacontroller):
+        //Vincula um profissional a uma clínica na tabela profissional_clinica
+        public function vincularProfissional($clinId, $proId) {
+            try {
+                //Verificar se o vínculo ativo já existe no banco
+                $sqlCheck = "SELECT 1 FROM profissional_clinica WHERE pc_clin = :clin_id AND pc_pro = :pro_id";
+                $stmtCheck = $this->db->prepare($sqlCheck);
+                $stmtCheck->execute([
+                    ':clin_id' => $clinId,
+                    ':pro_id'  => $proId
+                ]);
+                if ($stmtCheck->fetch()) {
+                    return ['sucesso' => false, 'mensagem' => 'Este profissional já está vinculado a esta clínica.'];
+                }
+                //Insere o novo relacionamento na tabela profissional_clinica
+                $sqlInsert = "INSERT INTO profesional_clinica (pc_clin, pc_pro) VALUES (:clin_id, :pro_id)";
+                $stmtInsert = $this->db->prepare($sqlInsert);
+                $executou = $stmtInsert->execute([
+                    ':clin_id' => $clinId,
+                    ':pro_id'  => $proId
+                ]);
+                if ($executou) {
+                    return ['sucesso' => true, 'mensagem' => 'Profissional vinculado com sucesso!'];
+                }
+                return ['sucesso' => false, 'mensagem' => 'Não foi possível salvar o vínculo.'];
+            } catch (\PDOException $e) {
+                return ['sucesso' => false, 'erro' => $e->getMessage()];
+            }
+        }
+        
+        //Remove o vínculo de um profissional com a clínica
+        public function desvincularProfissional($clinId, $proId) {
+            try {
+                $sqlDelete = "DELETE FROM profissional_clinica WHERE pc_clin = :clin_id AND pc_pro = :pro_id";
+                $stmtDelete = $this->db->prepare($sqlDelete);
+                $executou = $stmtDelete->execute([
+                    ':clin_id' => $clinId,
+                    ':pro_id'  => $proId
+                ]);
+                if ($executou && $stmtDelete->rowCount() > 0) {
+                    return ['sucesso' => true, 'mensagem' => 'Profissional desvinculado com sucesso!'];
+                }
+                return ['sucesso' => false, 'mensagem' => 'Vínculo não encontrado ou já removido.'];
+            } catch (\PDOException $e) {
+                return ['sucesso' => false, 'erro' => $e->getMessage()];
+            }
+        }
 }
 ?>
