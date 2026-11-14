@@ -197,7 +197,7 @@ class relatorio {
         ];
     }
     
-    public function historico() {
+    public function historico($dia) {
         //nessa função o $campo vai ser sting com o campo: agnd_(id do usuario)
         $campoSelect = "agnd_id,agnd_pro,agnd_stat,profissional.pro_nome,agnd_cli,cliente.cli_nome,agnd_clin,clinica.clin_id,clinica.clin_nome,agnd_ser,servico.ser_id,servico.ser_nome,servico.ser_dur,servico.ser_inter,servico.ser_loc,agnd_dt,agnd_hrIni,agnd_hrTerm";
         $campospro = "pro_id,pro_nome";
@@ -221,7 +221,12 @@ class relatorio {
         $where = new Where();
         $where->addCondition('AND', $this->campo, '=', $this->id);
         $where->addCondition('AND', 'agnd_stat', '=', 'aceita');
-        $where->addCondition('AND', 'agnd_dt', '<=', $atual);
+        if (!empty($dia)) {
+            $where->addCondition('AND', 'agnd_dt', '=', $dia);
+        }
+        else {
+            $where->addCondition('AND', 'agnd_dt', '<=', $atual);
+        }
         
         try {
             $resultado = $agenda->selectFiltered($where);

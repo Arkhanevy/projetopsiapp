@@ -66,7 +66,7 @@ switch ($acao){
     case "MostrarConsulta":
         $campo = 'agnd_pro';
         $profissional = new profissional('profissional', $campo, $campo);
-        $resultado = $profissional->MostrarConsulta();
+        $resultado = $profissional->MostrarConsulta($_POST['dia'] ?? '');
         echo json_encode($resultado);
         exit;
     case "PegarPerfil":

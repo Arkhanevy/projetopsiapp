@@ -48,33 +48,7 @@ class busca {
             }
             
             $where = $where->buildGroup();
-            $mostrar = new DBQuery($this->table, $camposStr,$this->primary);
-            try {
-                $resultado = $mostrar->selectWhere($where);
-                
-                if ($resultado) {
-                    return [
-                        'sucesso' => true,
-                        'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
-                    ];
-                }else {
-                    return [
-                        'sucesso' => false,
-                        'erro' => 'Erro ao resgatar informação'
-                    ];
-                }
-            } catch (\InvalidArgumentException $e) {
-                return [
-                    'sucesso' => false,
-                    'erro' => 'Erro de validação: ' . $e->getMessage()
-                ];
-            } catch (\Exception $e) {
-                return [
-                    'sucesso' => false,
-                    'erro' => 'Erro no banco: ' . $e->getMessage()
-                ];
-            }
-       
+            
         } else {
             if ($this->table === 'profissional') {
                 $where->addLike('AND', 'pro_nome', $busca);
@@ -84,36 +58,36 @@ class busca {
                 $where->addLike('AND', 'clin_nome', $busca);
                 $where = $where->build();
             }  
-            $mostrar = new DBQuery($this->table, $camposStr,$this->primary);
-            try {
-                $resultado = $mostrar->selectWhere($where);
-                
-                if ($resultado) {
-                    return [
-                        'sucesso' => true,
-                        'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
-                    ];
-                }else {
-                    return [
-                        'sucesso' => false,
-                        'erro' => 'Erro ao resgatar informação'
-                    ];
-                }
-            } catch (\InvalidArgumentException $e) {
-                return [
-                    'sucesso' => false,
-                    'erro' => 'Erro de validação: ' . $e->getMessage()
-                ];
-            } catch (\Exception $e) {
-                return [
-                    'sucesso' => false,
-                    'erro' => 'Erro no banco: ' . $e->getMessage()
-                ];
-            }
-        }
+            
         }
            
-        
+        $mostrar = new DBQuery($this->table, $camposStr,$this->primary);
+        try {
+            $resultado = $mostrar->selectWhere($where);
+            
+            if ($resultado) {
+                return [
+                    'sucesso' => true,
+                    'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
+                ];
+            }else {
+                return [
+                    'sucesso' => false,
+                    'erro' => 'Erro ao resgatar informação'
+                ];
+            }
+        } catch (\InvalidArgumentException $e) {
+            return [
+                'sucesso' => false,
+                'erro' => 'Erro de validação: ' . $e->getMessage()
+            ];
+        } catch (\Exception $e) {
+            return [
+                'sucesso' => false,
+                'erro' => 'Erro no banco: ' . $e->getMessage()
+            ];
+        }
+    }
     
     public function MostrarDetalhes($id) {
         $camposStr = implode(',',$this->campos);

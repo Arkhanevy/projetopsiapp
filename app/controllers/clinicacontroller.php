@@ -51,7 +51,7 @@ switch ($acao){
     case "MostrarConsulta":
         $campo = 'agnd_clin';
         $clinica = new clinica('clinica', $campo, $campo);
-        $resultado = $clinica->MostrarConsulta();
+        $resultado = $clinica->MostrarConsulta($_POST['dia'] ?? '');
         echo json_encode($resultado);
         exit;
     case "pegarinfo":

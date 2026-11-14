@@ -4,7 +4,7 @@ namespace models;
 use core\database\DBQuery;
 use core\database\Where;
 
-class servicos { // a classe que vai fazer todas as operações relacionadas a serviços, mas nãa herda nada pq nem sei como faz mas pretendo fazer herdar
+class servicos {
     private $camposServ =[
         'ser_id',
         'ser_pro',
@@ -21,7 +21,6 @@ class servicos { // a classe que vai fazer todas as operações relacionadas a s
     ];//campos do servico
     private $pimarykey =['ser_id'];
     private $table = 'servico';
-    private $valser = ''; // nem sei se vou usar
     
     public function cadastrar($id,$pro,$clin,$nome,$tipo,$desc,$dur,$inter,$val,$dia,$loc) {
         $camposServ = implode(',',$this->camposServ); // isso é só pra enviar no formato que o banco de dados pede, necessario?pode ser que não, assunto para depois

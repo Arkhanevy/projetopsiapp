@@ -52,7 +52,7 @@ switch ($acao){
     case "MostrarConsulta":
         $campo = 'agnd_cli';
         $cliente = new cliente('cliente', $campo, $campo);
-        $resultado = $cliente->MostrarConsulta();
+        $resultado = $cliente->MostrarConsulta($_POST['dia'] ?? '');
         echo json_encode($resultado);
         exit;
     case 'contato':

@@ -74,19 +74,9 @@ class notificacao {
            $cod = 'pdNotif_clin';
        }
        
-       $mapa = [
-           'agendar' => 1,
-           'reagendar' => 2,
-           'aceita' => 3,
-           'rejeitar' => 4,
-           'cancelar' => 5
-       ];
-       
-       $tmp = $mapa[$tipo]; 
-       
        $where = new Where();
        
-       $where->addCondition('AND', 'pdNotif_id', '=', $tmp);
+       $where->addCondition('AND', 'pdNotif_id', '=', $tipo);
        
        /*$where->addCondition('AND', 'pdNotif_tipo', '=', $tipo);
        $where->addCondition('AND', $cod, '=', $clin ?? $this->id);*/
