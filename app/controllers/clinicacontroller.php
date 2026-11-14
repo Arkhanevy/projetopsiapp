@@ -137,6 +137,35 @@ switch ($acao){
         echo json_encode($listar);
         exit;
         
+    //Ver se está dando certo (está vinculado com o model clinica):
+    case "vincular":
+        // Identifica a clínica (seja pela sessão logada ou via requisição POST)
+        $clinId = $_SESSION['usuario']['idUsuario'] ?? $_POST['clin_id'] ?? null;
+        $proId  = $_POST['pro_id'] ?? null;
+        if (!$clinId || !$proId) {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'IDs da clínica e do profissional são obrigatórios.']);
+            exit;
+        }
+        $clinicaModel = new clinica('clinica', $campos, $campos[0]);
+        $resultado = $clinicaModel->vincularProfissional($clinId, $proId);
+        echo json_encode($resultado);
+        exit;
+
+    case "desvincular":
+        $clinId = $_SESSION['usuario']['idUsuario'] ?? $_POST['clin_id'] ?? null;
+        $proId  = $_POST['pro_id'] ?? null;
+
+        if (!$clinId || !$proId) {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'IDs da clínica e do profissional são obrigatórios.']);
+            exit;
+        }
+
+        $clinicaModel = new clinica('clinica', $campos, $campos[0]);
+        $resultado = $clinicaModel->desvincularProfissional($clinId, $proId);
+
+        echo json_encode($resultado);
+        exit;
+    
     // --- ROTA PARA DESLOGAR ---
     case "logout":
         if (session_status() === PHP_SESSION_NONE) {
