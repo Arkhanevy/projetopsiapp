@@ -255,7 +255,7 @@ console.log("JS agendamentoCli carregado");
       var contrato = this.configuracao.contratos.listarLocalizacoes;
 
       this.estado.localizacoesDisponiveis = false;
-      this.elementos.$areaLocalizacao.attr("hidden", "hidden");
+      //this.elementos.$areaLocalizacao.attr("hidden", "hidden");
 
       if (!contrato.disponivel) {
         return;

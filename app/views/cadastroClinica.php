@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" /><!-- Bootstrap 5 -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /><!-- Material Symbols (Google) -->
-    <link rel="stylesheet" href="public/assets/css/variaveis.css" /><!-- Variáveis globais de design -->
-    <link rel="stylesheet" href="public/assets/css/componentes.css" /><!-- Componentes compartilhados -->
-    <link rel="stylesheet" href="public/assets/css/autenticacaoBase.css" /><!-- Layout compartilhado -->
-    <link rel="stylesheet" href="public/assets/css/cadastroClinica.css" /><!-- CSS próprio -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="public/assets/css/variaveis.css" />
+    <link rel="stylesheet" href="public/assets/css/componentes.css" />
+    <link rel="stylesheet" href="public/assets/css/autenticacaoBase.css" />
+    <link rel="stylesheet" href="public/assets/css/cadastroClinica.css" />
     <title>Cadastro de Clínica</title>
 </head>
 
@@ -16,7 +16,6 @@
 <body>
     <a href="#conteudoCadastro" class="linkPularConteudo">Pular para o conteúdo principal</a>
 
-    <!-- NAVEGAÇÃO: página só é acessada deslogado, então o bloco é fixo (sem sessaoNavegacao.js) -->
     <nav class="navTopoDeslogado" aria-label="Navegação principal">
         <div class="navTopoDeslogado_barra navTopoDeslogado_acoes">
             <a href="index.php" class="navTopoDeslogado_logo">
@@ -51,7 +50,6 @@
             <div id="colForm" class="col-12 col-md-6 d-flex justify-content-center align-items-start">
                 <div class="form-wrapper">
 
-                    <!-- CADASTRO CLINICA-->
                     <div id="cadastroClinica" class="cadastro">
                         <div class="text-center mt-4">
                             <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -166,7 +164,6 @@
                         <p>Já tem conta? <a href="index.php?uri=loginClinica">Faça login</a></p>
                     </div>
 
-                        <!--Ativação-->
                         <div class="img-thumbnail bg-light border border-success p-4 rounded-4 shadow" id="ativacao">
                             <h1 class="text-muted mt-5 mx-auto">Seja Bem-Vindo!</h1>
                             <p class="text-muted mt-5 mx-auto"> Clique no botão "Gerar código" para que um código seja enviado para o seu e-mail. Depois coloque-o da caixa abaixo para ativar sua conta.</p>
@@ -186,9 +183,9 @@
             </div>
         </div>
     </main>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><!-- jQuery -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><!-- Bootstrap 5 (bundle com Popper) -->
-    <script src="public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="public/assets/js/componentes.js"></script>
     <script src="public/assets/js/utilitarios.js"></script>
     <script src="public/assets/js/cadClinica.js" defer></script>
 

@@ -4,17 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Perfil</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" /><!-- Bootstrap 5 -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /><!-- Material Symbols (Google) -->
-  <link rel="stylesheet" href="public/assets/css/variaveis.css" /><!-- Variáveis globais -->
-  <link rel="stylesheet" href="public/assets/css/componentes.css" /><!-- Componentes compartilhados -->
-  <link rel="stylesheet" href="public/assets/css/perfil.css" /><!-- CSS próprio da página -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="public/assets/css/variaveis.css" />
+  <link rel="stylesheet" href="public/assets/css/componentes.css" />
+  <link rel="stylesheet" href="public/assets/css/perfil.css" />
 </head>
 <body>
 
   <a href="#conteudoPerfil" class="linkPularConteudo">Pular para o conteúdo principal</a>
 
-  <!-- NAVEGAÇÃO (DESLOGADO) — exibida por perfil.js quando o login não é confirmado -->
   <nav class="navTopoDeslogado" aria-label="Navegação principal" hidden>
     <div class="navTopoDeslogado_barra navTopoDeslogado_acoes">
       <a href="index.php" class="navTopoDeslogado_logo">
@@ -38,14 +37,12 @@
     </div>
   </nav>
 
-  <!-- BARRA SUPERIOR (LOGADO — DESKTOP E MOBILE) — exibida por perfil.js quando o login é confirmado -->
   <header class="navTopoLogado" hidden>
     <a href="index.php" class="navTopoLogado_logo">
       <img src="public/assets/images/logo.png" alt="" width="40" height="40">
       <span data-nomePlataforma="">Podopsi</span>
     </a>
 
-    <!-- Desktop: menu hambúrguer em dropdown -->
     <div class="dropdown menuHamburguerLogado d-none d-md-block">
       <button type="button" class="menuHamburguerLogado_botao dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Abrir menu">
         <span class="material-symbols-outlined" aria-hidden="true">menu</span>
@@ -57,13 +54,11 @@
       </ul>
     </div>
 
-    <!-- Mobile: o hambúrguer abre o painelMenuMobile (offcanvas) -->
     <button type="button" class="navTopoLogado_botaoMenuMobile d-md-none" data-bs-toggle="offcanvas" data-bs-target="#painelMenuMobilePerfil" aria-controls="painelMenuMobilePerfil" aria-label="Abrir menu">
       <span class="material-symbols-outlined" aria-hidden="true">menu</span>
     </button>
   </header>
 
-  <!-- PAINEL DO MENU (MOBILE, LOGADO) -->
   <div class="offcanvas offcanvas-top painelMenuMobile d-md-none" tabindex="-1" id="painelMenuMobilePerfil" aria-labelledby="tituloPainelMenuMobilePerfil">
     <div class="offcanvas-header">
       <a href="index.php" class="painelMenuMobile_logo" id="tituloPainelMenuMobilePerfil">
@@ -85,7 +80,6 @@
     </div>
   </div>
 
-  <!-- NAVEGAÇÃO LATERAL (DESKTOP, LOGADO) — exibida por perfil.js -->
   <nav class="navLateralLogado d-none d-md-flex" data-papel="profissionalClinica" aria-label="Navegação principal" hidden>
     <a href="index.php?uri=inicioProfissional" class="navLateralLogado_item" data-itemPapel>
       <span class="material-symbols-outlined" aria-hidden="true">home</span>
@@ -113,10 +107,8 @@
 
   <div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main id="conteudoPerfil" class="conteudoPerfil" aria-busy="true">
 
-      <!-- Cabeçalho do perfil: avatar + usuário -->
       <header class="cabecalhoPerfil">
         <div class="cabecalhoPerfil_avatar">
           <span class="material-symbols-outlined cabecalhoPerfil_iconePadrao" aria-hidden="true">person</span>
@@ -125,14 +117,11 @@
         <h1 class="cabecalhoPerfil_usuario" data-campo="usuario"></h1>
       </header>
 
-      <!-- Perfil indisponível (visitante sem dados, perfil não encontrado) -->
       <div class="estadoVazio estadoVazio--pagina" data-estadoVazio="perfilIndisponivel" hidden>
         <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">person_off</span>
         <p class="estadoVazio_texto" data-campo="textoPerfilIndisponivel"></p>
       </div>
 
-      <!-- Abas do perfil (Bootstrap nav-tabs). Todas são painéis desta mesma página;
-           Clínica/Profissionais dependem do tipo de perfil e Relatório é só do dono. -->
       <div class="nav nav-tabs abasPerfil" id="abasPerfil">
         <div class="abasPerfil_grupo" role="tablist" aria-label="Seções do perfil">
           <button type="button" class="nav-link abasPerfil_aba active" id="abaPerfil" data-bs-toggle="tab" data-bs-target="#painelPerfil" role="tab" aria-controls="painelPerfil" aria-selected="true">Perfil</button>
@@ -145,10 +134,8 @@
 
       <div class="tab-content conteudoAbas">
 
-        <!-- ===================== ABA PERFIL ===================== -->
         <div class="tab-pane fade show active" id="painelPerfil" role="tabpanel" aria-labelledby="abaPerfil" tabindex="0">
 
-          <!-- Visão: resumo -->
           <div class="visaoPerfil" data-visao="resumo">
 
             <section class="secaoPerfil" aria-labelledby="tituloBiografia">
@@ -232,7 +219,6 @@
 
           </div>
 
-          <!-- Visão: edição da biografia -->
           <div class="visaoPerfil" data-visao="edicaoBio" hidden>
             <form id="formularioBio" class="formularioPerfil" novalidate>
               <h2 class="formularioPerfil_titulo">Edição da biografia</h2>
@@ -259,7 +245,6 @@
             </form>
           </div>
 
-          <!-- Visão: cadastro de serviço -->
           <div class="visaoPerfil" data-visao="cadastroServico" hidden>
             <form id="formularioServico" class="formularioPerfil" novalidate>
               <h2 class="formularioPerfil_titulo">Cadastrar serviço</h2>
@@ -366,7 +351,6 @@
             </form>
           </div>
 
-          <!-- Visão: edição da localização (clínica) -->
           <div class="visaoPerfil" data-visao="edicaoLocalizacao" hidden>
             <form id="formularioLocalizacao" class="formularioPerfil" novalidate>
               <h2 class="formularioPerfil_titulo">Edição de localização</h2>
@@ -436,7 +420,6 @@
             </form>
           </div>
 
-          <!-- Visão: cadastro de horários e dias de funcionamento -->
           <div class="visaoPerfil" data-visao="cadastroHorarios" hidden>
             <form id="formularioHorarios" class="formularioPerfil" novalidate>
               <h2 class="formularioPerfil_titulo">Cadastrar horários e dias de funcionamento</h2>
@@ -460,7 +443,6 @@
 
         </div>
 
-        <!-- ===================== ABA CLÍNICA (profissional) ===================== -->
         <div class="tab-pane fade" id="painelClinica" role="tabpanel" aria-labelledby="abaClinica" tabindex="0" data-perfilDe="profissional" hidden>
           <div class="visaoPerfil" data-visao="clinicaResumo">
             <div class="estadoVazio estadoVazio--pagina" data-estadoVazio="clinicas">
@@ -472,7 +454,6 @@
           </div>
         </div>
 
-        <!-- ===================== ABA PROFISSIONAIS (clínica) ===================== -->
         <div class="tab-pane fade" id="painelProfissionais" role="tabpanel" aria-labelledby="abaProfissionais" tabindex="0" data-perfilDe="clinica" hidden>
           <div class="visaoPerfil" data-visao="profissionaisResumo">
             <div class="barraAcoesAba" data-somenteDono>
@@ -491,7 +472,6 @@
             <div class="listaCards" data-lista="profissionais" hidden></div>
           </div>
 
-          <!-- Visão: gerenciamento das permissões dos profissionais (só do dono) -->
           <div class="visaoPerfil" data-visao="profissionaisGerenciamento" data-somenteDono hidden>
             <div class="barraAcoesAba">
               <button type="button" class="btn botaoBase botaoBase--secundario" data-visaoDestino="profissionaisResumo">
@@ -537,7 +517,6 @@
           </div>
         </div>
 
-        <!-- ===================== ABA DOCUMENTOS (profissional e clínica) ===================== -->
         <div class="tab-pane fade" id="painelDocumentos" role="tabpanel" aria-labelledby="abaDocumentos" tabindex="0">
           <div class="visaoPerfil" data-visao="documentosResumo">
             <div class="barraAcoesAba" data-somenteDono>
@@ -568,11 +547,9 @@
           </div>
         </div>
 
-        <!-- ===================== ABA RELATÓRIO (só o dono) ===================== -->
         <div class="tab-pane fade" id="painelRelatorio" role="tabpanel" aria-labelledby="abaRelatorio" tabindex="0" data-somenteDono>
           <div class="visaoPerfil" data-visao="relatorioResumo">
 
-            <!-- Resumo de compromissos -->
             <section class="secaoRelatorio" aria-labelledby="tituloResumoRelatorio">
               <h2 class="visually-hidden" id="tituloResumoRelatorio">Resumo de compromissos</h2>
 
@@ -675,7 +652,6 @@
               </div>
             </section>
 
-            <!-- Histórico de consultas -->
             <section class="secaoRelatorio" aria-labelledby="tituloHistoricoConsultas">
               <h2 class="formularioPerfil_titulo" id="tituloHistoricoConsultas">Histórico de Consultas</h2>
 
@@ -736,7 +712,6 @@
       </div>
     </main>
 
-    <!-- NAVEGAÇÃO INFERIOR (MOBILE) -->
     <nav class="navInferiorLogado d-flex d-md-none" data-papel="profissionalClinica" aria-label="Navegação principal" hidden>
       <a href="index.php?uri=notificacoes" class="navInferiorLogado_item">
         <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
@@ -762,7 +737,6 @@
 
   </div>
 
-  <!-- AVISO FLUTUANTE (Bootstrap toast) — mensagem e variação definidas pelo JS -->
   <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
     <div class="toast avisoFlutuante" id="avisoPerfil" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="toast-body avisoFlutuante_corpo">
@@ -772,7 +746,6 @@
     </div>
   </div>
 
-  <!-- MODAL: SESSÃO EXPIRADA — exibido pelo JS quando o login não é confirmado -->
   <div class="modal fade modalBase" id="modalSessaoExpirada" tabindex="-1" aria-labelledby="tituloModalSessaoExpirada" aria-describedby="textoModalSessaoExpirada" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content modalBase_conteudo">
@@ -794,7 +767,6 @@
     </div>
   </div>
 
-  <!-- MODAL: VINCULAR (clínica ou profissional, textos definidos pelo JS) -->
   <div class="modal fade modalBase" id="modalVincular" tabindex="-1" aria-labelledby="tituloModalVincular" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <form class="modal-content modalBase_conteudo" id="formularioVinculo" novalidate>
@@ -827,7 +799,6 @@
     </div>
   </div>
 
-  <!-- MODAL: DESVINCULAR (clínica ou profissional, textos definidos pelo JS) -->
   <div class="modal fade modalBase" id="modalDesvincular" tabindex="-1" aria-labelledby="tituloModalDesvincular" aria-describedby="textoModalDesvincular" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content modalBase_conteudo">
@@ -854,7 +825,6 @@
     </div>
   </div>
 
-  <!-- MODAL: PEDIDO DE VINCULAMENTO ENVIADO (clínica → profissional) -->
   <div class="modal fade modalBase" id="modalVinculoEnviado" tabindex="-1" aria-labelledby="tituloModalVinculoEnviado" aria-describedby="textoModalVinculoEnviado" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content modalBase_conteudo">
@@ -872,7 +842,6 @@
     </div>
   </div>
 
-  <!-- MODAL: ADICIONAR DOCUMENTO (profissional e clínica; tipos conforme data-perfilDe) -->
   <div class="modal fade modalBase" id="modalAdicionarDocumento" tabindex="-1" aria-labelledby="tituloModalAdicionarDocumento" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <form class="modal-content modalBase_conteudo" id="formularioDocumento" novalidate>
@@ -909,7 +878,6 @@
             <div class="invalid-feedback" id="mensagemTipoDocumento" data-mensagemCampo="tipoDocumento">Selecione o tipo de documento.</div>
           </div>
 
-          <!-- Área de arquivo: tipos e tamanho máximo ainda não definidos -->
           <div class="areaArquivo" data-areaArquivo data-tiposPermitidos="" data-tamanhoMaximoMb="">
             <div class="areaArquivo_conteudo" data-estadoArquivo="vazio">
               <span class="material-symbols-outlined areaArquivo_icone" aria-hidden="true">description</span>
@@ -942,7 +910,6 @@
     </div>
   </div>
 
-  <!-- MODAL: APAGAR DOCUMENTO -->
   <div class="modal fade modalBase" id="modalApagarDocumento" tabindex="-1" aria-labelledby="tituloModalApagarDocumento" aria-describedby="textoModalApagarDocumento" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content modalBase_conteudo">
@@ -974,7 +941,6 @@
     </div>
   </div>
 
-  <!-- MODELOS (templates) preenchidos pelo JS -->
   <template id="modeloLinhaServico">
     <tr>
       <td data-campo="nomeServico"></td>
@@ -1080,7 +1046,6 @@
     </div>
   </template>
 
-  <!-- Lista de permissões: cada linha é um interruptor (checkbox role="switch"); o selo muda por CSS conforme o estado -->
   <template id="modeloListaPermissoes">
     <ul class="listaPermissoes">
       <li>
@@ -1126,12 +1091,10 @@
     </ul>
   </template>
 
-  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-  <!-- Bootstrap 5 (bundle com Popper) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
+  <script src="public/assets/js/componentes.js"></script>
   <script src="public/assets/js/utilitarios.js"></script>
   <script src="public/assets/js/perfil.js" defer></script>
   <script src="public/assets/js/perfilDocumentos.js" defer></script>

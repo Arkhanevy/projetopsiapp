@@ -4,19 +4,18 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" /><!-- Bootstrap 5 -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" /><!-- Material Symbols (Google) -->
-    <link rel="stylesheet" href="public/assets/css/variaveis.css" /><!-- Variáveis globais de design -->
-    <link rel="stylesheet" href="public/assets/css/componentes.css" /><!-- Componentes compartilhados -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="public/assets/css/variaveis.css" />
+    <link rel="stylesheet" href="public/assets/css/componentes.css" />
     <title>Login do Cliente</title>
-    <link rel="stylesheet" href="public/assets/css/loginCliente.css" /><!-- CSS próprio -->
+    <link rel="stylesheet" href="public/assets/css/loginCliente.css" />
 </head>
 
 <body>
     <a href="#conteudoLogin" class="linkPularConteudo">Pular para o conteúdo principal</a>
     <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 9999;"></div>
 
-    <!-- NAVEGAÇÃO: página só é acessada deslogado, então o bloco é fixo (sem sessaoNavegacao.js) -->
     <nav class="navTopoDeslogado" aria-label="Navegação principal">
         <div class="navTopoDeslogado_barra navTopoDeslogado_acoes">
             <a href="index.php" class="navTopoDeslogado_logo">
@@ -42,7 +41,6 @@
 
     <main id="conteudoLogin" class="container d-flex justify-content-center mt-3 min-vh-100">
 
-        <!--Login-->
         <div class="img-thumbnail bg-light border border-success p-4 rounded-4 shadow" id="loginCliente">
             <h1 class="text-muted mt-5 mx-auto">Seja Bem-Vindo de Volta!</h1>
             <p class="text-muted mt-5 mx-auto"> Entre para poder agendar suas consultas.</p>
@@ -66,9 +64,9 @@
 
     </main>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script><!-- jQuery -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script><!-- Bootstrap 5 (bundle com Popper) -->
-    <script src="public/assets/js/componentes.js"></script><!-- Componentes compartilhados -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="public/assets/js/componentes.js"></script>
     <script src="public/assets/js/utilitarios.js"></script>
     <script src="public/assets/js/loginCliente.js" defer></script>
 

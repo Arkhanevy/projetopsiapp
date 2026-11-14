@@ -182,7 +182,6 @@
       e.$estadoArquivoVazio.removeAttr("hidden");
     },
 
-    // Tipos (extensões separadas por vírgula) e tamanho máximo ainda não foram definidos; vazio = sem restrição
     validarArquivo: function (arquivo) {
       var tipos = $.trim(this.elementos.$areaArquivo.attr("data-tiposPermitidos") || "");
       var tamanhoMaximoMb = Number(this.elementos.$areaArquivo.attr("data-tamanhoMaximoMb"));

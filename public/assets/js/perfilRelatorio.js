@@ -28,7 +28,7 @@
     },
     carregarHistorico: {
         url: "index.php?uri=relatorio",
-        acao: "historico", // nome provisório, combinar com o backend
+        acao: "historico",
         disponivel: false
     }
     },
@@ -46,7 +46,6 @@
     iniciar: function (nucleo) {
       this.nucleo = nucleo;
 
-      // O relatório é só do dono do perfil
       if (nucleo.ehVisitante()) {
         return;
       }
