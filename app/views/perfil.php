@@ -164,6 +164,31 @@
               </div>
             </section>
 
+            <section class="secaoPerfil" aria-labelledby="tituloServicosClinica" data-perfilDe="clinica" hidden>
+              <h2 class="secaoPerfil_titulo" id="tituloServicosClinica">Serviços oferecidos</h2>
+              <div class="secaoPerfil_caixa">
+                <div class="estadoVazio" data-estadoVazio="servicosClinica">
+                  <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">construction</span>
+                  <p class="estadoVazio_texto" data-campo="textoServicosClinicaVazio">Sem serviço registrado</p>
+                </div>
+                <div class="table-responsive" data-tabela="servicosClinica" hidden>
+                  <table class="table tabelaDados">
+                    <caption class="visually-hidden">Serviços oferecidos pelos profissionais nesta clínica</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Profissional</th>
+                        <th scope="col">Valor</th>
+                        <th scope="col">Duração</th>
+                        <th scope="col">Dia</th>
+                      </tr>
+                    </thead>
+                    <tbody data-lista="servicosClinica"></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
             <section class="secaoPerfil" aria-labelledby="tituloServicos" data-perfilDe="profissional" hidden>
               <h2 class="secaoPerfil_titulo" id="tituloServicos">Serviços</h2>
               <div class="secaoPerfil_caixa">
@@ -270,9 +295,19 @@
                         <span class="campoSelect_iconeChevron material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
                       </button>
                       <ul class="dropdown-menu campoSelect_lista">
-                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="opcao1">Opção 1</a></li>
-                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="opcao2">Opção 2</a></li>
-                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="opcao3">Opção 3</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="avaliacaoPodologica">Avaliação podológica</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="pedicure">Pedicure</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="Tratamento de alteracoesUngueais">Tratamento de alterações ungueais</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="ortoplastia">Ortoplastia</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="reflexologiaPodal">Reflexologia Podal</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="cuidadosPreventivos">Cuidados preventivos</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="podologiaDiabetica">Podologia diabética</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="podologiaGeriatrica">Podologia Geriátrica</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="podologiaEsportiva">Podologia Esportiva</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="tratamentoCalosidades">Tratamento de calosidades</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="unhasEncravadas">Cuidados com unhas encravadas</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="tratamentoFissuras">Tratamento de fissuras nos pés</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="corteTecnicoUnhas">Corte técnico das unhas</a></li>
                       </ul>
                     </div>
                     <div class="form-text" id="ajudaTipoServico">O tipo de serviço ajuda os clientes a encontrar seu serviço.</div>
@@ -944,6 +979,16 @@
   <template id="modeloLinhaServico">
     <tr>
       <td data-campo="nomeServico"></td>
+      <td data-campo="valorServico"></td>
+      <td data-campo="duracaoServico"></td>
+      <td data-campo="diasServico"></td>
+    </tr>
+  </template>
+
+  <template id="modeloLinhaServicoClinica">
+    <tr>
+      <td data-campo="nomeServico"></td>
+      <td data-campo="profissionalServico"></td>
       <td data-campo="valorServico"></td>
       <td data-campo="duracaoServico"></td>
       <td data-campo="diasServico"></td>

@@ -858,7 +858,8 @@ select:focus-visible,
   text-decoration: none;
 }
 
-.painelMenuMobile_botaoFechar {
+.painelMenuMobile_botaoFechar,
+.painelTopo_botaoFechar {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -907,6 +908,10 @@ select:focus-visible,
   position: absolute !important;
   visibility: visible !important;
   transform: none !important;
+}
+
+.painelTopo_texto {
+  margin-bottom: 0;
 }
 
 .navLateralLogado {
@@ -1566,4 +1571,71 @@ select:focus-visible,
   --bs-card-border-color: var(--corAcaoSecundaria);
   --bs-card-border-width: 4px;
   box-shadow: 0 4px 8px color-mix(in srgb, var(--corBordas) 35%, transparent);
+}
+
+
+.painelTopo {
+  --bs-offcanvas-height: auto;
+  --bs-offcanvas-color: var(--corLetras);
+  --bs-offcanvas-bg: var(--corFundo);
+  --bs-offcanvas-border-width: var(--larguraBorda);
+  --bs-offcanvas-border-color: var(--corBordas);
+  --bs-offcanvas-padding-x: var(--espaco5);
+  --bs-offcanvas-padding-y: var(--espaco4);
+}
+
+.painelTopo_cabecalho {
+  justify-content: space-between;
+  gap: var(--espaco3);
+}
+
+.painelTopo_titulo {
+  font-size: var(--tamanhoH2);
+}
+
+.painelTopo_botaoFechar:hover {
+  background-color: var(--corFundoClaro);
+}
+
+.painelTopo_corpo {
+  padding-top: 0;
+}
+
+.painelTopo_alertas {
+  margin-bottom: var(--espaco3);
+}
+
+.painelTopo_alertas:empty {
+  display: none;
+}
+
+.campoSenha {
+  position: relative;
+}
+
+.campoSenha .form-control {
+  padding-right: calc(var(--espaco7) + var(--espaco2));
+}
+
+.campoSenha_botaoVisibilidade {
+  position: absolute;
+  top: 50%;
+  right: var(--espaco3);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--corLetras);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.campoSenha_botaoVisibilidade:hover {
+  background-color: var(--corFundoClaro);
 }

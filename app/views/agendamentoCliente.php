@@ -139,34 +139,6 @@
           />
         </div>
 
-        <div class="campoFormulario areaLocalizacao">
-          <span id="labelLocalizacao" class="tituloCampo">Localização de atendimento</span>
-          <div class="dropdownCustomizado" id="dropdownLocalizacao">
-            <button
-              type="button"
-              id="botaoDropdownLocalizacao"
-              class="dropdownCustomizadoBotao"
-              aria-haspopup="listbox"
-              aria-expanded="false"
-              aria-labelledby="labelLocalizacao"
-              aria-describedby="textoLocalizacaoSelecionada"
-            >
-              <span class="material-symbols-outlined" aria-hidden="true">location_on</span>
-              <span id="textoLocalizacaoSelecionada" class="dropdownCustomizadoTexto">Selecione localização</span>
-              <span class="material-symbols-outlined dropdownCustomizadoSeta" aria-hidden="true">expand_more</span>
-            </button>
-            <ul
-              id="listaLocalizacoes"
-              class="dropdownCustomizadoLista"
-              role="listbox"
-              aria-labelledby="labelLocalizacao"
-              hidden
-            >
-            </ul>
-          </div>
-          <input type="hidden" id="inputLocalizacaoSelecionada" name="localizacaoSelecionada" />
-        </div>
-
         <div class="campoFormulario areaCalendario">
           <h2 class="tituloCampo" id="labelCalendario">Selecione um dia disponível</h2>
           <div class="calendarioAgendamento" id="calendarioAgendamento" role="group" aria-labelledby="labelCalendario">
@@ -228,6 +200,35 @@
             </ul>
           </div>
           <input type="hidden" id="inputHorarioSelecionado" name="horarioSelecionado" />
+        </div>
+
+        <div class="campoFormulario areaSala">
+          <span id="labelSala" class="tituloCampo">Selecione a sala de atendimento</span>
+          <div class="dropdownCustomizado" id="dropdownSala">
+            <button
+              type="button"
+              id="botaoDropdownSala"
+              class="dropdownCustomizadoBotao"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-labelledby="labelSala"
+              aria-describedby="textoSalaSelecionada"
+              disabled
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">meeting_room</span>
+              <span id="textoSalaSelecionada" class="dropdownCustomizadoTexto">Selecione a sala</span>
+              <span class="material-symbols-outlined dropdownCustomizadoSeta" aria-hidden="true">expand_more</span>
+            </button>
+            <ul
+              id="listaSalas"
+              class="dropdownCustomizadoLista"
+              role="listbox"
+              aria-labelledby="labelSala"
+              hidden
+            >
+            </ul>
+          </div>
+          <input type="hidden" id="inputSalaSelecionada" name="salaSelecionada" />
         </div>
 
         <div class="acoesFormulario areaBotoes">
@@ -305,16 +306,8 @@
       </div>
     </div>
   </div>
-
-  <div
-    class="modal fade modalBase"
-    id="modalNaoLogado"
-    tabindex="-1"
-    aria-labelledby="tituloModalNaoLogado"
-    aria-describedby="textoModalNaoLogado"
-    aria-modal="true"
-    role="dialog"
-  >
+  
+  <div class="modal fade modalBase" id="modalNaoLogado" tabindex="-1" aria-labelledby="tituloModalNaoLogado" aria-describedby="textoModalNaoLogado" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content modalBase_conteudo">
         <div class="modal-header modalBase_cabecalho">
@@ -337,9 +330,219 @@
         </div>
         <p class="textoSmall text-center pb-3">
           Caso não tenha uma conta, realize o
-          <a href="index.php?uri=cadastroCliente" id="linkCadastro">Cadastro</a>.
+          <a href="index.php?uri=cadastroCliente" id="linkCadastro" data-acao="abrirCadastroSimples">Cadastro</a>
         </p>
       </div>
+    </div>
+  </div>
+
+  <div class="offcanvas offcanvas-top painelTopo painelCadastroSimples" tabindex="-1" id="painelCadastroSimples" aria-labelledby="tituloPainelCadastroSimples">
+    <div class="offcanvas-header painelTopo_cabecalho">
+      <h2 class="offcanvas-title painelTopo_titulo" id="tituloPainelCadastroSimples">Cadastro Simples</h2>
+      <button type="button" class="painelTopo_botaoFechar" data-bs-dismiss="offcanvas" aria-label="Fechar cadastro">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <div class="offcanvas-body painelTopo_corpo">
+      <div id="alertaCadastroSimples" class="painelTopo_alertas"></div>
+
+      <form id="formularioCadastroSimples" class="formularioCadastroSimples" data-acaoEnvio="cadastrar" novalidate>
+
+        <div class="form-floating campoTexto">
+          <input
+            type="text"
+            id="inputNomeUsuarioCadastro"
+            name="username"
+            class="form-control"
+            placeholder="Nome de usuário"
+            autocomplete="username"
+            required
+          />
+          <label for="inputNomeUsuarioCadastro">Nome de usuário</label>
+        </div>
+
+        <div class="form-floating campoTexto">
+          <input
+            type="email"
+            id="inputEmailCadastro"
+            name="email"
+            class="form-control"
+            placeholder="E-mail"
+            autocomplete="email"
+            required
+          />
+          <label for="inputEmailCadastro">E-mail</label>
+        </div>
+
+        <div class="campoTexto campoSenha">
+          <div class="form-floating">
+            <input
+              type="password"
+              id="inputSenhaCadastro"
+              name="senha"
+              class="form-control"
+              placeholder="Senha"
+              autocomplete="new-password"
+              required
+            />
+            <label for="inputSenhaCadastro">Senha</label>
+          </div>
+          <button
+            type="button"
+            id="botaoVisibilidadeSenhaCadastro"
+            class="campoSenha_botaoVisibilidade"
+            aria-label="Mostrar senha"
+            aria-controls="inputSenhaCadastro"
+            aria-pressed="false"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+          </button>
+        </div>
+
+        <div class="form-floating campoTexto">
+          <input
+            type="text"
+            id="inputCpfCadastro"
+            name="CPF"
+            class="form-control"
+            placeholder="CPF"
+            data-mascara="cpf"
+            inputmode="numeric"
+            maxlength="14"
+            autocomplete="off"
+            required
+          />
+          <label for="inputCpfCadastro">CPF</label>
+        </div>
+
+        <div class="d-grid mt-4">
+          <button type="submit" id="botaoCadastrarSimples" class="btn botaoBase botaoBase--primario">
+            Cadastrar
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <div class="offcanvas offcanvas-top painelTopo painelAtivacao" tabindex="-1" id="painelAtivacao" aria-labelledby="tituloPainelAtivacao">
+    <div class="offcanvas-header painelTopo_cabecalho">
+      <h2 class="offcanvas-title painelTopo_titulo" id="tituloPainelAtivacao">Seja Bem-Vindo!</h2>
+      <button type="button" class="painelTopo_botaoFechar" data-bs-dismiss="offcanvas" aria-label="Fechar ativação">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <div class="offcanvas-body painelTopo_corpo">
+      <div id="alertaAtivacao" class="painelTopo_alertas"></div>
+
+      <p id="textoPainelAtivacao" class="painelTopo_texto">
+        Um código de ativação foi enviado para o seu e-mail.
+      </p>
+
+      <form
+        id="formularioAtivacao"
+        class="formularioAtivacao"
+        data-acaoEnvio="ativar"
+        data-acaoNovoCodigo="ReGerarCodigo"
+        novalidate
+      >
+
+        <div class="form-floating campoTexto">
+          <input
+            type="text"
+            id="inputCodigoAtivacao"
+            name="cod"
+            class="form-control"
+            placeholder="Código de Ativação"
+            autocomplete="one-time-code"
+            aria-describedby="textoPainelAtivacao"
+            required
+          />
+          <label for="inputCodigoAtivacao">Código de Ativação</label>
+        </div>
+
+        <div class="d-grid gap-3 mt-4">
+          <button type="submit" id="botaoAtivarConta" class="btn botaoBase botaoBase--primario">
+            Ativar
+          </button>
+          <button type="button" id="botaoGerarCodigo" class="btn botaoBase botaoBase--primario">
+            Gerar código
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <div class="offcanvas offcanvas-top painelTopo painelLogin" tabindex="-1" id="painelLogin" aria-labelledby="tituloPainelLogin">
+    <div class="offcanvas-header painelTopo_cabecalho">
+      <h2 class="offcanvas-title painelTopo_titulo" id="tituloPainelLogin">Seja Bem-Vindo de Volta!</h2>
+      <button type="button" class="painelTopo_botaoFechar" data-bs-dismiss="offcanvas" aria-label="Fechar login">
+        <span class="material-symbols-outlined" aria-hidden="true">close</span>
+      </button>
+    </div>
+
+    <div class="offcanvas-body painelTopo_corpo">
+      <div id="alertaLogin" class="painelTopo_alertas"></div>
+
+      <p id="textoPainelLogin" class="painelTopo_texto">
+        Entre para poder agendar suas consultas.
+      </p>
+
+      <form id="formularioLogin" class="formularioLogin" data-acaoEnvio="login" novalidate>
+
+        <div class="form-floating campoTexto">
+          <input
+            type="email"
+            id="inputEmailLogin"
+            name="email"
+            class="form-control"
+            placeholder="E-mail"
+            autocomplete="email"
+            required
+          />
+          <label for="inputEmailLogin">E-mail</label>
+        </div>
+
+        <div class="campoTexto campoSenha">
+          <div class="form-floating">
+            <input
+              type="password"
+              id="inputSenhaLogin"
+              name="senha"
+              class="form-control"
+              placeholder="Senha"
+              autocomplete="current-password"
+              required
+            />
+            <label for="inputSenhaLogin">Senha</label>
+          </div>
+          <button
+            type="button"
+            id="botaoVisibilidadeSenhaLogin"
+            class="campoSenha_botaoVisibilidade"
+            aria-label="Mostrar senha"
+            aria-controls="inputSenhaLogin"
+            aria-pressed="false"
+          >
+            <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+          </button>
+        </div>
+
+        <div class="d-grid mt-4">
+          <button type="submit" id="botaoLogarCliente" class="btn botaoBase botaoBase--primario">
+            Logar
+          </button>
+        </div>
+
+      </form>
+
+      <p class="textoSmall text-center mt-3 mb-0">
+        Ainda não tem conta?
+        <a href="index.php?uri=cadastroCliente" id="linkCadastroPainelLogin" data-acao="abrirCadastroSimples">Faça o cadastro</a>
+      </p>
     </div>
   </div>
 

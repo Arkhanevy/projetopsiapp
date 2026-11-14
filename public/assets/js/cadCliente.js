@@ -1,5 +1,3 @@
-console.log("JS cadCliente carregado");
-
 (function ($, Utilitarios) {
   "use strict";
 

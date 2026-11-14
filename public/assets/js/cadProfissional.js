@@ -1,5 +1,3 @@
-console.log("JS cadProfissional carregado");
-
 (function ($, Utilitarios) {
   "use strict";
 
