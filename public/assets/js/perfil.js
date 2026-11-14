@@ -5,6 +5,20 @@
 
   var urlServico = "index.php?uri=servico";
 
+  // O backend às vezes imprime avisos do PHP antes do JSON. Descarta tudo que vem antes do JSON.
+  function extrairJson(texto) {
+    var conteudo = String(texto || "");
+    var inicio = conteudo.search(/\{\s*"(sucesso|logado)"/);
+
+    if (inicio === -1) {
+      inicio = conteudo.indexOf("{");
+    }
+    if (inicio > 0) {
+      return conteudo.slice(inicio);
+    }
+    return conteudo;
+  }
+
   var papeis = {
 
     profissional: {
@@ -75,6 +89,7 @@
         editarBio: { acao: { profissional: "atualizar" }, disponivel: true },
         editarLocalizacao: { acao: "editarLocalizacao",  disponivel: false },
         listarVinculos:    { acao: "listarVinculos",     disponivel: false },
+        listarServicosClinica: { url: "index.php?uri=clinica", acao: "servicosClinica", disponivel: false },
 
         vincular:          { acao: "vincular",           disponivel: false },
         desvincular:       { acao: "desvincular",        disponivel: false }
@@ -87,6 +102,7 @@
       perfil: null,
       horarios: [],
       servicos: [],
+      servicosClinica: [],
       vinculoBuscado: null,
       vinculoSelecionado: null,
       vinculoParaDesvincular: null,
@@ -308,6 +324,10 @@
         method: "POST",
         dataType: tipoResposta || "json"
       };
+
+      if (opcoes.dataType === "json") {
+        opcoes.dataFilter = extrairJson;
+      }
 
       if (typeof FormData !== "undefined" && dados instanceof FormData) {
         dados.append("acao", acao);
@@ -559,6 +579,7 @@
 
       if (this.ehClinica()) {
         this.renderizarLocalizacao();
+        this.carregarServicosClinica();
       } else {
         this.renderizarServicos();
       }
@@ -596,6 +617,63 @@
       });
 
       this.alternarListaOuVazio("servicos", servicos.length > 0);
+    },
+
+    carregarServicosClinica: function () {
+      var self = this;
+
+      if (!this.contratoDisponivel("listarServicosClinica")) {
+        this.estado.servicosClinica = [];
+        this.renderizarServicosClinica();
+        $('[data-campo="textoServicosClinicaVazio"]').text("Informação ainda não disponível");
+        return;
+      }
+
+      var dadosServicos;
+      if (this.ehVisitante()) {
+        dadosServicos = { idPerfil: this.estado.alvo.id };
+      } else {
+        dadosServicos = null;
+      }
+      this.chamarContrato("listarServicosClinica", dadosServicos)
+        .done(function (resposta) {
+          if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
+            self.estado.servicosClinica = resposta.dados;
+          } else {
+            self.estado.servicosClinica = [];
+            self.exibirAviso("Não foi possível carregar os serviços da clínica.", "erro");
+          }
+          self.renderizarServicosClinica();
+        })
+        .fail(function () {
+          self.estado.servicosClinica = [];
+          self.renderizarServicosClinica();
+          self.exibirAviso("Não foi possível carregar os serviços da clínica.", "erro");
+        });
+    },
+
+    renderizarServicosClinica: function () {
+      var self = this;
+      var $corpo = $('[data-lista="servicosClinica"]').empty();
+      var servicos = this.estado.servicosClinica;
+
+      $.each(servicos, function (_, servico) {
+        var $linha = self.clonarModelo("modeloLinhaServicoClinica");
+        var $dias = $linha.find('[data-campo="diasServico"]');
+
+        $linha.find('[data-campo="nomeServico"]').text(servico.ser_nome);
+        $linha.find('[data-campo="profissionalServico"]').text(servico.pro_nome || "—");
+        $linha.find('[data-campo="valorServico"]').text(self.formatarMoeda(servico.ser_val));
+        $linha.find('[data-campo="duracaoServico"]').text(servico.ser_dur + " min");
+
+        $.each(self.separarDias(servico.ser_dia), function (_, indice) {
+          $dias.append($("<div>").text(nomesDias[indice]));
+        });
+
+        $corpo.append($linha);
+      });
+
+      this.alternarListaOuVazio("servicosClinica", servicos.length > 0);
     },
 
     renderizarHorarios: function () {
@@ -1001,7 +1079,6 @@
         desc: $.trim($("#campoDescricaoServico").val()),
         dur: $.trim($("#campoDuracaoServico").val()),
         inter: $.trim($("#campoIntervaloServico").val()),
-        stat: "ativo",
 
         loc: 1
       };

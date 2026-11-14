@@ -33,7 +33,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
 global $rootPath; // é necessário global pra usar $rootPath de '/index.php'
 global $config;   // é necessário global pra usar $config de '/index.php'
-define("BASE_URL", "/ProjetoExemplo/");
+
 
 
 // Arquivo de configurações de rotas
@@ -68,18 +68,18 @@ $config['database']['schema']	= 'administrador_projetopsi';
 $config['database']['user']		= 'administrador_projetopsi';
 $config['database']['pass']		= 'EMPprojetopsi';
 $config['database']['port']		= '3306';*/
-
+/*
 $config['database']['host']		= 'localhost';
 $config['database']['schema']	= 'dbelmo';
 $config['database']['user']		= 'root';
-$config['database']['pass']		= 'Ph041278*';
-$config['database']['port']		= '3306';
-/*
+$config['database']['pass']		= '';
+$config['database']['port']		= '3306';*/
+
 $config['database']['host']		= 'localhost';
 $config['database']['schema']	= 'dbelmo';
 $config['database']['user']		= 'tcc_app';//'tcc_app';
 $config['database']['pass']		= 'tcc@2026';//'tcc@2026';
-$config['database']['port']		= '3306';*/
+$config['database']['port']		= '3306';
 
 $config['email']['host']	    = 'sandbox.smtp.mailtrap.io';
 $config['email']['port']	    =  2525;

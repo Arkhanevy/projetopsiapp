@@ -1,5 +1,3 @@
-console.log("JS loginClinica carregado");
-
 (function ($, Utilitarios) {
   "use strict";
 

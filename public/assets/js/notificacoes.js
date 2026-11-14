@@ -6,23 +6,34 @@
     configuracao: {
 
       papeis: {
-        cliente:        { url: "index.php?uri=cliente" },
-        clienteSimples: { url: "index.php?uri=cliente" },
-        profissional:   { url: "index.php?uri=profissional" },
-        clinica:        { url: "index.php?uri=clinica" }
+        cliente:      { url: "index.php?uri=cliente" },
+        profissional: { url: "index.php?uri=profissional" },
+        clinica:      { url: "index.php?uri=clinica" }
       },
 
       hrefAgendaPorTipo: {
         cliente: "index.php?uri=consultasCli",
-        clienteSimples: "index.php?uri=consultasCli",
         profissional: "index.php?uri=agendaProfissional",
         clinica: "index.php?uri=agendaClinica"
       },
 
       contratos: {
-        listarNotificacoes:    { acao: "listarNotificacoes",    disponivel: false },
+        // O backend (cliente/profissional/clinica controller) trata a ação "notificação" (com acento).
+        listarNotificacoes:    { acao: "notificação", disponivel: true },
+        // O backend ainda não tem ação para marcar como lida.
         marcarNotificacaoLida: { acao: "marcarNotificacaoLida", disponivel: false }
       },
+
+      // notif_tipo gravado pelo backend (ver comentário em models/notificacao.php).
+      tiposNotificacao: {
+        "1": { titulo: "Nova solicitação de consulta", exibirLinkConsultas: true },
+        "2": { titulo: "Consulta reagendada",          exibirLinkConsultas: true },
+        "3": { titulo: "Consulta aceita",              exibirLinkConsultas: true },
+        "4": { titulo: "Consulta rejeitada",           exibirLinkConsultas: true },
+        "5": { titulo: "Consulta cancelada",           exibirLinkConsultas: true }
+      },
+      tituloPadrao: "Notificação",
+      tamanhoResumo: 100,
 
       textos: {
         naoLogado: "Entre na sua conta para ver suas notificações.",
@@ -240,21 +251,31 @@
 
     normalizarNotificacao: function (item) {
       item = item || {};
+      var configuracao = this.configuracao;
       var idNotificacao;
-      if (item.idNotificacao) {
-        idNotificacao = String(item.idNotificacao);
+      if (item.notif_id) {
+        idNotificacao = String(item.notif_id);
       } else {
         idNotificacao = "";
       }
+
+      var tipo = String(item.notif_tipo || "");
+      var infoTipo = configuracao.tiposNotificacao[tipo] || {};
+      var mensagem = String(item.notif_msg || "");
+      var resumo = mensagem;
+      if (resumo.length > configuracao.tamanhoResumo) {
+        resumo = resumo.substring(0, configuracao.tamanhoResumo).replace(/\s+\S*$/, "") + "…";
+      }
+
       return {
         id: idNotificacao,
-        titulo: String(item.tituloNotificacao || ""),
-        resumo: String(item.resumoNotificacao || ""),
-        mensagem: String(item.mensagemNotificacao || ""),
-        data: String(item.dataNotificacao || ""),
-        tipo: String(item.tipoNotificacao || ""),
-        lida: this.valorVerdadeiro(item.lida),
-        exibirLinkConsultas: this.valorVerdadeiro(item.exibirLinkConsultas)
+        titulo: infoTipo.titulo || configuracao.tituloPadrao,
+        resumo: resumo,
+        mensagem: mensagem,
+        data: String(item.notif_data || ""),
+        tipo: tipo,
+        lida: this.valorVerdadeiro(item.notif_stat),
+        exibirLinkConsultas: !!infoTipo.exibirLinkConsultas
       };
     },
 

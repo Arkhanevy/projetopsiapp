@@ -1,5 +1,3 @@
-console.log("JS loginCliente carregado");
-
 (function ($, Utilitarios) {
   "use strict";
 
@@ -7,7 +5,7 @@ console.log("JS loginCliente carregado");
 
     configuracao: {
       urlCliente: "index.php?uri=cliente",
-      urlPerfil: "index.php?uri=perfil"
+      urlBuscar: "index.php?uri=buscar"
     },
 
     elementos: {},
@@ -95,7 +93,7 @@ console.log("JS loginCliente carregado");
         $botao.prop("disabled", false).html("Logar");
         if (resposta.sucesso === true) {
           self.mostrarAlert("Login realizado com sucesso!", "success");
-          window.location.href = self.configuracao.urlPerfil;
+          window.location.href = self.configuracao.urlBuscar;
         } else {
           self.mostrarAlert(
             resposta.mensagem || "Não foi possível realizar o login.", "danger"

@@ -233,7 +233,7 @@
 
         var idCliente = registro.agnd_cli ? registro.agnd_cli : null;
         var idClinica = registro.agnd_clin ? registro.agnd_clin : null;
-        var estadoConsulta = registro.agnd_estado || ESTADO_POR_STATUS_BANCO[registro.agnd_stat] || null;
+        var estadoConsulta = ESTADO_POR_STATUS_BANCO[registro.agnd_stat] || null;
 
         if (!this.estado.avisoCamposAusentesExibido && !estadoConsulta) {
           this.estado.avisoCamposAusentesExibido = true;
@@ -256,7 +256,7 @@
           horaInicio: String(registro.agnd_hrIni || "").slice(0, 5),
           preco: (registro.ser_val === undefined || registro.ser_val === null || isNaN(preco)) ? null : preco,
           estadoConsulta: estadoConsulta,
-          solicitadoPor: registro.agnd_solicitadoPor || (idCliente ? "cliente" : "profissionalClinica")
+          solicitadoPor: idCliente ? "cliente" : "profissionalClinica"
         };
       },
 

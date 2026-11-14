@@ -24,10 +24,15 @@
 
   var STATUS_BANCO = {
     esperando: "pendente",
-    aceita: "agendada",
-    desmarcado: "cancelada",
-    cancelada: "cancelada"
+    aceita: "agendada"
   };
+
+  var NOMES_MES_COMPLETO = [
+    "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
+  ];
+
+  var TIPOS_USUARIO_PERMITIDOS = ["cliente", "clienteSimples"];
 
   var moduloConsultasCli = {
 
@@ -41,10 +46,45 @@
 
     elementos: {},
 
+    consultasPorId: {},
+
     iniciar: function () {
       this.cachearElementos();
       this.registrarEventos();
+    },
+
+    tratarSessao: function (informacoes) {
+      var tipoValido = informacoes && $.inArray(informacoes.tipoUsuario, TIPOS_USUARIO_PERMITIDOS) !== -1;
+
+      if (!informacoes || !informacoes.logado || !tipoValido) {
+        this.exibirModalSessaoExpirada();
+        return;
+      }
+
       this.buscarConsultas();
+    },
+
+    formatarDataHora: function (dataBanco, horaBanco) {
+      var partes = String(dataBanco || "").split("-");
+      var hora = String(horaBanco || "").slice(0, 5);
+      var dia = parseInt(partes[2], 10);
+      var mes = parseInt(partes[1], 10) - 1;
+
+      if (!dia || isNaN(mes) || !NOMES_MES_COMPLETO[mes]) {
+        return "—";
+      }
+
+      return dia + " de " + NOMES_MES_COMPLETO[mes] + (hora ? ", " + hora : "");
+    },
+
+    formatarPreco: function (valor) {
+      var numero = Number(valor);
+
+      if (valor === undefined || valor === null || valor === "" || isNaN(numero)) {
+        return "";
+      }
+
+      return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }).replace(/\s/g, "");
     },
 
 
@@ -72,13 +112,17 @@
     registrarEventos: function () {
       var self = this;
 
+      $(document).on("sessaoNavegacaoDefinida", function (evento, informacoes) {
+        self.tratarSessao(informacoes);
+      });
+
       this.elementos.$botaoRealizarLoginSessao.on("click", function () {
         window.location.href =
-          self.configuracao.urlLogin + "?redirecionar=" + encodeURIComponent(window.location.href);
+          self.configuracao.urlLogin + "&redirecionar=" + encodeURIComponent(window.location.href);
       });
 
       this.elementos.$grade.on("click", ".botaoCancelarConsulta", function () {
-        self.abrirModalConfirmacao($(this).data("consultaId"), $(this).data("nomeServico"));
+        self.abrirModalConfirmacao($(this).attr("data-idConsulta"), $(this).attr("data-nomeServico"));
       });
 
       this.elementos.$botaoConfirmarCancelamento.on("click", function () {
@@ -114,15 +158,25 @@
             return;
           }
 
+          self.consultasPorId = {};
+
           var consultas = (resposta.dados || []).map(function (c) {
-            return {
+            var consulta = {
               id: c.agnd_id,
+              idProfissional: c.agnd_pro,
+              idCliente: c.agnd_cli,
+              idClinica: c.agnd_clin,
+              idServico: c.agnd_ser,
               status: STATUS_BANCO[c.agnd_stat] || "pendente",
-              nomeServico: c.ser_nome,
-              nomeProfissional: c.pro_nome,
+              nomeServico: c.ser_nome || "",
+              nomeProfissional: c.pro_nome || "—",
               nomeClinica: c.clin_nome || "—",
-              dataHora: c.agnd_dt + " " + c.agnd_hrIni
+              dataHora: self.formatarDataHora(c.agnd_dt, c.agnd_hrIni),
+              preco: self.formatarPreco(c.ser_val)
             };
+
+            self.consultasPorId[String(consulta.id)] = consulta;
+            return consulta;
           });
           if (!consultas.length) {
             self.exibirEstadoVazio();
@@ -176,7 +230,7 @@
       var infoStatus = this.obterInfoStatus(consulta.status);
 
       var $card = $('<article class="cartaoConsulta"></article>').attr(
-        "data-consulta-id",
+        "data-idConsulta",
         consulta.id
       );
 
@@ -184,7 +238,9 @@
 
       var $linha = $('<div class="linhaConsulta d-flex justify-content-between"></div>');
       $linha.append($("<p class=\"dataHoraConsulta\"></p>").text(consulta.dataHora));
-      $linha.append($("<p class=\"precoConsulta\"></p>").text(consulta.preco));
+      if (consulta.preco) {
+        $linha.append($("<p class=\"precoConsulta\"></p>").text(consulta.preco));
+      }
       $card.append($linha);
 
       $card.append(
@@ -207,8 +263,8 @@
           $(
             '<button type="button" class="botaoCancelarConsulta botaoCancelar btn rounded-pill"></button>'
           )
-            .attr("data-consulta-id", consulta.id)
-            .attr("data-nome-servico", consulta.nomeServico)
+            .attr("data-idConsulta", consulta.id)
+            .attr("data-nomeServico", consulta.nomeServico)
             .append('<span class="material-symbols-outlined" aria-hidden="true">cancel</span> Cancelar')
         );
       }
@@ -248,14 +304,21 @@
     },
 
     abrirModalConfirmacao: function (idConsulta, nomeServico) {
-      this.elementos.$modalConfirmar.data("consultaId", idConsulta);
+      this.elementos.$modalConfirmar.data("idConsulta", idConsulta);
       this.elementos.$nomeConsultaParaCancelar.text(nomeServico);
       Utilitarios.exibirModal(this.elementos.$modalConfirmar);
     },
 
     confirmarCancelamento: function () {
       var self = this;
-      var idConsulta = this.elementos.$modalConfirmar.data("consultaId");
+      var idConsulta = this.elementos.$modalConfirmar.data("idConsulta");
+      var consulta = this.consultasPorId[String(idConsulta)];
+
+      if (!consulta) {
+        this.anunciar("Não foi possível cancelar a consulta. Tente novamente.");
+        Utilitarios.esconderModal(this.elementos.$modalConfirmar);
+        return;
+      }
 
       this.elementos.$botaoConfirmarCancelamento.prop("disabled", true);
 
@@ -263,7 +326,14 @@
         url: this.configuracao.urlCancelarConsulta,
         method: "POST",
         dataType: "json",
-        data: { acao: "cancelar",  id: idConsulta }
+        data: {
+          acao: "cancelar",
+          agnd_id: consulta.id,
+          agnd_pro: consulta.idProfissional,
+          agnd_cli: consulta.idCliente,
+          agnd_clin: consulta.idClinica || 0,
+          agnd_ser: consulta.idServico
+        }
       })
         .done(function (resposta) {
           if (resposta && resposta.sucesso) {
@@ -276,7 +346,11 @@
 
             self.anunciar("Consulta cancelada com sucesso.");
           } else {
-            self.anunciar("Não foi possível cancelar a consulta. Tente novamente.");
+            var mensagemFalha = "Não foi possível cancelar a consulta. Tente novamente.";
+            if (resposta && resposta.mensagem) {
+              mensagemFalha = "Não foi possível cancelar a consulta. " + resposta.mensagem;
+            }
+            self.anunciar(mensagemFalha);
           }
           Utilitarios.esconderModal(self.elementos.$modalConfirmar);
         })
@@ -291,7 +365,7 @@
 
     atualizarCardComoCancelado: function (idConsulta) {
       var infoStatus = this.obterInfoStatus("cancelada");
-      var $card = this.elementos.$grade.find('[data-consulta-id="' + idConsulta + '"]');
+      var $card = this.elementos.$grade.find('[data-idConsulta="' + idConsulta + '"]');
 
       if (!$card.length) {
         return null;

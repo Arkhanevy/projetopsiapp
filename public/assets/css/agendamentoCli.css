@@ -44,9 +44,9 @@
     "alerta"
     "valor"
     "profissional"
-    "localizacao"
     "calendario"
     "horario"
+    "sala"
     "botoes";
 }
 
@@ -60,8 +60,8 @@
       "alerta       alerta"
       "calendario   valor"
       "calendario   profissional"
-      "calendario   localizacao"
       "calendario   horario"
+      "calendario   sala"
       "calendario   botoes";
   }
 }
@@ -76,7 +76,7 @@
 
 .areaProfissional { grid-area: profissional; }
 
-.areaLocalizacao { grid-area: localizacao; }
+.areaSala { grid-area: sala; }
 
 .areaCalendario { grid-area: calendario; }
 
@@ -250,9 +250,14 @@
   cursor: pointer;
 }
 
-.calendarioBotaoNavegacao:hover {
+.calendarioBotaoNavegacao:hover:not(:disabled) {
   background-color: var(--corBotoes);
   color: var(--corBranco);
+}
+
+.calendarioBotaoNavegacao:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .calendarioTitulo {
@@ -426,4 +431,22 @@
   background-color: var(--corFundoClaro);
   background-image: none;
   animation: none;
+}
+
+.painelCadastroSimples,
+.painelAtivacao,
+.painelLogin {
+  border-radius: 0 0 var(--raioMedio) var(--raioMedio);
+}
+
+@media (min-width: 768px) {
+
+  .painelCadastroSimples,
+  .painelAtivacao,
+  .painelLogin {
+    width: 100%;
+    max-width: 480px;
+    margin-inline: auto;
+    border-inline: var(--larguraBorda) solid var(--corBordas);
+  }
 }

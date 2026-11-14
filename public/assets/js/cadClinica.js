@@ -1,5 +1,3 @@
-console.log("JS cadClinica carregado");
-
 (function ($, Utilitarios) {
   "use strict";
 
@@ -319,8 +317,6 @@ console.log("JS cadClinica carregado");
         dataType: "json"
       })
       .done(function (resposta) {
-            console.log("Resposta do cadastro:", resposta);
-            console.log("Tipo de sucesso:", typeof resposta.sucesso);
           $botao.prop("disabled", false).html("Ativar");
 
           if (resposta.sucesso === true) {

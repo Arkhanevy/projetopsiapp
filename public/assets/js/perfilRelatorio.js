@@ -29,7 +29,7 @@
     carregarHistorico: {
         url: "index.php?uri=relatorio",
         acao: "historico",
-        disponivel: false
+        disponivel: true
     }
     },
 
@@ -337,6 +337,32 @@
       }
     },
 
+    dentroDoPeriodo: function (dataItem, periodo) {
+      var partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(dataItem || ""));
+      if (!partes) {
+        return false;
+      }
+
+      var hoje = new Date();
+      var dia = new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]));
+      var inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+
+      if (periodo === "anual") {
+        return dia.getFullYear() === hoje.getFullYear();
+      }
+      if (periodo === "mensal") {
+        return dia.getFullYear() === hoje.getFullYear() && dia.getMonth() === hoje.getMonth();
+      }
+      if (periodo === "semanal") {
+        var inicioSemana = new Date(inicioHoje);
+        inicioSemana.setDate(inicioHoje.getDate() - inicioHoje.getDay());
+        var fimSemana = new Date(inicioSemana);
+        fimSemana.setDate(inicioSemana.getDate() + 7);
+        return dia >= inicioSemana && dia < fimSemana;
+      }
+      return dia.getTime() === inicioHoje.getTime();
+    },
+
     definirEstadoHistorico: function (nome) {
       var e = this.elementos;
 
@@ -358,13 +384,17 @@
         return;
       }
 
-      nucleo.chamarContrato("carregarHistorico", { periodo: this.periodoDo(this.elementos.$campoPeriodoHistorico), data: this.dataDeHoje() })
+      nucleo.chamarContrato("carregarHistorico", null)
         .done(function (resposta) {
           if (numeroPedido !== self.estado.pedidoHistorico) {
             return;
           }
           if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
-            self.renderizarHistorico(resposta.dados);
+            var periodo = self.periodoDo(self.elementos.$campoPeriodoHistorico);
+            var itens = $.grep(resposta.dados, function (item) {
+              return self.dentroDoPeriodo(item.agnd_dt, periodo);
+            });
+            self.renderizarHistorico(itens);
           } else {
             self.definirEstadoHistorico("erro");
           }
@@ -384,11 +414,11 @@
       $.each(itens, function (_, item) {
         var $linha = nucleo.clonarModelo("modeloLinhaHistorico");
 
-        $linha.find('[data-campo="clienteConsulta"]').text(item.cliente || "");
-        $linha.find('[data-campo="servicoConsulta"]').text(item.servico || "");
-        $linha.find('[data-campo="profissionalConsulta"]').text(item.profissional || "");
-        $linha.find('[data-campo="dataConsulta"]').text(self.formatarData(item.data));
-        $linha.find('[data-campo="horarioConsulta"]').text(nucleo.formatarHora(item.horario));
+        $linha.find('[data-campo="clienteConsulta"]').text(item.cli_nome || "");
+        $linha.find('[data-campo="servicoConsulta"]').text(item.ser_nome || "");
+        $linha.find('[data-campo="profissionalConsulta"]').text(item.pro_nome || "");
+        $linha.find('[data-campo="dataConsulta"]').text(self.formatarData(item.agnd_dt));
+        $linha.find('[data-campo="horarioConsulta"]').text(nucleo.formatarHora(item.agnd_hrIni || item.agnd_hrini));
 
         nucleo.aplicarPerfilDeEm($linha);
         $corpo.append($linha);
@@ -409,7 +439,7 @@
         if (!self.estado.carregado) {
           self.estado.carregado = true;
           self.carregarResumo();
-          //self.carregarHistorico();
+          self.carregarHistorico();
         }
       });
 
@@ -417,14 +447,14 @@
         self.carregarResumo();
       });
       e.$campoPeriodoHistorico.on("opcaoSelecionada", function () {
-        //self.carregarHistorico();
+        self.carregarHistorico();
       });
 
       $(document).on("click", '[data-acao="tentarNovamenteRelatorio"]', function () {
         self.carregarResumo();
       });
       $(document).on("click", '[data-acao="tentarNovamenteHistorico"]', function () {
-        //self.carregarHistorico();
+        self.carregarHistorico();
       });
     }
   };

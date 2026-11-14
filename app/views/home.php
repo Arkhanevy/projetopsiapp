@@ -48,15 +48,30 @@
   </nav>
 
   <div class="fundo">
+    
+    <!--  <main id="conteudoHome" class="conteudoHome">
 
-
+      <section class="secaoHome" aria-labelledby="tituloHome">
     <main id="conteudoHome">
       <section class="mb-5" aria-labelledby="tituloPesquisa">
         <h1 id="tituloPesquisa" class="visually-hidden">Pesquisar serviços e profissionais</h1>
 
         <div class="input-group campoPesquisa campoPesquisaHome" role="search">
           <input class="form-control campoPesquisa_input" type="search" placeholder="Pesquise" aria-label="Pesquisar">
-          <button type="button" class="btn campoPesquisa_botaoIcone" aria-label="Buscar">
+          <button type="button" class="btn campoPesquisa_botaoIcone" aria-label="Homer">
+            <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          </button>
+        </div>
+      </section>
+    </main>-->
+
+    <main id="conteudoHome" class="conteudoHome">
+      <section class="secaoHome" aria-labelledby="tituloHome">
+        <h1 id="tituloPesquisa" class="visually-hidden">Pesquisar serviços e profissionais</h1>
+
+        <div class="input-group campoPesquisa campoPesquisaHome" role="search">
+          <input class="form-control campoPesquisa_input" type="search" placeholder="Pesquise" aria-label="Pesquisar">
+          <button type="button" class="btn campoPesquisa_botaoIcone" aria-label="Homer">
             <span class="material-symbols-outlined" aria-hidden="true">search</span>
           </button>
         </div>

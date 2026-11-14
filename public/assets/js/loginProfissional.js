@@ -1,5 +1,3 @@
-console.log("JS loginProfissional carregado");
-
 (function ($, Utilitarios) {
   "use strict";
 
