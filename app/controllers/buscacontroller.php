@@ -64,7 +64,7 @@ switch ($acao){
             ];
         }
         $busca = new busca($tipo, $campos, $primary);
-        $mostrar = $busca->Buscar($_POST['busca'],$_POST['valor']??'');
+        $mostrar = $busca->Buscar($_POST['busca'],$_POST['valor']??'',$_POST['ser_pro'] ?? '');
         
         echo json_encode($mostrar);
         exit;

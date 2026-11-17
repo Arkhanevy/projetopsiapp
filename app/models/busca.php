@@ -15,7 +15,7 @@ class busca {
         $this->campos = $campos;
         $this->primary = $primary;
     }
-    public function Buscar($busca,$valor){
+    public function Buscar($busca,$valor,$pro){
         $camposStr = implode(',',$this->campos);
         $where = new Where();
         if ($this->table != 'servico' && $this->table != 'profissional' && $this->table != 'clinica') {
@@ -51,7 +51,9 @@ class busca {
             
         } else {
             if ($this->table === 'profissional') {
-                $where->addLike('AND', 'pro_nome', $busca);
+                if (!empty($pro)) {
+                    $where->addCondition('AND', 'ser_pro', '=', $pro);
+                }else {$where->addLike('AND', 'pro_nome', $busca);}
                 $where = $where->build();
             }
             if ($this->table === 'clinica') {
