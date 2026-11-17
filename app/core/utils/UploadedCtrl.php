@@ -20,8 +20,7 @@ class UploadedCtrl {
      * @param string $shareMails A lista de emails que podem acessar o arquivo.
      * @return string Retorna o nome do arquivo.
      */
-    public function registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails, $owertipo = null,$titulo, $tipo) {
-        $owertipo = $owertipo ?? ($_SESSION['usuario']['tipoUsuario'] ?? null);
+    public function registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails, $owertipo,$titulo, $tipo) {
         $values = [$owner, $filePath, $accessCtrl, $shareMails, $owertipo, $titulo, $tipo];
         $this->dbQuery->insert($values);
         return $filePath;

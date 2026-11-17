@@ -82,11 +82,11 @@ $config['database']['user']		= 'tcc_app';//'tcc_app';
 $config['database']['pass']		= 'tcc@2026';//'tcc@2026';
 $config['database']['port']		= '3306';*/
 
-$config['email']['host']	    = 'sandbox.smtp.mailtrap.io';
-$config['email']['port']	    =  2525;
-$config['email']['username']	= '327fb0d82bfa35';
-$config['email']['password']	= 'a562d06e63e067';
-$config['email']['from'] = 'nao-responda@podopsi.com';
+$config['email']['host']     = 'mail.ifhost.gru.br';
+$config['email']['port']     = 465;
+$config['email']['username'] = 'naorespondaprojetoa3@ifhost.gru.br';
+$config['email']['password'] = 'Yk^=$kh[-quO-BCK';
+$config['email']['from']     = 'naorespondaprojetoa3@ifhost.gru.br';
     
 $config['path']['routes']	  = $routersFile;
 $config['path']['root']	      = $rootPath;

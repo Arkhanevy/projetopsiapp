@@ -141,7 +141,7 @@ class usuario {
             $camposStr = implode(',', $this->campos);
             $codigo = new DBQuery($this->table, $camposStr, $this->primary);
             $codigo->update($dados);
-            /*
+            
             $mail = new Mail($dados[0], $assunto, $body);
             $mail ->send();
             if (!$mail->send()) {
@@ -149,7 +149,7 @@ class usuario {
                     'sucesso'  => false,
                     'mensagem' => $mail->getLastError()
                 ];
-            }*/
+            }
             return ['sucesso' => true];
         }catch (\Exception $e) {
             return [
