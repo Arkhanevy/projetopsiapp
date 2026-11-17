@@ -224,5 +224,38 @@ class busca {
         }
     }
     
+    public function permiçãoPro($pc) {
+        $camposServ = implode(',',$this->campos);
+        $mostrar = new DBQuery($this->table, $camposServ,$this->primary );
+        $where = new Where();
+        $where->addCondition('AND', 'perm_pc', '=',$pc);
+        $where = $where->build();
+            try {
+                $resultado = $mostrar->selectWhere($where);
+            
+                if ($resultado) {
+                    return [
+                        'sucesso' => true,
+                        'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
+                    ];
+                }else {
+                    return [
+                        'sucesso' => false,
+                        'erro' => 'Erro ao resgatar informação'
+                    ];
+                }
+        } catch (\InvalidArgumentException $e) {
+            return [
+                'sucesso' => false,
+                'erro' => 'Erro de validação: ' . $e->getMessage()
+            ];
+        } catch (\Exception $e) {
+            return [
+                'sucesso' => false,
+                'erro' => 'Erro no banco: ' . $e->getMessage()
+            ];
+        }
+    }
+    
     
 }

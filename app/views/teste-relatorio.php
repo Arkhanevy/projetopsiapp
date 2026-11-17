@@ -198,7 +198,7 @@ $('btnLimpar').onclick = async () => {
 
 $('btnTestar').onclick = async () => {
   // Envia a ação 'gerenciarPro' para a rota "busca"
-  const r = await enviar({ acao: 'gerenciarPro', tipo: 'profissional' });
+  const r = await enviar({ acao: 'permisaopro', tipo: 'profissional' });
   mostrarBruto(r);
 
   if (!r.json) { veredito('Resposta não é JSON (veja a resposta bruta: provável erro/warning PHP ou rota errada)', false); desenharTabela([]); return; }

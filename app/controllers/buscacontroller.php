@@ -115,4 +115,22 @@ switch ($acao){
             ]);
         }
         exit;
+    case 'permisaopro':
+        $camposgen = array_merge(['pc_id'], $campos);
+        $busca = new busca('permissoes', ['perm_id','perm_tipo','perm_bin','perm_pc'], 'perm_id');
+        $mostrar = $busca->permiçãoPro($_POST['pc_id']);
+        
+        
+        if ($mostrar['sucesso']) {
+            echo json_encode([
+                'sucesso' => true,
+                'dados' => $mostrar['dados']
+            ]);
+        } else {
+            echo json_encode([
+                'sucesso' => false,
+                'erro' => $mostrar['erro']
+            ]);
+        }
+        exit;
     }
