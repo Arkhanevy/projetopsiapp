@@ -97,4 +97,33 @@ switch ($acao){
             ]);
         }
         exit;
+    case 'gerenciarPro':
+        $busca = new busca($tipo, $campos, $primary);
+        $mostrar= $busca->gerenciarPro($_POST['id']);
+        
+        
+        if ($mostrar['sucesso']) {
+            if ($tipo === 'servico' && !empty($mostrar['dados'])) {
+                $busca = $mostrar['dados'][0];
+                $_SESSION['servico'] = [
+                    'ser_id'    => $busca['ser_id'],
+                    'ser_pro'   => $busca['ser_pro'],
+                    'ser_clin'   => $busca['ser_clin'],
+                    'ser_dur'   => $busca['ser_dur'],
+                    'ser_inter' => $busca['ser_inter'],
+                    'ser_loc'   => $busca['ser_loc']
+                ];
+            }
+            
+            echo json_encode([
+                'sucesso' => true,
+                'dados' => $mostrar['dados']
+            ]);
+        } else {
+            echo json_encode([
+                'sucesso' => false,
+                'erro' => $mostrar['erro']
+            ]);
+        }
+        exit;
     }

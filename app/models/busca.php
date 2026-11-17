@@ -187,22 +187,19 @@ class busca {
     
     
     public function gerenciarPro($clin) {
-        $campos = ['profissional_clinica.pc_id'];
-        $campos[] = $this->campos;
-        $camposStr = implode(',',$campos);
+        $camposStr = $this->gerenciarPro();
         $profissional = new DBQuery('profissional','pro_id,','pro_id');
-        $pc= new DBQuery('profissional_clinica', 'pc_id,pc_pro,pc_clin', 'pc_clin');
+        $pc= new DBQuery('profissional_clinica', $camposStr, 'pc_id');
         
-        $profissional->addJoin('INNER', 'pro_id', $dbQueryJoined, $fieldNameJoined)
-        
+        $pc->addJoin('INNER', 'pc_pro', $profissional, 'pro_id');
         
         $where = new Where();
         
-        $where->addCondition('AND', 'pro_id', '=',$id);
+        $where->addCondition('AND', 'pc_clin', '=',$clin);
 
 
         try {
-            $resultado = $mostrar->selectFiltered($where);
+            $resultado = $pc->selectFiltered($where);
             
             if ($resultado) {
                 return [
