@@ -194,6 +194,11 @@ switch ($acao){
         $listar = $notificacâo->listar();
         echo json_encode($listar);
         exit;
+    case 'lernot':
+        $notificacâo = new notificacao('notificacao', 'not_id,not_stat', 'not_id', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        $lido = $notificacâo->lido($_POST['not_id']);
+        echo json_encode($lido);
+        exit;
     case 'aceitar':
         $aceitar = new servicos();
         $sucesso = $aceitar->aceitar($_POST['agnd_id'], $_POST['agnd_pro']);

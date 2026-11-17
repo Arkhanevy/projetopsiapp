@@ -38,6 +38,17 @@ class notificacao {
         
     }
     
+    public function lido($id){
+        $notificacao = new DBQuery($this->table, $this->campos, $this->primary);
+        $valores = [$id,1];
+        try {
+            $notificacao->update($valores);
+            return ['sucesso' => true];
+        } catch (\Exception $e) {
+            return ['sucesso' => false,'mensagem' => $e->getMessage()];
+        }
+    }
+    
     public function padao($tipo,$msg) {
         $campospd = ['pdnotif_id'];
         $campospd[] = $this->contruircampos($this->usuario, 'pdNotif_');
