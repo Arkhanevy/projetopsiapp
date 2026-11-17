@@ -1,12 +1,12 @@
 <?php
 /*
- * PÁGINA DE TESTE - busca / gerenciarPro
+ * PÁGINA DE TESTE - clinicacontroller / ação "permissao"
  * Use só em ambiente de desenvolvimento. Apague antes de publicar
  * (quem abrir esta página consegue "virar" qualquer clínica).
  *
  * Esta página só monta/mostra a sessão (definir, limpar, ver_sessao).
- * A ação 'gerenciarPro' é enviada para a rota "busca" do Router. A rota é calculada
- * no JS trocando o último trecho da URL por "busca" e pode ser corrigida no campo de endpoint.
+ * A ação 'permissao' é enviada para a rota "clinica" do Router. A rota é calculada
+ * no JS trocando o último trecho da URL por "clinica" e pode ser corrigida no campo de endpoint.
  */
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -38,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['sucesso' => true, 'sessao' => ['usuario' => $_SESSION['usuario'] ?? null]]);
         exit;
     }
-    // Qualquer outra ação não é desta página: ela deve ir para o endpoint (busca).
-    echo json_encode(['sucesso' => false, 'erro' => 'ação inválida nesta página (use o endpoint "busca" para gerenciarPro)']);
+    // Qualquer outra ação não é desta página: ela deve ir para o endpoint (clinica).
+    echo json_encode(['sucesso' => false, 'erro' => 'ação inválida nesta página (use o endpoint "clinica" para a ação permissao)']);
     exit;
 }
 ?><!DOCTYPE html>
@@ -47,77 +47,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Teste - busca / gerenciarPro</title>
+<title>Teste - clinica / permissao</title>
 <style>
   body { font-family: system-ui, sans-serif; max-width: 900px; margin: 24px auto; padding: 0 16px; }
   fieldset { margin-bottom: 16px; border: 1px solid #ccc; border-radius: 6px; }
   label { display: block; margin: 6px 0; font-size: 14px; }
-  input { padding: 4px 6px; margin-left: 6px; }
+  input, select { padding: 4px 6px; margin-left: 6px; }
   button { padding: 6px 12px; margin-right: 6px; cursor: pointer; }
-  table { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: 14px; }
-  th, td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
   pre { background: #f4f4f4; padding: 10px; overflow: auto; max-height: 300px; }
   .ok { color: #0a7a2f; font-weight: bold; } .erro { color: #b00020; font-weight: bold; }
 </style>
 </head>
 <body>
-<h1>Teste: busca → gerenciarPro</h1>
+<h1>Teste: clinica → permissao</h1>
 
 <details>
-  <summary><b>0. Inserts SQL (rode no banco antes)</b></summary>
+  <summary><b>0. Conferir no banco (antes e depois do teste)</b></summary>
   <button id="btnCopiar">Copiar SQL</button>
 <pre id="sql">use dbelmo;
 
-insert into clinica (clin_id, clin_nome, clin_email, clin_user, clin_senha, clin_bio, clin_foto, clin_stat, clin_cnpj, clin_cep, clin_tel) values
-(900, 'Clínica Teste A', 'clinica.a@teste.com', 'clinica_a', 'x', 'Bio clínica A', 'clinA.png', 'ativo', '11111111000191', '07000000', '11911111111'),
-(901, 'Clínica Teste B', 'clinica.b@teste.com', 'clinica_b', 'x', 'Bio clínica B', 'clinB.png', 'ativo', '22222222000191', '07000001', '11922222222');
+-- Veja os registros existentes e escolha um perm_id para testar:
+select * from permissoes;
 
-insert into profissional (pro_id, pro_nome, pro_email, pro_user, pro_senha, pro_bio, pro_foto, pro_dtNasc, pro_stat, pro_CPF, pro_CEP, pro_tel, pro_gen) values
-(901, 'Ana Podóloga',   'ana@teste.com',   'ana_pod',   'x', 'Bio Ana',   'ana.png',   '1990-05-10', 'ativo', '90000000001', '07000000', '11933333331', 'F'),
-(902, 'Bruno Podólogo', 'bruno@teste.com', 'bruno_pod', 'x', 'Bio Bruno', 'bruno.png', '1988-03-22', 'ativo', '90000000002', '07000000', '11933333332', 'M'),
-(903, 'Carla Podóloga', 'carla@teste.com', 'carla_pod', 'x', 'Bio Carla', 'carla.png', '1995-11-01', 'ativo', '90000000003', '07000000', '11933333333', 'F'),
-(904, 'Diego Podólogo', 'diego@teste.com', 'diego_pod', 'x', 'Bio Diego', 'diego.png', '1992-07-15', 'ativo', '90000000004', '07000001', '11933333334', 'M');
+-- Antes e depois de enviar, confira o registro escolhido (troque 1 pelo perm_id):
+select * from permissoes where perm_id = 1;
 
-insert into profissional_clinica (pc_id, pc_pro, pc_clin) values
-(9001, 901, 900),
-(9002, 902, 900),
-(9003, 903, 900),
-(9004, 902, 901),  -- Bruno está nas duas clínicas
-(9005, 904, 901);  -- Diego só na B (não deve aparecer para a 900)
-
--- Esperado clínica 900: pro_id 901, 902, 903
--- Esperado clínica 901: pro_id 902, 904
-
--- LIMPEZA (quando terminar):
--- delete from profissional_clinica where pc_id between 9001 and 9005;
--- delete from profissional where pro_id between 901 and 904;
--- delete from clinica where clin_id in (900, 901);</pre>
+-- Esperado: o campo de status do perm_id enviado muda para o valor enviado.</pre>
 </details>
 
 <fieldset>
   <legend>Configuração</legend>
-  <label>URI do endpoint (rota "busca"): <input id="endpoint" size="40"></label>
-  <small>Se a rota do seu Router for outra, corrija aqui (ex: /projetopsi/busca).</small>
+  <label>URI do endpoint (rota "clinica"): <input id="endpoint" size="40"></label>
+  <small>Se a rota do seu Router for outra, corrija aqui (ex: /projetopsi/clinica).</small>
   <label>ID da clínica (sessão): <input id="idClinica" type="number" value="900"></label>
-  <label>IDs de profissionais esperados (vírgula): <input id="esperados" value="901,902,903" size="30"></label>
+</fieldset>
+
+<fieldset>
+  <legend>Dados enviados para a ação "permissao"</legend>
+  <label>perm_id (precisa existir em permissoes): <input id="permId" type="number" value="1"></label>
+  <label>status: <input id="status" value="1" size="10"></label>
+  <small>Use o mesmo formato que o model permissao espera para o status (ex: 1/0).</small>
+  <label>Resultado esperado:
+    <select id="esperado">
+      <option value="true">sucesso: true</option>
+      <option value="false">sucesso: false (ex: perm_id inexistente)</option>
+    </select>
+  </label>
 </fieldset>
 
 <button id="btnSessao">1. Definir sessão</button>
 <button id="btnVer">Ver sessão</button>
-<button id="btnTestar">2. Testar gerenciarPro</button>
+<button id="btnTestar">2. Testar permissao</button>
 <button id="btnLimpar">Limpar sessão</button>
 
 <h3>Resultado</h3>
 <div id="veredito"></div>
-<div id="tabela"></div>
 <h3>Resposta bruta</h3>
 <pre id="saida">—</pre>
 
 <script>
 const $ = (id) => document.getElementById(id);
 
-/* Troca o último trecho da URL (ex: /projetopsi/teste-relatorio.php -> /projetopsi/busca) */
-$('endpoint').value = location.pathname.replace(/[^\/]*\/?$/, 'busca');
+/* Troca o último trecho da URL (ex: /projetopsi/teste-relatorio.php -> /projetopsi/clinica) */
+$('endpoint').value = location.pathname.replace(/[^\/]*\/?$/, 'clinica');
 const ENDPOINT_PAGINA = location.pathname; // definir, limpar e ver_sessao ficam nesta página
 
 /* Lê o JSON. Se o PHP soltou warning/notice antes do JSON, lê mesmo assim mas marca como "sujo". */
@@ -153,22 +145,6 @@ function mostrarBruto(r) {
   $('saida').textContent = `HTTP ${r.status}${sujo}\n\n` + (r.json ? JSON.stringify(r.json, null, 2) : (r.texto || '(resposta vazia)'));
 }
 
-function desenharTabela(linhas) {
-  const div = $('tabela');
-  div.textContent = '';
-  if (!linhas || !linhas.length) { div.textContent = 'Nenhum registro retornado.'; return; }
-  const cols = Object.keys(linhas[0]);
-  const table = document.createElement('table');
-  const head = table.createTHead().insertRow();
-  cols.forEach(c => { const th = document.createElement('th'); th.textContent = c; head.appendChild(th); });
-  const body = table.createTBody();
-  linhas.forEach(l => {
-    const tr = body.insertRow();
-    cols.forEach(c => { tr.insertCell().textContent = l[c] ?? ''; });
-  });
-  div.appendChild(table);
-}
-
 function veredito(texto, ok) {
   const p = document.createElement('p');
   p.className = ok ? 'ok' : 'erro';
@@ -197,20 +173,18 @@ $('btnLimpar').onclick = async () => {
 };
 
 $('btnTestar').onclick = async () => {
-  // Envia a ação 'gerenciarPro' para a rota "busca"
-  const r = await enviar({ acao: 'permisaopro', tipo: 'profissional' });
+  // Envia a ação 'permissao' para a rota "clinica"
+  const r = await enviar({ acao: 'permissao', perm_id: $('permId').value, status: $('status').value });
   mostrarBruto(r);
 
-  if (!r.json) { veredito('Resposta não é JSON (veja a resposta bruta: provável erro/warning PHP ou rota errada)', false); desenharTabela([]); return; }
-  if (!r.json.sucesso) { veredito('Retornou erro: ' + (r.json.erro ?? r.json.mensagem ?? '?'), false); desenharTabela([]); return; }
+  if (!r.json) { veredito('Resposta não é JSON (veja a resposta bruta: provável erro/warning PHP ou rota errada)', false); return; }
 
-  desenharTabela(r.json.dados);
-  const esperados = $('esperados').value.split(',').map(s => s.trim()).filter(Boolean).sort();
-  const recebidos = (r.json.dados || []).map(d => String(d.pro_id)).sort();
-  const igual = JSON.stringify(esperados) === JSON.stringify(recebidos);
+  const esperado = $('esperado').value === 'true';
+  const obtido = r.json.sucesso === true;
+  const msg = r.json.mensagem ?? r.json.erro ?? '';
   const sujo = r.json.__sujo ? ' (⚠ mas o PHP soltou texto fora do JSON)' : '';
-  veredito(igual ? `OK: retornou exatamente [${recebidos}]${sujo}`
-                 : `DIFERENTE: esperado [${esperados}] / recebido [${recebidos}]${sujo}`, igual && !r.json.__sujo);
+  const ok = obtido === esperado && !r.json.__sujo;
+  veredito((ok ? 'OK' : 'DIFERENTE') + `: esperado sucesso=${esperado}, recebido sucesso=${obtido}` + (msg ? ' — ' + msg : '') + sujo, ok);
 };
 </script>
 </body>

@@ -4,6 +4,7 @@ use models\clinica;
 use models\profissional;
 use models\notificacao;
 use models\download;
+use models\permissao;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -154,7 +155,7 @@ switch ($acao){
         ];
 
         // Instancia o model de notificação (Passando o ID do remetente e o tipo de usuário)
-        $notificacao = new models\notificacao('notificacao', $camposnot, $camposnot[0], $clinId, 'clinica');
+        $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $clinId, 'clinica');
         
         // Dispara o convite (Tipo 6 - ajuste conforme o ID do seu padrao_notif para convites)
         // O destinatário final ($notif_dest) será o profissional ($proId)
@@ -199,6 +200,11 @@ switch ($acao){
         unset($_SESSION['usuario']);
         session_destroy();
         header("Location: /login.php");
+        exit;
+    case 'permissao':
+        $permissao = new permissao('permissoes', 'perm_id,perm_bin', 'perm_id');
+        $atualizar = $permissao->atualizar($_POST['perm_id'], $_POST['status']);
+        echo json_encode($atualizar);
         exit;
     case 'meusArquivos':
         $arquivos = new download();

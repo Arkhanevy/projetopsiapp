@@ -75,5 +75,24 @@ class permissao {
             return true;
         }
    }
+   
+   public function atualizar($id,$bin) {
+       $camposStr = $this->campo;
+       $usuario = new DBQuery($this->table, $camposStr, $this->primary);
+       
+       $valores = [$id,$bin];
+       try {
+           
+           $usuario->update($valores);
+
+           return [
+               'sucesso' => true,
+               'dados' => 'atualizado com sucesso'
+           ];
+       } catch (\Exception $e) {
+           return ['sucesso' => false,
+               'mensagem' => $e->getMessage()];
+       }
+   }
 
 }
