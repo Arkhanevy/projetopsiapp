@@ -7,7 +7,7 @@ use core\database\Where;
 
 class busca {
     private $table = '';
-    private  $campos = '';
+    private  $campos = [];
     private  $primary = '';
     
     public function __construct($table,$campos,$primary) {
@@ -171,7 +171,6 @@ class busca {
 
         
         return implode(', ', array_map(function ($campo) use ($prefixo,$tabela) {
-            $campo = trim($campo);
             
             if (strpos($campo, '.') !== false) {
                 return $campo;
@@ -181,13 +180,13 @@ class busca {
                 }
             
             
-            return $this->tableName . '.' . $campo;
+            return $campo;
         }, $this->campos));
     }
     
     
     public function gerenciarPro($clin) {
-        $camposStr = $this->gerenciarPro();
+        $camposStr = $this->camposGerenciar();
         $profissional = new DBQuery('profissional','pro_id,','pro_id');
         $pc= new DBQuery('profissional_clinica', $camposStr, 'pc_id');
         
