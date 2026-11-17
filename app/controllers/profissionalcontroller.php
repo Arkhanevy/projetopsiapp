@@ -210,7 +210,7 @@ switch ($acao){
             ];
             
             $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-            $notificacâo = $notificacâo->enviar(3, $_POST['agnd_cli'],$_POST['agnd_clin']);
+            $notificacâo = $notificacâo->enviar(3, $_POST['agnd_cli'],$_POST['agnd_clin'] ?? $_POST['agnd_pro']);
             echo json_encode($notificacâo);
             exit;
         }
@@ -280,7 +280,7 @@ switch ($acao){
                 'notif_pro'
             ];
             $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-            $notificacâo = $notificacâo->enviar(4, $_POST['agnd_cli'],$_POST['agnd_clin']);
+            $notificacâo = $notificacâo->enviar(4, $_POST['agnd_cli'],$_POST['agnd_clin'] ?? $_POST['agnd_pro']);
             echo json_encode($notificacâo);
             exit;
         }

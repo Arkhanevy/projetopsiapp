@@ -165,4 +165,68 @@ class busca {
         }
     }
     
+    private function camposGerenciar() {
+        $prefixo = 'pro_';
+        $tabela = 'profissional';
+
+        
+        return implode(', ', array_map(function ($campo) use ($prefixo,$tabela) {
+            $campo = trim($campo);
+            
+            if (strpos($campo, '.') !== false) {
+                return $campo;
+            }
+            if (strpos($campo, $prefixo) === 0) {
+                    return $tabela . '.' . $campo;
+                }
+            
+            
+            return $this->tableName . '.' . $campo;
+        }, $this->campos));
+    }
+    
+    
+    public function gerenciarPro($clin) {
+        $campos = ['profissional_clinica.pc_id'];
+        $campos[] = $this->campos;
+        $camposStr = implode(',',$campos);
+        $profissional = new DBQuery('profissional','pro_id,','pro_id');
+        $pc= new DBQuery('profissional_clinica', 'pc_id,pc_pro,pc_clin', 'pc_clin');
+        
+        $profissional->addJoin('INNER', 'pro_id', $dbQueryJoined, $fieldNameJoined)
+        
+        
+        $where = new Where();
+        
+        $where->addCondition('AND', 'pro_id', '=',$id);
+
+
+        try {
+            $resultado = $mostrar->selectFiltered($where);
+            
+            if ($resultado) {
+                return [
+                    'sucesso' => true,
+                    'dados' => $resultado->fetchAll(\PDO::FETCH_ASSOC)
+                ];
+            }else {
+                return [
+                    'sucesso' => false,
+                    'erro' => 'Erro ao resgatar informação'
+                ];
+            }
+        } catch (\InvalidArgumentException $e) {
+            return [
+                'sucesso' => false,
+                'erro' => 'Erro de validação: ' . $e->getMessage()
+            ];
+        } catch (\Exception $e) {
+            return [
+                'sucesso' => false,
+                'erro' => 'Erro no banco: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    
 }

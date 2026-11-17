@@ -106,7 +106,7 @@ class usuario {
         catch (\Exception $e) {
                     return [
                         'sucesso' => false,
-                        'mensagem' => e->getMessage()
+                        'mensagem' => $e->getMessage()
                     ];
                 }
         $foto = $this->fotodePerfil($dados[2]);
