@@ -264,7 +264,6 @@ class usuario {
         
         $where = new Where();
         $where->addCondition('AND', $this->campos, '=', $_SESSION['usuario']['idUsuario']);
-        $where->addCondition('AND', 'agnd_stat', '=', 'aceita');
         if (!empty($dia)) {
             $where->addCondition('AND', 'agnd_dt', '=', $dia);
         }

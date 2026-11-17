@@ -112,7 +112,7 @@
     "errorPath": "app/views/erro.php"
   },
   "teste": {
-    "path": "app/views/teste-cliente.php",
+    "path": "app/views/teste-aceitar.php",
     "sessionKey": [{"idUsuario": false}],
     "sanitize": {"requestVars": true, "code": true, "sql": true},
     "errorPath": "app/views/erro.php"

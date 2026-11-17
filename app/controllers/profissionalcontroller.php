@@ -4,6 +4,7 @@ use models\busca;
 use models\clinica;
 use models\notificacao;
 use models\download;
+use models\servicos;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -194,23 +195,28 @@ switch ($acao){
         echo json_encode($listar);
         exit;
     case 'aceitar':
-        $notificacâo = new notificacao('notificacao', 'notif_dest,notif_cli', 'notif_cli', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-        $aceitar = $notificacâo->aceitar($_POST['cli']);
-        $camposnot= ['notif_id',
-            'notif_pd',
-            'notif_clin',
-            'notif_dest',
-            'notif_tipo',
-            'notif_msg',
-            'notif_data',
-            'notif_stat',
-            'notif_pro'
-        ];
-
-        $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-        $notificacâo = $notificacâo->enviar(3, $_POST['cli'],$_POST['clinica']);
-        echo json_encode($aceitar);
+        $aceitar = new servicos();
+        $sucesso = $aceitar->aceitar($_POST['agnd_id'], $_POST['agnd_pro']);
+        if ($sucesso['sucesso'] === true) {
+            $camposnot= ['notif_id',
+                'notif_pd',
+                'notif_clin',
+                'notif_dest',
+                'notif_tipo',
+                'notif_msg',
+                'notif_data',
+                'notif_stat',
+                'notif_pro'
+            ];
+            
+            $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+            $notificacâo = $notificacâo->enviar(3, $_POST['agnd_cli'],$_POST['agnd_clin']);
+            echo json_encode($notificacâo);
+            exit;
+        }
+        echo json_encode($sucesso);
         exit;
+        
     //ver se tá dando certo
     case 'aceitar_vinculo':
         $proId  = $_SESSION['usuario']['idUsuario'];
@@ -260,21 +266,25 @@ switch ($acao){
         exit;
     
     case 'rejeitar':
-        $notificacâo = new notificacao('notificacao', 'notif_dest,notif_cli', 'notif_cli', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-        $rejeitar = $notificacâo->rejeitar($_POST['cli']);
-        $camposnot= ['notif_id',
-            'notif_pd',
-            'notif_clin',
-            'notif_dest',
-            'notif_tipo',
-            'notif_msg',
-            'notif_data',
-            'notif_stat',
-            'notif_pro'
-        ];
-        $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-        $notificacâo = $notificacâo->enviar(4, $_POST['cli'],$_POST['clinica']);
-        echo json_encode($rejeitar);
+        $rejeitar = new servicos();
+        $sucesso = $rejeitar->rejeitar($_POST['agnd_id'], $_POST['agnd_pro']);
+        if ($sucesso['sucesso'] === true) {
+            $camposnot= ['notif_id',
+                'notif_pd',
+                'notif_clin',
+                'notif_dest',
+                'notif_tipo',
+                'notif_msg',
+                'notif_data',
+                'notif_stat',
+                'notif_pro'
+            ];
+            $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+            $notificacâo = $notificacâo->enviar(4, $_POST['agnd_cli'],$_POST['agnd_clin']);
+            echo json_encode($notificacâo);
+            exit;
+        }
+        echo json_encode($sucesso);
         exit;
     case 'meusArquivos':
         $arquivos = new download();

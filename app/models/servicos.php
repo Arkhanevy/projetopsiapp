@@ -575,6 +575,42 @@ class servicos {
                     return "Erro no banco: " . $e->getMessage();
                 };
         }
+        
+        public function aceitar($agnd,$pro){
+            $valores = [$agnd,$pro,'aceita'];
+            $aceitar = new DBQuery('agenda', 'agnd_id,agnd_pro,agnd_stat', ['agnd_id','agnd_pro']);
+            try {
+                $aceitar->update($valores);
+                return[
+                    'sucesso' => true
+                ];
+            } catch (\Exception $e) {
+                return[
+                    'sucesso' => false,
+                    'mensagem' => $e->getMessage()
+                ];
+            }
+            
+        }
+        
+        public function rejeitar($agnd,$pro){
+            $valores = [$agnd,$pro,'aceito'];
+            
+            $rejeitar = new DBQuery('agenda', 'agnd_id,agnd_pro,agnd_stat', ['agnd_id','agnd_pro']);
+            try {
+                $rejeitar->delete($valores);
+                return[
+                    'sucesso' => true
+                ];
+            } catch (\Exception $e) {
+                return[
+                    'sucesso' => false,
+                    'mensagem' => $e->getMessage()
+                ];
+            }
+            
+        }
+        
         public function atentimento($pro,$clin,$agnd,$cli,$ser,$tipo) {
             $verificacao = new DBQuery('agenda', 'agnd_id', 'agnd_id');
             $where = new Where();
