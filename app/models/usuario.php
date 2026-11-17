@@ -245,7 +245,7 @@ class usuario {
     
     public function MostrarConsulta($dia) {
         //nessa função o $campo vai ser sting com o campo: agnd_(id do usuario)
-        $campoSelect = "agnd_id,agnd_pro,agnd_stat,profissional.pro_nome,agnd_cli,cliente.cli_nome,agnd_clin,clinica.clin_id,clinica.clin_nome,agnd_ser,servico.ser_id,servico.ser_nome,servico.ser_dur,servico.ser_inter,servico.ser_loc,agnd_dt,agnd_hrIni,agnd_hrTerm";
+        $campoSelect = "agnd_id,agnd_pro,agnd_stat,profissional.pro_nome,agnd_cli,cliente.cli_nome,agnd_clin,clinica.clin_id,clinica.clin_nome,agnd_ser,servico.ser_id,servico.ser_nome,servico.ser_val,servico.ser_dur,servico.ser_inter,servico.ser_loc,agnd_dt,agnd_hrIni,agnd_hrTerm";
         $campospro = "pro_id,pro_nome";
         $campocli = "cli_id,cli_nome";
         $camposClin = "clin_id,clin_nome";
