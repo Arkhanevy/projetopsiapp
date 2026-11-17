@@ -173,45 +173,6 @@
         <section class="painelConsultasPro" aria-labelledby="tituloPainelConsultasPro">
           <h2 id="tituloPainelConsultasPro" class="visually-hidden" tabindex="-1">Consultas do dia selecionado</h2>
 
-          <div class="painelConsultasPro_acoes">
-            <a href="index.php?uri=agendamentoClinica" id="botaoAdicionarConsulta" class="btn botaoBase botaoBase--primario botaoBase--compacto">Adicionar consulta</a>
-
-            <div class="dropdown filtroConsultas">
-              <button
-                type="button"
-                id="botaoFiltrarConsultas"
-                class="btn filtroConsultas_gatilho dropdown-toggle"
-                data-bs-toggle="dropdown"
-                data-bs-auto-close="outside"
-                aria-expanded="false"
-                aria-controls="painelFiltroConsultas"
-              >
-                <span class="material-symbols-outlined" aria-hidden="true">filter_alt</span>
-                <span class="filtroConsultas_rotulo">Filtrar...</span>
-              </button>
-              <div id="painelFiltroConsultas" class="dropdown-menu dropdown-menu-end painelFiltro">
-                <fieldset class="grupoFiltro" data-grupoFiltro="estadoConsulta">
-                  <legend class="grupoFiltro_titulo">Situação</legend>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="filtroEstadoConsulta" id="filtroEstadoTodas" value="todas" checked />
-                    <label class="form-check-label" for="filtroEstadoTodas">Todas</label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="filtroEstadoConsulta" id="filtroEstadoPendente" value="pendente" />
-                    <label class="form-check-label" for="filtroEstadoPendente">Pendentes</label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="filtroEstadoConsulta" id="filtroEstadoConfirmada" value="confirmada" />
-                    <label class="form-check-label" for="filtroEstadoConfirmada">Confirmadas</label>
-                  </div>
-                </fieldset>
-                <div class="painelFiltro_rodape">
-                  <button type="button" class="btn botaoBase botaoBase--primario painelFiltro_botaoAplicar">Aplicar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div id="listaConsultasPro" class="listaConsultasPro estadoCarregando" aria-busy="true" inert>
 
             <article class="card cardConsultaProfissional" data-idConsulta="" data-estadoConsulta="pendente">
