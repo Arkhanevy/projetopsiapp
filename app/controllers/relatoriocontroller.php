@@ -68,7 +68,7 @@ switch ($acao){
             $campo = 'cli_id';
         }
         $relatorio = new relatorio('atendimento',$campo, 'atd_id',$tipo, $_SESSION['usuario']['idUsuario']);
-        $historico = $relatorio->historico();
+        $historico = $relatorio->historico($_POST['dia'] ?? '');
         echo json_encode($historico);
         exit;
         
