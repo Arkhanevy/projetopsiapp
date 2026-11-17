@@ -207,7 +207,9 @@ CREATE TABLE ctrlFiles (
     ownertipo varchar(20) not null,
     filePath    VARCHAR(255) NOT NULL,   -- caminho completo do arquivo .base64
     accessCtrl  TINYINT      NOT NULL DEFAULT 0,  -- 0 = público, 1 = privado
-    shareMails  TEXT         NULL,       -- "a@x.com,b@y.com"
+    shareMails  TEXT         NULL, 
+    titulo varchar(90),
+    tipo varchar(90),
     PRIMARY KEY (filePath)
 );
 
