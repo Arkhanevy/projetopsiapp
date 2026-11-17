@@ -70,9 +70,11 @@ class usuario {
         
         // Registrar o arquivo
         $owner = $usuario[$cod];
+        $titulo = 'fotodeperfil';
+        $tipo = 'foto';
         $filePath = $uploadPathDir . $fileBase64Name;
         $filePath = str_replace('\\', '/', $filePath);
-        $uploader->registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails,$this->table);
+        $uploader->registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails,$this->table,$titulo,$tipo);
         
         $campos = [
             'profissional' => 'pro_id,pro_foto',

@@ -9,7 +9,7 @@ class UploadedCtrl {
     private $dbQuery;
 
     public function __construct() {
-        $this->dbQuery = new DBQuery('ctrlFiles', 'owner, filePath, accessCtrl, shareMails, ownerTipo', 'filePath');
+        $this->dbQuery = new DBQuery('ctrlFiles', 'owner, filePath, accessCtrl, shareMails, ownerTipo, titulo, tipo', 'filePath');
     }
 
     /**
@@ -20,9 +20,9 @@ class UploadedCtrl {
      * @param string $shareMails A lista de emails que podem acessar o arquivo.
      * @return string Retorna o nome do arquivo.
      */
-    public function registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails, $tipo = null) {
-        $tipo = $tipo ?? ($_SESSION['usuario']['tipoUsuario'] ?? null);
-        $values = [$owner, $filePath, $accessCtrl, $shareMails, $tipo];
+    public function registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails, $owertipo = null,$titulo, $tipo) {
+        $owertipo = $owertipo ?? ($_SESSION['usuario']['tipoUsuario'] ?? null);
+        $values = [$owner, $filePath, $accessCtrl, $shareMails, $owertipo, $titulo, $tipo];
         $this->dbQuery->insert($values);
         return $filePath;
     }
