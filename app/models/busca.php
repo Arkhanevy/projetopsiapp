@@ -132,12 +132,19 @@ class busca {
         }
     }
     
-    public function MeusServicos() {
+    public function MeusServicos($usuario,$id) {
         $camposServ = implode(',',$this->campos);
         try {
             $mostrar = new DBQuery($this->table, $camposServ,$this->primary );
             $where = new Where();
-            $where->addCondition('AND', 'ser_pro', '=',$_SESSION['usuario']['idUsuario']);
+            if ($usuario === 'profissional') {
+                $cod = 'ser_pro';
+            }
+            if ($usuario === 'clinica') {
+                $cod = 'ser_clin';
+            }
+            else {return ['sucesso' => false,'mensagem' => 'cliente não tem serviço'];}
+            $where->addCondition('AND', $cod, '=',$id);
             $where = $where->build();
             $resultado = $mostrar->selectWhere($where);
             

@@ -111,7 +111,7 @@ switch ($acao){
             exit;
         }
         
-        $proSer = $busca->MeusServicos();
+        $proSer = $busca->MeusServicos($_SESSION['usuario']['tipoUsuario'],$_SESSION['usuario']['idUsuario']);
         if ($proSer['sucesso'] === false) {
             echo json_encode([
                 "sucesso" => false,

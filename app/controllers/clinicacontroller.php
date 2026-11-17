@@ -5,6 +5,7 @@ use models\profissional;
 use models\notificacao;
 use models\download;
 use models\permissao;
+use models\busca;
 
 $acao = $_POST['acao'] ?? '';
 $campos =[
@@ -56,8 +57,21 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case "pegarinfo":
+        $camposSer = ['ser_id',
+        'ser_pro',
+        'ser_clin',
+        'ser_nome',
+        'ser_tipo',
+        'ser_desc',
+        'ser_dur',
+        'ser_inter',
+        'ser_val',
+        'ser_stat',
+        'ser_dia',
+        'ser_loc'];
         $camposclin = [$campos[0],$campos[1],$campos[5]/*,$campos[6]*/,$campos[12]];
         $clinica = new clinica('clinica', $camposclin, $camposclin[0]);
+        $busca = new busca('servico', $camposSer, $camposSer[0]);
         $download  =new download();
         
         $clinperfil = $clinica->PegarPerfil($_SESSION['usuario']['idUsuario']);
@@ -74,18 +88,12 @@ switch ($acao){
             $clinperfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
         }*/
         
-        $proHrser = $clinica->pegarHrser();
-        if ($proHrser['sucesso'] === false) {
-            echo json_encode([
-                "sucesso" => false,
-                "erro" => $proHrser['erro']
-            ]);
-            exit;
-        }
+        $servicos = $busca->MeusServicos($_SESSION['usuario']['tipoUsuario'],$_SESSION['usuario']['idUsuario']);
 
         echo json_encode([
             'sucesso' => true,
-            'dados1' => $clinperfil['dados']
+            'dados1' => $clinperfil['dados'],
+            'dados2' => $servicos['dados']
         ]);
         exit;
     case 'contato':
