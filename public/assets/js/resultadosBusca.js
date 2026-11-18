@@ -1,7 +1,7 @@
 (function ($, Utilitarios, Busca) {
   "use strict";
 
-  var moduloResultados = {
+  const moduloResultados = {
 
     configuracao: {
       urlPerfil: "index.php?uri=perfil",
@@ -108,7 +108,7 @@
     },
 
     cachearElementos: function () {
-      var e = this.elementos;
+      const e = this.elementos;
       e.$conteudo = $("#conteudoResultados");
       e.$entrada = $("#entradaBuscaResultados");
       e.$avisoBusca = $("#avisoBuscaResultados");
@@ -122,7 +122,7 @@
     },
 
     registrarEventos: function () {
-      var self = this;
+      const self = this;
 
       $(document).on("pesquisaAcionada", "#campoPesquisaResultados", function (evento, dados) {
         self.pesquisar(dados && dados.termo);
@@ -161,7 +161,7 @@
     },
 
     restaurarBusca: function () {
-      var guardado = (window.history.state && window.history.state.busca) || {};
+      const guardado = (window.history.state && window.history.state.busca) || {};
 
       this.estado.termo = $.trim(Utilitarios.obterParametroUrl("termo") || "");
       if (this.abas[guardado.aba]) {
@@ -180,8 +180,8 @@
     },
 
     filtrosValidos: function (filtros) {
-      var validos = {};
-      var conhecidos = this.configuracao.filtrosConhecidos;
+      const validos = {};
+      const conhecidos = this.configuracao.filtrosConhecidos;
 
       if (filtros && typeof filtros === "object") {
         $.each(conhecidos, function (indice, nome) {
@@ -194,11 +194,11 @@
     },
 
     salvarBusca: function (novaEntrada) {
-      var url = window.location.pathname + "?uri=resultadosBusca";
+      let url = window.location.pathname + "?uri=resultadosBusca";
       if (this.estado.termo !== "") {
         url += "&termo=" + encodeURIComponent(this.estado.termo);
       }
-      var estadoHistorico = { busca: { aba: this.estado.abaAtiva, filtros: this.estado.filtros } };
+      const estadoHistorico = { busca: { aba: this.estado.abaAtiva, filtros: this.estado.filtros } };
 
       try {
         if (novaEntrada) {
@@ -234,22 +234,22 @@
     },
 
     mostrarAbaAtiva: function () {
-      var $aba = this.elementos.$abas.filter("[data-tipoBusca='" + this.estado.abaAtiva + "']");
+      const $aba = this.elementos.$abas.filter("[data-tipoBusca='" + this.estado.abaAtiva + "']");
       if (!$aba.hasClass("active")) {
         bootstrap.Tab.getOrCreateInstance($aba[0]).show();
       }
     },
 
     atualizarTelaDaAba: function () {
-      var aba = this.estado.abaAtiva;
-      var $aba = this.elementos.$abas.filter("[data-tipoBusca='" + aba + "']");
+      const aba = this.estado.abaAtiva;
+      const $aba = this.elementos.$abas.filter("[data-tipoBusca='" + aba + "']");
 
       this.elementos.$entrada.attr("placeholder", $aba.attr("data-placeholderBusca"));
 
-      var haGrupoVisivel = false;
+      let haGrupoVisivel = false;
       this.elementos.$gruposFiltro.each(function () {
-        var abasDoGrupo = ($(this).attr("data-abasFiltro") || "").split(/\s+/);
-        var visivel = $.inArray(aba, abasDoGrupo) !== -1;
+        const abasDoGrupo = ($(this).attr("data-abasFiltro") || "").split(/\s+/);
+        const visivel = $.inArray(aba, abasDoGrupo) !== -1;
         $(this).prop("hidden", !visivel);
         haGrupoVisivel = haGrupoVisivel || visivel;
       });
@@ -258,13 +258,13 @@
     },
 
     coletarFiltros: function () {
-      var filtros = {};
+      const filtros = {};
 
       this.elementos.$gruposFiltro.each(function () {
-        var $grupo = $(this);
-        var nome = $grupo.attr("data-grupoFiltro");
-        var $marcado = $grupo.find("input[type='radio']:checked");
-        var valor;
+        const $grupo = $(this);
+        const nome = $grupo.attr("data-grupoFiltro");
+        const $marcado = $grupo.find("input[type='radio']:checked");
+        let valor;
         if ($marcado.length) {
           valor = $marcado.val();
         } else {
@@ -279,11 +279,11 @@
     },
 
     aplicarFiltrosNaTela: function () {
-      var filtros = this.estado.filtros;
+      const filtros = this.estado.filtros;
 
       this.elementos.$gruposFiltro.each(function () {
-        var $grupo = $(this);
-        var valorGuardado = filtros[$grupo.attr("data-grupoFiltro")] || "";
+        const $grupo = $(this);
+        const valorGuardado = filtros[$grupo.attr("data-grupoFiltro")] || "";
 
         $grupo.find("input[type='radio']").each(function () {
           $(this).prop("checked", $(this).val() === valorGuardado);
@@ -293,12 +293,12 @@
     },
 
     filtrosDaAba: function (aba) {
-      var filtros = this.estado.filtros;
-      var daAba = {};
+      const filtros = this.estado.filtros;
+      const daAba = {};
 
       this.elementos.$gruposFiltro.each(function () {
-        var abasDoGrupo = ($(this).attr("data-abasFiltro") || "").split(/\s+/);
-        var nome = $(this).attr("data-grupoFiltro");
+        const abasDoGrupo = ($(this).attr("data-abasFiltro") || "").split(/\s+/);
+        const nome = $(this).attr("data-grupoFiltro");
 
         if ($.inArray(aba, abasDoGrupo) !== -1 && filtros[nome]) {
           daAba[nome] = filtros[nome];
@@ -326,7 +326,7 @@
     },
 
     chamarContrato: function (nome, dados) {
-      var contrato = this.configuracao.contratos[nome];
+      const contrato = this.configuracao.contratos[nome];
 
       return $.ajax({
         url: contrato.url,
@@ -337,9 +337,9 @@
     },
 
     carregarAba: function (aba, forcar) {
-      var self = this;
-      var configuracaoAba = this.abas[aba];
-      var chave = JSON.stringify({ termo: this.estado.termo, filtros: this.filtrosDaAba(aba) });
+      const self = this;
+      const configuracaoAba = this.abas[aba];
+      const chave = JSON.stringify({ termo: this.estado.termo, filtros: this.filtrosDaAba(aba) });
 
       if (!forcar && this.estado.carregadoPara[aba] === chave) {
         return;
@@ -352,7 +352,7 @@
       }
       this.esconderAvisoBusca();
 
-      var numero = (this.estado.requisicoes[aba] || 0) + 1;
+      const numero = (this.estado.requisicoes[aba] || 0) + 1;
       this.estado.requisicoes[aba] = numero;
       this.exibirCarregando(aba);
 
@@ -378,10 +378,10 @@
     },
 
     aplicarFiltrosLocais: function (aba, itens) {
-      var filtros = this.filtrosDaAba(aba);
+      const filtros = this.filtrosDaAba(aba);
 
       if (aba === "servicos" && filtros.tipoServico) {
-        var tipo = String(filtros.tipoServico).toLowerCase();
+        const tipo = String(filtros.tipoServico).toLowerCase();
         return $.grep(itens, function (item) {
           return String(item.ser_tipo || "").toLowerCase() === tipo;
         });
@@ -445,9 +445,9 @@
     },
 
     exibirResultados: function (aba, itens) {
-      var self = this;
-      var configuracaoAba = this.abas[aba];
-      var $lista = this.$listaDaAba(aba).empty();
+      const self = this;
+      const configuracaoAba = this.abas[aba];
+      const $lista = this.$listaDaAba(aba).empty();
 
       this.elementos.$carregando.attr("hidden", "hidden");
       this.elementos.$erro.attr("hidden", "hidden");
@@ -465,7 +465,7 @@
       if (quantidade === 0) {
         return textos.nenhum;
       }
-      var textoQuantidade;
+      let textoQuantidade;
       if (quantidade === 1) {
         textoQuantidade = textos.um;
       } else {
@@ -479,10 +479,10 @@
     },
 
     montarCard: function (aba, item) {
-      var configuracaoAba = this.abas[aba];
-      var dados = configuracaoAba.mapear(item, this);
-      var modelo = document.querySelector(configuracaoAba.modelo);
-      var $card = $(modelo.content.firstElementChild.cloneNode(true));
+      const configuracaoAba = this.abas[aba];
+      const dados = configuracaoAba.mapear(item, this);
+      const modelo = document.querySelector(configuracaoAba.modelo);
+      const $card = $(modelo.content.firstElementChild.cloneNode(true));
 
       Utilitarios.preencherCampos($card.find("[data-campo]"), this.apenasComValor(dados.textos));
 
@@ -501,7 +501,7 @@
     },
 
     apenasComValor: function (textos) {
-      var resultado = {};
+      const resultado = {};
       $.each(textos, function (nome, valor) {
         if (valor !== undefined && valor !== null && valor !== "") {
           resultado[nome] = valor;
@@ -511,7 +511,7 @@
     },
 
     configurarLink: function ($card, dados) {
-      var $link = $card.find("[data-acao='" + dados.acao + "']");
+      const $link = $card.find("[data-acao='" + dados.acao + "']");
 
       if (!/^[0-9]+$/.test(String(dados.id))) {
         $link.remove();
@@ -524,7 +524,7 @@
     },
 
     montarLink: function (base, parametros) {
-      var partes = [];
+      const partes = [];
       $.each(parametros, function (nome, valor) {
         partes.push(nome + "=" + encodeURIComponent(valor));
       });
@@ -532,7 +532,7 @@
     },
 
     formatarPreco: function (valor) {
-      var numero = parseFloat(valor);
+      const numero = parseFloat(valor);
       if (isNaN(numero)) {
         return "";
       }
@@ -540,13 +540,13 @@
     },
 
     obterDetalhesClinica: function (id) {
-      var cache = this.estado.cacheDetalhes;
-      var self = this;
+      const cache = this.estado.cacheDetalhes;
+      const self = this;
 
       if (cache[id]) {
         return cache[id];
       }
-      var resultado = $.Deferred();
+      const resultado = $.Deferred();
       cache[id] = resultado.promise();
 
       this.chamarContrato("detalhes", { tipo: "clinica", id: id })
@@ -567,15 +567,15 @@
     },
 
     preencherEndereco: function ($card, id) {
-      var self = this;
-      var $endereco = $card.find("[data-campo='enderecoClinica']");
-      var $cep = $card.find("[data-campo='cepClinica']");
+      const self = this;
+      const $endereco = $card.find("[data-campo='enderecoClinica']");
+      const $cep = $card.find("[data-campo='cepClinica']");
 
       this.obterDetalhesClinica(id)
         .done(function (clinica) {
-          var cep = clinica.clin_cep || "";
+          const cep = clinica.clin_cep || "";
 
-          var textoCep;
+          let textoCep;
           if (cep) {
             textoCep = Utilitarios.formatarMascara("cep", cep);
           } else {
@@ -601,8 +601,8 @@
     },
 
     buscarEnderecoPorCep: function (cep) {
-      var cepNumerico = Utilitarios.apenasNumeros(cep || "");
-      var cache = this.estado.cacheEnderecos;
+      const cepNumerico = Utilitarios.apenasNumeros(cep || "");
+      const cache = this.estado.cacheEnderecos;
 
       if (!/^[0-9]{8}$/.test(cepNumerico)) {
         return $.Deferred().reject().promise();
@@ -611,7 +611,7 @@
         return cache[cepNumerico];
       }
 
-      var resultado = $.Deferred();
+      const resultado = $.Deferred();
       cache[cepNumerico] = resultado.promise();
 
       $.ajax({

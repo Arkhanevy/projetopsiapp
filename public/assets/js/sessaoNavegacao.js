@@ -1,7 +1,7 @@
 (function ($) {
   "use strict";
 
-  var moduloSessaoNavegacao = {
+  const moduloSessaoNavegacao = {
     
     configuracao: {
       tiposParaVerificar: ["cliente", "profissional", "clinica"],
@@ -32,8 +32,7 @@
         perfil: "index.php?uri=perfil"
       },
       clinica: {
-        inicio: "index.php?uri=inicioClinica",
-        agenda: "index.php?uri=agendaClinica",
+        // Sem inicio/agenda: a clínica não exibe "Início" nem "Agenda" no menu.
         perfil: "index.php?uri=perfil"
       }
     },
@@ -51,7 +50,7 @@
     },
 
     configurarSair: function () {
-      var configuracao = this.configuracao;
+      const configuracao = this.configuracao;
 
       $(document).on("usuarioSolicitouSair", function () {
         $.ajax({ url: configuracao.urlSair, method: "POST" }).always(function () {
@@ -72,14 +71,14 @@
     },
 
     aplicarCaminhosDoMenu: function (tipoUsuario) {
-      var caminhos = this.caminhosMenuPorTipo[tipoUsuario];
+      const caminhos = this.caminhosMenuPorTipo[tipoUsuario];
 
       if (!caminhos) {
         return;
       }
 
-      this.elementos.$itemPapel.attr("href", caminhos.inicio);
-      this.elementos.$itemAgenda.attr("href", caminhos.agenda);
+      this.aplicarLinkOuRemoverItem(this.elementos.$itemPapel, caminhos.inicio);
+      this.aplicarLinkOuRemoverItem(this.elementos.$itemAgenda, caminhos.agenda);
 
       if (caminhos.perfil) {
         this.elementos.$itemPerfil.attr("href", caminhos.perfil);
@@ -88,8 +87,16 @@
       }
     },
 
+    aplicarLinkOuRemoverItem: function ($item, href) {
+      if (href) {
+        $item.attr("href", href);
+      } else {
+        $item.remove();
+      }
+    },
+
     removerItemPerfil: function () {
-      var $rodapes = this.elementos.$itemPerfil.closest(".navLateralLogado_rodape");
+      const $rodapes = this.elementos.$itemPerfil.closest(".navLateralLogado_rodape");
 
       this.elementos.$itemPerfil.remove();
       $rodapes.filter(function () {
@@ -102,14 +109,14 @@
     },
 
     testarTipo: function (tipos, indice) {
-      var self = this;
+      const self = this;
 
       if (indice >= tipos.length) {
         self.exibirNavegacaoDeslogado();
         return;
       }
 
-      var tipoAtual = tipos[indice];
+      const tipoAtual = tipos[indice];
 
       $.ajax({
         url: this.configuracao.urlVerificarSessaoPorTipo(tipoAtual),
@@ -150,7 +157,7 @@
         return;
       }
 
-      var $modal = $("#modalUsuarioDeslogado");
+      let $modal = $("#modalUsuarioDeslogado");
       if (!$modal.length) {
         $modal = $(this.montarModalDeslogado()).appendTo(document.body);
       }
@@ -162,7 +169,7 @@
     },
 
     montarModalDeslogado: function () {
-      var botoes = "";
+      let botoes = "";
 
       $.each(this.configuracao.loginsPorTipo, function (_, login) {
         botoes += '<a class="btn botaoBase botaoBase--secundario" href="' + login.url + '">' +
@@ -176,7 +183,7 @@
                  '<div class="modal-content modalBase_conteudo">' +
                    '<div class="modal-header modalBase_cabecalho">' +
                      '<h2 class="modal-title modalBase_titulo" id="tituloModalUsuarioDeslogado">' +
-                       "Você não está logado</h2>" +
+                       "Usuário deslogado</h2>" +
                    "</div>" +
                    '<div class="modal-body text-center">' +
                      '<p class="visually-hidden">Esta janela não pode ser fechada. ' +
@@ -196,7 +203,7 @@
     },
 
     exibirNavegacaoLogado: function (tipoUsuario) {
-      var papel;
+      let papel;
       if (tipoUsuario === "cliente" || tipoUsuario === "clienteSimples") {
         papel = "cliente";
       } else {
@@ -213,7 +220,7 @@
 
       this.aplicarCaminhosDoMenu(tipoUsuario);
 
-      var configContatos = this.itemContatosPorTipo[tipoUsuario];
+      const configContatos = this.itemContatosPorTipo[tipoUsuario];
       if (configContatos) {
         this.elementos.$itemContatos
           .find(".material-symbols-outlined")

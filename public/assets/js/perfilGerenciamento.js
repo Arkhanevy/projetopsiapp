@@ -4,7 +4,7 @@
   window.ElmoPerfilModulos = window.ElmoPerfilModulos || [];
 
   // Mesmos números usados em models/permissao.php (perm_tipo).
-  var tiposDePermissao = {
+  const tiposDePermissao = {
     agendarConsultas: 1,
     reagendarConsultas: 2,
     cancelarConsultas: 3,
@@ -12,12 +12,12 @@
   };
 
   // perm_tipo (número) -> chave usada em data-permissao nos controles.
-  var chavesPorTipo = {};
+  const chavesPorTipo = {};
   $.each(tiposDePermissao, function (chave, numero) {
     chavesPorTipo[numero] = chave;
   });
 
-  var moduloGerenciamento = {
+  const moduloGerenciamento = {
 
     contratos: {
       // buscacontroller: lista os profissionais vinculados à clínica logada (devolve pc_id + pro_*).
@@ -53,7 +53,7 @@
     },
 
     cachearElementos: function () {
-      var e = this.elementos;
+      const e = this.elementos;
 
       e.$carregando = $('[data-carregando="gerenciamento"]');
       e.$erro = $('[data-estadoErro="gerenciamento"]');
@@ -74,7 +74,7 @@
     },
 
     definirEstado: function (nome) {
-      var e = this.elementos;
+      const e = this.elementos;
 
       e.$carregando.prop("hidden", nome !== "carregando");
       e.$erro.prop("hidden", nome !== "erro");
@@ -85,9 +85,9 @@
     // 1) gerenciarPro -> lista de profissionais (pc_id, pro_*)
     // 2) permisaopro  -> uma chamada por pc_id, com as permissões de cada profissional
     carregar: function () {
-      var self = this;
-      var nucleo = this.nucleo;
-      var numeroPedido = ++this.estado.pedido;
+      const self = this;
+      const nucleo = this.nucleo;
+      const numeroPedido = ++this.estado.pedido;
 
       this.definirEstado("carregando");
 
@@ -117,8 +117,8 @@
     },
 
     carregarPermissoes: function (profissionais, numeroPedido) {
-      var self = this;
-      var nucleo = this.nucleo;
+      const self = this;
+      const nucleo = this.nucleo;
 
       if (!profissionais.length) {
         this.renderizar([]);
@@ -130,7 +130,7 @@
         return;
       }
 
-      var pedidos = $.map(profissionais, function (profissional) {
+      const pedidos = $.map(profissionais, function (profissional) {
         return nucleo.chamarContrato("listarPermissoesDoVinculo", {
           tipo: "profissional",
           pc_id: profissional.pc_id
@@ -148,7 +148,7 @@
             return;
           }
 
-          var listas = $.makeArray(arguments);
+          const listas = $.makeArray(arguments);
 
           $.each(profissionais, function (indice, profissional) {
             profissional.permissoes = self.agruparPermissoes(listas[indice]);
@@ -165,10 +165,10 @@
 
     // [{perm_id, perm_tipo, perm_bin, perm_pc}] -> { agendarConsultas: {id, valor}, ... }
     agruparPermissoes: function (linhas) {
-      var agrupadas = {};
+      const agrupadas = {};
 
       $.each(linhas || [], function (_, linha) {
-        var chave = chavesPorTipo[parseInt(linha.perm_tipo, 10)];
+        const chave = chavesPorTipo[parseInt(linha.perm_tipo, 10)];
 
         if (chave) {
           agrupadas[chave] = { id: linha.perm_id, valor: linha.perm_bin };
@@ -183,17 +183,17 @@
     },
 
     renderizar: function (itens) {
-      var self = this;
-      var nucleo = this.nucleo;
-      var $lista = this.elementos.$listaProfissionais.empty();
+      const self = this;
+      const nucleo = this.nucleo;
+      const $lista = this.elementos.$listaProfissionais.empty();
 
       $.each(itens, function (_, item) {
-        var id = item.pro_id;
-        var usuario = item.pro_user || item.pro_nome || "";
-        var idPainel = "painelPermissoesProfissional" + String(id).replace(/[^a-zA-Z0-9]/g, "");
-        var permissoes = item.permissoes || {};
-        var $item = nucleo.clonarModelo("modeloItemGerenciamento");
-        var $permissoes = nucleo.clonarModelo("modeloListaPermissoes");
+        const id = item.pro_id;
+        const usuario = item.pro_user || item.pro_nome || "";
+        const idPainel = "painelPermissoesProfissional" + String(id).replace(/[^a-zA-Z0-9]/g, "");
+        const permissoes = item.permissoes || {};
+        const $item = nucleo.clonarModelo("modeloItemGerenciamento");
+        const $permissoes = nucleo.clonarModelo("modeloListaPermissoes");
 
         $item.find('[data-campo="usuarioProfissional"]').text(usuario);
         $item.find('[data-campo="gatilhoPermissoes"]').attr({
@@ -210,8 +210,8 @@
         $permissoes.attr("data-idProfissional", id);
         $permissoes.attr("data-pcId", item.pc_id);
         $permissoes.find(".listaPermissoes_controle").each(function () {
-          var $controle = $(this);
-          var permissao = permissoes[$controle.attr("data-permissao")];
+          const $controle = $(this);
+          const permissao = permissoes[$controle.attr("data-permissao")];
 
           if (permissao) {
             $controle
@@ -236,12 +236,12 @@
     },
 
     sincronizarTodos: function () {
-      var $profissionais = this.elementos.$listaProfissionais;
+      const $profissionais = this.elementos.$listaProfissionais;
 
       this.elementos.$listaTodos.find(".listaPermissoes_controle").each(function () {
-        var chave = $(this).attr("data-permissao");
-        var $controles = $profissionais.find('.listaPermissoes_controle[data-permissao="' + chave + '"]');
-        var todosPermitidos = $controles.length > 0 && $controles.filter(":not(:checked)").length === 0;
+        const chave = $(this).attr("data-permissao");
+        const $controles = $profissionais.find('.listaPermissoes_controle[data-permissao="' + chave + '"]');
+        const todosPermitidos = $controles.length > 0 && $controles.filter(":not(:checked)").length === 0;
 
         $(this).prop("checked", todosPermitidos);
       });
@@ -250,10 +250,10 @@
     // Envia uma alteração por perm_id e espera todas terminarem (sucesso ou falha).
     // Resolve com { total, falhas }.
     gravarPermissoes: function (ids, status) {
-      var nucleo = this.nucleo;
-      var concluido = $.Deferred();
-      var pendentes = ids.length;
-      var falhas = 0;
+      const nucleo = this.nucleo;
+      const concluido = $.Deferred();
+      let pendentes = ids.length;
+      let falhas = 0;
 
       function terminarUma() {
         pendentes -= 1;
@@ -282,13 +282,13 @@
     },
 
     alterarPermissao: function ($controle) {
-      var self = this;
-      var nucleo = this.nucleo;
-      var chave = $controle.attr("data-permissao");
-      var permitido = $controle.is(":checked");
-      var paraTodos = $controle.closest('[data-lista="permissoesTodos"]').length > 0;
-      var status = permitido ? 1 : 0;
-      var mensagemErro = "Não foi possível alterar a permissão. Tente novamente.";
+      const self = this;
+      const nucleo = this.nucleo;
+      const chave = $controle.attr("data-permissao");
+      const permitido = $controle.is(":checked");
+      const paraTodos = $controle.closest('[data-lista="permissoesTodos"]').length > 0;
+      const status = permitido ? 1 : 0;
+      const mensagemErro = "Não foi possível alterar a permissão. Tente novamente.";
 
       if (!tiposDePermissao[chave]) {
         $controle.prop("checked", !permitido);
@@ -303,15 +303,15 @@
       }
 
       // Controles que serão gravados: o próprio, ou todos os profissionais para a chave.
-      var $alvos = $controle;
+      let $alvos = $controle;
       if (paraTodos) {
         $alvos = this.elementos.$listaProfissionais
           .find('.listaPermissoes_controle[data-permissao="' + chave + '"]');
       }
 
-      var ids = [];
+      const ids = [];
       $alvos.each(function () {
-        var permId = $(this).attr("data-permId");
+        const permId = $(this).attr("data-permId");
         if (permId) {
           ids.push(permId);
         }
@@ -357,7 +357,7 @@
     },
 
     registrarEventos: function () {
-      var self = this;
+      const self = this;
 
       $(document).on("click", '[data-acao="tentarNovamenteGerenciamento"]', function () {
         self.carregar();

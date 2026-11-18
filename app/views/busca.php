@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="public/assets/css/componentes.css" />
   <link rel="stylesheet" href="public/assets/css/busca.css" />
 </head>
-<body>
+<body data-exigeLogin>
 
   <a href="#conteudoBusca" class="linkPularConteudo">Pular para o conteúdo principal</a>
 
@@ -48,8 +48,6 @@
         <span class="material-symbols-outlined" aria-hidden="true">menu</span>
       </button>
       <ul class="dropdown-menu dropdown-menu-end menuHamburguerLogado_lista">
-        <li><a href="index.php?uri=configuracao" class="dropdown-item menuHamburguerLogado_item"><span class="material-symbols-outlined" aria-hidden="true">settings</span>Configuração</a></li>
-        <li><a href="index.php?uri=centralAjuda" class="dropdown-item menuHamburguerLogado_item"><span class="material-symbols-outlined" aria-hidden="true">support_agent</span>Central de ajuda</a></li>
         <li><a href="#" class="dropdown-item menuHamburguerLogado_item" data-acao="sair"><span class="material-symbols-outlined" aria-hidden="true">logout</span>Sair</a></li>
       </ul>
     </div>
@@ -70,10 +68,6 @@
       </button>
     </div>
     <div class="offcanvas-body d-flex flex-column">
-      <ul class="painelMenuMobile_lista">
-        <li><a href="index.php?uri=configuracao" class="painelMenuMobile_item"><span class="material-symbols-outlined" aria-hidden="true">settings</span>Configuração</a></li>
-        <li><a href="index.php?uri=centralAjuda" class="painelMenuMobile_item"><span class="material-symbols-outlined" aria-hidden="true">support_agent</span>Central de ajuda</a></li>
-      </ul>
       <ul class="painelMenuMobile_rodape">
         <li><a href="#" class="painelMenuMobile_item" data-acao="sair"><span class="material-symbols-outlined" aria-hidden="true">logout</span>Sair</a></li>
       </ul>

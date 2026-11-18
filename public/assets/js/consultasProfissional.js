@@ -1,9 +1,9 @@
 (function ($, ConsultasPro) {
   "use strict";
 
-  var URL_SERVICO = "index.php?uri=servico";
+  const URL_SERVICO = "index.php?uri=servico";
 
-  var moduloConsultasProfissional = ConsultasPro.criar({
+  const moduloConsultasProfissional = ConsultasPro.criar({
     tipoUsuario:      "profissional",
     urlControlador:   "index.php?uri=profissional",
     urlLogin:         "index.php?uri=loginProfissional",

@@ -3,17 +3,17 @@
 
   window.ElmoPerfilModulos = window.ElmoPerfilModulos || [];
 
-  var raioFatia = 25;
-  var circunferencia = 2 * Math.PI * raioFatia;
-  var raioRotulo = 30;
-  var fracaoMinimaRotulo = 0.05;
-  var nomesFatias = ["realizadas", "canceladas", "pendentes"];
-  var nomesLinhas = ["realizadas", "canceladas", "pendentes", "naoCompareceu"];
-  var rotulosFatias = { realizadas: "Realizadas", canceladas: "Canceladas", pendentes: "Pendentes" };
+  const raioFatia = 25;
+  const circunferencia = 2 * Math.PI * raioFatia;
+  const raioRotulo = 30;
+  const fracaoMinimaRotulo = 0.05;
+  const nomesFatias = ["realizadas", "canceladas", "pendentes"];
+  const nomesLinhas = ["realizadas", "canceladas", "pendentes", "naoCompareceu"];
+  const rotulosFatias = { realizadas: "Realizadas", canceladas: "Canceladas", pendentes: "Pendentes" };
 
-  var compensarMensalDoBackend = true;
+  const compensarMensalDoBackend = true;
 
-  var moduloRelatorio = {
+  const moduloRelatorio = {
 
     contratos: {
     carregarRelatorio: {
@@ -54,7 +54,7 @@
     },
 
     cachearElementos: function () {
-      var e = this.elementos;
+      const e = this.elementos;
 
       e.$campoPeriodoRelatorio = $("#campoPeriodoRelatorio");
       e.$campoPeriodoHistorico = $("#campoPeriodoHistorico");
@@ -77,9 +77,9 @@
     },
 
     dataDeHoje: function () {
-      var hoje = new Date();
-      var mes = String(hoje.getMonth() + 1);
-      var dia = String(hoje.getDate());
+      const hoje = new Date();
+      let mes = String(hoje.getMonth() + 1);
+      let dia = String(hoje.getDate());
 
       if (mes.length < 2) {
         mes = "0" + mes;
@@ -99,7 +99,7 @@
     },
 
     formatarData: function (valor) {
-      var partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(valor || ""));
+      const partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(valor || ""));
 
       if (partes) {
         return partes[3] + "/" + partes[2] + "/" + partes[1];
@@ -108,7 +108,7 @@
     },
 
     lerItem: function (dados, nome) {
-      var item = {};
+      let item = {};
 
       if (dados && dados[nome]) {
         item = dados[nome];
@@ -120,11 +120,11 @@
     },
 
     calcularFatias: function (itens, totalQuantidade) {
-      var acumulado = 0;
-      var fatias = [];
+      let acumulado = 0;
+      const fatias = [];
 
       $.each(nomesFatias, function (_, nome) {
-        var fracao = 0;
+        let fracao = 0;
 
         if (totalQuantidade > 0) {
           fracao = itens[nome].quantidade / totalQuantidade;
@@ -137,10 +137,10 @@
     },
 
     dataParaPeriodo: function (periodo) {
-        var hoje = new Date();
+        const hoje = new Date();
 
         if (periodo === "mensal") {
-            var mes = String(hoje.getMonth() + 1).padStart(2, "0");
+            const mes = String(hoje.getMonth() + 1).padStart(2, "0");
 
             if (compensarMensalDoBackend) {
                 return "-" + mes;
@@ -158,7 +158,7 @@
      chamarJson: function (nome, dados) {
         return this.nucleo.chamarContrato(nome, dados, "text").then(function (texto) {
             texto = String(texto || "");
-            var inicio = texto.indexOf('{"sucesso"');
+            let inicio = texto.indexOf('{"sucesso"');
 
             if (inicio === -1) {
                 inicio = texto.indexOf("{");
@@ -176,10 +176,10 @@
     },
 
     carregarResumo: function () {
-        var self = this;
-        var nucleo = this.nucleo;
-        var e = this.elementos;
-        var numeroPedido = ++this.estado.pedidoResumo;
+        const self = this;
+        const nucleo = this.nucleo;
+        const e = this.elementos;
+        const numeroPedido = ++this.estado.pedidoResumo;
 
         e.$carregandoRelatorio.prop("hidden", false);
         e.$erroRelatorio.prop("hidden", true);
@@ -193,8 +193,8 @@
             return;
         }
 
-        var periodo = this.periodoDo(e.$campoPeriodoRelatorio);
-        var data = this.dataParaPeriodo(periodo);
+        const periodo = this.periodoDo(e.$campoPeriodoRelatorio);
+        const data = this.dataParaPeriodo(periodo);
 
         $.when(
             self.chamarJson("carregarRelatorio", {
@@ -223,7 +223,7 @@
                 return;
             }
 
-            var dados = {
+            const dados = {
                 realizadas: {
                     quantidade: quantidade.dados1,
                     valor: ganhos.dados
@@ -262,17 +262,17 @@
     },
 
     renderizarResumo: function (dados) {
-      var self = this;
-      var nucleo = this.nucleo;
-      var e = this.elementos;
-      var itens = {};
-      var totalQuantidade = 0;
-      var totalValor = 0;
-      var quantidadeNoGrafico = 0;
+      const self = this;
+      const nucleo = this.nucleo;
+      const e = this.elementos;
+      const itens = {};
+      let totalQuantidade = 0;
+      let totalValor = 0;
+      let quantidadeNoGrafico = 0;
 
       $.each(nomesLinhas, function (_, nome) {
-        var item = self.lerItem(dados, nome);
-        var sufixo = self.capitalizar(nome);
+        const item = self.lerItem(dados, nome);
+        const sufixo = self.capitalizar(nome);
 
         itens[nome] = item;
         totalQuantidade += item.quantidade;
@@ -296,21 +296,21 @@
     },
 
     desenharGrafico: function (itens, totalQuantidade) {
-      var self = this;
-      var e = this.elementos;
-      var fatias = this.calcularFatias(itens, totalQuantidade);
-      var descricoes = [];
+      const self = this;
+      const e = this.elementos;
+      const fatias = this.calcularFatias(itens, totalQuantidade);
+      const descricoes = [];
 
       $.each(fatias, function (_, fatia) {
-        var $circulo = e.$grafico.find('[data-fatia="' + fatia.nome + '"]');
-        var $rotulo = e.$grafico.find('[data-rotuloFatia="' + fatia.nome + '"]');
-        var comprimento = fatia.fracao * circunferencia;
+        const $circulo = e.$grafico.find('[data-fatia="' + fatia.nome + '"]');
+        const $rotulo = e.$grafico.find('[data-rotuloFatia="' + fatia.nome + '"]');
+        const comprimento = fatia.fracao * circunferencia;
 
         $circulo.attr("stroke-dasharray", comprimento.toFixed(3) + " " + (circunferencia - comprimento).toFixed(3));
         $circulo.attr("stroke-dashoffset", (-fatia.inicio * circunferencia).toFixed(3));
 
         if (fatia.fracao >= fracaoMinimaRotulo) {
-          var angulo = (fatia.inicio + fatia.fracao / 2) * 2 * Math.PI - Math.PI / 2;
+          const angulo = (fatia.inicio + fatia.fracao / 2) * 2 * Math.PI - Math.PI / 2;
 
           $rotulo
             .attr({
@@ -338,14 +338,14 @@
     },
 
     dentroDoPeriodo: function (dataItem, periodo) {
-      var partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(dataItem || ""));
+      const partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(dataItem || ""));
       if (!partes) {
         return false;
       }
 
-      var hoje = new Date();
-      var dia = new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]));
-      var inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+      const hoje = new Date();
+      const dia = new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]));
+      const inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
 
       if (periodo === "anual") {
         return dia.getFullYear() === hoje.getFullYear();
@@ -354,9 +354,9 @@
         return dia.getFullYear() === hoje.getFullYear() && dia.getMonth() === hoje.getMonth();
       }
       if (periodo === "semanal") {
-        var inicioSemana = new Date(inicioHoje);
+        const inicioSemana = new Date(inicioHoje);
         inicioSemana.setDate(inicioHoje.getDate() - inicioHoje.getDay());
-        var fimSemana = new Date(inicioSemana);
+        const fimSemana = new Date(inicioSemana);
         fimSemana.setDate(inicioSemana.getDate() + 7);
         return dia >= inicioSemana && dia < fimSemana;
       }
@@ -364,7 +364,7 @@
     },
 
     definirEstadoHistorico: function (nome) {
-      var e = this.elementos;
+      const e = this.elementos;
 
       e.$carregandoHistorico.prop("hidden", nome !== "carregando");
       e.$erroHistorico.prop("hidden", nome !== "erro");
@@ -373,9 +373,9 @@
     },
 
     carregarHistorico: function () {
-      var self = this;
-      var nucleo = this.nucleo;
-      var numeroPedido = ++this.estado.pedidoHistorico;
+      const self = this;
+      const nucleo = this.nucleo;
+      const numeroPedido = ++this.estado.pedidoHistorico;
 
       this.definirEstadoHistorico("carregando");
 
@@ -390,8 +390,8 @@
             return;
           }
           if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
-            var periodo = self.periodoDo(self.elementos.$campoPeriodoHistorico);
-            var itens = $.grep(resposta.dados, function (item) {
+            const periodo = self.periodoDo(self.elementos.$campoPeriodoHistorico);
+            const itens = $.grep(resposta.dados, function (item) {
               return self.dentroDoPeriodo(item.agnd_dt, periodo);
             });
             self.renderizarHistorico(itens);
@@ -407,12 +407,12 @@
     },
 
     renderizarHistorico: function (itens) {
-      var self = this;
-      var nucleo = this.nucleo;
-      var $corpo = this.elementos.$listaHistorico.empty();
+      const self = this;
+      const nucleo = this.nucleo;
+      const $corpo = this.elementos.$listaHistorico.empty();
 
       $.each(itens, function (_, item) {
-        var $linha = nucleo.clonarModelo("modeloLinhaHistorico");
+        const $linha = nucleo.clonarModelo("modeloLinhaHistorico");
 
         $linha.find('[data-campo="clienteConsulta"]').text(item.cli_nome || "");
         $linha.find('[data-campo="servicoConsulta"]').text(item.ser_nome || "");
@@ -432,8 +432,8 @@
     },
 
     registrarEventos: function () {
-      var self = this;
-      var e = this.elementos;
+      const self = this;
+      const e = this.elementos;
 
       $("#abaRelatorio").on("shown.bs.tab", function () {
         if (!self.estado.carregado) {

@@ -39,7 +39,7 @@
     </nav>
 
     <main id="conteudoCadastro" class="container-fluid">
-        <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 9999;"></div>
+        <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x p-3"></div>
         <div class="row g-0 min-vh-100">
 
             <div id="imgBox" class="d-none d-md-block col-md-6">
@@ -55,48 +55,49 @@
                                 <img src="public/assets/images/logo_verde.png" alt="Podopsi" class="logo-titulo">
                                 <h1 class="m-0">Seja Bem-Vindo!</h1>
                             </div>
-                            <p class="text-muted mt-2 mx-auto" style="max-width: 400px;">
+                            <p class="text-muted mt-2 mx-auto">
                                 Faça um cadastro como profissional para que os clientes possam encontrar seus serviços.
                             </p>
                         </div>
 
                         
-                        <form id="formProfissional" enctype="multipart/form-data">
+                        <form id="formProfissional" enctype="multipart/form-data" novalidate>
+                            <input type="hidden" name="acao" value="cadastrar">
                             <div class="avatar-container">
                                 <img id="preview" src="public/assets/images/logo_user.png" alt="Foto de perfil">
-                                <input name="cxproFoto" type="file" aria-label="Foto de perfil" id="img_perfil" accept="image/*" required>
+                                <input name="cxproFoto" type="file" aria-label="Foto de perfil" id="img_perfil" accept="image/*" data-tiposPermitidos="" data-tamanhoMaximoMb="" required>
                             </div>
 
-                            <p class="text-center mt-2" style="font-size: 12px;">
+                            <p class="text-center mt-2 textoAjudaFoto">
                                 Clique na imagem para adicionar foto
                             </p>
 
                                 <div class="form-floating campoTexto mb-3">
-                                    <input name="cxproNome" id="nomeProfissional" class="form-control" type="text"
+                                    <input name="nome" id="nomeProfissional" class="form-control" type="text"
                                         placeholder="Nome" required>
                                     <label for="nomeProfissional">Nome completo</label>
                                 </div>
                                 <div class="form-floating campoTexto mb-3">
-                                    <input name="cxproUsername" id="userProfissional" class="form-control" type="text"
+                                    <input name="username" id="userProfissional" class="form-control" type="text"
                                         placeholder="Username" required>
                                     <label for="userProfissional">Username</label>
                                 </div>
                                 <div class="form-floating campoTexto mb-3">
-                                    <input name="cxproEmail" id="emailCadastro" class="form-control" type="email"
+                                    <input name="email" id="emailCadastro" class="form-control" type="email"
                                         placeholder="E-mail" required>
                                     <label for="emailCadastro">E-mail</label>
                                 </div>
                                 <div class="form-floating campoTexto mb-3">
-                                    <input name="cxproTelefone" id="telProfissional" data-mascara="telefone" class="form-control" type="tel"
-                                        placeholder="Telfone" required>
+                                    <input name="telefone" id="telProfissional" data-mascara="telefone" class="form-control" type="tel"
+                                        placeholder="Telefone" required>
                                     <label for="telProfissional">Telefone</label>
                                 </div>
                                 <div class="form-floating campoTexto mb-3">
-                                    <input name="cxprodtNasc" id="dtnPro" class="form-control" type="date" placeholder="Data de Nascimento" required>
+                                    <input name="dtNas" id="dtnPro" class="form-control" type="date" placeholder="Data de Nascimento" required>
                                     <label for="dtnPro">Data de Nascimento</label>
                                 </div>
                                 <div class="form-floating campoTexto mb-3">
-                                    <select name="cxproGenero" id="generoProfissional" class="form-select">
+                                    <select name="genero" id="generoProfissional" class="form-select">
                                         <option value="" selected disabled>Selecione uma opção</option>
                                         <option value="F">Feminino</option>
                                         <option value="M">Masculino</option>
@@ -107,19 +108,19 @@
                                 </div> 
                                 <div class="form-floating campoTexto mb-3">
                                     <label for="bioProfissional">Biografia</label> <br />
-                                    <br /><textarea name="cxproBiografia" id="bioProfissional"
+                                    <br /><textarea name="bio" id="bioProfissional"
                                         placeholder="Escreva sua biografia aqui."></textarea>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-floating campoTexto mb-3">
-                                            <input name="cxproCEP" class="form-control" type="text" id="cep" data-mascara="cep" inputmode="numeric" value=""
+                                            <input name="CEP" class="form-control" type="text" id="cep" data-mascara="cep" inputmode="numeric" value=""
                                                 placeholder="cep" required> <label for="cep">CEP</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating campoTexto mb-3">
-                                            <input name="" class="parteCEP form-control" type="text" id="rua" placeholder="rua"
+                                            <input class="parteCEP form-control" type="text" id="rua" placeholder="rua"
                                                 required>
                                             <label for="rua">Rua</label>
                                         </div>
@@ -130,13 +131,13 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-floating campoTexto mb-3">
-                                            <input name="" class="parteCEP form-control" type="text" id="bairro"
+                                            <input class="parteCEP form-control" type="text" id="bairro"
                                                 placeholder="bairro" required> <label for="bairro">Bairro</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating campoTexto mb-3">
-                                            <input name="" class="parteCEP form-control" type="text" id="cidade"
+                                            <input class="parteCEP form-control" type="text" id="cidade"
                                                 placeholder="cidade" required> <label for="cidade">Cidade</label>
                                         </div>
                                     </div>
@@ -145,54 +146,54 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-floating campoTexto mb-3">
-                                            <input name="" class=" parteCEP form-control" type="text" id="uf" placeholder="uf"
+                                            <input class=" parteCEP form-control" type="text" id="uf" placeholder="uf"
                                                 required>
                                             <label for="uf">Estado</label>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-floating campoTexto mb-3">
-                                            <input name="" class="parteCEP form-control" type="text" id="ibge" placeholder="ibge"
+                                            <input class="parteCEP form-control" type="text" id="ibge" placeholder="ibge"
                                                 required> <label for="ibge">IBGE</label>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-floating campoTexto mb-3">
-                                    <input name="cxproRegistro" id="registroProfissional" class="form-control" type="text"
-                                        placeholder="Registro" required>
-                                    <label for="registroProfissional">Registro profissional</label>
+                                <div class="mb-3">
+                                    <label for="registroProfissional" class="form-label">Registro profissional (arquivo)</label>
+                                    <input name="registro" id="registroProfissional" class="form-control" type="file" data-tiposPermitidos="" data-tamanhoMaximoMb="" aria-describedby="nomeRegistro" required>
+                                    <small id="nomeRegistro" class="d-block mt-1" aria-live="polite"></small>
                                 </div>
 
                                 <fieldset class="grupoFiltro mb-3" id="locaisAtendimento">
                                     <legend class="grupoFiltro_titulo">Onde você atende?</legend>
                                     <small class="d-block mb-2">Marque uma ou mais opções.</small>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="cxproLocalAtendimento" id="localCasa" value="casa">
+                                        <input class="form-check-input" type="checkbox" name="locaisAtendimento[]" id="localCasa" value="casa">
                                         <label class="form-check-label" for="localCasa">Em casa</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="cxproLocalAtendimento" id="localCasaCliente" value="casaCliente">
+                                        <input class="form-check-input" type="checkbox" name="locaisAtendimento[]" id="localCasaCliente" value="casaCliente">
                                         <label class="form-check-label" for="localCasaCliente">Na casa do cliente</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="cxproLocalAtendimento" id="localClinica" value="clinica">
+                                        <input class="form-check-input" type="checkbox" name="locaisAtendimento[]" id="localClinica" value="clinica">
                                         <label class="form-check-label" for="localClinica">Em uma clínica</label>
                                     </div>
                                 </fieldset>
 
                                 <div class="form-floating campoTexto mb-3">
-                                    <input name="cxproCPF" id="CPF" data-mascara="cpf" inputmode="numeric" class="form-control" type="text" placeholder="CPF"
+                                    <input name="CPF" id="CPF" data-mascara="cpf" inputmode="numeric" class="form-control" type="text" placeholder="CPF"
                                         required>
                                     <label for="CPF">CPF</label>
                                 </div>
 
                                 <div class="form-floating campoTexto mb-3">
-                                    <input name="cxproSenha" id="senhaProfissional" class="form-control" type="password"
+                                    <input name="senha" id="senhaProfissional" class="form-control" type="password"
                                         placeholder="Senha" required>
                                     <label for="senhaProfissional">Senha</label>
                                 </div>
                                 <div class="d-grid mb-3">
-                                    <button type="submit" id="btnCadastrar" class="btn botaoBase botaoBase--primario">Cadastrar</button>
+                                    <button type="button" id="btnCadastrar" class="btn botaoBase botaoBase--primario">Cadastrar</button>
                                 </div>
                         </form>
 
@@ -203,13 +204,21 @@
 
                     </div>
 
-                        <div class="img-thumbnail bg-light border border-success p-4 rounded-4 shadow" id="ativacao">
-                            <h1 class="text-muted mt-5 mx-auto">Seja Bem-Vindo!</h1>
-                            <p class="text-muted mt-5 mx-auto"> Clique no botão "Gerar código" para que um código seja enviado para o seu e-mail. Depois coloque-o da caixa abaixo para ativar sua conta.</p>
-                            <form>
-                                <div class="form-floating campoTexto mt-5 mb-3">
-                                    <input name="cxcliCodigo" id="codigoCliente" class="form-control" type="text" placeholder="Nome" required>
-                                    <label for="codigoCliente">Código de Ativação</label>
+                        <div id="ativacao">
+                            <div class="text-center mt-4">
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <img src="public/assets/images/logo_verde.png" alt="Podopsi" class="logo-titulo">
+                                    <h1 class="m-0">Seja Bem-Vindo!</h1>
+                                </div>
+                                <p class="text-muted mt-2 mx-auto">
+                                    Clique no botão "Gerar código" para que um código seja enviado para o seu e-mail. Depois coloque-o da caixa abaixo para ativar sua conta.
+                                </p>
+                            </div>
+
+                            <form id="formAtivacao">
+                                <div class="form-floating campoTexto mt-4 mb-3">
+                                    <input name="cod" id="codigoAtivacao" class="form-control" type="text" placeholder="Código de Ativação" autocomplete="one-time-code" required>
+                                    <label for="codigoAtivacao">Código de Ativação</label>
                                 </div>
                                 <div class="d-grid mb-3">
                                     <button type="button" id="btnAtivar" class="btn botaoBase botaoBase--primario mb-3">Ativar</button>

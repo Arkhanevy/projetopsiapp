@@ -25,8 +25,6 @@
         <span class="material-symbols-outlined" aria-hidden="true">menu</span>
       </button>
       <ul class="dropdown-menu dropdown-menu-end menuHamburguerLogado_lista">
-        <li><a href="index.php?uri=configuracao" class="dropdown-item menuHamburguerLogado_item"><span class="material-symbols-outlined" aria-hidden="true">settings</span>Configuração</a></li>
-        <li><a href="index.php?uri=centralAjuda" class="dropdown-item menuHamburguerLogado_item"><span class="material-symbols-outlined" aria-hidden="true">support_agent</span>Central de ajuda</a></li>
         <li><a href="#" class="dropdown-item menuHamburguerLogado_item" data-acao="sair"><span class="material-symbols-outlined" aria-hidden="true">logout</span>Sair</a></li>
       </ul>
     </div>
@@ -47,10 +45,6 @@
       </button>
     </div>
     <div class="offcanvas-body d-flex flex-column">
-      <ul class="painelMenuMobile_lista">
-        <li><a href="index.php?uri=configuracao" class="painelMenuMobile_item"><span class="material-symbols-outlined" aria-hidden="true">settings</span>Configuração</a></li>
-        <li><a href="index.php?uri=centralAjuda" class="painelMenuMobile_item"><span class="material-symbols-outlined" aria-hidden="true">support_agent</span>Central de ajuda</a></li>
-      </ul>
       <ul class="painelMenuMobile_rodape">
         <li><a href="#" class="painelMenuMobile_item" data-acao="sair"><span class="material-symbols-outlined" aria-hidden="true">logout</span>Sair</a></li>
       </ul>
@@ -268,6 +262,15 @@
 
   </div>
 
+  <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+    <div class="toast avisoFlutuante avisoFlutuante--atencao" id="avisoPermissaoConsultas" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-body avisoFlutuante_corpo">
+        <span class="material-symbols-outlined avisoFlutuante_icone" aria-hidden="true">block</span>
+        <p class="avisoFlutuante_mensagem" data-campo="mensagemAviso"></p>
+      </div>
+    </div>
+  </div>
+
   <div
     class="modal fade modalBase"
     id="modalSessaoExpirada"
@@ -280,15 +283,14 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content modalBase_conteudo">
         <div class="modal-header modalBase_cabecalho">
-          <h2 class="modal-title modalBase_titulo" id="tituloModalSessaoExpirada">Sessão expirada</h2>
+          <h2 class="modal-title modalBase_titulo" id="tituloModalSessaoExpirada">Usuário deslogado</h2>
         </div>
         <div class="modal-body text-center">
           <div class="modalFeedback_icone" aria-hidden="true">
             <span class="material-symbols-outlined">no_accounts</span>
           </div>
           <p id="textoModalSessaoExpirada" class="modalFeedback_mensagem">
-            Sua sessão anterior expirou, precisamos que você realize login novamente
-            para poder acessar essa página.
+            Para acessar essa página, realize login na sua conta.
           </p>
         </div>
         <div class="modal-footer modalBase_rodape">

@@ -1,7 +1,7 @@
 (function ($, window) {
   "use strict";
 
-  var ElmoBusca = {
+  const ElmoBusca = {
 
     configuracao: {
       urlResultados: "index.php?uri=resultadosBusca",
@@ -27,7 +27,7 @@
     },
 
     configurarNavegacao: function () {
-      var configuracao = this.configuracao;
+      const configuracao = this.configuracao;
 
       $(document).on("sessaoNavegacaoDefinida", function (evento, sessao) {
         if (!sessao || !sessao.logado) {
@@ -36,7 +36,7 @@
 
         $(".navTopoLogado").removeAttr("hidden");
 
-        var tipo = sessao.tipoUsuario;
+        const tipo = sessao.tipoUsuario;
         if (configuracao.hrefAgendaPorTipo[tipo]) {
           $("[data-itemAgenda]").attr("href", configuracao.hrefAgendaPorTipo[tipo]);
         }

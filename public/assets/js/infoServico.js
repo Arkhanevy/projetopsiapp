@@ -1,6 +1,6 @@
 (function ($, Utilitarios) {
   "use strict";
-  var moduloInfoServico = {
+  const moduloInfoServico = {
 
     configuracao: {
       urlObterServico: "index.php?uri=busca"
@@ -20,7 +20,7 @@
       this.elementos.$camposDinamicos = $("[data-campo]");
       this.elementos.$cartaoServico = $("#cartaoServico");
 
-      var id = Utilitarios.obterParametroUrl("id");
+      const id = Utilitarios.obterParametroUrl("id");
 
       if (/^[0-9]+$/.test(id || "")) {
         this.estado.idServico = id;
@@ -33,7 +33,7 @@
     },
 
     registrarEventos: function () {
-      var self = this;
+      const self = this;
 
       this.elementos.$botaoTentarNovamente.on("click", function () {
         self.buscarDadosServico();
@@ -50,7 +50,7 @@
     },
 
     buscarDadosServico: function () {
-      var self = this;
+      const self = this;
 
       Utilitarios.esconderModal(this.elementos.$modalErro);
       this.desabilitarBotaoAgendar();
@@ -95,7 +95,7 @@
     },
 
     mapearDadosServico: function (registro) {
-      var duracao;
+      let duracao;
       if (registro.ser_dur) {
         duracao = registro.ser_dur + " min";
       } else {
@@ -111,7 +111,7 @@
     },
 
     carregarProfissional: function (idProfissional) {
-      var self = this;
+      const self = this;
 
       if (!idProfissional) {
         return;
@@ -137,7 +137,7 @@
     },
 
     formatarPreco: function (valor) {
-      var numero = Number(valor);
+      const numero = Number(valor);
       if (isNaN(numero)) {
         return "";
       }
@@ -153,7 +153,7 @@
     },
 
     exibirModalSucessoSeAgendado: function () {
-      var parametros = new URLSearchParams(window.location.search);
+      const parametros = new URLSearchParams(window.location.search);
 
       if (parametros.get("agendado") !== "1") {
         return;
@@ -162,14 +162,14 @@
       Utilitarios.exibirModal(this.elementos.$modalSucesso);
 
       parametros.delete("agendado");
-      var novaQuerystring = parametros.toString();
-      var sufixoQuery;
+      const novaQuerystring = parametros.toString();
+      let sufixoQuery;
       if (novaQuerystring) {
         sufixoQuery = "?" + novaQuerystring;
       } else {
         sufixoQuery = "";
       }
-      var novaUrl = window.location.pathname + sufixoQuery;
+      const novaUrl = window.location.pathname + sufixoQuery;
       window.history.replaceState({}, document.title, novaUrl);
     },
 
@@ -194,7 +194,7 @@
     },
 
     irParaAgendamento: function () {
-      var url = "index.php?uri=agendamentoCli";
+      let url = "index.php?uri=agendamentoCli";
       if (this.estado.idServico) {
         url += "&servico=" + encodeURIComponent(this.estado.idServico);
       }
