@@ -1,7 +1,6 @@
 (function ($, Utilitarios) {
   "use strict";
-
-  var moduloInfoServico = {
+  const moduloInfoServico = {
 
     configuracao: {
       urlObterServico: "index.php?uri=busca"
@@ -21,7 +20,7 @@
       this.elementos.$camposDinamicos = $("[data-campo]");
       this.elementos.$cartaoServico = $("#cartaoServico");
 
-      var id = Utilitarios.obterParametroUrl("id");
+      const id = Utilitarios.obterParametroUrl("id");
 
       if (/^[0-9]+$/.test(id || "")) {
         this.estado.idServico = id;
@@ -34,7 +33,7 @@
     },
 
     registrarEventos: function () {
-      var self = this;
+      const self = this;
 
       this.elementos.$botaoTentarNovamente.on("click", function () {
         self.buscarDadosServico();
@@ -51,7 +50,7 @@
     },
 
     buscarDadosServico: function () {
-      var self = this;
+      const self = this;
 
       Utilitarios.esconderModal(this.elementos.$modalErro);
       this.desabilitarBotaoAgendar();
@@ -86,6 +85,7 @@
             self.mapearDadosServico(resposta.dados[0])
           );
           Utilitarios.alternarEsqueletoAcessivel(self.elementos.$camposDinamicos, false);
+          self.carregarProfissional(resposta.dados[0].ser_pro);
           self.habilitarBotaoAgendar();
           self.exibirModalSucessoSeAgendado();
         })
@@ -95,7 +95,7 @@
     },
 
     mapearDadosServico: function (registro) {
-      var duracao;
+      let duracao;
       if (registro.ser_dur) {
         duracao = registro.ser_dur + " min";
       } else {
@@ -105,12 +105,39 @@
         tituloServico: registro.ser_nome,
         descricaoServico: registro.ser_desc,
         duracaoServico: duracao,
-        precoServico: this.formatarPreco(registro.ser_val)
+        precoServico: this.formatarPreco(registro.ser_val),
+        nomeProfissional: ""
       };
     },
 
+    carregarProfissional: function (idProfissional) {
+      const self = this;
+
+      if (!idProfissional) {
+        return;
+      }
+
+      $.ajax({
+        url: this.configuracao.urlObterServico,
+        method: "POST",
+        dataType: "json",
+        data: {
+          acao: "mostrardetalhes",
+          tipo: "profissional",
+          id: idProfissional
+        }
+      }).done(function (resposta) {
+        if (!resposta || !resposta.sucesso || !resposta.dados || !resposta.dados.length) {
+          return;
+        }
+        Utilitarios.preencherCampos(self.elementos.$camposDinamicos, {
+          nomeProfissional: resposta.dados[0].pro_nome || ""
+        });
+      });
+    },
+
     formatarPreco: function (valor) {
-      var numero = Number(valor);
+      const numero = Number(valor);
       if (isNaN(numero)) {
         return "";
       }
@@ -126,7 +153,7 @@
     },
 
     exibirModalSucessoSeAgendado: function () {
-      var parametros = new URLSearchParams(window.location.search);
+      const parametros = new URLSearchParams(window.location.search);
 
       if (parametros.get("agendado") !== "1") {
         return;
@@ -135,14 +162,14 @@
       Utilitarios.exibirModal(this.elementos.$modalSucesso);
 
       parametros.delete("agendado");
-      var novaQuerystring = parametros.toString();
-      var sufixoQuery;
+      const novaQuerystring = parametros.toString();
+      let sufixoQuery;
       if (novaQuerystring) {
         sufixoQuery = "?" + novaQuerystring;
       } else {
         sufixoQuery = "";
       }
-      var novaUrl = window.location.pathname + sufixoQuery;
+      const novaUrl = window.location.pathname + sufixoQuery;
       window.history.replaceState({}, document.title, novaUrl);
     },
 
@@ -167,7 +194,7 @@
     },
 
     irParaAgendamento: function () {
-      var url = "index.php?uri=agendamentoCli";
+      let url = "index.php?uri=agendamentoCli";
       if (this.estado.idServico) {
         url += "&servico=" + encodeURIComponent(this.estado.idServico);
       }

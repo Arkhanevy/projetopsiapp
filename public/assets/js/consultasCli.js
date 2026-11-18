@@ -1,7 +1,7 @@
 (function ($, Utilitarios) {
   "use strict";
 
-  var INFORMACOES_STATUS = {
+  const INFORMACOES_STATUS = {
     pendente: {
       classe: "badgeStatusPendente",
       titulo: "Pendente",
@@ -22,19 +22,19 @@
     }
   };
 
-  var STATUS_BANCO = {
+  const STATUS_BANCO = {
     esperando: "pendente",
     aceita: "agendada"
   };
 
-  var NOMES_MES_COMPLETO = [
+  const NOMES_MES_COMPLETO = [
     "janeiro", "fevereiro", "março", "abril", "maio", "junho",
     "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
   ];
 
-  var TIPOS_USUARIO_PERMITIDOS = ["cliente", "clienteSimples"];
+  const TIPOS_USUARIO_PERMITIDOS = ["cliente", "clienteSimples"];
 
-  var moduloConsultasCli = {
+  const moduloConsultasCli = {
 
     configuracao: {
       urlObterConsultas:   "index.php?uri=cliente",
@@ -54,7 +54,7 @@
     },
 
     tratarSessao: function (informacoes) {
-      var tipoValido = informacoes && $.inArray(informacoes.tipoUsuario, TIPOS_USUARIO_PERMITIDOS) !== -1;
+      const tipoValido = informacoes && $.inArray(informacoes.tipoUsuario, TIPOS_USUARIO_PERMITIDOS) !== -1;
 
       if (!informacoes || !informacoes.logado || !tipoValido) {
         this.exibirModalSessaoExpirada();
@@ -65,10 +65,10 @@
     },
 
     formatarDataHora: function (dataBanco, horaBanco) {
-      var partes = String(dataBanco || "").split("-");
-      var hora = String(horaBanco || "").slice(0, 5);
-      var dia = parseInt(partes[2], 10);
-      var mes = parseInt(partes[1], 10) - 1;
+      const partes = String(dataBanco || "").split("-");
+      const hora = String(horaBanco || "").slice(0, 5);
+      const dia = parseInt(partes[2], 10);
+      const mes = parseInt(partes[1], 10) - 1;
 
       if (!dia || isNaN(mes) || !NOMES_MES_COMPLETO[mes]) {
         return "—";
@@ -78,7 +78,7 @@
     },
 
     formatarPreco: function (valor) {
-      var numero = Number(valor);
+      const numero = Number(valor);
 
       if (valor === undefined || valor === null || valor === "" || isNaN(numero)) {
         return "";
@@ -110,7 +110,7 @@
     },
 
     registrarEventos: function () {
-      var self = this;
+      const self = this;
 
       $(document).on("sessaoNavegacaoDefinida", function (evento, informacoes) {
         self.tratarSessao(informacoes);
@@ -139,7 +139,7 @@
     },
 
     buscarConsultas: function () {
-      var self = this;
+      const self = this;
 
       $.ajax({
         url: this.configuracao.urlObterConsultas,
@@ -151,7 +151,7 @@
           self.elementos.$grade.removeClass("estadoCarregando");
 
           if (!resposta || !resposta.sucesso) {
-            var mensagemErroResposta =
+            const mensagemErroResposta =
               "Não foi possível carregar suas consultas. Tente novamente mais tarde.";
             self.exibirEstadoVazio(mensagemErroResposta);
             self.anunciar(mensagemErroResposta);
@@ -160,8 +160,8 @@
 
           self.consultasPorId = {};
 
-          var consultas = (resposta.dados || []).map(function (c) {
-            var consulta = {
+          const consultas = (resposta.dados || []).map(function (c) {
+            const consulta = {
               id: c.agnd_id,
               idProfissional: c.agnd_pro,
               idCliente: c.agnd_cli,
@@ -185,7 +185,7 @@
           }
 
           self.renderizarConsultas(consultas);
-          var mensagem;
+          let mensagem;
           if (consultas.length === 1) {
             mensagem = "1 consulta carregada.";
           } else {
@@ -195,7 +195,7 @@
         })
         .fail(function () {
           self.elementos.$grade.removeClass("estadoCarregando");
-          var mensagemErro = "Não foi possível carregar suas consultas. Tente novamente mais tarde.";
+          const mensagemErro = "Não foi possível carregar suas consultas. Tente novamente mais tarde.";
           self.exibirEstadoVazio(mensagemErro);
           self.anunciar(mensagemErro);
         });
@@ -214,7 +214,7 @@
     },
 
     renderizarConsultas: function (consultas) {
-      var self = this;
+      const self = this;
 
       this.elementos.$estadoVazio.attr("hidden", "hidden");
       this.elementos.$grade.removeAttr("hidden").empty();
@@ -227,16 +227,16 @@
     },
 
     construirCartaoConsulta: function (consulta) {
-      var infoStatus = this.obterInfoStatus(consulta.status);
+      const infoStatus = this.obterInfoStatus(consulta.status);
 
-      var $card = $('<article class="cartaoConsulta"></article>').attr(
+      const $card = $('<article class="cartaoConsulta"></article>').attr(
         "data-idConsulta",
         consulta.id
       );
 
       $card.append($("<h2 class=\"tituloConsulta\"></h2>").text(consulta.nomeServico));
 
-      var $linha = $('<div class="linhaConsulta d-flex justify-content-between"></div>');
+      const $linha = $('<div class="linhaConsulta d-flex justify-content-between"></div>');
       $linha.append($("<p class=\"dataHoraConsulta\"></p>").text(consulta.dataHora));
       if (consulta.preco) {
         $linha.append($("<p class=\"precoConsulta\"></p>").text(consulta.preco));
@@ -254,7 +254,7 @@
           .append(document.createTextNode(consulta.nomeClinica))
       );
 
-      var $rodape = $(
+      const $rodape = $(
         '<div class="rodapeConsulta d-flex justify-content-between align-items-center"></div>'
       );
 
@@ -310,9 +310,9 @@
     },
 
     confirmarCancelamento: function () {
-      var self = this;
-      var idConsulta = this.elementos.$modalConfirmar.data("idConsulta");
-      var consulta = this.consultasPorId[String(idConsulta)];
+      const self = this;
+      const idConsulta = this.elementos.$modalConfirmar.data("idConsulta");
+      const consulta = this.consultasPorId[String(idConsulta)];
 
       if (!consulta) {
         this.anunciar("Não foi possível cancelar a consulta. Tente novamente.");
@@ -337,7 +337,7 @@
       })
         .done(function (resposta) {
           if (resposta && resposta.sucesso) {
-            var $badgeNovo = self.atualizarCardComoCancelado(idConsulta);
+            const $badgeNovo = self.atualizarCardComoCancelado(idConsulta);
             self.elementos.$modalConfirmar.one("hidden.bs.modal", function () {
               if ($badgeNovo) {
                 $badgeNovo.trigger("focus");
@@ -346,7 +346,7 @@
 
             self.anunciar("Consulta cancelada com sucesso.");
           } else {
-            var mensagemFalha = "Não foi possível cancelar a consulta. Tente novamente.";
+            let mensagemFalha = "Não foi possível cancelar a consulta. Tente novamente.";
             if (resposta && resposta.mensagem) {
               mensagemFalha = "Não foi possível cancelar a consulta. " + resposta.mensagem;
             }
@@ -364,8 +364,8 @@
     },
 
     atualizarCardComoCancelado: function (idConsulta) {
-      var infoStatus = this.obterInfoStatus("cancelada");
-      var $card = this.elementos.$grade.find('[data-idConsulta="' + idConsulta + '"]');
+      const infoStatus = this.obterInfoStatus("cancelada");
+      const $card = this.elementos.$grade.find('[data-idConsulta="' + idConsulta + '"]');
 
       if (!$card.length) {
         return null;
@@ -373,13 +373,13 @@
 
       $card.find(".botaoCancelarConsulta").remove();
 
-      var $badgeAntigo = $card.find(".badgeStatus");
-      var instanciaAntiga = bootstrap.Popover.getInstance($badgeAntigo[0]);
+      const $badgeAntigo = $card.find(".badgeStatus");
+      const instanciaAntiga = bootstrap.Popover.getInstance($badgeAntigo[0]);
       if (instanciaAntiga) {
         instanciaAntiga.dispose();
       }
 
-      var $badgeNovo = this.construirBadgeStatus(infoStatus);
+      const $badgeNovo = this.construirBadgeStatus(infoStatus);
       $badgeAntigo.replaceWith($badgeNovo);
       new bootstrap.Popover($badgeNovo[0]);
 

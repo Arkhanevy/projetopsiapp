@@ -1,28 +1,31 @@
 (function ($, Utilitarios, window) {
   "use strict";
 
-  var NOMES_MES_COMPLETO = [
+  const NOMES_MES_COMPLETO = [
     "janeiro", "fevereiro", "março", "abril", "maio", "junho",
     "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
   ];
 
-  var ROTULO_ESTADO_DIA = {
+  const ROTULO_ESTADO_DIA = {
     pendente: "consulta pendente",
     confirmada: "consulta confirmada",
     indisponivel: "indisponível",
-    folga: "dia de folga"
+    folga: "dia de folga",
+    encerrado: "já passou"
   };
 
-  var ESTADO_POR_STATUS_BANCO = {
+  const ESTADO_POR_STATUS_BANCO = {
     esperando: "pendente",
     aceita: "confirmada"
   };
 
-  var ESTADOS_EXIBIDOS = ["pendente", "confirmada"];
+  const ESTADOS_EXIBIDOS = ["pendente", "confirmada"];
+
+  const TEMPO_AVISO_PERMISSAO_MS = 8000;
 
   function criarModulo(configuracao) {
 
-    var moduloConsultasPro = {
+    const moduloConsultasPro = {
 
       configuracao: configuracao,
 
@@ -31,7 +34,6 @@
         anoExibido: null,
         diaSelecionado: null,
         consultas: [],
-        filtroEstadoConsulta: "todas",
         diasIndisponiveis: [],
         idConsultaEmAcao: null,
         carregou: false,
@@ -46,7 +48,7 @@
 
 
       iniciar: function () {
-        var hoje = new Date();
+        const hoje = new Date();
         this.estado.mesExibido = hoje.getMonth();
         this.estado.anoExibido = hoje.getFullYear();
 
@@ -55,7 +57,6 @@
         this.registrarEventos();
         this.renderizarCalendario();
         this.anunciar("Carregando consultas.");
-        this.exibirModalConsultaAdicionadaSeNecessario();
       },
 
       cachearElementos: function () {
@@ -63,15 +64,12 @@
         this.elementos.$lista = $("#listaConsultasPro");
         this.elementos.$estadoVazio = $("#estadoVazioConsultasPro");
         this.elementos.$mensagemStatus = $("#mensagemStatusConsultasPro");
+        this.elementos.$avisoPermissao = $("#avisoPermissaoConsultas");
         this.elementos.$tituloPainel = $("#tituloPainelConsultasPro");
-
-        this.elementos.$painelFiltro = $("#painelFiltroConsultas");
-        this.elementos.$botaoFiltro = $("#botaoFiltrarConsultas");
 
         this.elementos.$modalSessaoExpirada = $("#modalSessaoExpirada");
         this.elementos.$modalDetalhes = $("#modalDetalhesConsulta");
         this.elementos.$modalCancelamento = $("#modalConfirmarCancelamento");
-        this.elementos.$modalConsultaAdicionada = $("#modalConsultaAdicionada");
 
         this.textosEstadoVazioPadrao = {
           icone: this.elementos.$estadoVazio.find(".estadoVazio_icone").text(),
@@ -80,11 +78,11 @@
       },
 
       capturarModelosCard: function () {
-        var $cards = this.elementos.$lista.find(".cardConsultaProfissional");
-        var modelos = this.modelosCard;
+        const $cards = this.elementos.$lista.find(".cardConsultaProfissional");
+        const modelos = this.modelosCard;
 
         $cards.each(function () {
-          var $card = $(this);
+          const $card = $(this);
 
           if ($card.find("[data-acao='aceitarConsulta']").length) {
             modelos.pendenteCliente = $card.clone();
@@ -103,7 +101,7 @@
       },
 
       registrarEventos: function () {
-        var self = this;
+        const self = this;
 
         $(document).on("sessaoNavegacaoDefinida", function (evento, informacoes) {
           self.tratarSessao(informacoes);
@@ -120,10 +118,6 @@
 
         this.elementos.$calendario.on("diaSelecionado", function (evento, dados) {
           self.aoSelecionarDia(dados);
-        });
-
-        this.elementos.$painelFiltro.on("click", ".painelFiltro_botaoAplicar", function () {
-          self.aplicarFiltro();
         });
 
         $(document).on("consultaAceita", function (evento) {
@@ -154,8 +148,8 @@
 
 
       tratarSessao: function (informacoes) {
-        var tipoEsperado = this.configuracao.tipoUsuario;
-        var tipoIncorreto = informacoes && informacoes.logado && tipoEsperado &&
+        const tipoEsperado = this.configuracao.tipoUsuario;
+        const tipoIncorreto = informacoes && informacoes.logado && tipoEsperado &&
                             informacoes.tipoUsuario !== tipoEsperado;
 
         if (!informacoes || !informacoes.logado || tipoIncorreto) {
@@ -170,8 +164,8 @@
       },
 
       buscarConsultas: function () {
-        var self = this;
-        var contrato = this.configuracao.contratos.listarConsultas;
+        const self = this;
+        const contrato = this.configuracao.contratos.listarConsultas;
 
         if (!contrato.disponivel) {
           this.concluirCarregamento();
@@ -182,7 +176,7 @@
           url: this.configuracao.urlControlador,
           method: "POST",
           dataType: "json",
-          data: { acao: contrato.acao }
+          data: { acao: contrato.acao, somenteAceitas: 0 }
         })
           .done(function (resposta) {
             if (!resposta || !resposta.sucesso || !$.isArray(resposta.dados)) {
@@ -201,8 +195,8 @@
       },
 
       buscarDiasIndisponiveis: function () {
-        var self = this;
-        var contrato = this.configuracao.contratos.listarDiasIndisponiveis;
+        const self = this;
+        const contrato = this.configuracao.contratos.listarDiasIndisponiveis;
 
         if (!contrato.disponivel) {
           this.estado.diasIndisponiveis = [];
@@ -228,12 +222,12 @@
       },
 
       mapearConsulta: function (registro) {
-        var partesData = String(registro.agnd_dt || "").split("-");
-        var preco = Number(registro.ser_val);
+        const partesData = String(registro.agnd_dt || "").split("-");
+        const preco = Number(registro.ser_val);
 
-        var idCliente = registro.agnd_cli ? registro.agnd_cli : null;
-        var idClinica = registro.agnd_clin ? registro.agnd_clin : null;
-        var estadoConsulta = ESTADO_POR_STATUS_BANCO[registro.agnd_stat] || null;
+        const idCliente = registro.agnd_cli ? registro.agnd_cli : null;
+        const idClinica = registro.agnd_clin ? registro.agnd_clin : null;
+        const estadoConsulta = ESTADO_POR_STATUS_BANCO[registro.agnd_stat] || null;
 
         if (!this.estado.avisoCamposAusentesExibido && !estadoConsulta) {
           this.estado.avisoCamposAusentesExibido = true;
@@ -283,15 +277,15 @@
 
 
       renderizarCalendario: function () {
-        var estadosPorDia = {};
-        var self = this;
+        const estadosPorDia = {};
+        const self = this;
 
         $.each(this.estado.diasIndisponiveis, function (indice, dia) {
           estadosPorDia[String(dia)] = "indisponivel";
         });
 
         $.each(this.consultasDoMes(), function (indice, consulta) {
-          var chave = String(consulta.dia);
+          const chave = String(consulta.dia);
           if (consulta.estadoConsulta === "pendente") {
             estadosPorDia[chave] = "pendente";
           } else if (estadosPorDia[chave] !== "pendente") {
@@ -312,16 +306,47 @@
             .addClass("calendarioBase_dia--selecionado");
         }
 
+        this.marcarDiasPassados();
         this.aplicarAcessibilidadeDias();
       },
 
-      aplicarAcessibilidadeDias: function () {
-        var nomeMes = NOMES_MES_COMPLETO[this.estado.mesExibido];
+      marcarDiasPassados: function () {
+        const hoje = new Date();
+        const mesHoje = hoje.getFullYear() * 12 + hoje.getMonth();
+        const mesExibido = this.estado.anoExibido * 12 + this.estado.mesExibido;
+        let ultimoDiaPassado;
+
+        if (mesExibido > mesHoje) {
+          return;
+        }
+
+        if (mesExibido < mesHoje) {
+          ultimoDiaPassado = 31;
+        } else {
+          ultimoDiaPassado = hoje.getDate() - 1;
+        }
 
         this.elementos.$calendario.find(".calendarioBase_dia").each(function () {
-          var $dia = $(this);
-          var rotulo = $dia.attr("data-dia") + " de " + nomeMes;
-          var rotuloEstado = ROTULO_ESTADO_DIA[$dia.attr("data-estadoDia")];
+          const $dia = $(this);
+          const numeroDia = parseInt($dia.attr("data-dia"), 10);
+
+          if (isNaN(numeroDia) || numeroDia > ultimoDiaPassado || $dia.attr("data-estadoDia")) {
+            return;
+          }
+
+          $dia
+            .addClass("calendarioBase_dia--encerrado")
+            .attr("data-estadoDia", "encerrado");
+        });
+      },
+
+      aplicarAcessibilidadeDias: function () {
+        const nomeMes = NOMES_MES_COMPLETO[this.estado.mesExibido];
+
+        this.elementos.$calendario.find(".calendarioBase_dia").each(function () {
+          const $dia = $(this);
+          let rotulo = $dia.attr("data-dia") + " de " + nomeMes;
+          const rotuloEstado = ROTULO_ESTADO_DIA[$dia.attr("data-estadoDia")];
 
           if (rotuloEstado) {
             rotulo += ", " + rotuloEstado;
@@ -334,7 +359,7 @@
       },
 
       aoAlterarMes: function (dados) {
-        var novaData = new Date(dados.anoAtual, dados.mesAtual + dados.direcao, 1);
+        const novaData = new Date(dados.anoAtual, dados.mesAtual + dados.direcao, 1);
 
         this.estado.mesExibido = novaData.getMonth();
         this.estado.anoExibido = novaData.getFullYear();
@@ -366,7 +391,7 @@
       },
 
       consultasDoMes: function () {
-        var self = this;
+        const self = this;
 
         return $.grep(this.estado.consultas, function (consulta) {
           return consulta.mes === self.estado.mesExibido &&
@@ -376,13 +401,10 @@
       },
 
       consultasVisiveis: function () {
-        var self = this;
+        const self = this;
 
-        var visiveis = $.grep(this.consultasDoMes(), function (consulta) {
-          var passaDia = self.estado.diaSelecionado === null || consulta.dia === self.estado.diaSelecionado;
-          var passaEstado = self.estado.filtroEstadoConsulta === "todas" ||
-                            consulta.estadoConsulta === self.estado.filtroEstadoConsulta;
-          return passaDia && passaEstado;
+        const visiveis = $.grep(this.consultasDoMes(), function (consulta) {
+          return self.estado.diaSelecionado === null || consulta.dia === self.estado.diaSelecionado;
         });
 
         return visiveis.sort(function (a, b) {
@@ -394,8 +416,8 @@
       },
 
       atualizarLista: function () {
-        var consultas = this.consultasVisiveis();
-        var self = this;
+        const consultas = this.consultasVisiveis();
+        const self = this;
 
         this.elementos.$lista.empty();
 
@@ -429,8 +451,8 @@
       },
 
       criarCard: function (consulta) {
-        var $card = this.escolherModeloCard(consulta).clone();
-        var dataHora = this.formatarDataHora(consulta);
+        const $card = this.escolherModeloCard(consulta).clone();
+        const dataHora = this.formatarDataHora(consulta);
 
         $card.attr("data-idConsulta", consulta.idConsulta);
         $card.attr("data-estadoConsulta", consulta.estadoConsulta);
@@ -441,7 +463,7 @@
         });
 
         $card.find("button[data-acao]").each(function () {
-          var $botao = $(this);
+          const $botao = $(this);
           $botao.attr("aria-label", $.trim($botao.text()) + ": " + consulta.nomeServico + ", " + dataHora);
         });
 
@@ -449,28 +471,8 @@
       },
 
 
-      aplicarFiltro: function () {
-        var filtros = {};
-
-        this.elementos.$painelFiltro.find(".grupoFiltro").each(function () {
-          var $grupo = $(this);
-          filtros[$grupo.attr("data-grupoFiltro")] = $grupo.find("input[type='radio']:checked").val() || null;
-        });
-
-        this.estado.filtroEstadoConsulta = filtros.estadoConsulta || "todas";
-
-        var instancia = bootstrap.Dropdown.getInstance(this.elementos.$botaoFiltro.get(0));
-        if (instancia) {
-          instancia.hide();
-        }
-
-        this.atualizarLista();
-      },
-
-
-
       buscarConsultaPorId: function (idConsulta) {
-        var encontrada = null;
+        let encontrada = null;
 
         $.each(this.estado.consultas, function (indice, consulta) {
           if (String(consulta.idConsulta) === String(idConsulta)) {
@@ -483,8 +485,8 @@
       },
 
       prepararModal: function (evento, $modal) {
-        var idConsulta = $(evento.relatedTarget).closest("[data-idConsulta]").attr("data-idConsulta");
-        var consulta = this.buscarConsultaPorId(idConsulta);
+        const idConsulta = $(evento.relatedTarget).closest("[data-idConsulta]").attr("data-idConsulta");
+        const consulta = this.buscarConsultaPorId(idConsulta);
 
         if (!consulta) {
           return;
@@ -504,23 +506,10 @@
         $modal.find(".modalBase_conteudo").attr("data-idConsulta", consulta.idConsulta);
       },
 
-      exibirModalConsultaAdicionadaSeNecessario: function () {
-        if (Utilitarios.obterParametroUrl("consultaAdicionada") !== "1") {
-          return;
-        }
-
-        Utilitarios.exibirModal(this.elementos.$modalConsultaAdicionada);
-
-        var parametros = new URLSearchParams(window.location.search);
-        parametros.delete("consultaAdicionada");
-        window.history.replaceState(null, "", window.location.pathname + "?" + parametros.toString());
-      },
-
        executarAcao: function (nomeContrato, consulta) {
-        var contrato = this.configuracao.contratos[nomeContrato];
+        const contrato = this.configuracao.contratos[nomeContrato];
 
         if (!contrato || !contrato.disponivel) {
-          console.info("consultasPro: o contrato \"" + nomeContrato + "\" ainda não está disponível no backend.");
           this.anunciar("Essa ação ainda não está disponível.");
           return $.Deferred().reject({ indisponivel: true }).promise();
         }
@@ -529,7 +518,7 @@
           return $.Deferred().reject({ mensagem: "Consulta não encontrada." }).promise();
         }
 
-        var dados;
+        let dados;
         if (contrato.montarDados) {
           dados = contrato.montarDados(consulta);
         } else {
@@ -545,6 +534,9 @@
           if (resposta && resposta.sucesso) {
             return resposta;
           }
+          if (Utilitarios.ehPermissaoNegada(resposta)) {
+            return $.Deferred().reject({ permissaoNegada: true, nomeAcao: nomeContrato }).promise();
+          }
           return $.Deferred().reject({ mensagem: resposta && resposta.mensagem }).promise();
         });
       },
@@ -553,18 +545,35 @@
         if (falha && falha.indisponivel) {
           return;
         }
+        if (falha && falha.permissaoNegada) {
+          this.exibirAvisoPermissao(Utilitarios.mensagemPermissaoNegada(falha.nomeAcao));
+          return;
+        }
         if (falha && falha.mensagem) {
           mensagem = mensagem + " " + falha.mensagem;
         }
         this.anunciar(mensagem);
       },
 
+      // Aviso visível na tela (toast acima dos modais). Sem o elemento, cai no aviso para leitores de tela.
+      exibirAvisoPermissao: function (mensagem) {
+        const $aviso = this.elementos.$avisoPermissao;
+
+        if (!$aviso || !$aviso.length) {
+          this.anunciar(mensagem);
+          return;
+        }
+
+        $aviso.find("[data-campo='mensagemAviso']").text(mensagem);
+        bootstrap.Toast.getOrCreateInstance($aviso.get(0), { delay: TEMPO_AVISO_PERMISSAO_MS }).show();
+      },
+
       aceitarConsulta: function (idConsulta) {
-        var self = this;
+        const self = this;
 
         this.executarAcao("aceitarConsulta", this.buscarConsultaPorId(idConsulta))
           .done(function () {
-            var consulta = self.buscarConsultaPorId(idConsulta);
+            const consulta = self.buscarConsultaPorId(idConsulta);
             if (consulta) {
               consulta.estadoConsulta = "confirmada";
             }
@@ -579,7 +588,7 @@
       },
 
       recusarConsulta: function (idConsulta) {
-        var self = this;
+        const self = this;
 
         this.executarAcao("recusarConsulta", this.buscarConsultaPorId(idConsulta))
           .done(function () {
@@ -595,7 +604,7 @@
       },
 
       cancelarConsulta: function (idConsulta) {
-        var self = this;
+        const self = this;
 
         this.executarAcao("cancelarConsulta", this.buscarConsultaPorId(idConsulta))
           .done(function () {
@@ -606,6 +615,10 @@
             self.anunciar("Consulta cancelada.");
           })
           .fail(function (falha) {
+            if (falha && falha.permissaoNegada) {
+              self.restaurarFoco(self.elementos.$modalCancelamento);
+              Utilitarios.esconderModal(self.elementos.$modalCancelamento);
+            }
             self.tratarFalhaAcao(falha, "Não foi possível cancelar a consulta.");
           });
       },
@@ -634,7 +647,7 @@
       },
 
       restaurarFoco: function ($modal) {
-        var self = this;
+        const self = this;
 
         function focarPainel() {
           self.elementos.$tituloPainel.trigger("focus");
@@ -648,7 +661,7 @@
       },
 
       anunciar: function (mensagem) {
-        var $mensagemStatus = this.elementos.$mensagemStatus;
+        const $mensagemStatus = this.elementos.$mensagemStatus;
 
         $mensagemStatus.text("");
         window.setTimeout(function () {

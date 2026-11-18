@@ -1,22 +1,22 @@
 (function ($, Utilitarios) {
   "use strict";
 
-  var NOMES_MES = [
+  const NOMES_MES = [
     "JAN", "FEV", "MAR", "ABR", "MAI", "JUN",
     "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"
   ];
 
-  var NOMES_MES_COMPLETO = [
+  const NOMES_MES_COMPLETO = [
     "janeiro", "fevereiro", "março", "abril", "maio", "junho",
     "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
   ];
 
-  var NOMES_DIA_SEMANA = [
+  const NOMES_DIA_SEMANA = [
     "domingo", "segunda-feira", "terça-feira", "quarta-feira",
     "quinta-feira", "sexta-feira", "sábado"
   ];
 
-  var moduloAgendamentoCli = {
+  const moduloAgendamentoCli = {
 
     configuracao: {
       urlServico: "index.php?uri=servico",
@@ -34,13 +34,14 @@
       idServico: null,
       servico: null,
       dataExibida: (function () {
-        var hoje = new Date();
+        const hoje = new Date();
         return new Date(hoje.getFullYear(), hoje.getMonth(), 1);
       })(),
       tokenDias: 0,
       tokenHorarios: 0,
       diasIndisponiveis: [],
       diasLivres: [],
+      diasSemHorario: [],
       diaSelecionado: null,
       horarioSelecionado: null,
       salaSelecionada: null,
@@ -52,7 +53,7 @@
 
     iniciar: function () {
       this.urlElementos();
-      var idParametro = Utilitarios.obterParametroUrl("servico");
+      const idParametro = Utilitarios.obterParametroUrl("servico");
       if (/^[0-9]+$/.test(idParametro || "")) {
         this.estado.idServico = idParametro;
       } else {
@@ -128,7 +129,7 @@
     },
 
     registrarEventos: function () {
-      var self = this;
+      const self = this;
 
       this.elementos.$botaoVoltar.on("click", function () {
         self.cancelarAgendamento();
@@ -177,7 +178,7 @@
         if (evento.key !== "Escape") {
           return;
         }
-        var $dropdownAberto = $(".dropdownCustomizado").filter(function () {
+        const $dropdownAberto = $(".dropdownCustomizado").filter(function () {
           return !$(this).find(".dropdownCustomizadoLista").attr("hidden");
         });
         self.fecharTodosDropdowns();
@@ -186,7 +187,7 @@
 
       this.elementos.$grade.on(
         "click",
-        ".diaCalendario:not(.diaIndisponivel):not(.diaVazio)",
+        ".diaCalendario:not(.diaIndisponivel):not(.diaEncerrado):not(.diaVazio)",
         function () {
           self.selecionarDia($(this).data("data"));
         }
@@ -216,15 +217,16 @@
     },
 
     cancelarAgendamento: function () {
-      var url = this.configuracao.urlInfoServico;
+      let url = this.configuracao.urlInfoServico;
       if (this.estado.idServico) {
         url += "&id=" + encodeURIComponent(this.estado.idServico);
       }
       window.location.href = url;
     },
 
+    //P
     buscarDadosAgendamento: function () {
-      var self = this;
+      const self = this;
 
       Utilitarios.esconderModal(this.elementos.$modalErro);
 
@@ -269,8 +271,8 @@
     },
 
     mapearDadosServico: function (registro) {
-      var numero = Number(registro.ser_val);
-      var precoFormatado;
+      const numero = Number(registro.ser_val);
+      let precoFormatado;
       if (isNaN(numero)) {
         precoFormatado = "";
       } else {
@@ -283,7 +285,7 @@
     },
 
     carregarProfissional: function (idProfissional) {
-      var self = this;
+      const self = this;
 
       if (!idProfissional) {
         return;
@@ -326,14 +328,20 @@
 
     
     buscarSalasDisponiveis: function () {
-      var self = this;
-      var contrato = this.configuracao.contratos.mostrarSala;
-      var horarioRequisitado = this.estado.horarioSelecionado;
-      var partesHorario = this.obterPartesHorario();
-      var servico = this.estado.servico || {};
+      const self = this;
+      const contrato = this.configuracao.contratos.mostrarSala;
+      const horarioRequisitado = this.estado.horarioSelecionado;
+      const partesHorario = this.obterPartesHorario();
+      const servico = this.estado.servico || {};
 
       this.esconderAlertaValidacao();
       this.resetarSala();
+
+      if (this.ehAtendimentoDomiciliar()) {
+        this.elementos.$textoSala.text("Atendimento domiciliar — sala não necessária");
+        this.elementos.$botaoSala.prop("disabled", true);
+        return;
+      }
 
       $.ajax({
         url: this.configuracao.urlServico,
@@ -376,16 +384,21 @@
         });
     },
 
+    ehAtendimentoDomiciliar: function () {
+      const servico = this.estado.servico || {};
+      return servico.ser_loc === null || typeof servico.ser_loc === "undefined" || String(servico.ser_loc).trim() === "";
+    },
+
     nomeDaSala: function (sala) {
       return sala.sala_nome || "Sala " + sala.sala_id;
     },
 
     renderizarSalas: function (salas) {
-      var self = this;
+      const self = this;
       this.elementos.$listaSalas.empty();
 
       salas.forEach(function (sala) {
-        var $item = $(
+        const $item = $(
           '<li role="presentation"><button type="button" class="dropdownCustomizadoItem" role="option"></button></li>'
         );
         $item
@@ -412,13 +425,13 @@
     },
 
     obterPrimeiroDiaMesAtual: function () {
-      var hoje = new Date();
+      const hoje = new Date();
       return new Date(hoje.getFullYear(), hoje.getMonth(), 1);
     },
 
     navegarMes: function (deltaMeses) {
-      var atual = this.estado.dataExibida;
-      var destino = new Date(atual.getFullYear(), atual.getMonth() + deltaMeses, 1);
+      const atual = this.estado.dataExibida;
+      const destino = new Date(atual.getFullYear(), atual.getMonth() + deltaMeses, 1);
       if (destino < this.obterPrimeiroDiaMesAtual()) {
         return;
       }
@@ -431,8 +444,8 @@
     },
 
     buscarDiasIndisponiveis: function (data) {
-      var self = this;
-      var token = ++this.estado.tokenDias;
+      const self = this;
+      const token = ++this.estado.tokenDias;
 
       $.ajax({
         url: this.configuracao.urlServico,
@@ -456,8 +469,10 @@
 
           self.estado.diasIndisponiveis = self.extrairDiasIndisponiveis(resposta);
           self.estado.diasLivres = self.calcularDiasLivres(data);
+          self.estado.diasSemHorario = [];
           self.elementos.$form.removeClass("estadoCarregando estadoErro");
           self.renderizarCalendario(data);
+          self.verificarHorariosDosDias();
         })
         .fail(function () {
           if (token !== self.estado.tokenDias) {
@@ -468,13 +483,13 @@
     },
 
     extrairDiasIndisponiveis: function (resposta) {
-      var self = this;
-      var indisponiveis = [];
+      const self = this;
+      const indisponiveis = [];
 
 
       ["indisponivel", "folga"].forEach(function (chave) {
         (resposta[chave] || []).forEach(function (item) {
-          var dataTexto;
+          let dataTexto;
           if (item && item.date) {
             dataTexto = item.date;
           } else {
@@ -490,21 +505,21 @@
     },
 
     obterChaveHoje: function () {
-      var hoje = new Date();
+      const hoje = new Date();
       return this.formatarDataChave(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
     },
 
     calcularDiasLivres: function (data) {
-      var ano = data.getFullYear();
-      var mes = data.getMonth();
-      var totalDias = new Date(ano, mes + 1, 0).getDate();
-      var chaveHoje = this.obterChaveHoje();
-      var livres = [];
+      const ano = data.getFullYear();
+      const mes = data.getMonth();
+      const totalDias = new Date(ano, mes + 1, 0).getDate();
+      const chaveHoje = this.obterChaveHoje();
+      const livres = [];
 
-      for (var dia = 1; dia <= totalDias; dia++) {
-        var dataChave = this.formatarDataChave(ano, mes, dia);
-        var jaPassou = dataChave < chaveHoje;
-        var estaIndisponivel = this.estado.diasIndisponiveis.indexOf(dataChave) !== -1;
+      for (let dia = 1; dia <= totalDias; dia++) {
+        const dataChave = this.formatarDataChave(ano, mes, dia);
+        const jaPassou = dataChave < chaveHoje;
+        const estaIndisponivel = this.estado.diasIndisponiveis.indexOf(dataChave) !== -1;
 
         if (!jaPassou && !estaIndisponivel) {
           livres.push(dataChave);
@@ -514,46 +529,125 @@
       return livres;
     },
 
+    // Retorna "jaPassou", "semHorario" ou null.
+    // Dia que já passou só é "encerrado" se o servidor não o marcou como
+    // indisponível/folga (esses continuam com a cor de indisponível).
+    obterMotivoEncerrado: function (dataChave) {
+      const indisponivelNoServidor = this.estado.diasIndisponiveis.indexOf(dataChave) !== -1;
+
+      if (dataChave < this.obterChaveHoje() && !indisponivelNoServidor) {
+        return "jaPassou";
+      }
+      if (this.estado.diasSemHorario.indexOf(dataChave) !== -1) {
+        return "semHorario";
+      }
+      return null;
+    },
+
+    // true: tem horário | false: não tem | null: resposta inesperada (não marca o dia)
+    diaTemHorario: function (dataChave, resposta) {
+      if (typeof resposta === "string") {
+        return false;
+      }
+      if (!$.isArray(resposta)) {
+        return null;
+      }
+      return this.filtrarHorariosFuturos(dataChave, resposta).length > 0;
+    },
+
+    verificarHorariosDosDias: function () {
+      const self = this;
+      const token = this.estado.tokenDias;
+
+      this.estado.diasLivres.forEach(function (dataChave) {
+        $.ajax({
+          url: self.configuracao.urlServico,
+          method: "POST",
+          dataType: "json",
+          data: {
+            acao: "mostrarhorario",
+            id: self.estado.idServico,
+            dia: dataChave
+          }
+        }).done(function (resposta) {
+          if (token !== self.estado.tokenDias) {
+            return;
+          }
+          if (self.diaTemHorario(dataChave, resposta) === false) {
+            self.marcarDiaSemHorario(dataChave);
+          }
+        });
+        // Falha em um dia isolado: o dia continua disponível; o clique
+        // volta a validar os horários normalmente.
+      });
+    },
+
+    marcarDiaSemHorario: function (dataChave) {
+      if (this.estado.diasSemHorario.indexOf(dataChave) === -1) {
+        this.estado.diasSemHorario.push(dataChave);
+      }
+
+      const $dia = this.elementos.$grade.find('.diaCalendario[data-data="' + dataChave + '"]');
+      if (!$dia.length) {
+        return;
+      }
+
+      $dia
+        .removeClass("diaDisponivel")
+        .addClass("diaEncerrado")
+        .prop("disabled", true)
+        .attr("aria-disabled", "true")
+        .attr("aria-label", $dia.attr("aria-label") + " — sem horários");
+    },
+
     renderizarCalendario: function (data) {
-      var ano = data.getFullYear();
-      var mes = data.getMonth();
-      var primeiroDiaSemana = new Date(ano, mes, 1).getDay();
-      var totalDias = new Date(ano, mes + 1, 0).getDate();
+      const ano = data.getFullYear();
+      const mes = data.getMonth();
+      const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
+      const totalDias = new Date(ano, mes + 1, 0).getDate();
 
       this.elementos.$tituloMesAno.text(NOMES_MES[mes] + " " + ano);
       this.atualizarBotaoMesAnterior(data);
       this.elementos.$grade.empty();
 
-      for (var i = 0; i < primeiroDiaSemana; i++) {
+      for (let i = 0; i < primeiroDiaSemana; i++) {
         this.elementos.$grade.append(
           '<button type="button" class="diaCalendario diaVazio" disabled aria-hidden="true" tabindex="-1"></button>'
         );
       }
 
-      for (var dia = 1; dia <= totalDias; dia++) {
-        var dataChave = this.formatarDataChave(ano, mes, dia);
-        var indisponivel = this.estado.diasLivres.indexOf(dataChave) === -1;
-        var selecionado = dataChave === this.estado.diaSelecionado;
-        var nomeDiaSemana = NOMES_DIA_SEMANA[new Date(ano, mes, dia).getDay()];
+      for (let dia = 1; dia <= totalDias; dia++) {
+        const dataChave = this.formatarDataChave(ano, mes, dia);
+        const indisponivel = this.estado.diasLivres.indexOf(dataChave) === -1;
+        const motivoEncerrado = this.obterMotivoEncerrado(dataChave);
+        const selecionado = dataChave === this.estado.diaSelecionado;
+        const nomeDiaSemana = NOMES_DIA_SEMANA[new Date(ano, mes, dia).getDay()];
 
-        var rotulo = nomeDiaSemana + ", " + dia + " de " + NOMES_MES_COMPLETO[mes];
-        if (indisponivel) {
+        let rotulo = nomeDiaSemana + ", " + dia + " de " + NOMES_MES_COMPLETO[mes];
+        if (motivoEncerrado === "jaPassou") {
+          rotulo += " — já passou";
+        } else if (motivoEncerrado === "semHorario") {
+          rotulo += " — sem horários";
+        } else if (indisponivel) {
           rotulo += " — indisponível";
         }
 
-        var ariaPressionado;
+        let ariaPressionado;
         if (selecionado) {
           ariaPressionado = "true";
         } else {
           ariaPressionado = "false";
         }
-        var $botaoDia = $('<button type="button" class="diaCalendario"></button>')
+        const $botaoDia = $('<button type="button" class="diaCalendario"></button>')
           .text(dia)
           .attr("data-data", dataChave)
           .attr("aria-label", rotulo)
           .attr("aria-pressed", ariaPressionado);
 
-        if (indisponivel) {
+        if (motivoEncerrado) {
+          $botaoDia.addClass("diaEncerrado").prop("disabled", true);
+          $botaoDia.attr("aria-disabled", "true");
+        } else if (indisponivel) {
           $botaoDia.addClass("diaIndisponivel").prop("disabled", true);
           $botaoDia.attr("aria-disabled", "true");
         } else {
@@ -568,10 +662,10 @@
     },
 
     atualizarBotaoMesAnterior: function (data) {
-      var hoje = new Date();
-      var mesExibido = data.getFullYear() * 12 + data.getMonth();
-      var mesAtual = hoje.getFullYear() * 12 + hoje.getMonth();
-      var bloqueado = mesExibido <= mesAtual;
+      const hoje = new Date();
+      const mesExibido = data.getFullYear() * 12 + data.getMonth();
+      const mesAtual = hoje.getFullYear() * 12 + hoje.getMonth();
+      const bloqueado = mesExibido <= mesAtual;
 
       this.elementos.$botaoMesAnterior
         .prop("disabled", bloqueado)
@@ -579,8 +673,8 @@
     },
 
     formatarDataChave: function (ano, mesIndiceZero, dia) {
-      var mesFormatado = String(mesIndiceZero + 1).padStart(2, "0");
-      var diaFormatado = String(dia).padStart(2, "0");
+      const mesFormatado = String(mesIndiceZero + 1).padStart(2, "0");
+      const diaFormatado = String(dia).padStart(2, "0");
       return ano + "-" + mesFormatado + "-" + diaFormatado;
     },
 
@@ -590,10 +684,10 @@
       this.removerErroCampo(this.elementos.$calendario);
 
       this.elementos.$grade.find(".diaCalendario").each(function () {
-        var $dia = $(this);
-        var ehEsseDia = $dia.data("data") === dataChave;
+        const $dia = $(this);
+        const ehEsseDia = $dia.data("data") === dataChave;
         $dia.toggleClass("diaSelecionado", ehEsseDia);
-        var ariaPressionado;
+        let ariaPressionado;
         if (ehEsseDia) {
           ariaPressionado = "true";
         } else {
@@ -619,8 +713,8 @@
     },
 
     buscarHorariosDisponiveis: function (dataChave) {
-      var self = this;
-      var token = ++this.estado.tokenHorarios;
+      const self = this;
+      const token = ++this.estado.tokenHorarios;
 
       $.ajax({
         url: this.configuracao.urlServico,
@@ -645,7 +739,7 @@
             return;
           }
 
-          var horarios = self.filtrarHorariosFuturos(dataChave, resposta);
+          const horarios = self.filtrarHorariosFuturos(dataChave, resposta);
           if (!horarios.length) {
             if (resposta.length) {
               self.exibirAlertaValidacao("Os horários de hoje já passaram. Escolha outro dia.");
@@ -672,8 +766,8 @@
         return horarios;
       }
 
-      var agora = new Date();
-      var limite =
+      const agora = new Date();
+      const limite =
         String(agora.getHours()).padStart(2, "0") + ":" + String(agora.getMinutes()).padStart(2, "0");
 
       return horarios.filter(function (horario) {
@@ -691,11 +785,11 @@
     },
 
     renderizarHorarios: function (horarios) {
-      var self = this;
+      const self = this;
       this.elementos.$listaHorarios.empty();
 
       horarios.forEach(function (horario) {
-        var $item = $(
+        const $item = $(
           '<li role="presentation"><button type="button" class="dropdownCustomizadoItem" role="option"></button></li>'
         );
         $item
@@ -718,8 +812,8 @@
     },
 
     alternarDropdown: function ($dropdown, $inputOculto) {
-      var $lista = $dropdown.find(".dropdownCustomizadoLista");
-      var estaAberta = !$lista.attr("hidden");
+      const $lista = $dropdown.find(".dropdownCustomizadoLista");
+      const estaAberta = !$lista.attr("hidden");
 
       this.fecharTodosDropdowns();
 
@@ -732,22 +826,22 @@
       $dropdown.find(".dropdownCustomizadoLista").removeAttr("hidden");
       $dropdown.find(".dropdownCustomizadoBotao").attr("aria-expanded", "true");
 
-      var $itens = $dropdown.find(".dropdownCustomizadoItem");
+      const $itens = $dropdown.find(".dropdownCustomizadoItem");
       if (!$itens.length) {
         return;
       }
 
-      var valorAtual;
+      let valorAtual;
       if ($inputOculto) {
         valorAtual = $inputOculto.val();
       } else {
         valorAtual = null;
       }
-      var $itemSelecionado = $itens.filter(function () {
+      const $itemSelecionado = $itens.filter(function () {
         return String($(this).data("valor")) === String(valorAtual);
       });
 
-      var $itemFoco;
+      let $itemFoco;
       if ($itemSelecionado.length) {
         $itemFoco = $itemSelecionado;
       } else {
@@ -768,9 +862,9 @@
 
     registrarNavegacaoTecladoLista: function ($lista) {
       $lista.on("keydown", ".dropdownCustomizadoItem", function (evento) {
-        var $itens = $lista.find(".dropdownCustomizadoItem");
-        var indiceAtual = $itens.index(this);
-        var proximoIndice = null;
+        const $itens = $lista.find(".dropdownCustomizadoItem");
+        const indiceAtual = $itens.index(this);
+        let proximoIndice = null;
 
         switch (evento.key) {
           case "ArrowDown":
@@ -813,9 +907,9 @@
     },
 
     tentarConfirmarAgendamento: function () {
-      var self = this;
-      var camposValidos = true;
-      var $primeiroInvalido = null;
+      const self = this;
+      let camposValidos = true;
+      let $primeiroInvalido = null;
 
       if (!this.estado.diaSelecionado) {
         this.marcarCampoComErro(this.elementos.$calendario);
@@ -829,7 +923,7 @@
         camposValidos = false;
       }
 
-      if (this.estado.horarioSelecionado && !this.estado.salaSelecionada) {
+      if (this.estado.horarioSelecionado && !this.ehAtendimentoDomiciliar() && !this.estado.salaSelecionada) {
         this.marcarCampoComErro(this.elementos.$botaoSala);
         $primeiroInvalido = $primeiroInvalido || this.elementos.$botaoSala;
         camposValidos = false;
@@ -848,7 +942,7 @@
     },
 
     verificarLoginEEnviar: function () {
-      var self = this;
+      const self = this;
 
       $.ajax({
         url: this.configuracao.urlVerificarLogin,
@@ -858,7 +952,7 @@
       })
         .done(function (resposta) {
           if (resposta && resposta.logado) {
-            self.enviarAgendamento(self.estado.salaSelecionada);
+            self.enviarAgendamento(self.ehAtendimentoDomiciliar() ? null : self.estado.salaSelecionada);
           } else {
             self.exibirModalNaoLogado();
           }
@@ -873,9 +967,9 @@
     },
 
     enviarAgendamento: function (idSala) {
-      var self = this;
-      var partesHorario = this.obterPartesHorario();
-      var dados = {
+      const self = this;
+      const partesHorario = this.obterPartesHorario();
+      const dados = {
         acao: "agendar",
         sala: idSala,
         dia: this.estado.diaSelecionado,
@@ -891,7 +985,7 @@
         data: dados
       })
         .done(function (respostaTexto) {
-          var resultado = $.trim(respostaTexto).replace(/^"+|"+$/g, "");
+          const resultado = $.trim(respostaTexto).replace(/^"+|"+$/g, "");
           if (resultado === "sucesso") {
             self.irParaInfoServicoComSucesso();
             return;
@@ -909,7 +1003,7 @@
     },
 
     extrairMensagemAgendamento: function (texto) {
-      var analisado;
+      let analisado;
       try {
         analisado = JSON.parse(texto);
       } catch (erro) {
@@ -925,8 +1019,13 @@
     },
 
     tratarErroAgendamento: function (texto) {
-      var mensagem = this.extrairMensagemAgendamento(texto);
-      var generica = "Não foi possível concluir o agendamento. Tente novamente.";
+      const mensagem = this.extrairMensagemAgendamento(texto);
+      const generica = "Não foi possível concluir o agendamento. Tente novamente.";
+
+      if (Utilitarios.ehPermissaoNegada(mensagem)) {
+        this.exibirAlertaValidacao(Utilitarios.mensagemPermissaoNegada("agendarConsulta"));
+        return;
+      }
 
       if (/sala/i.test(mensagem) && /ocupad/i.test(mensagem)) {
         this.buscarSalasDisponiveis();
@@ -951,7 +1050,7 @@
     },
 
     irParaInfoServicoComSucesso: function () {
-      var url = this.configuracao.urlInfoServico + "&agendado=1";
+      let url = this.configuracao.urlInfoServico + "&agendado=1";
       if (this.estado.idServico) {
         url += "&id=" + encodeURIComponent(this.estado.idServico);
       }
@@ -970,8 +1069,8 @@
     },
 
     registrarEventosCadastroSimples: function () {
-      var self = this;
-      var el = this.elementos;
+      const self = this;
+      const el = this.elementos;
 
       el.$linkCadastro.on("click", function (evento) {
         evento.preventDefault();
@@ -1019,14 +1118,14 @@
     },
 
     fecharCadastroSimples: function () {
-      var painel = bootstrap.Offcanvas.getInstance(this.elementos.$painelCadastroSimples.get(0));
+      const painel = bootstrap.Offcanvas.getInstance(this.elementos.$painelCadastroSimples.get(0));
       if (painel) {
         painel.hide();
       }
     },
 
     alternarVisibilidadeSenha: function ($input, $botao) {
-      var mostrar = $input.attr("type") === "password";
+      const mostrar = $input.attr("type") === "password";
 
       $input.attr("type", mostrar ? "text" : "password");
       $botao
@@ -1036,8 +1135,7 @@
     },
 
     mostrarAlertaPainel: function ($container, mensagem, tipo) {
-      var mensagemSegura = $("<div>").text(mensagem).html();
-      Utilitarios.mostrarAlerta($container, mensagemSegura, tipo);
+      Utilitarios.mostrarAlerta($container, mensagem, tipo);
     },
 
     mostrarAlertaCadastroSimples: function (mensagem, tipo) {
@@ -1050,7 +1148,7 @@
     },
 
     limparCadastroSimples: function () {
-      var el = this.elementos;
+      const el = this.elementos;
 
       el.$formCadastroSimples.get(0).reset();
       el.$formCadastroSimples.find(".form-control").removeClass("is-invalid").removeAttr("aria-invalid");
@@ -1064,15 +1162,15 @@
     },
 
     enviarCadastroSimples: function () {
-      var self = this;
-      var el = this.elementos;
+      const self = this;
+      const el = this.elementos;
 
-      var nomeUsuario = $.trim(el.$inputNomeUsuarioCadastro.val());
-      var email = $.trim(el.$inputEmailCadastro.val());
-      var senha = el.$inputSenhaCadastro.val();
-      var cpfLimpo = Utilitarios.apenasNumeros(el.$inputCpfCadastro.val());
+      const nomeUsuario = $.trim(el.$inputNomeUsuarioCadastro.val());
+      const email = $.trim(el.$inputEmailCadastro.val());
+      const senha = el.$inputSenhaCadastro.val();
+      const cpfLimpo = Utilitarios.apenasNumeros(el.$inputCpfCadastro.val());
 
-      var existeCampoVazio = Utilitarios.validarCampos([
+      const existeCampoVazio = Utilitarios.validarCampos([
         { valor: nomeUsuario, el: el.$inputNomeUsuarioCadastro },
         { valor: email, el: el.$inputEmailCadastro },
         { valor: senha, el: el.$inputSenhaCadastro },
@@ -1100,7 +1198,7 @@
       el.$botaoCadastrarSimples.prop("disabled", true).text("Cadastrando...");
       el.$formCadastroSimples.attr("aria-busy", "true");
 
-      var dadosCadastro = new FormData();
+      const dadosCadastro = new FormData();
       dadosCadastro.append("acao", el.$formCadastroSimples.attr("data-acaoEnvio") || "cadastrar");
       dadosCadastro.append("username", nomeUsuario);
       // Provisório: o formulário não tem campo de nome completo, então o backend
@@ -1135,7 +1233,6 @@
           );
         })
         .fail(function (xhr, status, erro) {
-          console.error("Erro no cadastro simples:", status, erro, xhr.responseText);
           self.restaurarBotaoCadastroSimples();
           self.mostrarAlertaCadastroSimples("Erro na requisição!", "danger");
         });
@@ -1143,9 +1240,9 @@
 
 
     abrirPainel: function ($painel) {
-      var painel = bootstrap.Offcanvas.getOrCreateInstance($painel.get(0));
-      var $modal = this.elementos.$modalNaoLogado;
-      var $painelAberto = $(".offcanvas.show").not($painel);
+      const painel = bootstrap.Offcanvas.getOrCreateInstance($painel.get(0));
+      const $modal = this.elementos.$modalNaoLogado;
+      const $painelAberto = $(".offcanvas.show").not($painel);
 
       if ($modal.hasClass("show")) {
         $modal.one("hidden.bs.modal", function () {
@@ -1167,15 +1264,15 @@
     },
 
     fecharPainel: function ($painel) {
-      var painel = bootstrap.Offcanvas.getInstance($painel.get(0));
+      const painel = bootstrap.Offcanvas.getInstance($painel.get(0));
       if (painel) {
         painel.hide();
       }
     },
 
     registrarEventosAtivacaoELogin: function () {
-      var self = this;
-      var el = this.elementos;
+      const self = this;
+      const el = this.elementos;
 
       el.$botaoRealizarLogin.on("click", function () {
         self.abrirPainel(el.$painelLogin);
@@ -1225,7 +1322,7 @@
       });
 
       el.$painelLogin.on("hidden.bs.offcanvas", function () {
-        var retomar = self.estado.retomarAposLogin;
+        const retomar = self.estado.retomarAposLogin;
         self.limparLogin();
         if (retomar) {
           self.estado.retomarAposLogin = false;
@@ -1250,8 +1347,8 @@
 
 
     solicitarCodigo: function (email, mostrarSucesso) {
-      var self = this;
-      var el = this.elementos;
+      const self = this;
+      const el = this.elementos;
 
       if (!email) {
         this.mostrarAlertaPainel(
@@ -1295,9 +1392,9 @@
     },
 
     enviarAtivacao: function () {
-      var self = this;
-      var el = this.elementos;
-      var codigo = $.trim(el.$inputCodigoAtivacao.val());
+      const self = this;
+      const el = this.elementos;
+      const codigo = $.trim(el.$inputCodigoAtivacao.val());
 
       if (!this.estado.emailPendente) {
         this.mostrarAlertaPainel(
@@ -1358,7 +1455,7 @@
     },
 
     limparAtivacao: function () {
-      var el = this.elementos;
+      const el = this.elementos;
 
       el.$formAtivacao.get(0).reset();
       el.$formAtivacao.find(".form-control").removeClass("is-invalid").removeAttr("aria-invalid");
@@ -1371,13 +1468,13 @@
     },
 
     enviarLogin: function () {
-      var self = this;
-      var el = this.elementos;
+      const self = this;
+      const el = this.elementos;
 
-      var email = $.trim(el.$inputEmailLogin.val());
-      var senha = el.$inputSenhaLogin.val();
+      const email = $.trim(el.$inputEmailLogin.val());
+      const senha = el.$inputSenhaLogin.val();
 
-      var existeCampoVazio = Utilitarios.validarCampos([
+      const existeCampoVazio = Utilitarios.validarCampos([
         { valor: email, el: el.$inputEmailLogin },
         { valor: senha, el: el.$inputSenhaLogin }
       ]);
@@ -1416,7 +1513,7 @@
             return;
           }
 
-          var mensagem = (resposta && resposta.mensagem) || "Não foi possível entrar.";
+          const mensagem = (resposta && resposta.mensagem) || "Não foi possível entrar.";
           self.restaurarBotaoLogin();
 
           // Conta criada mas nunca ativada: leva o usuário direto para a ativação.
@@ -1439,7 +1536,7 @@
     },
 
     limparLogin: function () {
-      var el = this.elementos;
+      const el = this.elementos;
 
       el.$formLogin.get(0).reset();
       el.$formLogin.find(".form-control").removeClass("is-invalid").removeAttr("aria-invalid");

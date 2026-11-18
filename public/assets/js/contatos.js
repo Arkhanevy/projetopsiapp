@@ -1,7 +1,7 @@
 (function ($, Utilitarios) {
   "use strict";
 
-  var moduloContatos = {
+  const moduloContatos = {
 
     configuracao: {
       tempoAvisoMs: 5000,
@@ -37,7 +37,7 @@
         },
         clinica: {
           url: "index.php?uri=clinica",
-          listas: { dados1: "profissionais" },
+          listas: { dados1: "profissionais", dados2: "clientes" },
           secoes: ["profissionais", "clientes"],
           apoio: "profissionais e clientes",
           mostrarTelefone: true
@@ -53,9 +53,9 @@
 
       contratos: {
         listarContatos:   { acao: "contato",          disponivel: true  },
-        listarDocumentos: { acao: "listarDocumentos", disponivel: false },
-        enviarDocumento:  { acao: "enviarDocumento",  disponivel: false },
-        baixarDocumento:  { acao: "baixarDocumento",  disponivel: false }
+        listarDocumentos: { acao: "listarDocumentosContato", disponivel: true },
+        enviarDocumento:  { acao: "enviarDocumento",  disponivel: true },
+        baixarDocumento:  { acao: "baixarDocumento",  disponivel: true }
       },
 
       avisos: {
@@ -90,7 +90,7 @@
     },
 
     cachearElementos: function () {
-      var e = this.elementos;
+      const e = this.elementos;
       e.$principal = $("#conteudoContatos");
       e.$avisoPagina = $("#avisoContatos");
       e.$estadosPagina = $("[data-estadoContatos]");
@@ -121,8 +121,8 @@
     },
 
     registrarEventos: function () {
-      var self = this;
-      var e = this.elementos;
+      const self = this;
+      const e = this.elementos;
 
       $(document).on("sessaoNavegacaoDefinida", function (evento, sessao) {
         self.aoDefinirSessao(sessao);
@@ -137,6 +137,12 @@
       });
       e.$modal.on("shown.bs.modal", function () {
         self.carregarDocumentos(self.estado.abaDocumentos);
+      });
+      e.$modal.on("hide.bs.modal", function (evento) {
+        if (self.estado.enviando) {
+          evento.preventDefault();
+          self.exibirAviso("Aguarde o envio terminar para fechar.", "atencao");
+        }
       });
       e.$modal.on("hidden.bs.modal", function () {
         self.aoFecharModal();
@@ -167,7 +173,7 @@
         e.$campoArquivo.trigger("click");
       });
       e.$campoArquivo.on("change", function () {
-        var arquivos = this.files;
+        const arquivos = this.files;
         if (arquivos && arquivos.length) {
           self.selecionarArquivo(arquivos[0]);
         }
@@ -185,8 +191,8 @@
     },
 
     registrarArrastar: function () {
-      var self = this;
-      var $area = this.elementos.$areaArquivo;
+      const self = this;
+      const $area = this.elementos.$areaArquivo;
 
       $area.on("dragenter dragover", function (evento) {
         evento.preventDefault();
@@ -197,7 +203,7 @@
 
       $area.on("dragleave", function (evento) {
 
-        var destino = evento.originalEvent && evento.originalEvent.relatedTarget;
+        const destino = evento.originalEvent && evento.originalEvent.relatedTarget;
         if (destino && $area.get(0).contains(destino)) {
           return;
         }
@@ -211,8 +217,8 @@
           return;
         }
 
-        var transferencia = evento.originalEvent && evento.originalEvent.dataTransfer;
-        var arquivos = transferencia && transferencia.files;
+        const transferencia = evento.originalEvent && evento.originalEvent.dataTransfer;
+        const arquivos = transferencia && transferencia.files;
         if (!arquivos || !arquivos.length) {
           return;
         }
@@ -225,7 +231,7 @@
     },
 
     aoDefinirSessao: function (sessao) {
-      var configuracao = this.configuracao;
+      const configuracao = this.configuracao;
 
       if (!sessao || !sessao.logado) {
         this.exibirNaoLogado();
@@ -256,7 +262,7 @@
     },
 
     aplicarTextosPapel: function (papel) {
-      var config = this.configuracao.papeis[papel];
+      const config = this.configuracao.papeis[papel];
       $("[data-campo='tiposContatoApoio']").text(config.apoio);
     },
 
@@ -269,9 +275,9 @@
     },
 
     chamarContrato: function (nome, dados) {
-      var contrato = this.configuracao.contratos[nome];
-      var papel = this.configuracao.papeis[this.estado.papel];
-      var pedido = {
+      const contrato = this.configuracao.contratos[nome];
+      const papel = this.configuracao.papeis[this.estado.papel];
+      const pedido = {
         url: contrato.url || papel.url,
         method: "POST",
         dataType: "json"
@@ -290,10 +296,10 @@
     },
 
     exibirEstadoPagina: function (nome) {
-      var e = this.elementos;
+      const e = this.elementos;
       e.$estadosPagina.attr("hidden", "hidden");
       e.$estadosPagina.filter("[data-estadoContatos='" + nome + "']").removeAttr("hidden");
-      var ariaOcupado;
+      let ariaOcupado;
       if (nome === "carregando") {
         ariaOcupado = "true";
       } else {
@@ -309,8 +315,8 @@
     },
 
     carregarContatos: function () {
-      var self = this;
-      var numero = ++this.estado.requisicaoContatos;
+      const self = this;
+      const numero = ++this.estado.requisicaoContatos;
 
       this.elementos.$botaoTentarContatos.removeAttr("hidden");
 
@@ -341,8 +347,8 @@
     },
 
     normalizarContatos: function (resposta) {
-      var mapa = this.configuracao.papeis[this.estado.papel].listas;
-      var dados = {};
+      const mapa = this.configuracao.papeis[this.estado.papel].listas;
+      const dados = {};
 
       $.each(mapa, function (campoServidor, nomeSecao) {
         if (Array.isArray(resposta[campoServidor])) {
@@ -362,23 +368,23 @@
     },
 
     renderizarContatos: function (dados) {
-      var e = this.elementos;
-      var configuracao = this.configuracao;
-      var papel = configuracao.papeis[this.estado.papel];
-      var self = this;
-      var total = 0;
+      const e = this.elementos;
+      const configuracao = this.configuracao;
+      const papel = configuracao.papeis[this.estado.papel];
+      const self = this;
+      let total = 0;
 
       e.$secoes.attr("hidden", "hidden");
 
       $.each(papel.secoes, function (indice, nomeSecao) {
-        var secao = configuracao.secoes[nomeSecao];
-        var itens;
+        const secao = configuracao.secoes[nomeSecao];
+        let itens;
         if (Array.isArray(dados[nomeSecao])) {
           itens = dados[nomeSecao];
         } else {
           itens = [];
         }
-        var $lista = $("[data-campo='" + secao.campoLista + "']").empty();
+        const $lista = $("[data-campo='" + secao.campoLista + "']").empty();
 
         $.each(itens, function (posicao, item) {
           $lista.append(self.criarItemContato(item, secao, papel));
@@ -396,7 +402,7 @@
       }
 
       this.exibirEstadoPagina("lista");
-      var sufixoTotal;
+      let sufixoTotal;
       if (total === 1) {
         sufixoTotal = " contato encontrado.";
       } else {
@@ -406,26 +412,30 @@
     },
 
     criarItemContato: function (item, secao, papel) {
-      var modelo = this.elementos.$modeloContato.get(0);
-      var $item = $(modelo.content.firstElementChild.cloneNode(true));
-      var prefixo = secao.prefixo;
-      var usuario = item[prefixo + "_user"] || item[prefixo + "_nome"] || "";
-      var foto = this.fotoValida(item[prefixo + "_foto"]);
+      const modelo = this.elementos.$modeloContato.get(0);
+      const $item = $(modelo.content.firstElementChild.cloneNode(true));
+      const prefixo = secao.prefixo;
+      const usuario = item[prefixo + "_user"] || item[prefixo + "_nome"] || "";
+      const foto = this.fotoValida(item[prefixo + "_foto"]);
 
-      $item.find("[data-idContato]")
+      $item.find("[data-idContato]").addBack("[data-idContato]")
         .attr("data-idContato", item[prefixo + "_id"])
         .attr("data-tipoContato", secao.tipo);
       $item.find("[data-campo='usuarioContato']").text(usuario);
 
-      var $telefone = $item.find("[data-campo='telefoneContato']");
+      const $telefone = $item.find("[data-campo='telefoneContato']");
+      let telefoneFormatado = "";
       if (papel.mostrarTelefone) {
-        $telefone.text(Utilitarios.formatarMascara("telefone", item[prefixo + "_tel"]));
+        telefoneFormatado = Utilitarios.formatarMascara("telefone", item[prefixo + "_tel"]);
+      }
+      if (telefoneFormatado) {
+        $telefone.text(telefoneFormatado);
       } else {
         $telefone.remove();
       }
 
-      var $icone = $item.find("[data-campo='iconePadraoContato']");
-      var nomeIcone;
+      const $icone = $item.find("[data-campo='iconePadraoContato']");
+      let nomeIcone;
       if (secao.tipo === "clinica") {
         nomeIcone = "apartment";
       } else {
@@ -447,16 +457,17 @@
     },
 
     fotoValida: function (foto) {
-      if (/\.(jpe?g|png|gif|webp)$/i.test(String(foto || ""))) {
-        return foto;
+      const texto = String(foto || "");
+      if (/^data:image\/(jpeg|png|gif|webp);base64,/i.test(texto) || /\.(jpe?g|png|gif|webp)$/i.test(texto)) {
+        return texto;
       } else {
         return undefined;
       }
     },
 
     aoAbrirModal: function (evento) {
-      var $botao = $(evento.relatedTarget);
-      var $contato = $botao.closest("[data-idContato]");
+      const $botao = $(evento.relatedTarget);
+      const $contato = $botao.closest("[data-idContato]");
 
       this.estado.contatoAtual = {
         id: $contato.attr("data-idContato"),
@@ -481,7 +492,7 @@
     },
 
     mostrarVisao: function (visao) {
-      var e = this.elementos;
+      const e = this.elementos;
       e.$visaoLista.prop("hidden", visao !== "lista");
       e.$visaoEnvio.prop("hidden", visao !== "envio");
     },
@@ -495,7 +506,7 @@
     },
 
     limparListasDocumentos: function () {
-      var self = this;
+      const self = this;
       $.each(this.configuracao.listasDocumentos, function (tipo) {
         self.$listaDocumentos(tipo).empty();
         self.$vazioDocumentos(tipo).attr("hidden", "hidden");
@@ -511,13 +522,13 @@
     },
 
     carregarDocumentos: function (tipo) {
-      var self = this;
-      var contato = this.estado.contatoAtual;
+      const self = this;
+      const contato = this.estado.contatoAtual;
       if (!contato) {
         return;
       }
 
-      var numero = (this.estado.requisicoesDocumentos[tipo] || 0) + 1;
+      const numero = (this.estado.requisicoesDocumentos[tipo] || 0) + 1;
       this.estado.requisicoesDocumentos[tipo] = numero;
 
       this.$listaDocumentos(tipo).empty();
@@ -563,8 +574,8 @@
     },
 
     renderizarDocumentos: function (tipo, itens) {
-      var $lista = this.$listaDocumentos(tipo);
-      var modelo = this.elementos.$modeloDocumento.get(0);
+      const $lista = this.$listaDocumentos(tipo);
+      const modelo = this.elementos.$modeloDocumento.get(0);
 
       $lista.empty();
 
@@ -574,8 +585,8 @@
       }
 
       $.each(itens, function (indice, item) {
-        var $item = $(modelo.content.firstElementChild.cloneNode(true));
-        $item.find("[data-idDocumento]").attr("data-idDocumento", item.idDocumento);
+        const $item = $(modelo.content.firstElementChild.cloneNode(true));
+        $item.find("[data-idDocumento]").addBack("[data-idDocumento]").attr("data-idDocumento", item.idDocumento);
         $item.find("[data-campo='tituloDocumento']").text(item.tituloDocumento || "");
         $item.find("[data-campo='remetenteDocumento']").text(item.remetente || "");
         $item.find("[data-campo='destinatarioDocumento']").text(item.destinatario || "");
@@ -586,6 +597,7 @@
     },
 
     baixarDocumento: function (idDocumento) {
+      const self = this;
       if (!idDocumento) {
         return;
       }
@@ -594,17 +606,39 @@
         return;
       }
 
-      var contrato = this.configuracao.contratos.baixarDocumento;
-      var papel = this.configuracao.papeis[this.estado.papel];
-      var $formulario = $("<form>", {
-        method: "POST",
-        action: contrato.url || papel.url,
-        target: "_self"
-      });
-      $formulario.append($("<input>", { type: "hidden", name: "acao", value: contrato.acao }));
-      $formulario.append($("<input>", { type: "hidden", name: "idDocumento", value: idDocumento }));
-      $formulario.appendTo(document.body).trigger("submit");
-      $formulario.remove();
+      this.chamarContrato("baixarDocumento", { idDocumento: idDocumento })
+        .done(function (resposta) {
+          if (resposta && resposta.sucesso && resposta.data) {
+            self.salvarArquivoLocal(resposta);
+          } else {
+            self.exibirAviso((resposta && resposta.mensagem) || "Não foi possível baixar o documento.", "erro");
+          }
+        })
+        .fail(function () {
+          self.exibirAviso("Não foi possível baixar o documento.", "erro");
+        });
+    },
+
+    salvarArquivoLocal: function (arquivo) {
+      const self = this;
+
+      fetch(arquivo.data)
+        .then(function (resposta) {
+          return resposta.blob();
+        })
+        .then(function (conteudo) {
+          const endereco = URL.createObjectURL(conteudo);
+          const $ancora = $("<a>", { href: endereco, download: arquivo.nome || "documento" }).attr("hidden", "hidden");
+          $ancora.appendTo(document.body);
+          $ancora.get(0).click();
+          $ancora.remove();
+          setTimeout(function () {
+            URL.revokeObjectURL(endereco);
+          }, 1000);
+        })
+        .catch(function () {
+          self.exibirAviso("Não foi possível baixar o documento.", "erro");
+        });
     },
 
     abrirEnvio: function () {
@@ -623,7 +657,7 @@
     },
 
     limparFormulario: function () {
-      var e = this.elementos;
+      const e = this.elementos;
 
       e.$visaoEnvio.get(0).reset();
       this.estado.arquivo = null;
@@ -642,7 +676,7 @@
     },
 
     atualizarEstadoArea: function () {
-      var estadoArea;
+      let estadoArea;
       if (this.estado.arquivo) {
         estadoArea = "selecionado";
       } else {
@@ -652,8 +686,8 @@
     },
 
     selecionarArquivo: function (arquivo) {
-      var e = this.elementos;
-      var erro = this.validarArquivo(arquivo);
+      const e = this.elementos;
+      const erro = this.validarArquivo(arquivo);
 
       if (erro) {
         this.mostrarErroArquivo(erro);
@@ -670,9 +704,9 @@
       e.$botaoEnviar.prop("disabled", false);
       this.atualizarEstadoArea();
 
-      var tituloAtual = $.trim(e.$campoTitulo.val());
+      const tituloAtual = $.trim(e.$campoTitulo.val());
       if (tituloAtual === "" || tituloAtual === this.estado.tituloAutomatico) {
-        var novoTitulo = this.nomeSemExtensao(arquivo.name);
+        const novoTitulo = this.nomeSemExtensao(arquivo.name);
         e.$campoTitulo.val(novoTitulo);
         this.estado.tituloAutomatico = novoTitulo;
         this.limparErroTitulo();
@@ -680,7 +714,7 @@
     },
 
     nomeSemExtensao: function (nome) {
-      var semExtensao = nome.replace(/\.[^.]+$/, "");
+      const semExtensao = nome.replace(/\.[^.]+$/, "");
       if ($.trim(semExtensao) !== "") {
         return semExtensao;
       } else {
@@ -689,13 +723,13 @@
     },
 
     validarArquivo: function (arquivo) {
-      var $area = this.elementos.$areaArquivo;
-      var tipos = $.trim($area.attr("data-tiposPermitidos") || "");
-      var tamanhoMaximoMb = parseFloat($area.attr("data-tamanhoMaximoMb"));
+      const $area = this.elementos.$areaArquivo;
+      const tipos = $.trim($area.attr("data-tiposPermitidos") || "");
+      const tamanhoMaximoMb = parseFloat($area.attr("data-tamanhoMaximoMb"));
 
       if (tipos) {
-        var nome = arquivo.name.toLowerCase();
-        var permitido = false;
+        const nome = arquivo.name.toLowerCase();
+        let permitido = false;
         $.each(tipos.split(","), function (indice, tipo) {
           tipo = $.trim(tipo).toLowerCase();
           if (tipo && (nome.slice(-tipo.length) === tipo || arquivo.type === tipo)) {
@@ -715,7 +749,7 @@
     },
 
     formatarTamanho: function (bytes) {
-      var formato = { maximumFractionDigits: 1 };
+      const formato = { maximumFractionDigits: 1 };
       if (bytes < 1024) {
         return bytes + " B";
       }
@@ -748,9 +782,9 @@
     },
 
     definirEnviando: function (enviando) {
-      var e = this.elementos;
+      const e = this.elementos;
       this.estado.enviando = enviando;
-      var ariaOcupado;
+      let ariaOcupado;
       if (enviando) {
         ariaOcupado = "true";
       } else {
@@ -763,10 +797,10 @@
     },
 
     enviarDocumento: function () {
-      var self = this;
-      var e = this.elementos;
-      var contato = this.estado.contatoAtual;
-      var titulo = $.trim(e.$campoTitulo.val());
+      const self = this;
+      const e = this.elementos;
+      const contato = this.estado.contatoAtual;
+      const titulo = $.trim(e.$campoTitulo.val());
 
       if (this.estado.enviando || !contato) {
         return;
@@ -779,7 +813,7 @@
       }
 
       if (!titulo) {
-        var mensagem = "Informe um título para o documento.";
+        const mensagem = "Informe um título para o documento.";
         this.mostrarErroTitulo(mensagem);
         this.exibirAviso(mensagem, "atencao");
         e.$campoTitulo.trigger("focus");
@@ -791,7 +825,7 @@
         return;
       }
 
-      var dados = new FormData();
+      const dados = new FormData();
       dados.append("idContato", contato.id);
       dados.append("tipoContato", contato.tipo);
       dados.append("tituloDocumento", titulo);
@@ -828,9 +862,9 @@
     },
 
     exibirAviso: function (mensagem, variacao) {
-      var $aviso = this.elementos.$aviso;
-      var avisos = this.configuracao.avisos;
-      var atual = avisos[variacao] || avisos.erro;
+      const $aviso = this.elementos.$aviso;
+      const avisos = this.configuracao.avisos;
+      const atual = avisos[variacao] || avisos.erro;
 
       $.each(avisos, function (nome, aviso) {
         if (aviso.classe) {

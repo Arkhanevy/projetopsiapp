@@ -1,0 +1,24 @@
+/*
+ * Estilo compartilhado dos selects de localização e sala no formulário de serviço.
+ * Mantém Bootstrap 5 como base visual e aplica as mesmas dimensões aos dois campos.
+ */
+.selectServico {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 40px 10px 14px;
+  font-size: 16px;
+  line-height: 1.5;
+  border-radius: 8px;
+}
+
+.selectServico:focus {
+  border-color: var(--bs-primary);
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.15);
+}
+
+.selectServico:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}

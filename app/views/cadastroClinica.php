@@ -40,7 +40,7 @@
     </nav>
 
     <main id="conteudoCadastro" class="container-fluid">
-        <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 9999;"></div>
+        <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x p-3"></div>
         <div class="row g-0 min-vh-100">
 
             <div id="imgBox" class="d-none d-md-block col-md-6">
@@ -56,57 +56,58 @@
                                 <img src="public/assets/images/logo_verde.png" alt="Podopsi" class="logo-titulo">
                                 <h1 class="m-0">Seja Bem-Vindo!</h1>
                             </div>
-                            <p class="text-muted mt-2 mx-auto" style="max-width: 400px;">
+                            <p class="text-muted mt-2 mx-auto">
                                 Cadastro a clínica em Podopsi para que clientes consigam encontrá-las!
                             </p>
                         </div>
 
 
 
-                        <form id="formClinica" enctype="multipart/form-data">
+                        <form id="formClinica" enctype="multipart/form-data" novalidate>
+                            <input type="hidden" name="acao" value="cadastrar">
                             <div class="avatar-container">
                             <img id="previewClinica" src="public/assets/images/logo_user.png" alt="Foto de perfil">
-                            <input name="cxclinFoto" type="file" aria-label="Foto da clínica" id="img_perfil_Clinica" accept="image/*" required>
+                            <input name="cxclinFoto" type="file" aria-label="Foto da clínica" id="img_perfil_Clinica" accept="image/*" data-tiposPermitidos="" data-tamanhoMaximoMb="" required>
                         </div>
 
-                        <p class="text-center mt-2" style="font-size: 12px;">
+                        <p class="text-center mt-2 textoAjudaFoto">
                             Clique na imagem para adicionar logo da clinica.
                         </p>
                             <div class="form-floating campoTexto mb-3">
-                                <input name="cxclinNome" id="nomeClinica" class="form-control" type="text"
+                                <input name="nome" id="nomeClinica" class="form-control" type="text"
                                     placeholder="Nome" required>
                                 <label for="nomeClinica">Nome da clínica</label>
                             </div>
                             <div class="form-floating campoTexto mb-3">
-                                <input name="exclinEmail" id="emailCadClinica" class="form-control" type="email"
+                                <input name="email" id="emailCadClinica" class="form-control" type="email"
                                     placeholder="E-mail" required>
                                 <label for="emailCadClinica">E-mail</label>
                             </div>
                             <div class="form-floating campoTexto mb-3">
-                                <input name="cxclinTelefone" id="telClinica" data-mascara="telefone" class="form-control" type="tel"
-                                    placeholder="Telfone" required>
+                                <input name="telefone" id="telClinica" data-mascara="telefone" class="form-control" type="tel"
+                                    placeholder="Telefone" required>
                                 <label for="telClinica">Telefone</label>
                             </div>
                             <div class="form-floating campoTexto mb-3">
-                                <input name="cxclinUsername" id="userClinica" class="form-control" type="text"
+                                <input name="username" id="userClinica" class="form-control" type="text"
                                     placeholder="Username" required>
                                 <label for="userClinica">Username da clínica</label>
                             </div>
                             <div class="form-floating campoTexto mb-3">
                                 <label for="bioClinica">Biografia</label> <br />
-                                    <br /><textarea name="cxclinBiografia" id="bioClinica"
+                                    <br /><textarea name="bio" id="bioClinica"
                                         placeholder="Escreva sua biografia aqui." required></textarea>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-floating campoTexto mb-3">
-                                        <input name="cxclinCEP" class="form-control" type="text" id="cepClinica" data-mascara="cep" inputmode="numeric" value=""
+                                        <input name="CEP" class="form-control" type="text" id="cepClinica" data-mascara="cep" inputmode="numeric" value=""
                                             placeholder="cep" required> <label for="cepClinica">Cep</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating campoTexto mb-3">
-                                        <input name="" class="parteCEPClinica form-control" type="text" id="ruaClinica" placeholder="rua"
+                                        <input class="parteCEPClinica form-control" type="text" id="ruaClinica" placeholder="rua"
                                             required>
                                         <label for="ruaClinica">Rua</label>
                                     </div>
@@ -117,13 +118,13 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-floating campoTexto mb-3">
-                                        <input name="" class="parteCEPClinica form-control" type="text" id="bairroClinica"
+                                        <input class="parteCEPClinica form-control" type="text" id="bairroClinica"
                                             placeholder="bairro" required> <label for="bairroClinica">Bairro</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating campoTexto mb-3">
-                                        <input name="" class="parteCEPClinica form-control" type="text" id="cidadeClinica"
+                                        <input class="parteCEPClinica form-control" type="text" id="cidadeClinica"
                                             placeholder="cidade" required> <label for="cidadeClinica">Cidade</label>
                                     </div>
                                 </div>
@@ -132,30 +133,30 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-floating campoTexto mb-3">
-                                        <input name="" class=" parteCEPClinica form-control" type="text" id="ufClinica" placeholder="uf"
+                                        <input class=" parteCEPClinica form-control" type="text" id="ufClinica" placeholder="uf"
                                             required>
                                         <label for="ufClinica">Estado</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-floating campoTexto mb-3">
-                                        <input name="" class="parteCEPClinica form-control" type="text" id="ibgeClinica" placeholder="ibge"
+                                        <input class="parteCEPClinica form-control" type="text" id="ibgeClinica" placeholder="ibge"
                                             required> <label for="ibgeClinica">IBGE</label>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-floating campoTexto mb-3">
-                                <input name="cxclinCnpj" id="cnpj" data-mascara="cnpj" inputmode="numeric" class="form-control" type="text" placeholder="CNPJ"
+                                <input name="CNPJ" id="cnpj" data-mascara="cnpj" inputmode="numeric" class="form-control" type="text" placeholder="CNPJ"
                                     required>
                                 <label for="cnpj">CNPJ</label>
                             </div>
                             <div class="form-floating campoTexto mb-3">
-                                <input name="cxclinSenha" id="senhaClinica" class="form-control" type="password"
+                                <input name="senha" id="senhaClinica" class="form-control" type="password"
                                     placeholder="Senha" required>
                                 <label for="senhaClinica">Senha</label>
                             </div>
                             <div class="d-grid mb-3">
-                                <button type="submit" id="btnCadClinica" class="btn botaoBase botaoBase--primario">Cadastrar</button>
+                                <button type="button" id="btnCadClinica" class="btn botaoBase botaoBase--primario">Cadastrar</button>
                             </div>
                         </form>
 
@@ -164,13 +165,21 @@
                         <p>Já tem conta? <a href="index.php?uri=loginClinica">Faça login</a></p>
                     </div>
 
-                        <div class="img-thumbnail bg-light border border-success p-4 rounded-4 shadow" id="ativacao">
-                            <h1 class="text-muted mt-5 mx-auto">Seja Bem-Vindo!</h1>
-                            <p class="text-muted mt-5 mx-auto"> Clique no botão "Gerar código" para que um código seja enviado para o seu e-mail. Depois coloque-o da caixa abaixo para ativar sua conta.</p>
-                            <form>
-                                <div class="form-floating campoTexto mt-5 mb-3">
-                                    <input name="cxcliCodigo" id="codigoCliente" class="form-control" type="text" placeholder="Nome" required>
-                                    <label for="codigoCliente">Código de Ativação</label>
+                        <div id="ativacao">
+                            <div class="text-center mt-4">
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <img src="public/assets/images/logo_verde.png" alt="Podopsi" class="logo-titulo">
+                                    <h1 class="m-0">Seja Bem-Vindo!</h1>
+                                </div>
+                                <p class="text-muted mt-2 mx-auto">
+                                    Clique no botão "Gerar código" para que um código seja enviado para o seu e-mail. Depois coloque-o da caixa abaixo para ativar sua conta.
+                                </p>
+                            </div>
+
+                            <form id="formAtivacao">
+                                <div class="form-floating campoTexto mt-4 mb-3">
+                                    <input name="cod" id="codigoAtivacao" class="form-control" type="text" placeholder="Código de Ativação" autocomplete="one-time-code" required>
+                                    <label for="codigoAtivacao">Código de Ativação</label>
                                 </div>
                                 <div class="d-grid mb-3">
                                     <button type="button" id="btnAtivar" class="btn botaoBase botaoBase--primario mb-3">Ativar</button>

@@ -1,7 +1,7 @@
 (function ($) {
   "use strict";
 
-  var moduloCentralAjuda = {
+  const moduloCentralAjuda = {
 
     elementos: {},
 
@@ -25,7 +25,7 @@
     },
 
     registrarEventos: function () {
-      var self = this;
+      const self = this;
 
       this.elementos.$campoEmailUsuario.on("input", function () {
         self.limparErroCampo($(this));
@@ -53,7 +53,7 @@
 
 
     aoSelecionarAssunto: function (valor) {
-      var $mensagem = this.elementos.$campoMensagem;
+      const $mensagem = this.elementos.$campoMensagem;
 
       this.elementos.$campoAssuntoValor.val(valor);
       this.limparErroSelect();
@@ -71,7 +71,7 @@
     },
 
     emailUsuarioEhValido: function () {
-      var campo = this.elementos.$campoEmailUsuario[0];
+      const campo = this.elementos.$campoEmailUsuario[0];
       return this.campoEstaPreenchido(this.elementos.$campoEmailUsuario) && campo.checkValidity();
     },
 
@@ -82,7 +82,7 @@
     },
 
     atualizarBotaoEnviar: function () {
-      var estaCompleto = this.formularioEstaCompleto();
+      const estaCompleto = this.formularioEstaCompleto();
       this.elementos.$botaoEnviar.attr("aria-disabled", estaCompleto ? "false" : "true");
     },
 

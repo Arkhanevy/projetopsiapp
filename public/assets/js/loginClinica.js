@@ -1,7 +1,7 @@
 (function ($, Utilitarios) {
   "use strict";
 
-  var moduloLoginClinica = {
+  const moduloLoginClinica = {
 
     configuracao: {
       urlClinica: "index.php?uri=clinica",
@@ -35,7 +35,7 @@
       $(document).on("submit", "form", function (evento) {
         evento.preventDefault();
       });
-      var self = this;
+      const self = this;
 
       $(document).on("input change", ".form-control", function () {
         $(this).removeClass("is-invalid");
@@ -52,12 +52,12 @@
     },
 
     enviarLogin: function ($botao) {
-      var self = this;
-      var el = this.elementos;
+      const self = this;
+      const el = this.elementos;
 
       $botao.prop("disabled", true).html("Logando...");
 
-      var campos = [
+      const campos = [
         { valor: el.$loginEmail.val(), el: el.$loginEmail },
         { valor: el.$loginSenha.val(), el: el.$loginSenha }
       ];
@@ -68,7 +68,7 @@
         return;
       }
 
-      var email = el.$loginEmail.val().trim();
+      const email = el.$loginEmail.val().trim();
       if (!Utilitarios.emailValido(email)) {
         el.$loginEmail.addClass("is-invalid");
         $botao.prop("disabled", false).html("Logar");
@@ -76,7 +76,7 @@
         return;
       }
 
-      var fd = new FormData();
+      const fd = new FormData();
       fd.append("email", email);
       fd.append("senha", el.$loginSenha.val());
       fd.append("acao", "login");
@@ -102,7 +102,6 @@
       })
       .fail(function (xhr, status, erro) {
         $botao.prop("disabled", false).html("Logar");
-        console.error("Erro no login:", status, erro, xhr.responseText);
         self.mostrarAlert("Erro na requisição!", "danger");
       });
     }

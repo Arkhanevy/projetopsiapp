@@ -1,7 +1,7 @@
 (function ($, window) {
   "use strict";
 
-  var moduloInicioPro = {
+  const moduloInicioPro = {
 
     configuracao: {
       tipoUsuario: null,
@@ -52,7 +52,7 @@
     },
 
     registrarEventos: function () {
-      var self = this;
+      const self = this;
 
       $(document).on("sessaoNavegacaoDefinida", function (evento, sessao) {
         self.aoDefinirSessao(sessao);
@@ -63,7 +63,7 @@
       });
 
       $(document).on("click", "[data-acao='confirmarCancelamentoConsulta']", function () {
-        var idConsulta = self.elementos.$modalCancelamento
+        const idConsulta = self.elementos.$modalCancelamento
           .find(".modalBase_conteudo")
           .attr("data-idConsulta");
 
@@ -83,7 +83,7 @@
 
 
     aoDefinirSessao: function (sessao) {
-      var sessaoValida = sessao
+      const sessaoValida = sessao
         && sessao.logado
         && sessao.tipoUsuario === this.configuracao.tipoUsuario;
 
@@ -96,13 +96,13 @@
     },
 
     carregarConsultas: function () {
-      var self = this;
+      const self = this;
 
       $.ajax({
         url: this.configuracao.urlConsultas,
         method: "POST",
         dataType: "json",
-        data: { acao: "MostrarConsulta" }
+        data: { acao: "MostrarConsulta", somenteAceitas: 0 }
       })
         .done(function (resposta) {
           if (!resposta || !resposta.sucesso) {
@@ -118,14 +118,14 @@
     },
 
     obterDataHoje: function () {
-      var agora = new Date();
-      var mes = String(agora.getMonth() + 1).padStart(2, "0");
-      var dia = String(agora.getDate()).padStart(2, "0");
+      const agora = new Date();
+      const mes = String(agora.getMonth() + 1).padStart(2, "0");
+      const dia = String(agora.getDate()).padStart(2, "0");
       return agora.getFullYear() + "-" + mes + "-" + dia;
     },
 
     filtrarConsultasDeHoje: function (dados) {
-      var hoje = this.obterDataHoje();
+      const hoje = this.obterDataHoje();
 
       return dados
         .filter(function (consulta) {
@@ -137,29 +137,29 @@
     },
 
     formatarDataHora: function (data, horaInicio) {
-      var partes = String(data).substring(0, 10).split("-");
-      var dia = partes[2];
-      var mes = this.configuracao.nomesMes[parseInt(partes[1], 10) - 1];
-      var hora = String(horaInicio).substring(0, 5);
+      const partes = String(data).substring(0, 10).split("-");
+      const dia = partes[2];
+      const mes = this.configuracao.nomesMes[parseInt(partes[1], 10) - 1];
+      const hora = String(horaInicio).substring(0, 5);
 
       return dia + " de " + mes + ", " + hora;
     },
 
     montarCard: function (consulta) {
-      var $card = this.modeloCard.clone();
-      var estado = this.configuracao.statusPermitidos[consulta.agnd_stat] || "pendente";
+      const $card = this.modeloCard.clone();
+      const estado = this.configuracao.statusPermitidos[consulta.agnd_stat] || "pendente";
 
       $card.attr("data-idConsulta", consulta.agnd_id);
       $card.attr("data-estadoConsulta", estado);
 
-      var dataHora = this.formatarDataHora(consulta.agnd_dt, consulta.agnd_hrIni);
+      const dataHora = this.formatarDataHora(consulta.agnd_dt, consulta.agnd_hrIni);
 
       ElmoUtilitarios.preencherCampos($card.find("[data-campo]"), {
         nomeServico: consulta.ser_nome,
         dataHoraConsulta: dataHora
       });
 
-      var complemento = " — " + consulta.ser_nome + ", " + dataHora;
+      const complemento = " — " + consulta.ser_nome + ", " + dataHora;
       $card.find("[data-acao='cancelarConsulta']").attr("aria-label", "Cancelar consulta" + complemento);
       $card.find("[data-acao='reagendarConsulta']").attr("aria-label", "Reagendar consulta" + complemento);
 
@@ -172,8 +172,8 @@
     },
 
     exibirConsultas: function (consultas) {
-      var self = this;
-      var quantidade = consultas.length;
+      const self = this;
+      const quantidade = consultas.length;
 
       this.atualizarContador(quantidade);
       this.marcarCarregando(false);
@@ -218,7 +218,7 @@
     },
 
     marcarCarregando: function (ativo) {
-      var $lista = this.elementos.$lista;
+      const $lista = this.elementos.$lista;
 
       ElmoUtilitarios.alternarEsqueletoAcessivel(this.elementos.$camposCabecalho, ativo);
       this.elementos.$conteudo.attr("aria-busy", ativo ? "true" : "false");
@@ -231,8 +231,8 @@
     },
 
     prepararModalCancelamento: function (botaoAcionador) {
-      var $card = $(botaoAcionador).closest("[data-idConsulta]");
-      var $conteudo = this.elementos.$modalCancelamento.find(".modalBase_conteudo");
+      const $card = $(botaoAcionador).closest("[data-idConsulta]");
+      const $conteudo = this.elementos.$modalCancelamento.find(".modalBase_conteudo");
 
       $conteudo.attr("data-idConsulta", $card.attr("data-idConsulta") || "");
 

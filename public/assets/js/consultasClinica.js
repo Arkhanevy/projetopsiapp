@@ -1,9 +1,9 @@
 (function ($, ConsultasPro) {
   "use strict";
 
-  var URL_SERVICO = "index.php?uri=servico";
+  const URL_SERVICO = "index.php?uri=servico";
 
-  var moduloConsultasClinica = ConsultasPro.criar({
+  const moduloConsultasClinica = ConsultasPro.criar({
     tipoUsuario:      "clinica",
     urlControlador:   "index.php?uri=clinica",
     urlLogin:         "index.php?uri=loginClinica",
@@ -12,9 +12,30 @@
     contratos: {
       listarConsultas: { disponivel: true, acao: "MostrarConsulta" },
 
-      listarDiasIndisponiveis: { disponivel: false, acao: "listarDiasIndisponiveis" },
-       aceitarConsulta: { disponivel: false, acao: "aceitar" },
-      recusarConsulta: { disponivel: false, acao: "rejeitar" },
+      listarDiasIndisponiveis: { disponivel: true, acao: "listarDiasIndisponiveis" },
+      aceitarConsulta: {
+        disponivel: true,
+        acao: "aceitar",
+        montarDados: function (consulta) {
+          return {
+            cli: consulta.idCliente,
+            clinica: consulta.idClinica || 0,
+            agnd_id: consulta.idConsulta
+          };
+        }
+      },
+
+      recusarConsulta: {
+        disponivel: true,
+        acao: "rejeitar",
+        montarDados: function (consulta) {
+          return {
+            cli: consulta.idCliente,
+            clinica: consulta.idClinica || 0,
+            agnd_id: consulta.idConsulta
+          };
+        }
+      },
 
       
       cancelarConsulta: {

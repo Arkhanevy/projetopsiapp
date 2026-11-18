@@ -1,7 +1,7 @@
 (function ($, Utilitarios) {
   "use strict";
 
-  var moduloNotificacoes = {
+  const moduloNotificacoes = {
 
     configuracao: {
 
@@ -57,7 +57,7 @@
     },
 
     cachearElementos: function () {
-      var e = this.elementos;
+      const e = this.elementos;
       e.$principal = $("#conteudoNotificacoes");
       e.$avisoPagina = $("#avisoNotificacoes");
       e.$estadosPagina = $("[data-estadoNotificacoes]");
@@ -73,8 +73,8 @@
     },
 
     registrarEventos: function () {
-      var self = this;
-      var e = this.elementos;
+      const self = this;
+      const e = this.elementos;
 
       $(document).on("sessaoNavegacaoDefinida", function (evento, sessao) {
         self.aoDefinirSessao(sessao);
@@ -94,7 +94,7 @@
     },
 
     aoDefinirSessao: function (sessao) {
-      var configuracao = this.configuracao;
+      const configuracao = this.configuracao;
 
       if (!sessao || !sessao.logado) {
         this.exibirNaoLogado();
@@ -102,7 +102,7 @@
       }
 
       $(".navTopoLogado").removeAttr("hidden");
-      var hrefAgenda = configuracao.hrefAgendaPorTipo[sessao.tipoUsuario];
+      const hrefAgenda = configuracao.hrefAgendaPorTipo[sessao.tipoUsuario];
       if (hrefAgenda) {
         $("[data-itemAgenda]").attr("href", hrefAgenda);
         $("[data-itemMinhasConsultas]").attr("href", hrefAgenda);
@@ -133,8 +133,8 @@
     },
 
     chamarContrato: function (nome, dados) {
-      var contrato = this.configuracao.contratos[nome];
-      var papel = this.configuracao.papeis[this.estado.papel];
+      const contrato = this.configuracao.contratos[nome];
+      const papel = this.configuracao.papeis[this.estado.papel];
 
       return $.ajax({
         url: contrato.url || papel.url,
@@ -145,10 +145,10 @@
     },
 
     exibirEstadoPagina: function (nome) {
-      var e = this.elementos;
+      const e = this.elementos;
       e.$estadosPagina.attr("hidden", "hidden");
       e.$estadosPagina.filter("[data-estadoNotificacoes='" + nome + "']").removeAttr("hidden");
-      var ariaOcupado;
+      let ariaOcupado;
       if (nome === "carregando") {
         ariaOcupado = "true";
       } else {
@@ -164,8 +164,8 @@
     },
 
     carregarNotificacoes: function () {
-      var self = this;
-      var numero = ++this.estado.requisicaoNotificacoes;
+      const self = this;
+      const numero = ++this.estado.requisicaoNotificacoes;
 
       this.elementos.$botaoTentar.removeAttr("hidden");
 
@@ -201,15 +201,15 @@
     },
 
     renderizarNotificacoes: function (itens) {
-      var self = this;
-      var e = this.elementos;
-      var novas = 0;
+      const self = this;
+      const e = this.elementos;
+      let novas = 0;
 
       e.$lista.empty();
       this.estado.notificacoes = {};
 
       $.each(itens, function (posicao, item) {
-        var notificacao = self.normalizarNotificacao(item);
+        const notificacao = self.normalizarNotificacao(item);
         if (!notificacao.id) {
           return;
         }
@@ -221,22 +221,22 @@
         }
       });
 
-      var total = e.$lista.children().length;
+      const total = e.$lista.children().length;
       if (!total) {
         this.exibirEstadoPagina("vazio");
         return;
       }
 
       this.exibirEstadoPagina("lista");
-      var textoTotal;
+      let textoTotal;
       if (total === 1) {
         textoTotal = " notificação encontrada";
       } else {
         textoTotal = " notificações encontradas";
       }
-      var textoNovas;
+      let textoNovas;
       if (novas) {
-        var sufixoNovas;
+        let sufixoNovas;
         if (novas === 1) {
           sufixoNovas = " nova.";
         } else {
@@ -251,18 +251,18 @@
 
     normalizarNotificacao: function (item) {
       item = item || {};
-      var configuracao = this.configuracao;
-      var idNotificacao;
+      const configuracao = this.configuracao;
+      let idNotificacao;
       if (item.notif_id) {
         idNotificacao = String(item.notif_id);
       } else {
         idNotificacao = "";
       }
 
-      var tipo = String(item.notif_tipo || "");
-      var infoTipo = configuracao.tiposNotificacao[tipo] || {};
-      var mensagem = String(item.notif_msg || "");
-      var resumo = mensagem;
+      const tipo = String(item.notif_tipo || "");
+      const infoTipo = configuracao.tiposNotificacao[tipo] || {};
+      const mensagem = String(item.notif_msg || "");
+      let resumo = mensagem;
       if (resumo.length > configuracao.tamanhoResumo) {
         resumo = resumo.substring(0, configuracao.tamanhoResumo).replace(/\s+\S*$/, "") + "…";
       }
@@ -284,11 +284,11 @@
     },
 
     criarCardNotificacao: function (notificacao) {
-      var modelo = this.elementos.$modelo.get(0);
-      var $item = $(modelo.content.firstElementChild.cloneNode(true));
-      var data = this.formatarData(notificacao.data);
+      const modelo = this.elementos.$modelo.get(0);
+      const $item = $(modelo.content.firstElementChild.cloneNode(true));
+      const data = this.formatarData(notificacao.data);
 
-      var valorLida;
+      let valorLida;
       if (notificacao.lida) {
         valorLida = "true";
       } else {
@@ -312,13 +312,13 @@
     },
 
     formatarData: function (valor) {
-      var partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(valor || ""));
+      const partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(valor || ""));
       if (!partes) {
         return { texto: "", iso: "" };
       }
 
-      var data = new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]));
-      var opcoes = { day: "numeric", month: "long" };
+      const data = new Date(Number(partes[1]), Number(partes[2]) - 1, Number(partes[3]));
+      const opcoes = { day: "numeric", month: "long" };
       if (data.getFullYear() !== new Date().getFullYear()) {
         opcoes.year = "numeric";
       }
@@ -330,9 +330,9 @@
     },
 
     abrirNotificacao: function ($card) {
-      var e = this.elementos;
-      var id = $card.attr("data-notificacaoId");
-      var notificacao = this.estado.notificacoes[id];
+      const e = this.elementos;
+      const id = $card.attr("data-notificacaoId");
+      const notificacao = this.estado.notificacoes[id];
 
       if (!notificacao) {
         return;
@@ -355,7 +355,7 @@
     },
 
     aoFecharModal: function () {
-      var $card = this.estado.$cardAtual;
+      const $card = this.estado.$cardAtual;
       this.estado.$cardAtual = null;
 
       if ($card && $card.length && $.contains(document.documentElement, $card.get(0))) {
@@ -364,8 +364,8 @@
     },
 
     marcarComoLida: function (id) {
-      var self = this;
-      var notificacao = this.estado.notificacoes[id];
+      const self = this;
+      const notificacao = this.estado.notificacoes[id];
 
       if (!notificacao || notificacao.lida || !this.contratoDisponivel("marcarNotificacaoLida")) {
         return;
@@ -381,7 +381,7 @@
     },
 
     atualizarCardLido: function (id) {
-      var $card = this.elementos.$lista.find(".cardNotificacao").filter(function () {
+      const $card = this.elementos.$lista.find(".cardNotificacao").filter(function () {
         return $(this).attr("data-notificacaoId") === String(id);
       });
 

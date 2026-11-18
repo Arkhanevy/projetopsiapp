@@ -1,12 +1,12 @@
 (function ($, Busca) {
   "use strict";
 
-  var moduloHome = {
+  const moduloHome = {
 
     iniciar: function () {
 
       $(document).on("pesquisaAcionada", ".campoPesquisaHome", function (evento, dados) {
-        var termo = dados && dados.termo;
+        const termo = dados && dados.termo;
 
         if (!Busca.termoValido(termo)) {
           $(this).find(".campoPesquisa_input").trigger("focus");

@@ -56,8 +56,8 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case 'contato':
-        $campospro = ['pro_id','pro_nome','pro_tel'];
-        $camposCLin = ['clin_id','clin_nome','clin_tel'];
+        $campospro = ['pro_id','pro_nome','pro_tel','pro_email'];
+        $camposCLin = ['clin_id','clin_nome','clin_tel','clin_email'];
         
         $condicao = ['agnd_pro','agnd_cli'];
         $id = $_SESSION['usuario']['idUsuario'];
@@ -150,6 +150,21 @@ switch ($acao){
     case 'arquivosCompartilhados':
         $arquivos = new download();
         $resultado = $arquivos->arquivoscompartilhado($_POST['id'],$_SESSION['usuario']['email']);
+        echo json_encode($resultado);
+        exit;
+    case 'listarDocumentosContato':
+        $arquivos = new download();
+        $resultado = $arquivos->listarDocumentosContato($_POST['idContato'] ?? '', $_POST['tipoContato'] ?? '', $_POST['tipo'] ?? 'enviados');
+        echo json_encode($resultado);
+        exit;
+    case 'enviarDocumento':
+        $arquivos = new download();
+        $resultado = $arquivos->enviarDocumento($_POST['idContato'] ?? '', $_POST['tipoContato'] ?? '', $_POST['tituloDocumento'] ?? '', $_FILES['arquivoDocumento'] ?? null);
+        echo json_encode($resultado);
+        exit;
+    case 'baixarDocumento':
+        $arquivos = new download();
+        $resultado = $arquivos->baixarDocumento($_POST['idDocumento'] ?? '');
         echo json_encode($resultado);
         exit;
 }

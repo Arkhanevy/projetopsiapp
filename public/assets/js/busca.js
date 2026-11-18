@@ -1,7 +1,7 @@
 (function ($, Busca) {
   "use strict";
 
-  var moduloBusca = {
+  const moduloBusca = {
 
     configuracao: {
       intervaloPadrao: 3000,
@@ -30,7 +30,7 @@
     },
 
     cachearElementos: function () {
-      var e = this.elementos;
+      const e = this.elementos;
       e.$titulo = $("#tituloBusca");
       e.$termos = $(".tituloBusca_termo");
       e.$campoPesquisa = $("#campoPesquisaBusca");
@@ -40,14 +40,14 @@
     },
 
     registrarEventos: function () {
-      var self = this;
+      const self = this;
 
       $(document).on("pesquisaAcionada", "#campoPesquisaBusca", function (evento, dados) {
         self.pesquisar(dados && dados.termo);
       });
 
       this.elementos.$sugestoes.on("click", function () {
-        var termo = $(this).attr("data-termoSugestao");
+        const termo = $(this).attr("data-termoSugestao");
         self.elementos.$entrada.val(termo);
         self.pesquisar(termo);
       });
@@ -101,7 +101,7 @@
     },
 
     intervaloDeTroca: function () {
-      var valor = parseInt(this.elementos.$titulo.attr("data-intervaloTroca"), 10);
+      const valor = parseInt(this.elementos.$titulo.attr("data-intervaloTroca"), 10);
       if (valor > 0) {
         return valor;
       } else {
@@ -115,7 +115,7 @@
     },
 
     agendarProximaTroca: function () {
-      var self = this;
+      const self = this;
       this.cancelarTroca();
 
       if (!this.podeTrocar()) {
@@ -128,10 +128,10 @@
     },
 
     trocarTermo: function () {
-      var $termos = this.elementos.$termos;
-      var $atual = $termos.eq(this.estado.indiceAtivo);
+      const $termos = this.elementos.$termos;
+      const $atual = $termos.eq(this.estado.indiceAtivo);
       this.estado.indiceAtivo = (this.estado.indiceAtivo + 1) % $termos.length;
-      var $proximo = $termos.eq(this.estado.indiceAtivo);
+      const $proximo = $termos.eq(this.estado.indiceAtivo);
 
       $atual.removeClass("tituloBusca_termo--ativo").addClass("tituloBusca_termo--saindo");
       $proximo.addClass("tituloBusca_termo--ativo");

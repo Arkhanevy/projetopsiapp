@@ -1,7 +1,7 @@
 (function ($, Utilitarios) {
   "use strict";
 
-  var moduloCadProfissional = {
+  const moduloCadProfissional = {
 
     configuracao: {
       urlProfissional: "index.php?uri=profissional",
@@ -20,8 +20,9 @@
     iniciar: function () {
       this.urlElementos();
 
-      var el = this.elementos;
+      const el = this.elementos;
       Utilitarios.configurarPreviewImagem(el.$alertContainer, el.$img, el.$preview);
+      Utilitarios.configurarArquivo(el.$alertContainer, el.$registro, el.$nomeRegistro);
       Utilitarios.configurarCEP(el.$alertContainer, {
         cep: el.$cep,
         rua: el.$rua,
@@ -61,11 +62,12 @@
       this.elementos.$ibge = $("#ibge");
       this.elementos.$cidade = $("#cidade");
       this.elementos.$registro = $("#registroProfissional");
-      this.elementos.$locais = $("input[name='cxproLocalAtendimento']");
-      this.elementos.$form = $("#cadastroProfissional");
+      this.elementos.$nomeRegistro = $("#nomeRegistro");
+      this.elementos.$locais = $("input[name='locaisAtendimento[]']");
+      this.elementos.$formulario = $("#formProfissional");
 
-      this.elementos.$emailAtivacao = $("#emailAtivar");
-      this.elementos.$codigo = $("#codigoCliente");
+      this.elementos.$formAtivacao = $("#formAtivacao");
+      this.elementos.$codigo = $("#codigoAtivacao");
 
       this.elementos.$botaoCadastrar = $("#btnCadastrar");
       this.elementos.$botaoCodigo = $("#btnCodigo");
@@ -84,10 +86,12 @@
     registrarEventos: function () {
       this.validarCamposAoSair();
 
-      $(document).on("submit", "form", function (evento) {
+      const self = this;
+
+      // O envio é feito somente pelos botões (AJAX); o submit nativo fica bloqueado.
+      this.elementos.$formulario.add(this.elementos.$formAtivacao).on("submit", function (evento) {
         evento.preventDefault();
       });
-      var self = this;
 
       $(document).on("input change", ".form-control, .form-select, textarea", function () {
         $(this).removeClass("is-invalid");
@@ -115,7 +119,7 @@
     },
 
     mostrarTela: function (nomeTela) {
-      var self = this;
+      const self = this;
       Object.keys(this.telas).forEach(function (chave) {
         self.telas[chave].hide();
       });
@@ -132,18 +136,20 @@
     },
 
     enviarCadastro: function ($botao) {
-      var self = this;
-      var el = this.elementos;
+      const self = this;
+      const el = this.elementos;
 
       $botao.prop("disabled", true).html("Cadastrando...");
 
-      var campos = [
+      const registroArquivo = el.$registro[0].files[0];
+
+      const campos = [
         { valor: el.$nome.val(), el: el.$nome },
         { valor: el.$tel.val(), el: el.$tel },
         { valor: el.$user.val(), el: el.$user },
         { valor: el.$bio.val(), el: el.$bio },
         { valor: el.$data.val(), el: el.$data },
-        { valor: el.$registro.val(), el: el.$registro },
+        { valor: registroArquivo ? registroArquivo.name : "", el: el.$registro },
         { valor: el.$senha.val(), el: el.$senha },
         { valor: el.$genero.val(), el: el.$genero },
         { valor: el.$email.val(), el: el.$email },
@@ -162,7 +168,7 @@
         return;
       }
 
-      var locaisSelecionados = el.$locais.filter(":checked").map(function () {
+      const locaisSelecionados = el.$locais.filter(":checked").map(function () {
         return this.value;
       }).get();
 
@@ -172,7 +178,7 @@
         return;
       }
 
-      var cpf = el.$cpf.val().trim();
+      const cpf = el.$cpf.val().trim();
       if (!cpf || !Utilitarios.cpfValido(cpf)) {
         el.$cpf.addClass("is-invalid");
         $botao.prop("disabled", false).html("Cadastrar");
@@ -194,7 +200,7 @@
         return;
       }
 
-      var email = el.$email.val().trim();
+      const email = el.$email.val().trim();
       if (!Utilitarios.emailValido(email)) {
         el.$email.addClass("is-invalid");
         $botao.prop("disabled", false).html("Cadastrar");
@@ -202,40 +208,33 @@
         return;
       }
 
-      var imgArquivo = el.$img[0].files[0];
+      const imgArquivo = el.$img[0].files[0];
       if (!imgArquivo) {
         $botao.prop("disabled", false).html("Cadastrar");
         this.mostrarAlert("A imagem de perfil é obrigatória.", "danger");
         return;
       }
 
-      var camposEndereco = [el.$cep, el.$rua, el.$bairro, el.$uf, el.$ibge, el.$cidade];
+      const camposEndereco = [el.$cep, el.$rua, el.$bairro, el.$uf, el.$ibge, el.$cidade];
       if (Utilitarios.apenasNumeros(el.$cep.val()).length !== 8) {
         Utilitarios.marcarCamposComErro(el.$alertContainer, camposEndereco, "CEP inválido!");
         $botao.prop("disabled", false).html("Cadastrar");
         return;
       }
 
-      var cpfLimpo = Utilitarios.apenasNumeros(el.$cpf.val());
-      var cepLimpo = Utilitarios.apenasNumeros(el.$cep.val());
+      const cpfLimpo = Utilitarios.apenasNumeros(el.$cpf.val());
+      const cepLimpo = Utilitarios.apenasNumeros(el.$cep.val());
 
-      var formData = new FormData();
-      formData.append("nome", el.$nome.val());
-      formData.append("email", email);
-      formData.append("telefone", Utilitarios.apenasNumeros(el.$tel.val()));
-      locaisSelecionados.forEach(function (local) {
-        formData.append("locaisAtendimento[]", local);
+      // $_POST e $_FILES saem do próprio formulário (atributos name); só os valores com máscara são sobrescritos.
+      const formData = Utilitarios.criarFormData(el.$formulario, {
+        email: email,
+        telefone: Utilitarios.apenasNumeros(el.$tel.val()),
+        CEP: cepLimpo,
+        CPF: cpfLimpo
       });
-      formData.append("username", el.$user.val());
-      formData.append("bio", el.$bio.val());
-      formData.append("dtNas", el.$data.val());
-      formData.append("registro", el.$registro.val());
-      formData.append("senha", el.$senha.val());
-      formData.append("genero", el.$genero.val());
-      formData.append("CEP", cepLimpo);
-      formData.append("CPF", cpfLimpo);
-      formData.append("acao", "cadastrar");
-      formData.append("cxproFoto", imgArquivo);
+
+      // $_FILES['registro'] leva o arquivo; $_POST['registro'] leva o nome do arquivo.
+      formData.append("registro", registroArquivo.name);
 
       $.ajax({
           url: this.configuracao.urlProfissional,
@@ -264,16 +263,16 @@
     },
 
     gerarCodigo: function ($botao) {
-      var self = this;
+      const self = this;
 
       $botao.prop("disabled", true);
 
-      var tempo = 60;
+      let tempo = 60;
       $botao.text("Aguarde " + tempo + "s para gerar um novo código");
 
-      var intervalo = setInterval(function () {
+      const intervalo = setInterval(function () {
         tempo--;
-        $botao.text("Aguarde " + tempo + "s para gerar \b um novo código");
+        $botao.text("Aguarde " + tempo + "s para gerar um novo código");
         if (tempo <= 0) {
           clearInterval(intervalo);
           $botao.prop("disabled", false);
@@ -281,9 +280,9 @@
         }
       }, 1000);
 
-      var email = this.elementos.$email.val().trim();
+      const email = this.elementos.$email.val().trim();
 
-      var fd = new FormData();
+      const fd = new FormData();
       fd.append("email", email);
       fd.append("acao", "ReGerarCodigo");
 
@@ -311,16 +310,15 @@
           }
       })
       .fail(function (xhr, status, erro) {
-          console.error("Erro ao gerar código:", status, erro, xhr.responseText);
           self.mostrarAlert("Erro na requisição ao gerar código!", "danger");
       });
     },
 
     ativarConta: function ($botao) {
-      var self = this;
-      var $campoCodigo = this.elementos.$codigo;
-      var codigoDigitado = $campoCodigo.val().trim();
-      var email = this.elementos.$email.val().trim();
+      const self = this;
+      const $campoCodigo = this.elementos.$codigo;
+      const codigoDigitado = $campoCodigo.val().trim();
+      const email = this.elementos.$email.val().trim();
 
       if (!this.estado.codigoGerado) {
         this.mostrarAlert("Gere um código primeiro!", "danger");
@@ -337,10 +335,11 @@
 
       $botao.prop("disabled", true).html("Ativando...");
 
-      var fd = new FormData();
-      fd.append("email", email);
-      fd.append("cod", codigoDigitado);
-      fd.append("acao", "ativar");
+      const fd = Utilitarios.criarFormData(this.elementos.$formAtivacao, {
+        email: email,
+        cod: codigoDigitado,
+        acao: "ativar"
+      });
 
       $.ajax({
     url: this.configuracao.urlProfissional,
@@ -372,7 +371,6 @@
       .fail(function (xhr, status, erro) {
           $botao.prop("disabled", false).html("Ativar");
 
-          console.error("Erro na ativação:", status, erro, xhr.responseText);
 
           self.mostrarAlert("Erro na requisição de ativação!", "danger");
       });

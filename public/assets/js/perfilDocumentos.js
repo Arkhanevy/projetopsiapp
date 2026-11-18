@@ -3,19 +3,40 @@
 
   window.ElmoPerfilModulos = window.ElmoPerfilModulos || [];
 
-  var tiposDocumento = {
+  const tiposDocumento = {
     diploma: "Diploma",
     certificadoEspecializacao: "Certificado de especialização",
     licencaAlvaraSanitario: "Licença ou alvará sanitário",
     alvaraFuncionamento: "Alvará de funcionamento"
   };
 
-  var moduloDocumentos = {
+  // Só estes tipos viram data URI no backend (models/download.php).
+  const extensoesPorMime = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "application/pdf": "pdf"
+  };
 
-     contratos: {
-      listarDocumentos: { url: "index.php?uri=documento", acao: "listarDocumentos", disponivel: false },
-      enviarDocumento:  { url: "index.php?uri=documento", acao: "enviarDocumento",  disponivel: false },
-      apagarDocumento:  { url: "index.php?uri=documento", acao: "apagarDocumento",  disponivel: false }
+  // Upload.php: 0 = público, 1 = privado; shareMails vazio = ninguém em especial.
+  const controleAcessoPadrao = "0";
+
+  const moduloDocumentos = {
+
+    contratos: {
+      // profissionalcontroller / clinicacontroller: arquivos do dono logado (sem url: usa o controller do papel).
+      listarDocumentos: { acao: "meusArquivos", disponivel: true },
+
+      // Mesmos controllers: arquivos de outro dono compartilhados com o e-mail da sessão ($_POST["id"] = dono).
+      listarDocumentosCompartilhados: { acao: "arquivosCompartilhados", disponivel: true },
+
+      // utils/Upload.php: lê $_FILES["file"] e $_POST["titulo"], ["tipo"], ["accessCtrl"], ["shareMails"].
+      // Ajuste a rota se no routes.json o Upload.php tiver outro nome.
+      enviarDocumento: { url: "index.php?uri=upload", acao: "upload", disponivel: true },
+
+      // Ainda não existe ação de apagar no backend.
+      apagarDocumento: { url: "index.php?uri=documento", acao: "apagarDocumento", disponivel: false }
     },
 
     estado: {
@@ -37,7 +58,7 @@
     },
 
     cachearElementos: function () {
-      var e = this.elementos;
+      const e = this.elementos;
 
       e.$carregando = $('[data-carregando="documentos"]');
       e.$erro = $('[data-estadoErro="documentos"]');
@@ -66,16 +87,49 @@
     },
 
     urlSegura: function (url) {
-      var texto = $.trim(String(url || ""));
+      const texto = $.trim(String(url || ""));
 
+      if (/^data:(image\/(jpeg|png|gif|webp)|application\/pdf);base64,[A-Za-z0-9+\/=]+$/.test(texto)) {
+        return texto;
+      }
       if (!texto || /^(javascript|data|vbscript):/i.test(texto)) {
         return "#";
       }
       return texto;
     },
 
+    // "up20261117093015123.pdf.base64" -> { data: "17/11/2026", extensao: "pdf" }
+    lerNomeGuardado: function (nome) {
+      const partes = /^up(\d{4})(\d{2})(\d{2})\d{9}\.([^.]*)\.base64$/i.exec(String(nome || ""));
+
+      if (!partes) {
+        return { data: "", extensao: "" };
+      }
+      return { data: partes[3] + "/" + partes[2] + "/" + partes[1], extensao: partes[4].toLowerCase() };
+    },
+
+    // meusArquivos só devolve { mime, nome, data }: título e tipo não vêm do backend,
+    // então o título é montado pelo tipo do arquivo e pela data do envio.
+    tituloDoArquivo: function (item) {
+      const guardado = this.lerNomeGuardado(item.nome);
+      let base;
+
+      if (item.titulo) {
+        return item.titulo;
+      }
+      if (String(item.mime || "").indexOf("image/") === 0) {
+        base = "Imagem";
+      } else {
+        base = "Documento PDF";
+      }
+      if (guardado.data) {
+        return base + " de " + guardado.data;
+      }
+      return base;
+    },
+
     definirEstado: function (nome) {
-      var e = this.elementos;
+      const e = this.elementos;
 
       e.$carregando.prop("hidden", nome !== "carregando");
       e.$erro.prop("hidden", nome !== "erro");
@@ -84,22 +138,25 @@
     },
 
     carregar: function () {
-      var self = this;
-      var nucleo = this.nucleo;
-      var numeroPedido = ++this.estado.pedido;
-      var dados = null;
+      const self = this;
+      const nucleo = this.nucleo;
+      const numeroPedido = ++this.estado.pedido;
+      let dados = null;
 
       this.definirEstado("carregando");
 
-      if (!nucleo.contratoDisponivel("listarDocumentos")) {
+      let contrato = "listarDocumentos";
+
+      if (nucleo.ehVisitante()) {
+        contrato = "listarDocumentosCompartilhados";
+        dados = { id: nucleo.estado.alvo.id };
+      }
+      if (!nucleo.contratoDisponivel(contrato)) {
         this.renderizar([]);
         return;
       }
-      if (nucleo.ehVisitante()) {
-        dados = { tipo: nucleo.estado.alvo.tipo, id: nucleo.estado.alvo.id };
-      }
 
-      nucleo.chamarContrato("listarDocumentos", dados)
+      nucleo.chamarContrato(contrato, dados)
         .done(function (resposta) {
           if (numeroPedido !== self.estado.pedido) {
             return;
@@ -118,29 +175,44 @@
     },
 
     renderizar: function (itens) {
-      var self = this;
-      var nucleo = this.nucleo;
-      var $lista = this.elementos.$lista.empty();
+      const self = this;
+      const nucleo = this.nucleo;
+      const $lista = this.elementos.$lista.empty();
 
       this.estado.carregado = true;
 
       $.each(itens, function (_, item) {
-        var titulo = item.titulo || "";
-        var $card = nucleo.clonarModelo("modeloCardDocumento");
+        const titulo = self.tituloDoArquivo(item);
+        const extensao = extensoesPorMime[item.mime] || self.lerNomeGuardado(item.nome).extensao;
+        const href = self.urlSegura(item.data || item.url);
+        const eImagem = String(item.mime || "").indexOf("image/") === 0 && href !== "#";
+        const $card = nucleo.clonarModelo("modeloCardDocumento");
+        const $link = $card.find('[data-campo="linkBaixarDocumento"]');
+        const $tipo = $card.find('[data-campo="tipoDocumento"]');
 
         $card.find('[data-campo="tituloDocumento"]').text(titulo);
-        $card.find('[data-campo="tipoDocumento"]').text(self.rotuloDoTipo(item.tipo));
-        $card.find('[data-campo="linkBaixarDocumento"]').attr({
-          href: self.urlSegura(item.url),
+        if (item.tipo) {
+          $tipo.text(self.rotuloDoTipo(item.tipo));
+        } else {
+          $tipo.attr("hidden", "hidden");
+        }
+        $link.attr({
+          href: href,
+          download: titulo + (extensao ? "." + extensao : ""),
           "aria-label": "Baixar " + titulo
         });
         $card.find('[data-acao="apagarDocumento"]').attr("aria-label", "Apagar " + titulo);
+
+        // Miniatura opcional: só aparece se o modelo tiver <img data-campo="miniaturaDocumento" hidden>.
+        if (eImagem) {
+          $card.find('[data-campo="miniaturaDocumento"]').attr({ src: href, alt: titulo }).removeAttr("hidden");
+        }
 
         if (nucleo.ehVisitante()) {
           $card.find("[data-somenteDono]").attr("hidden", "hidden");
         }
 
-        $card.data("documento", { id: item.id, titulo: titulo });
+        $card.data("documento", { id: item.id || item.nome, titulo: titulo });
         $lista.append($card);
       });
 
@@ -157,7 +229,7 @@
     },
 
     limparFormulario: function () {
-      var e = this.elementos;
+      const e = this.elementos;
 
       e.$formulario.get(0).reset();
       e.$formulario.find(".is-invalid").removeClass("is-invalid");
@@ -173,7 +245,7 @@
     },
 
     limparArquivo: function () {
-      var e = this.elementos;
+      const e = this.elementos;
 
       this.estado.arquivo = null;
       e.$campoArquivo.val("");
@@ -183,14 +255,14 @@
     },
 
     validarArquivo: function (arquivo) {
-      var tipos = $.trim(this.elementos.$areaArquivo.attr("data-tiposPermitidos") || "");
-      var tamanhoMaximoMb = Number(this.elementos.$areaArquivo.attr("data-tamanhoMaximoMb"));
+      const tipos = $.trim(this.elementos.$areaArquivo.attr("data-tiposPermitidos") || "");
+      const tamanhoMaximoMb = Number(this.elementos.$areaArquivo.attr("data-tamanhoMaximoMb"));
 
       if (tipos) {
-        var extensoes = $.map(tipos.split(","), function (tipo) {
+        const extensoes = $.map(tipos.split(","), function (tipo) {
           return $.trim(tipo).toLowerCase().replace(/^\./, "");
         });
-        var extensao = (arquivo.name.split(".").pop() || "").toLowerCase();
+        const extensao = (arquivo.name.split(".").pop() || "").toLowerCase();
 
         if ($.inArray(extensao, extensoes) === -1) {
           return "Tipo de arquivo não permitido. Use: " + extensoes.join(", ") + ".";
@@ -203,8 +275,8 @@
     },
 
     definirArquivo: function (arquivo) {
-      var e = this.elementos;
-      var erro = this.validarArquivo(arquivo);
+      const e = this.elementos;
+      const erro = this.validarArquivo(arquivo);
 
       if (erro) {
         this.limparArquivo();
@@ -222,9 +294,9 @@
     },
 
     preencherTituloAutomatico: function (nomeArquivo) {
-      var $titulo = this.elementos.$campoTitulo;
-      var sugestao = nomeArquivo.replace(/\.[^.]+$/, "").slice(0, 100);
-      var atual = $.trim($titulo.val());
+      const $titulo = this.elementos.$campoTitulo;
+      const sugestao = nomeArquivo.replace(/\.[^.]+$/, "").slice(0, 100);
+      const atual = $.trim($titulo.val());
 
       if (!atual || atual === this.estado.tituloAutomatico) {
         $titulo.val(sugestao).removeClass("is-invalid");
@@ -238,8 +310,8 @@
     },
 
     focarPrimeiroInvalido: function () {
-      var e = this.elementos;
-      var $invalido = e.$formulario.find("input.is-invalid, .campoSelect--erro .campoSelect_gatilho").first();
+      const e = this.elementos;
+      const $invalido = e.$formulario.find("input.is-invalid, .campoSelect--erro .campoSelect_gatilho").first();
 
       if ($invalido.length) {
         $invalido.trigger("focus");
@@ -249,12 +321,12 @@
     },
 
     enviar: function () {
-      var self = this;
-      var e = this.elementos;
-      var nucleo = this.nucleo;
-      var titulo = $.trim(e.$campoTitulo.val());
-      var tipo = e.$campoTipo.attr("data-valorSelecionado") || "";
-      var arquivo = this.estado.arquivo;
+      const self = this;
+      const e = this.elementos;
+      const nucleo = this.nucleo;
+      const titulo = $.trim(e.$campoTitulo.val());
+      const tipo = e.$campoTipo.attr("data-valorSelecionado") || "";
+      const arquivo = this.estado.arquivo;
 
       e.$formulario.find(".is-invalid").removeClass("is-invalid");
       e.$campoTipo.removeClass("campoSelect--erro");
@@ -279,16 +351,20 @@
         return;
       }
 
-      var dados = new FormData();
+      // Upload.php lê $_FILES["file"] e os campos em $_POST.
+      const dados = new FormData();
+      dados.append("file", arquivo, arquivo.name);
       dados.append("titulo", titulo);
       dados.append("tipo", tipo);
-      dados.append("arquivo", arquivo, arquivo.name);
+      dados.append("accessCtrl", controleAcessoPadrao);
+      dados.append("shareMails", "");
 
       this.alternarEnvio(true);
 
-      nucleo.chamarContrato("enviarDocumento", dados)
+      // O Upload.php responde com texto (nome do arquivo salvo), não com JSON.
+      nucleo.chamarContrato("enviarDocumento", dados, "text")
         .done(function (resposta) {
-          if (resposta && resposta.sucesso) {
+          if (self.envioConfirmado(resposta)) {
             Utilitarios.esconderModal(e.$modalAdicionar);
             self.carregar();
           } else {
@@ -303,8 +379,13 @@
         });
     },
 
+    // Sucesso = nome gerado pelo Upload.php ("up" + data/hora + extensão + ".base64").
+    envioConfirmado: function (resposta) {
+      return /up\d{14,}\.[^\s]*\.base64/.test(String(resposta || ""));
+    },
+
     abrirApagar: function ($botao) {
-      var documento = $botao.closest(".cardDocumento").data("documento");
+      const documento = $botao.closest(".cardDocumento").data("documento");
 
       if (!documento) {
         return;
@@ -320,10 +401,10 @@
     },
 
     confirmarApagar: function () {
-      var self = this;
-      var e = this.elementos;
-      var nucleo = this.nucleo;
-      var documento = this.estado.documentoParaApagar;
+      const self = this;
+      const e = this.elementos;
+      const nucleo = this.nucleo;
+      const documento = this.estado.documentoParaApagar;
 
       if (!documento) {
         return;
@@ -355,8 +436,8 @@
     },
 
     registrarEventos: function () {
-      var self = this;
-      var e = this.elementos;
+      const self = this;
+      const e = this.elementos;
 
       $("#abaDocumentos").on("shown.bs.tab", function () {
         if (!self.estado.carregado) {
@@ -390,7 +471,7 @@
         e.$campoArquivo.trigger("click");
       });
       e.$campoArquivo.on("change", function () {
-        var arquivo = this.files && this.files[0];
+        const arquivo = this.files && this.files[0];
 
         if (arquivo) {
           self.definirArquivo(arquivo);
@@ -406,14 +487,14 @@
         $(this).addClass("areaArquivo--arrastando");
       });
       e.$areaArquivo.on("dragleave", function (evento) {
-        var destino = evento.originalEvent.relatedTarget;
+        const destino = evento.originalEvent.relatedTarget;
 
         if (!destino || !$.contains(this, destino)) {
           $(this).removeClass("areaArquivo--arrastando");
         }
       });
       e.$areaArquivo.on("drop", function (evento) {
-        var transferencia = evento.originalEvent.dataTransfer;
+        const transferencia = evento.originalEvent.dataTransfer;
 
         evento.preventDefault();
         $(this).removeClass("areaArquivo--arrastando");
