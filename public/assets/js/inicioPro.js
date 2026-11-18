@@ -102,7 +102,7 @@
         url: this.configuracao.urlConsultas,
         method: "POST",
         dataType: "json",
-        data: { acao: "MostrarConsulta" }
+        data: { acao: "MostrarConsulta", somenteAceitas: 0 }
       })
         .done(function (resposta) {
           if (!resposta || !resposta.sucesso) {

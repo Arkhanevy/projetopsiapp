@@ -10,7 +10,8 @@
     pendente: "consulta pendente",
     confirmada: "consulta confirmada",
     indisponivel: "indisponível",
-    folga: "dia de folga"
+    folga: "dia de folga",
+    encerrado: "já passou"
   };
 
   var ESTADO_POR_STATUS_BANCO = {
@@ -31,7 +32,6 @@
         anoExibido: null,
         diaSelecionado: null,
         consultas: [],
-        filtroEstadoConsulta: "todas",
         diasIndisponiveis: [],
         idConsultaEmAcao: null,
         carregou: false,
@@ -55,7 +55,6 @@
         this.registrarEventos();
         this.renderizarCalendario();
         this.anunciar("Carregando consultas.");
-        this.exibirModalConsultaAdicionadaSeNecessario();
       },
 
       cachearElementos: function () {
@@ -65,13 +64,9 @@
         this.elementos.$mensagemStatus = $("#mensagemStatusConsultasPro");
         this.elementos.$tituloPainel = $("#tituloPainelConsultasPro");
 
-        this.elementos.$painelFiltro = $("#painelFiltroConsultas");
-        this.elementos.$botaoFiltro = $("#botaoFiltrarConsultas");
-
         this.elementos.$modalSessaoExpirada = $("#modalSessaoExpirada");
         this.elementos.$modalDetalhes = $("#modalDetalhesConsulta");
         this.elementos.$modalCancelamento = $("#modalConfirmarCancelamento");
-        this.elementos.$modalConsultaAdicionada = $("#modalConsultaAdicionada");
 
         this.textosEstadoVazioPadrao = {
           icone: this.elementos.$estadoVazio.find(".estadoVazio_icone").text(),
@@ -120,10 +115,6 @@
 
         this.elementos.$calendario.on("diaSelecionado", function (evento, dados) {
           self.aoSelecionarDia(dados);
-        });
-
-        this.elementos.$painelFiltro.on("click", ".painelFiltro_botaoAplicar", function () {
-          self.aplicarFiltro();
         });
 
         $(document).on("consultaAceita", function (evento) {
@@ -182,7 +173,7 @@
           url: this.configuracao.urlControlador,
           method: "POST",
           dataType: "json",
-          data: { acao: contrato.acao }
+          data: { acao: contrato.acao, somenteAceitas: 0 }
         })
           .done(function (resposta) {
             if (!resposta || !resposta.sucesso || !$.isArray(resposta.dados)) {
@@ -312,7 +303,38 @@
             .addClass("calendarioBase_dia--selecionado");
         }
 
+        this.marcarDiasPassados();
         this.aplicarAcessibilidadeDias();
+      },
+
+      marcarDiasPassados: function () {
+        var hoje = new Date();
+        var mesHoje = hoje.getFullYear() * 12 + hoje.getMonth();
+        var mesExibido = this.estado.anoExibido * 12 + this.estado.mesExibido;
+        var ultimoDiaPassado;
+
+        if (mesExibido > mesHoje) {
+          return;
+        }
+
+        if (mesExibido < mesHoje) {
+          ultimoDiaPassado = 31;
+        } else {
+          ultimoDiaPassado = hoje.getDate() - 1;
+        }
+
+        this.elementos.$calendario.find(".calendarioBase_dia").each(function () {
+          var $dia = $(this);
+          var numeroDia = parseInt($dia.attr("data-dia"), 10);
+
+          if (isNaN(numeroDia) || numeroDia > ultimoDiaPassado || $dia.attr("data-estadoDia")) {
+            return;
+          }
+
+          $dia
+            .addClass("calendarioBase_dia--encerrado")
+            .attr("data-estadoDia", "encerrado");
+        });
       },
 
       aplicarAcessibilidadeDias: function () {
@@ -379,10 +401,7 @@
         var self = this;
 
         var visiveis = $.grep(this.consultasDoMes(), function (consulta) {
-          var passaDia = self.estado.diaSelecionado === null || consulta.dia === self.estado.diaSelecionado;
-          var passaEstado = self.estado.filtroEstadoConsulta === "todas" ||
-                            consulta.estadoConsulta === self.estado.filtroEstadoConsulta;
-          return passaDia && passaEstado;
+          return self.estado.diaSelecionado === null || consulta.dia === self.estado.diaSelecionado;
         });
 
         return visiveis.sort(function (a, b) {
@@ -449,26 +468,6 @@
       },
 
 
-      aplicarFiltro: function () {
-        var filtros = {};
-
-        this.elementos.$painelFiltro.find(".grupoFiltro").each(function () {
-          var $grupo = $(this);
-          filtros[$grupo.attr("data-grupoFiltro")] = $grupo.find("input[type='radio']:checked").val() || null;
-        });
-
-        this.estado.filtroEstadoConsulta = filtros.estadoConsulta || "todas";
-
-        var instancia = bootstrap.Dropdown.getInstance(this.elementos.$botaoFiltro.get(0));
-        if (instancia) {
-          instancia.hide();
-        }
-
-        this.atualizarLista();
-      },
-
-
-
       buscarConsultaPorId: function (idConsulta) {
         var encontrada = null;
 
@@ -502,18 +501,6 @@
         });
 
         $modal.find(".modalBase_conteudo").attr("data-idConsulta", consulta.idConsulta);
-      },
-
-      exibirModalConsultaAdicionadaSeNecessario: function () {
-        if (Utilitarios.obterParametroUrl("consultaAdicionada") !== "1") {
-          return;
-        }
-
-        Utilitarios.exibirModal(this.elementos.$modalConsultaAdicionada);
-
-        var parametros = new URLSearchParams(window.location.search);
-        parametros.delete("consultaAdicionada");
-        window.history.replaceState(null, "", window.location.pathname + "?" + parametros.toString());
       },
 
        executarAcao: function (nomeContrato, consulta) {

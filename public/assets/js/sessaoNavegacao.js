@@ -9,7 +9,12 @@
         return "index.php?uri=" + tipo;
       },
       urlSair: "index.php?uri=limpar",
-      urlAposSair: "index.php"
+      urlAposSair: "index.php",
+      loginsPorTipo: [
+        { rotulo: "Sou um cliente", url: "index.php?uri=loginCliente" },
+        { rotulo: "Sou um profissional", url: "index.php?uri=loginProfissional" },
+        { rotulo: "Sou uma clínica", url: "index.php?uri=loginClinica" }
+      ]
     },
 
     caminhosMenuPorTipo: {
@@ -131,6 +136,63 @@
       this.elementos.$menuHamburguer.attr("hidden", "hidden");
 
       $(document).trigger("sessaoNavegacaoDefinida", [{ logado: false, tipoUsuario: null }]);
+      this.avisarUsuarioDeslogado();
+    },
+
+    /**
+     * Telas que exigem login declaram <body data-exigeLogin>. Quando nenhum login é
+     * identificado, abre o modal de aviso (sem opção de fechar) com os caminhos de login.
+     * Telas que já tratam a sessão por conta própria (consultas, início, perfil) não usam
+     * o atributo e continuam com o modal delas.
+     */
+    avisarUsuarioDeslogado: function () {
+      if (!document.body.hasAttribute("data-exigeLogin")) {
+        return;
+      }
+
+      var $modal = $("#modalUsuarioDeslogado");
+      if (!$modal.length) {
+        $modal = $(this.montarModalDeslogado()).appendTo(document.body);
+      }
+
+      bootstrap.Modal.getOrCreateInstance($modal.get(0), {
+        backdrop: "static",
+        keyboard: false
+      }).show();
+    },
+
+    montarModalDeslogado: function () {
+      var botoes = "";
+
+      $.each(this.configuracao.loginsPorTipo, function (_, login) {
+        botoes += '<a class="btn botaoBase botaoBase--secundario" href="' + login.url + '">' +
+                  login.rotulo + "</a>";
+      });
+
+      return '<div class="modal fade modalBase" id="modalUsuarioDeslogado" tabindex="-1"' +
+               ' aria-labelledby="tituloModalUsuarioDeslogado"' +
+               ' aria-describedby="textoModalUsuarioDeslogado" aria-modal="true" role="dialog">' +
+               '<div class="modal-dialog modal-dialog-centered">' +
+                 '<div class="modal-content modalBase_conteudo">' +
+                   '<div class="modal-header modalBase_cabecalho">' +
+                     '<h2 class="modal-title modalBase_titulo" id="tituloModalUsuarioDeslogado">' +
+                       "Você não está logado</h2>" +
+                   "</div>" +
+                   '<div class="modal-body text-center">' +
+                     '<p class="visually-hidden">Esta janela não pode ser fechada. ' +
+                       "Escolha abaixo como deseja entrar para continuar.</p>" +
+                     '<div class="modalFeedback_icone" aria-hidden="true">' +
+                       '<span class="material-symbols-outlined" aria-hidden="true">no_accounts</span>' +
+                     "</div>" +
+                     '<p id="textoModalUsuarioDeslogado" class="modalFeedback_mensagem">' +
+                       "Para acessar essa página, realize login na sua conta.</p>" +
+                   "</div>" +
+                   '<div class="modal-footer modalBase_rodape flex-wrap justify-content-center gap-2">' +
+                     botoes +
+                   "</div>" +
+                 "</div>" +
+               "</div>" +
+             "</div>";
     },
 
     exibirNavegacaoLogado: function (tipoUsuario) {

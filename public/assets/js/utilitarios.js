@@ -334,8 +334,48 @@
       return resultado == digitos.charAt(1);
     },
 
+    criarFormData: function ($formulario, valores) {
+      var formData = new FormData($formulario.get(0));
+
+      Object.keys(valores || {}).forEach(function (chave) {
+        formData.set(chave, valores[chave]);
+      });
+
+      return formData;
+    },
+
+    validarArquivo: function (arquivo, $input) {
+      var elemento = $input.get(0);
+      var tiposPermitidos = (elemento.getAttribute("data-tiposPermitidos") || "").toLowerCase();
+      var tamanhoMaximoMb = parseFloat(elemento.getAttribute("data-tamanhoMaximoMb"));
+
+      if (tiposPermitidos) {
+        var nomeArquivo = arquivo.name.toLowerCase();
+        var tipoArquivo = (arquivo.type || "").toLowerCase();
+
+        var tipoValido = tiposPermitidos.split(",").some(function (tipo) {
+          tipo = $.trim(tipo);
+          if (tipo === "") { return false; }
+          if (tipo.slice(-2) === "/*") { return tipoArquivo.indexOf(tipo.slice(0, -1)) === 0; }
+          if (tipo.charAt(0) === ".") { return nomeArquivo.slice(-tipo.length) === tipo; }
+          return tipoArquivo === tipo;
+        });
+
+        if (!tipoValido) {
+          return "Tipo de arquivo não permitido!";
+        }
+      }
+
+      if (tamanhoMaximoMb > 0 && arquivo.size > tamanhoMaximoMb * 1024 * 1024) {
+        return "O arquivo deve ter no máximo " + tamanhoMaximoMb + " MB!";
+      }
+
+      return "";
+    },
+
     configurarPreviewImagem: function ($container, $input, $preview) {
       var self = this;
+      var srcOriginal = $preview.attr("src");
 
       $preview.on("click", function () {
         $input.trigger("click");
@@ -344,8 +384,18 @@
       $input.on("change", function () {
         var arquivo = this.files[0];
 
-        if (!arquivo || !arquivo.type.startsWith("image/")) {
-          self.mostrarAlerta($container, "Selecione uma imagem válida!", "danger");
+        if (!arquivo) {
+          return;
+        }
+
+        var erro = arquivo.type.indexOf("image/") !== 0
+          ? "Selecione uma imagem válida!"
+          : self.validarArquivo(arquivo, $input);
+
+        if (erro) {
+          $input.val("");
+          $preview.attr("src", srcOriginal);
+          self.mostrarAlerta($container, erro, "danger");
           return;
         }
 
@@ -354,6 +404,31 @@
           $preview.attr("src", evento.target.result);
         };
         leitor.readAsDataURL(arquivo);
+      });
+    },
+
+    configurarArquivo: function ($container, $input, $rotuloNome) {
+      var self = this;
+
+      $input.on("change", function () {
+        var arquivo = this.files[0];
+
+        if (!arquivo) {
+          $rotuloNome.text("");
+          return;
+        }
+
+        var erro = self.validarArquivo(arquivo, $input);
+
+        if (erro) {
+          $input.val("").addClass("is-invalid");
+          $rotuloNome.text("");
+          self.mostrarAlerta($container, erro, "danger");
+          return;
+        }
+
+        $input.removeClass("is-invalid");
+        $rotuloNome.text("Arquivo selecionado: " + arquivo.name);
       });
     },
 

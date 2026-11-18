@@ -37,7 +37,7 @@
         },
         clinica: {
           url: "index.php?uri=clinica",
-          listas: { dados1: "profissionais" },
+          listas: { dados1: "profissionais", dados2: "clientes" },
           secoes: ["profissionais", "clientes"],
           apoio: "profissionais e clientes",
           mostrarTelefone: true
@@ -53,9 +53,9 @@
 
       contratos: {
         listarContatos:   { acao: "contato",          disponivel: true  },
-        listarDocumentos: { acao: "listarDocumentos", disponivel: false },
-        enviarDocumento:  { acao: "enviarDocumento",  disponivel: false },
-        baixarDocumento:  { acao: "baixarDocumento",  disponivel: false }
+        listarDocumentos: { acao: "listarDocumentosContato", disponivel: true },
+        enviarDocumento:  { acao: "enviarDocumento",  disponivel: true },
+        baixarDocumento:  { acao: "baixarDocumento",  disponivel: true }
       },
 
       avisos: {
@@ -137,6 +137,12 @@
       });
       e.$modal.on("shown.bs.modal", function () {
         self.carregarDocumentos(self.estado.abaDocumentos);
+      });
+      e.$modal.on("hide.bs.modal", function (evento) {
+        if (self.estado.enviando) {
+          evento.preventDefault();
+          self.exibirAviso("Aguarde o envio terminar para fechar.", "atencao");
+        }
       });
       e.$modal.on("hidden.bs.modal", function () {
         self.aoFecharModal();
@@ -412,14 +418,18 @@
       var usuario = item[prefixo + "_user"] || item[prefixo + "_nome"] || "";
       var foto = this.fotoValida(item[prefixo + "_foto"]);
 
-      $item.find("[data-idContato]")
+      $item.find("[data-idContato]").addBack("[data-idContato]")
         .attr("data-idContato", item[prefixo + "_id"])
         .attr("data-tipoContato", secao.tipo);
       $item.find("[data-campo='usuarioContato']").text(usuario);
 
       var $telefone = $item.find("[data-campo='telefoneContato']");
+      var telefoneFormatado = "";
       if (papel.mostrarTelefone) {
-        $telefone.text(Utilitarios.formatarMascara("telefone", item[prefixo + "_tel"]));
+        telefoneFormatado = Utilitarios.formatarMascara("telefone", item[prefixo + "_tel"]);
+      }
+      if (telefoneFormatado) {
+        $telefone.text(telefoneFormatado);
       } else {
         $telefone.remove();
       }
@@ -447,8 +457,9 @@
     },
 
     fotoValida: function (foto) {
-      if (/\.(jpe?g|png|gif|webp)$/i.test(String(foto || ""))) {
-        return foto;
+      var texto = String(foto || "");
+      if (/^data:image\/(jpeg|png|gif|webp);base64,/i.test(texto) || /\.(jpe?g|png|gif|webp)$/i.test(texto)) {
+        return texto;
       } else {
         return undefined;
       }
@@ -575,7 +586,7 @@
 
       $.each(itens, function (indice, item) {
         var $item = $(modelo.content.firstElementChild.cloneNode(true));
-        $item.find("[data-idDocumento]").attr("data-idDocumento", item.idDocumento);
+        $item.find("[data-idDocumento]").addBack("[data-idDocumento]").attr("data-idDocumento", item.idDocumento);
         $item.find("[data-campo='tituloDocumento']").text(item.tituloDocumento || "");
         $item.find("[data-campo='remetenteDocumento']").text(item.remetente || "");
         $item.find("[data-campo='destinatarioDocumento']").text(item.destinatario || "");
@@ -586,6 +597,7 @@
     },
 
     baixarDocumento: function (idDocumento) {
+      var self = this;
       if (!idDocumento) {
         return;
       }
@@ -594,17 +606,39 @@
         return;
       }
 
-      var contrato = this.configuracao.contratos.baixarDocumento;
-      var papel = this.configuracao.papeis[this.estado.papel];
-      var $formulario = $("<form>", {
-        method: "POST",
-        action: contrato.url || papel.url,
-        target: "_self"
-      });
-      $formulario.append($("<input>", { type: "hidden", name: "acao", value: contrato.acao }));
-      $formulario.append($("<input>", { type: "hidden", name: "idDocumento", value: idDocumento }));
-      $formulario.appendTo(document.body).trigger("submit");
-      $formulario.remove();
+      this.chamarContrato("baixarDocumento", { idDocumento: idDocumento })
+        .done(function (resposta) {
+          if (resposta && resposta.sucesso && resposta.data) {
+            self.salvarArquivoLocal(resposta);
+          } else {
+            self.exibirAviso((resposta && resposta.mensagem) || "Não foi possível baixar o documento.", "erro");
+          }
+        })
+        .fail(function () {
+          self.exibirAviso("Não foi possível baixar o documento.", "erro");
+        });
+    },
+
+    salvarArquivoLocal: function (arquivo) {
+      var self = this;
+
+      fetch(arquivo.data)
+        .then(function (resposta) {
+          return resposta.blob();
+        })
+        .then(function (conteudo) {
+          var endereco = URL.createObjectURL(conteudo);
+          var $ancora = $("<a>", { href: endereco, download: arquivo.nome || "documento" }).attr("hidden", "hidden");
+          $ancora.appendTo(document.body);
+          $ancora.get(0).click();
+          $ancora.remove();
+          setTimeout(function () {
+            URL.revokeObjectURL(endereco);
+          }, 1000);
+        })
+        .catch(function () {
+          self.exibirAviso("Não foi possível baixar o documento.", "erro");
+        });
     },
 
     abrirEnvio: function () {

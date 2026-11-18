@@ -1,50 +1,26 @@
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+#cadastroCliente, #ativacao, .cadastro {
+  display: none;
+}
 
-    body {
-        background-image: url("/projetopsiapp/public/assets/images/bannerHorizontal.jpg");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        min-height: 100vh;
-        width: 100%;
-    }
-    
+#img_perfil {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
 
-    #ativacao, .cadastro {
-        display: none;
-    }
+@media (min-width: 768px) {
 
-    #cadastroCliente, #ativacao {
-        width: 100%;
-        max-width: 500px;
-        max-height: 90vh;
-        overflow-y: auto;
-        padding: 30px;
-        box-sizing: border-box;
-    }
+  #cadastroCliente {
+    width: 100%;
+    max-width: 420px;
+  }
+}
 
-    #preview {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-    }
+#alertContainer {
+  z-index: 9999;
+}
 
-    #img_perfil{
-     position: absolute;
-     opacity: 0;
-    }
-
-    textarea {
-        width: 100%;
-        min-height: 150px;
-        resize: none;
-    }
-
-    textarea.is-invalid, .form-select.is-invalid {
-        border-color: #dc3545;
-    }
+.textoAjudaFoto {
+  font-size: 12px;
+}

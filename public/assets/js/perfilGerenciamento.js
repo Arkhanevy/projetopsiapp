@@ -3,11 +3,32 @@
 
   window.ElmoPerfilModulos = window.ElmoPerfilModulos || [];
 
+  // Mesmos números usados em models/permissao.php (perm_tipo).
+  var tiposDePermissao = {
+    agendarConsultas: 1,
+    reagendarConsultas: 2,
+    cancelarConsultas: 3,
+    enviarDocumentos: 4
+  };
+
+  // perm_tipo (número) -> chave usada em data-permissao nos controles.
+  var chavesPorTipo = {};
+  $.each(tiposDePermissao, function (chave, numero) {
+    chavesPorTipo[numero] = chave;
+  });
+
   var moduloGerenciamento = {
 
-     contratos: {
-      listarPermissoes: { url: "index.php?uri=permissao", acao: "listarPermissoes", disponivel: false },
-      alterarPermissao: { url: "index.php?uri=permissao", acao: "alterarPermissao", disponivel: false }
+    contratos: {
+      // buscacontroller: lista os profissionais vinculados à clínica logada (devolve pc_id + pro_*).
+      listarPermissoes: { url: "index.php?uri=busca", acao: "gerenciarPro", disponivel: true },
+
+      // buscacontroller: lista as linhas de "permissoes" de um vínculo (perm_id, perm_tipo, perm_bin, perm_pc).
+      // Só leitura: não grava nada.
+      listarPermissoesDoVinculo: { url: "index.php?uri=busca", acao: "permisaopro", disponivel: true },
+
+      // clinicacontroller: grava perm_bin de uma linha de "permissoes" (perm_id + status 0/1).
+      alterarPermissao: { url: "index.php?uri=clinica", acao: "permissao", disponivel: true }
     },
 
     estado: {
@@ -61,6 +82,8 @@
       e.$acordeao.prop("hidden", nome !== "lista");
     },
 
+    // 1) gerenciarPro -> lista de profissionais (pc_id, pro_*)
+    // 2) permisaopro  -> uma chamada por pc_id, com as permissões de cada profissional
     carregar: function () {
       var self = this;
       var nucleo = this.nucleo;
@@ -73,13 +96,15 @@
         return;
       }
 
-      nucleo.chamarContrato("listarPermissoes")
+      // O backend usa $_SESSION para identificar a clínica. O "tipo" é obrigatório
+      // porque o buscacontroller monta a lista de campos a partir dele.
+      nucleo.chamarContrato("listarPermissoes", { tipo: "profissional" })
         .done(function (resposta) {
           if (numeroPedido !== self.estado.pedido) {
             return;
           }
           if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
-            self.renderizar(resposta.dados);
+            self.carregarPermissoes(resposta.dados, numeroPedido);
           } else {
             self.definirEstado("erro");
           }
@@ -89,6 +114,68 @@
             self.definirEstado("erro");
           }
         });
+    },
+
+    carregarPermissoes: function (profissionais, numeroPedido) {
+      var self = this;
+      var nucleo = this.nucleo;
+
+      if (!profissionais.length) {
+        this.renderizar([]);
+        return;
+      }
+
+      if (!nucleo.contratoDisponivel("listarPermissoesDoVinculo")) {
+        this.renderizar(profissionais);
+        return;
+      }
+
+      var pedidos = $.map(profissionais, function (profissional) {
+        return nucleo.chamarContrato("listarPermissoesDoVinculo", {
+          tipo: "profissional",
+          pc_id: profissional.pc_id
+        }).then(function (resposta) {
+          if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
+            return resposta.dados;
+          }
+          return $.Deferred().reject().promise();
+        });
+      });
+
+      $.when.apply($, pedidos)
+        .done(function () {
+          if (numeroPedido !== self.estado.pedido) {
+            return;
+          }
+
+          var listas = $.makeArray(arguments);
+
+          $.each(profissionais, function (indice, profissional) {
+            profissional.permissoes = self.agruparPermissoes(listas[indice]);
+          });
+
+          self.renderizar(profissionais);
+        })
+        .fail(function () {
+          if (numeroPedido === self.estado.pedido) {
+            self.definirEstado("erro");
+          }
+        });
+    },
+
+    // [{perm_id, perm_tipo, perm_bin, perm_pc}] -> { agendarConsultas: {id, valor}, ... }
+    agruparPermissoes: function (linhas) {
+      var agrupadas = {};
+
+      $.each(linhas || [], function (_, linha) {
+        var chave = chavesPorTipo[parseInt(linha.perm_tipo, 10)];
+
+        if (chave) {
+          agrupadas[chave] = { id: linha.perm_id, valor: linha.perm_bin };
+        }
+      });
+
+      return agrupadas;
     },
 
     permitido: function (valor) {
@@ -121,8 +208,19 @@
         }
 
         $permissoes.attr("data-idProfissional", id);
+        $permissoes.attr("data-pcId", item.pc_id);
         $permissoes.find(".listaPermissoes_controle").each(function () {
-          $(this).prop("checked", self.permitido(permissoes[$(this).attr("data-permissao")]));
+          var $controle = $(this);
+          var permissao = permissoes[$controle.attr("data-permissao")];
+
+          if (permissao) {
+            $controle
+              .attr("data-permId", permissao.id)
+              .prop("checked", self.permitido(permissao.valor));
+          } else {
+            // Sem linha em "permissoes" não há o que atualizar (o backend não cria a linha).
+            $controle.prop("checked", false).prop("disabled", true);
+          }
         });
 
         $item.find('[data-lista="permissoesProfissional"]').append($permissoes);
@@ -149,20 +247,53 @@
       });
     },
 
+    // Envia uma alteração por perm_id e espera todas terminarem (sucesso ou falha).
+    // Resolve com { total, falhas }.
+    gravarPermissoes: function (ids, status) {
+      var nucleo = this.nucleo;
+      var concluido = $.Deferred();
+      var pendentes = ids.length;
+      var falhas = 0;
+
+      function terminarUma() {
+        pendentes -= 1;
+        if (pendentes === 0) {
+          concluido.resolve({ total: ids.length, falhas: falhas });
+        }
+      }
+
+      $.each(ids, function (_, permId) {
+        nucleo.chamarContrato("alterarPermissao", {
+          perm_id: permId,
+          status: status
+        })
+          .done(function (resposta) {
+            if (!(resposta && resposta.sucesso)) {
+              falhas += 1;
+            }
+          })
+          .fail(function () {
+            falhas += 1;
+          })
+          .always(terminarUma);
+      });
+
+      return concluido.promise();
+    },
+
     alterarPermissao: function ($controle) {
       var self = this;
       var nucleo = this.nucleo;
       var chave = $controle.attr("data-permissao");
       var permitido = $controle.is(":checked");
       var paraTodos = $controle.closest('[data-lista="permissoesTodos"]').length > 0;
-      var idProfissional = "todos";
-      var valorEnviado = 0;
+      var status = permitido ? 1 : 0;
+      var mensagemErro = "Não foi possível alterar a permissão. Tente novamente.";
 
-      if (!paraTodos) {
-        idProfissional = $controle.closest(".listaPermissoes").attr("data-idProfissional");
-      }
-      if (permitido) {
-        valorEnviado = 1;
+      if (!tiposDePermissao[chave]) {
+        $controle.prop("checked", !permitido);
+        nucleo.exibirAviso(mensagemErro, "erro");
+        return;
       }
 
       if (!nucleo.contratoDisponivel("alterarPermissao")) {
@@ -171,33 +302,57 @@
         return;
       }
 
-      $controle.prop("disabled", true);
+      // Controles que serão gravados: o próprio, ou todos os profissionais para a chave.
+      var $alvos = $controle;
+      if (paraTodos) {
+        $alvos = this.elementos.$listaProfissionais
+          .find('.listaPermissoes_controle[data-permissao="' + chave + '"]');
+      }
 
-      nucleo.chamarContrato("alterarPermissao", {
-        idProfissional: idProfissional,
-        permissao: chave,
-        permitido: valorEnviado
-      })
-        .done(function (resposta) {
-          if (resposta && resposta.sucesso) {
+      var ids = [];
+      $alvos.each(function () {
+        var permId = $(this).attr("data-permId");
+        if (permId) {
+          ids.push(permId);
+        }
+      });
+
+      if (!ids.length) {
+        $controle.prop("checked", !permitido);
+        nucleo.exibirAviso(mensagemErro, "erro");
+        return;
+      }
+
+      $controle.prop("disabled", true);
+      $alvos.prop("disabled", true);
+
+      this.gravarPermissoes(ids, status)
+        .done(function (resultado) {
+          if (resultado.falhas === 0) {
             if (paraTodos) {
-              self.elementos.$listaProfissionais
-                .find('.listaPermissoes_controle[data-permissao="' + chave + '"]')
-                .prop("checked", permitido);
+              $alvos.prop("checked", permitido);
             } else {
               self.sincronizarTodos();
             }
-          } else {
-            $controle.prop("checked", !permitido);
-            nucleo.exibirAviso("Não foi possível alterar a permissão. Tente novamente.", "erro");
+            return;
           }
-        })
-        .fail(function () {
+
           $controle.prop("checked", !permitido);
-          nucleo.exibirAviso("Não foi possível alterar a permissão. Tente novamente.", "erro");
+          nucleo.exibirAviso(mensagemErro, "erro");
+
+          // Em lote, parte das alterações pode ter sido gravada: recarrega do banco.
+          if (paraTodos && resultado.falhas < resultado.total) {
+            self.carregar();
+          }
         })
         .always(function () {
           $controle.prop("disabled", false);
+          // Controles sem permId continuam desabilitados (não existe linha para atualizar).
+          $alvos.each(function () {
+            if ($(this).attr("data-permId")) {
+              $(this).prop("disabled", false);
+            }
+          });
         });
     },
 

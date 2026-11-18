@@ -22,6 +22,7 @@
 
       var el = this.elementos;
       Utilitarios.configurarPreviewImagem(el.$alertContainer, el.$img, el.$preview);
+      Utilitarios.configurarArquivo(el.$alertContainer, el.$registro, el.$nomeRegistro);
       Utilitarios.configurarCEP(el.$alertContainer, {
         cep: el.$cep,
         rua: el.$rua,
@@ -61,11 +62,12 @@
       this.elementos.$ibge = $("#ibge");
       this.elementos.$cidade = $("#cidade");
       this.elementos.$registro = $("#registroProfissional");
-      this.elementos.$locais = $("input[name='cxproLocalAtendimento']");
-      this.elementos.$form = $("#cadastroProfissional");
+      this.elementos.$nomeRegistro = $("#nomeRegistro");
+      this.elementos.$locais = $("input[name='locaisAtendimento[]']");
+      this.elementos.$formulario = $("#formProfissional");
 
-      this.elementos.$emailAtivacao = $("#emailAtivar");
-      this.elementos.$codigo = $("#codigoCliente");
+      this.elementos.$formAtivacao = $("#formAtivacao");
+      this.elementos.$codigo = $("#codigoAtivacao");
 
       this.elementos.$botaoCadastrar = $("#btnCadastrar");
       this.elementos.$botaoCodigo = $("#btnCodigo");
@@ -84,10 +86,12 @@
     registrarEventos: function () {
       this.validarCamposAoSair();
 
-      $(document).on("submit", "form", function (evento) {
+      var self = this;
+
+      // O envio é feito somente pelos botões (AJAX); o submit nativo fica bloqueado.
+      this.elementos.$formulario.add(this.elementos.$formAtivacao).on("submit", function (evento) {
         evento.preventDefault();
       });
-      var self = this;
 
       $(document).on("input change", ".form-control, .form-select, textarea", function () {
         $(this).removeClass("is-invalid");
@@ -137,13 +141,15 @@
 
       $botao.prop("disabled", true).html("Cadastrando...");
 
+      var registroArquivo = el.$registro[0].files[0];
+
       var campos = [
         { valor: el.$nome.val(), el: el.$nome },
         { valor: el.$tel.val(), el: el.$tel },
         { valor: el.$user.val(), el: el.$user },
         { valor: el.$bio.val(), el: el.$bio },
         { valor: el.$data.val(), el: el.$data },
-        { valor: el.$registro.val(), el: el.$registro },
+        { valor: registroArquivo ? registroArquivo.name : "", el: el.$registro },
         { valor: el.$senha.val(), el: el.$senha },
         { valor: el.$genero.val(), el: el.$genero },
         { valor: el.$email.val(), el: el.$email },
@@ -219,23 +225,16 @@
       var cpfLimpo = Utilitarios.apenasNumeros(el.$cpf.val());
       var cepLimpo = Utilitarios.apenasNumeros(el.$cep.val());
 
-      var formData = new FormData();
-      formData.append("nome", el.$nome.val());
-      formData.append("email", email);
-      formData.append("telefone", Utilitarios.apenasNumeros(el.$tel.val()));
-      locaisSelecionados.forEach(function (local) {
-        formData.append("locaisAtendimento[]", local);
+      // $_POST e $_FILES saem do próprio formulário (atributos name); só os valores com máscara são sobrescritos.
+      var formData = Utilitarios.criarFormData(el.$formulario, {
+        email: email,
+        telefone: Utilitarios.apenasNumeros(el.$tel.val()),
+        CEP: cepLimpo,
+        CPF: cpfLimpo
       });
-      formData.append("username", el.$user.val());
-      formData.append("bio", el.$bio.val());
-      formData.append("dtNas", el.$data.val());
-      formData.append("registro", el.$registro.val());
-      formData.append("senha", el.$senha.val());
-      formData.append("genero", el.$genero.val());
-      formData.append("CEP", cepLimpo);
-      formData.append("CPF", cpfLimpo);
-      formData.append("acao", "cadastrar");
-      formData.append("cxproFoto", imgArquivo);
+
+      // $_FILES['registro'] leva o arquivo; $_POST['registro'] leva o nome do arquivo.
+      formData.append("registro", registroArquivo.name);
 
       $.ajax({
           url: this.configuracao.urlProfissional,
@@ -273,7 +272,7 @@
 
       var intervalo = setInterval(function () {
         tempo--;
-        $botao.text("Aguarde " + tempo + "s para gerar \b um novo código");
+        $botao.text("Aguarde " + tempo + "s para gerar um novo código");
         if (tempo <= 0) {
           clearInterval(intervalo);
           $botao.prop("disabled", false);
@@ -337,10 +336,11 @@
 
       $botao.prop("disabled", true).html("Ativando...");
 
-      var fd = new FormData();
-      fd.append("email", email);
-      fd.append("cod", codigoDigitado);
-      fd.append("acao", "ativar");
+      var fd = Utilitarios.criarFormData(this.elementos.$formAtivacao, {
+        email: email,
+        cod: codigoDigitado,
+        acao: "ativar"
+      });
 
       $.ajax({
     url: this.configuracao.urlProfissional,

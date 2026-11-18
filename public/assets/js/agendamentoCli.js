@@ -41,6 +41,7 @@
       tokenHorarios: 0,
       diasIndisponiveis: [],
       diasLivres: [],
+      diasSemHorario: [],
       diaSelecionado: null,
       horarioSelecionado: null,
       salaSelecionada: null,
@@ -186,7 +187,7 @@
 
       this.elementos.$grade.on(
         "click",
-        ".diaCalendario:not(.diaIndisponivel):not(.diaVazio)",
+        ".diaCalendario:not(.diaIndisponivel):not(.diaEncerrado):not(.diaVazio)",
         function () {
           self.selecionarDia($(this).data("data"));
         }
@@ -223,6 +224,7 @@
       window.location.href = url;
     },
 
+    //P
     buscarDadosAgendamento: function () {
       var self = this;
 
@@ -335,6 +337,12 @@
       this.esconderAlertaValidacao();
       this.resetarSala();
 
+      if (this.ehAtendimentoDomiciliar()) {
+        this.elementos.$textoSala.text("Atendimento domiciliar — sala não necessária");
+        this.elementos.$botaoSala.prop("disabled", true);
+        return;
+      }
+
       $.ajax({
         url: this.configuracao.urlServico,
         method: "POST",
@@ -374,6 +382,11 @@
           }
           self.exibirAlertaValidacao("Não foi possível carregar as salas. Tente novamente.");
         });
+    },
+
+    ehAtendimentoDomiciliar: function () {
+      var servico = this.estado.servico || {};
+      return servico.ser_loc === null || typeof servico.ser_loc === "undefined" || String(servico.ser_loc).trim() === "";
     },
 
     nomeDaSala: function (sala) {
@@ -456,8 +469,10 @@
 
           self.estado.diasIndisponiveis = self.extrairDiasIndisponiveis(resposta);
           self.estado.diasLivres = self.calcularDiasLivres(data);
+          self.estado.diasSemHorario = [];
           self.elementos.$form.removeClass("estadoCarregando estadoErro");
           self.renderizarCalendario(data);
+          self.verificarHorariosDosDias();
         })
         .fail(function () {
           if (token !== self.estado.tokenDias) {
@@ -514,6 +529,77 @@
       return livres;
     },
 
+    // Retorna "jaPassou", "semHorario" ou null.
+    // Dia que já passou só é "encerrado" se o servidor não o marcou como
+    // indisponível/folga (esses continuam com a cor de indisponível).
+    obterMotivoEncerrado: function (dataChave) {
+      var indisponivelNoServidor = this.estado.diasIndisponiveis.indexOf(dataChave) !== -1;
+
+      if (dataChave < this.obterChaveHoje() && !indisponivelNoServidor) {
+        return "jaPassou";
+      }
+      if (this.estado.diasSemHorario.indexOf(dataChave) !== -1) {
+        return "semHorario";
+      }
+      return null;
+    },
+
+    // true: tem horário | false: não tem | null: resposta inesperada (não marca o dia)
+    diaTemHorario: function (dataChave, resposta) {
+      if (typeof resposta === "string") {
+        return false;
+      }
+      if (!$.isArray(resposta)) {
+        return null;
+      }
+      return this.filtrarHorariosFuturos(dataChave, resposta).length > 0;
+    },
+
+    verificarHorariosDosDias: function () {
+      var self = this;
+      var token = this.estado.tokenDias;
+
+      this.estado.diasLivres.forEach(function (dataChave) {
+        $.ajax({
+          url: self.configuracao.urlServico,
+          method: "POST",
+          dataType: "json",
+          data: {
+            acao: "mostrarhorario",
+            id: self.estado.idServico,
+            dia: dataChave
+          }
+        }).done(function (resposta) {
+          if (token !== self.estado.tokenDias) {
+            return;
+          }
+          if (self.diaTemHorario(dataChave, resposta) === false) {
+            self.marcarDiaSemHorario(dataChave);
+          }
+        });
+        // Falha em um dia isolado: o dia continua disponível; o clique
+        // volta a validar os horários normalmente.
+      });
+    },
+
+    marcarDiaSemHorario: function (dataChave) {
+      if (this.estado.diasSemHorario.indexOf(dataChave) === -1) {
+        this.estado.diasSemHorario.push(dataChave);
+      }
+
+      var $dia = this.elementos.$grade.find('.diaCalendario[data-data="' + dataChave + '"]');
+      if (!$dia.length) {
+        return;
+      }
+
+      $dia
+        .removeClass("diaDisponivel")
+        .addClass("diaEncerrado")
+        .prop("disabled", true)
+        .attr("aria-disabled", "true")
+        .attr("aria-label", $dia.attr("aria-label") + " — sem horários");
+    },
+
     renderizarCalendario: function (data) {
       var ano = data.getFullYear();
       var mes = data.getMonth();
@@ -533,11 +619,16 @@
       for (var dia = 1; dia <= totalDias; dia++) {
         var dataChave = this.formatarDataChave(ano, mes, dia);
         var indisponivel = this.estado.diasLivres.indexOf(dataChave) === -1;
+        var motivoEncerrado = this.obterMotivoEncerrado(dataChave);
         var selecionado = dataChave === this.estado.diaSelecionado;
         var nomeDiaSemana = NOMES_DIA_SEMANA[new Date(ano, mes, dia).getDay()];
 
         var rotulo = nomeDiaSemana + ", " + dia + " de " + NOMES_MES_COMPLETO[mes];
-        if (indisponivel) {
+        if (motivoEncerrado === "jaPassou") {
+          rotulo += " — já passou";
+        } else if (motivoEncerrado === "semHorario") {
+          rotulo += " — sem horários";
+        } else if (indisponivel) {
           rotulo += " — indisponível";
         }
 
@@ -553,7 +644,10 @@
           .attr("aria-label", rotulo)
           .attr("aria-pressed", ariaPressionado);
 
-        if (indisponivel) {
+        if (motivoEncerrado) {
+          $botaoDia.addClass("diaEncerrado").prop("disabled", true);
+          $botaoDia.attr("aria-disabled", "true");
+        } else if (indisponivel) {
           $botaoDia.addClass("diaIndisponivel").prop("disabled", true);
           $botaoDia.attr("aria-disabled", "true");
         } else {
@@ -829,7 +923,7 @@
         camposValidos = false;
       }
 
-      if (this.estado.horarioSelecionado && !this.estado.salaSelecionada) {
+      if (this.estado.horarioSelecionado && !this.ehAtendimentoDomiciliar() && !this.estado.salaSelecionada) {
         this.marcarCampoComErro(this.elementos.$botaoSala);
         $primeiroInvalido = $primeiroInvalido || this.elementos.$botaoSala;
         camposValidos = false;
@@ -858,7 +952,7 @@
       })
         .done(function (resposta) {
           if (resposta && resposta.logado) {
-            self.enviarAgendamento(self.estado.salaSelecionada);
+            self.enviarAgendamento(self.ehAtendimentoDomiciliar() ? null : self.estado.salaSelecionada);
           } else {
             self.exibirModalNaoLogado();
           }

@@ -1,6 +1,5 @@
 (function ($, Utilitarios) {
   "use strict";
-
   var moduloInfoServico = {
 
     configuracao: {
@@ -86,6 +85,7 @@
             self.mapearDadosServico(resposta.dados[0])
           );
           Utilitarios.alternarEsqueletoAcessivel(self.elementos.$camposDinamicos, false);
+          self.carregarProfissional(resposta.dados[0].ser_pro);
           self.habilitarBotaoAgendar();
           self.exibirModalSucessoSeAgendado();
         })
@@ -105,8 +105,35 @@
         tituloServico: registro.ser_nome,
         descricaoServico: registro.ser_desc,
         duracaoServico: duracao,
-        precoServico: this.formatarPreco(registro.ser_val)
+        precoServico: this.formatarPreco(registro.ser_val),
+        nomeProfissional: ""
       };
+    },
+
+    carregarProfissional: function (idProfissional) {
+      var self = this;
+
+      if (!idProfissional) {
+        return;
+      }
+
+      $.ajax({
+        url: this.configuracao.urlObterServico,
+        method: "POST",
+        dataType: "json",
+        data: {
+          acao: "mostrardetalhes",
+          tipo: "profissional",
+          id: idProfissional
+        }
+      }).done(function (resposta) {
+        if (!resposta || !resposta.sucesso || !resposta.dados || !resposta.dados.length) {
+          return;
+        }
+        Utilitarios.preencherCampos(self.elementos.$camposDinamicos, {
+          nomeProfissional: resposta.dados[0].pro_nome || ""
+        });
+      });
     },
 
     formatarPreco: function (valor) {

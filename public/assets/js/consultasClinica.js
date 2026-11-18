@@ -12,9 +12,30 @@
     contratos: {
       listarConsultas: { disponivel: true, acao: "MostrarConsulta" },
 
-      listarDiasIndisponiveis: { disponivel: false, acao: "listarDiasIndisponiveis" },
-       aceitarConsulta: { disponivel: false, acao: "aceitar" },
-      recusarConsulta: { disponivel: false, acao: "rejeitar" },
+      listarDiasIndisponiveis: { disponivel: true, acao: "listarDiasIndisponiveis" },
+      aceitarConsulta: {
+        disponivel: true,
+        acao: "aceitar",
+        montarDados: function (consulta) {
+          return {
+            cli: consulta.idCliente,
+            clinica: consulta.idClinica || 0,
+            agnd_id: consulta.idConsulta
+          };
+        }
+      },
+
+      recusarConsulta: {
+        disponivel: true,
+        acao: "rejeitar",
+        montarDados: function (consulta) {
+          return {
+            cli: consulta.idCliente,
+            clinica: consulta.idClinica || 0,
+            agnd_id: consulta.idConsulta
+          };
+        }
+      },
 
       
       cancelarConsulta: {

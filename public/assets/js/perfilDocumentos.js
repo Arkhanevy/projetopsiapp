@@ -10,12 +10,33 @@
     alvaraFuncionamento: "Alvará de funcionamento"
   };
 
+  // Só estes tipos viram data URI no backend (models/download.php).
+  var extensoesPorMime = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "application/pdf": "pdf"
+  };
+
+  // Upload.php: 0 = público, 1 = privado; shareMails vazio = ninguém em especial.
+  var controleAcessoPadrao = "0";
+
   var moduloDocumentos = {
 
-     contratos: {
-      listarDocumentos: { url: "index.php?uri=documento", acao: "listarDocumentos", disponivel: false },
-      enviarDocumento:  { url: "index.php?uri=documento", acao: "enviarDocumento",  disponivel: false },
-      apagarDocumento:  { url: "index.php?uri=documento", acao: "apagarDocumento",  disponivel: false }
+    contratos: {
+      // profissionalcontroller / clinicacontroller: arquivos do dono logado (sem url: usa o controller do papel).
+      listarDocumentos: { acao: "meusArquivos", disponivel: true },
+
+      // Mesmos controllers: arquivos de outro dono compartilhados com o e-mail da sessão ($_POST["id"] = dono).
+      listarDocumentosCompartilhados: { acao: "arquivosCompartilhados", disponivel: true },
+
+      // utils/Upload.php: lê $_FILES["file"] e $_POST["titulo"], ["tipo"], ["accessCtrl"], ["shareMails"].
+      // Ajuste a rota se no routes.json o Upload.php tiver outro nome.
+      enviarDocumento: { url: "index.php?uri=upload", acao: "upload", disponivel: true },
+
+      // Ainda não existe ação de apagar no backend.
+      apagarDocumento: { url: "index.php?uri=documento", acao: "apagarDocumento", disponivel: false }
     },
 
     estado: {
@@ -68,10 +89,43 @@
     urlSegura: function (url) {
       var texto = $.trim(String(url || ""));
 
+      if (/^data:(image\/(jpeg|png|gif|webp)|application\/pdf);base64,[A-Za-z0-9+\/=]+$/.test(texto)) {
+        return texto;
+      }
       if (!texto || /^(javascript|data|vbscript):/i.test(texto)) {
         return "#";
       }
       return texto;
+    },
+
+    // "up20261117093015123.pdf.base64" -> { data: "17/11/2026", extensao: "pdf" }
+    lerNomeGuardado: function (nome) {
+      var partes = /^up(\d{4})(\d{2})(\d{2})\d{9}\.([^.]*)\.base64$/i.exec(String(nome || ""));
+
+      if (!partes) {
+        return { data: "", extensao: "" };
+      }
+      return { data: partes[3] + "/" + partes[2] + "/" + partes[1], extensao: partes[4].toLowerCase() };
+    },
+
+    // meusArquivos só devolve { mime, nome, data }: título e tipo não vêm do backend,
+    // então o título é montado pelo tipo do arquivo e pela data do envio.
+    tituloDoArquivo: function (item) {
+      var guardado = this.lerNomeGuardado(item.nome);
+      var base;
+
+      if (item.titulo) {
+        return item.titulo;
+      }
+      if (String(item.mime || "").indexOf("image/") === 0) {
+        base = "Imagem";
+      } else {
+        base = "Documento PDF";
+      }
+      if (guardado.data) {
+        return base + " de " + guardado.data;
+      }
+      return base;
     },
 
     definirEstado: function (nome) {
@@ -91,15 +145,18 @@
 
       this.definirEstado("carregando");
 
-      if (!nucleo.contratoDisponivel("listarDocumentos")) {
+      var contrato = "listarDocumentos";
+
+      if (nucleo.ehVisitante()) {
+        contrato = "listarDocumentosCompartilhados";
+        dados = { id: nucleo.estado.alvo.id };
+      }
+      if (!nucleo.contratoDisponivel(contrato)) {
         this.renderizar([]);
         return;
       }
-      if (nucleo.ehVisitante()) {
-        dados = { tipo: nucleo.estado.alvo.tipo, id: nucleo.estado.alvo.id };
-      }
 
-      nucleo.chamarContrato("listarDocumentos", dados)
+      nucleo.chamarContrato(contrato, dados)
         .done(function (resposta) {
           if (numeroPedido !== self.estado.pedido) {
             return;
@@ -125,22 +182,37 @@
       this.estado.carregado = true;
 
       $.each(itens, function (_, item) {
-        var titulo = item.titulo || "";
+        var titulo = self.tituloDoArquivo(item);
+        var extensao = extensoesPorMime[item.mime] || self.lerNomeGuardado(item.nome).extensao;
+        var href = self.urlSegura(item.data || item.url);
+        var eImagem = String(item.mime || "").indexOf("image/") === 0 && href !== "#";
         var $card = nucleo.clonarModelo("modeloCardDocumento");
+        var $link = $card.find('[data-campo="linkBaixarDocumento"]');
+        var $tipo = $card.find('[data-campo="tipoDocumento"]');
 
         $card.find('[data-campo="tituloDocumento"]').text(titulo);
-        $card.find('[data-campo="tipoDocumento"]').text(self.rotuloDoTipo(item.tipo));
-        $card.find('[data-campo="linkBaixarDocumento"]').attr({
-          href: self.urlSegura(item.url),
+        if (item.tipo) {
+          $tipo.text(self.rotuloDoTipo(item.tipo));
+        } else {
+          $tipo.attr("hidden", "hidden");
+        }
+        $link.attr({
+          href: href,
+          download: titulo + (extensao ? "." + extensao : ""),
           "aria-label": "Baixar " + titulo
         });
         $card.find('[data-acao="apagarDocumento"]').attr("aria-label", "Apagar " + titulo);
+
+        // Miniatura opcional: só aparece se o modelo tiver <img data-campo="miniaturaDocumento" hidden>.
+        if (eImagem) {
+          $card.find('[data-campo="miniaturaDocumento"]').attr({ src: href, alt: titulo }).removeAttr("hidden");
+        }
 
         if (nucleo.ehVisitante()) {
           $card.find("[data-somenteDono]").attr("hidden", "hidden");
         }
 
-        $card.data("documento", { id: item.id, titulo: titulo });
+        $card.data("documento", { id: item.id || item.nome, titulo: titulo });
         $lista.append($card);
       });
 
@@ -279,16 +351,20 @@
         return;
       }
 
+      // Upload.php lê $_FILES["file"] e os campos em $_POST.
       var dados = new FormData();
+      dados.append("file", arquivo, arquivo.name);
       dados.append("titulo", titulo);
       dados.append("tipo", tipo);
-      dados.append("arquivo", arquivo, arquivo.name);
+      dados.append("accessCtrl", controleAcessoPadrao);
+      dados.append("shareMails", "");
 
       this.alternarEnvio(true);
 
-      nucleo.chamarContrato("enviarDocumento", dados)
+      // O Upload.php responde com texto (nome do arquivo salvo), não com JSON.
+      nucleo.chamarContrato("enviarDocumento", dados, "text")
         .done(function (resposta) {
-          if (resposta && resposta.sucesso) {
+          if (self.envioConfirmado(resposta)) {
             Utilitarios.esconderModal(e.$modalAdicionar);
             self.carregar();
           } else {
@@ -301,6 +377,11 @@
         .always(function () {
           self.alternarEnvio(false);
         });
+    },
+
+    // Sucesso = nome gerado pelo Upload.php ("up" + data/hora + extensão + ".base64").
+    envioConfirmado: function (resposta) {
+      return /up\d{14,}\.[^\s]*\.base64/.test(String(resposta || ""));
     },
 
     abrirApagar: function ($botao) {
