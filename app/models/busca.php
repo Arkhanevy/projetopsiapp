@@ -142,7 +142,7 @@ class busca {
             if ($usuario === 'profissional') {
                 $cod = 'ser_pro';
             }
-            if ($usuario === 'clinica') {
+            else if ($usuario === 'clinica') {
                 $cod = 'ser_clin';
             }
             else {return ['sucesso' => false,'mensagem' => 'cliente não tem serviço'];}
