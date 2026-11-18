@@ -1360,6 +1360,7 @@
         dur: $.trim($("#campoDuracaoServico").val()),
         inter: $.trim($("#campoIntervaloServico").val()),
         // loc: $.trim($localizacao.val() || "")
+        loc: 1
       };
       // const sala = $.trim($sala.val() || "");
       // const atendimentoDomiciliar = dados.loc === "domicilio";
