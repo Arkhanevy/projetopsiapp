@@ -93,18 +93,9 @@
         editarBio: { acao: { profissional: "atualizar" }, disponivel: true },
         editarLocalizacao: { acao: "editarloc",  disponivel: true },
         listarVinculos:    { acao: "listarVinculos",     disponivel: true },
-        // Para a própria clínica os serviços já vêm em dados2 de "pegarinfo" (carregarPerfil).
-        // Para visitante o backend ainda ignora o id do perfil e usa a sessão, então fica desligado.
         listarServicosClinica: { url: "index.php?uri=clinica", acao: "pegarinfo", disponivel: false },
-
-        // localizacaocontroller: locais do profissional logado (ou da clínica, enviando "clinica").
-        listarLocalizacoes: { url: "index.php?uri=localizacao", acao: "pegarloc", disponivel: true },
-
-        // localizacaocontroller: salas de uma localização (envia "loc" com o loc_id).
-        listarSalas: { url: "index.php?uri=localizacao", acao: "pegarSalas", disponivel: true },
-
-        // buscacontroller: profissionais vinculados à clínica logada (pro_id + pro_nome).
-        // "pegarinfo" só devolve ser_pro (id) nos serviços; o nome é resolvido por aqui.
+        // listarLocalizacoes: { url: "index.php?uri=localizacao", acao: "pegarloc", disponivel: true },
+        // listarSalas: { url: "index.php?uri=localizacao", acao: "pegarSalas", disponivel: true },
         listarProfissionaisClinica: { url: "index.php?uri=busca", acao: "gerenciarPro", disponivel: true },
 
         vincular:          { acao: "vincular",           disponivel: true },
@@ -125,8 +116,8 @@
       cacheEnderecos: {},
       nomesProfissionais: {},
       pedidoNomes: 0,
-      pedidoLocalizacoes: 0,
-      pedidoSalas: 0,
+      // pedidoLocalizacoes: 0,
+      // pedidoSalas: 0,
       origemFoco: null
     },
 
@@ -162,8 +153,8 @@
       e.$campoBioNova = $("#campoBioNova");
       e.$campoTipoServico = $("#campoTipoServico");
       e.$campoValorServico = $("#campoValorServico");
-      e.$campoLocalizacaoServico = $("#campoLocalizacaoServico");
-      e.$campoSalaServico = $("#campoSalaServico");
+      // e.$campoLocalizacaoServico = $("#campoLocalizacaoServico");
+      // e.$campoSalaServico = $("#campoSalaServico");
       e.$listaLinhasHorario = $('[data-lista="linhasHorario"]');
       e.$botaoSalvarHorarios = $("#botaoSalvarHorarios");
       e.$botaoConfirmarVinculo = $('[data-campo="botaoConfirmarVinculo"]');
@@ -1046,9 +1037,9 @@
       if (nomeVisao === "cadastroHorarios") {
         this.preencherFormularioHorarios();
       }
-      if ($('.visaoPerfil[data-visao="' + nomeVisao + '"]').find("#formularioServico").length) {
-        this.carregarLocalizacoesServico();
-      }
+      // if ($('.visaoPerfil[data-visao="' + nomeVisao + '"]').find("#formularioServico").length) {
+        // this.carregarLocalizacoesServico();
+      // }
 
       $.each(this.modulos, function (_, modulo) {
         if (modulo.aoPrepararVisao) {
@@ -1078,9 +1069,9 @@
       if ($formulario.is(this.elementos.$formularioHorarios)) {
         this.preencherFormularioHorarios();
       }
-      if ($formulario.is(this.elementos.$formularioServico)) {
-        this.carregarSalasServico("");
-      }
+      // if ($formulario.is(this.elementos.$formularioServico)) {
+        // this.carregarSalasServico("");
+      // }
     },
 
     enviarBio: function () {
@@ -1216,150 +1207,150 @@
         });
     },
 
-    // Localização e sala do cadastro de serviço (selects #campoLocalizacaoServico e #campoSalaServico).
-    carregarLocalizacoesServico: function () {
-      const self = this;
-      const perfil = this.estado.perfil || {};
-      const numeroPedido = ++this.estado.pedidoLocalizacoes;
-      let dados = null;
+    // // Localização e sala do cadastro de serviço (selects #campoLocalizacaoServico e #campoSalaServico).
+    // carregarLocalizacoesServico: function () {
+      // const self = this;
+      // const perfil = this.estado.perfil || {};
+      // const numeroPedido = ++this.estado.pedidoLocalizacoes;
+      // let dados = null;
 
-      if (!this.elementos.$campoLocalizacaoServico.length || this.ehVisitante()) {
-        return;
-      }
-      if (this.ehClinica()) {
-        dados = { clinica: perfil.clin_id };
-      }
-      if (!this.contratoDisponivel("listarLocalizacoes")) {
-        this.preencherLocalizacoesServico([]);
-        return;
-      }
+      // if (!this.elementos.$campoLocalizacaoServico.length || this.ehVisitante()) {
+        // return;
+      // }
+      // if (this.ehClinica()) {
+        // dados = { clinica: perfil.clin_id };
+      // }
+      // if (!this.contratoDisponivel("listarLocalizacoes")) {
+        // this.preencherLocalizacoesServico([]);
+        // return;
+      // }
 
-      this.chamarContrato("listarLocalizacoes", dados)
-        .done(function (resposta) {
-          if (numeroPedido !== self.estado.pedidoLocalizacoes) {
-            return;
-          }
-          if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
-            self.preencherLocalizacoesServico(resposta.dados, true);
-          } else {
-            self.preencherLocalizacoesServico([]);
-            self.exibirAviso("Não foi possível carregar as localizações.", "erro");
-          }
-        })
-        .fail(function () {
-          if (numeroPedido === self.estado.pedidoLocalizacoes) {
-            self.preencherLocalizacoesServico([]);
-            self.exibirAviso("Não foi possível carregar as localizações.", "erro");
-          }
-        });
-    },
+      // this.chamarContrato("listarLocalizacoes", dados)
+        // .done(function (resposta) {
+          // if (numeroPedido !== self.estado.pedidoLocalizacoes) {
+            // return;
+          // }
+          // if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
+            // self.preencherLocalizacoesServico(resposta.dados, true);
+          // } else {
+            // self.preencherLocalizacoesServico([]);
+            // self.exibirAviso("Não foi possível carregar as localizações.", "erro");
+          // }
+        // })
+        // .fail(function () {
+          // if (numeroPedido === self.estado.pedidoLocalizacoes) {
+            // self.preencherLocalizacoesServico([]);
+            // self.exibirAviso("Não foi possível carregar as localizações.", "erro");
+          // }
+        // });
+    // },
 
-    preencherLocalizacoesServico: function (locais, respostaValida) {
-      const $campo = this.elementos.$campoLocalizacaoServico;
-      const anterior = $campo.val();
-      const permitirDomicilio = respostaValida === true && !this.ehClinica();
+    // preencherLocalizacoesServico: function (locais, respostaValida) {
+      // const $campo = this.elementos.$campoLocalizacaoServico;
+      // const anterior = $campo.val();
+      // const permitirDomicilio = respostaValida === true && !this.ehClinica();
 
-      $campo.empty();
+      // $campo.empty();
 
-      if (!locais.length) {
-        if (permitirDomicilio) {
-          $campo.append(
-            $("<option>").val("domicilio").text("Atendimento domiciliar")
-          );
-          $campo.val("domicilio").prop("disabled", false);
-        } else {
-          const mensagem = respostaValida
-            ? "Nenhuma localização cadastrada"
-            : "Não foi possível carregar as localizações";
-          $campo.append($("<option>").val("").text(mensagem));
-          $campo.prop("disabled", true);
-        }
-      } else {
-        $campo.append($("<option>").val("").text("Selecione a localização"));
-        $.each(locais, function (_, local) {
-          $campo.append(
-            $("<option>")
-              .val(local.loc_id)
-              .text(local.loc_nome || "Localização " + local.loc_id)
-              .attr("data-tipoLocalizacao", local.loc_tipo || "")
-          );
-        });
-        $campo.prop("disabled", false);
+      // if (!locais.length) {
+        // if (permitirDomicilio) {
+          // $campo.append(
+            // $("<option>").val("domicilio").text("Atendimento domiciliar")
+          // );
+          // $campo.val("domicilio").prop("disabled", false);
+        // } else {
+          // const mensagem = respostaValida
+            // ? "Nenhuma localização cadastrada"
+            // : "Não foi possível carregar as localizações";
+          // $campo.append($("<option>").val("").text(mensagem));
+          // $campo.prop("disabled", true);
+        // }
+      // } else {
+        // $campo.append($("<option>").val("").text("Selecione a localização"));
+        // $.each(locais, function (_, local) {
+          // $campo.append(
+            // $("<option>")
+              // .val(local.loc_id)
+              // .text(local.loc_nome || "Localização " + local.loc_id)
+              // .attr("data-tipoLocalizacao", local.loc_tipo || "")
+          // );
+        // });
+        // $campo.prop("disabled", false);
 
-        if (anterior && $campo.find("option").filter(function () {
-          return this.value === String(anterior);
-        }).length) {
-          $campo.val(anterior);
-        }
-      }
+        // if (anterior && $campo.find("option").filter(function () {
+          // return this.value === String(anterior);
+        // }).length) {
+          // $campo.val(anterior);
+        // }
+      // }
 
-      this.carregarSalasServico($campo.val());
-    },
+      // this.carregarSalasServico($campo.val());
+    // },
 
-    carregarSalasServico: function (idLocalizacao) {
-      const self = this;
-      const $sala = this.elementos.$campoSalaServico;
-      const numeroPedido = ++this.estado.pedidoSalas;
+    // carregarSalasServico: function (idLocalizacao) {
+      // const self = this;
+      // const $sala = this.elementos.$campoSalaServico;
+      // const numeroPedido = ++this.estado.pedidoSalas;
 
-      if (!$sala.length) {
-        return;
-      }
+      // if (!$sala.length) {
+        // return;
+      // }
 
-      function preencher(salas, textoVazio) {
-        $sala.empty();
+      // function preencher(salas, textoVazio) {
+        // $sala.empty();
 
-        if (!salas.length) {
-          $sala.append($("<option>").val("").text(textoVazio)).prop("disabled", true);
-          return;
-        }
-        $sala.append($("<option>").val("").text("Selecione a sala"));
-        $.each(salas, function (_, sala) {
-          $sala.append($("<option>").val(sala.sala_id).text(sala.sala_nome || "Sala " + sala.sala_id));
-        });
-        $sala.prop("disabled", false);
-      }
+        // if (!salas.length) {
+          // $sala.append($("<option>").val("").text(textoVazio)).prop("disabled", true);
+          // return;
+        // }
+        // $sala.append($("<option>").val("").text("Selecione a sala"));
+        // $.each(salas, function (_, sala) {
+          // $sala.append($("<option>").val(sala.sala_id).text(sala.sala_nome || "Sala " + sala.sala_id));
+        // });
+        // $sala.prop("disabled", false);
+      // }
 
-      if (idLocalizacao === "domicilio") {
-        $sala.empty()
-          .append($("<option>").val("").text("Não se aplica ao atendimento domiciliar"))
-          .prop("disabled", true);
-        return;
-      }
+      // if (idLocalizacao === "domicilio") {
+        // $sala.empty()
+          // .append($("<option>").val("").text("Não se aplica ao atendimento domiciliar"))
+          // .prop("disabled", true);
+        // return;
+      // }
 
-      if (!idLocalizacao) {
-        preencher([], "Selecione uma localização primeiro");
-        return;
-      }
-      if (!this.contratoDisponivel("listarSalas")) {
-        preencher([], "Salas indisponíveis no momento");
-        return;
-      }
+      // if (!idLocalizacao) {
+        // preencher([], "Selecione uma localização primeiro");
+        // return;
+      // }
+      // if (!this.contratoDisponivel("listarSalas")) {
+        // preencher([], "Salas indisponíveis no momento");
+        // return;
+      // }
 
-      preencher([], "Carregando salas...");
+      // preencher([], "Carregando salas...");
 
-      this.chamarContrato("listarSalas", { loc: idLocalizacao })
-        .done(function (resposta) {
-          if (numeroPedido !== self.estado.pedidoSalas) {
-            return;
-          }
-          if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
-            preencher(resposta.dados, "Nenhuma sala cadastrada nesta localização");
-          } else {
-            preencher([], "Não foi possível carregar as salas");
-          }
-        })
-        .fail(function () {
-          if (numeroPedido === self.estado.pedidoSalas) {
-            preencher([], "Não foi possível carregar as salas");
-          }
-        });
-    },
+      // this.chamarContrato("listarSalas", { loc: idLocalizacao })
+        // .done(function (resposta) {
+          // if (numeroPedido !== self.estado.pedidoSalas) {
+            // return;
+          // }
+          // if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
+            // preencher(resposta.dados, "Nenhuma sala cadastrada nesta localização");
+          // } else {
+            // preencher([], "Não foi possível carregar as salas");
+          // }
+        // })
+        // .fail(function () {
+          // if (numeroPedido === self.estado.pedidoSalas) {
+            // preencher([], "Não foi possível carregar as salas");
+          // }
+        // });
+    // },
 
     enviarServico: function () {
       const $formulario = this.elementos.$formularioServico;
       const $tipo = this.elementos.$campoTipoServico;
-      const $localizacao = this.elementos.$campoLocalizacaoServico;
-      const $sala = this.elementos.$campoSalaServico;
+      // const $localizacao = this.elementos.$campoLocalizacaoServico;
+      // const $sala = this.elementos.$campoSalaServico;
 
       const dados = {
         nome: $.trim($("#campoNomeServico").val()),
@@ -1368,20 +1359,20 @@
         desc: $.trim($("#campoDescricaoServico").val()),
         dur: $.trim($("#campoDuracaoServico").val()),
         inter: $.trim($("#campoIntervaloServico").val()),
-        loc: $.trim($localizacao.val() || "")
+        // loc: $.trim($localizacao.val() || "")
       };
-      const sala = $.trim($sala.val() || "");
-      const atendimentoDomiciliar = dados.loc === "domicilio";
+      // const sala = $.trim($sala.val() || "");
+      // const atendimentoDomiciliar = dados.loc === "domicilio";
 
-      // O banco representa atendimento domiciliar com ser_loc = NULL.
-      if (atendimentoDomiciliar) {
-        dados.loc = null;
-      }
+      // // O banco representa atendimento domiciliar com ser_loc = NULL.
+      // if (atendimentoDomiciliar) {
+        // dados.loc = null;
+      // }
 
-      if ($localizacao.prop("disabled")) {
-        this.exibirAviso("Cadastre uma localização antes de cadastrar o serviço.", "erro");
-        return;
-      }
+      // if ($localizacao.prop("disabled")) {
+        // this.exibirAviso("Cadastre uma localização antes de cadastrar o serviço.", "erro");
+        // return;
+      // }
 
       const camposVazios = [];
       if (!dados.nome) camposVazios.push($("#campoNomeServico"));
@@ -1389,7 +1380,7 @@
       if (!dados.desc) camposVazios.push($("#campoDescricaoServico"));
       if (!dados.dur) camposVazios.push($("#campoDuracaoServico"));
       if (dados.inter === "") camposVazios.push($("#campoIntervaloServico"));
-      if (!dados.loc && !atendimentoDomiciliar) camposVazios.push($localizacao);
+      // if (!dados.loc && !atendimentoDomiciliar) camposVazios.push($localizacao);
 
       $formulario.find(".is-invalid").removeClass("is-invalid");
       $tipo.removeClass("campoSelect--erro");
@@ -1937,9 +1928,9 @@
       e.$campoTipoServico.on("opcaoSelecionada", function () {
         $(this).removeClass("campoSelect--erro");
       });
-      e.$campoLocalizacaoServico.on("change", function () {
-        self.carregarSalasServico($(this).val());
-      });
+      // e.$campoLocalizacaoServico.on("change", function () {
+        // self.carregarSalasServico($(this).val());
+      // });
 
       e.$campoValorServico.on("input", function () {
         self.mascararValor($(this));
