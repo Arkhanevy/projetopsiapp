@@ -27,7 +27,9 @@ class clinica extends usuario {
                 $telefone
                
             ];
-            $this->setFoto($foto);
+            if(!empty($foto)){
+                $this->setFoto($foto);
+            }
             return $this->Cadastrar($dados);
         }
     public function pegarHrser() {

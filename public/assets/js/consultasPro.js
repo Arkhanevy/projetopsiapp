@@ -555,7 +555,6 @@
         this.anunciar(mensagem);
       },
 
-      // Aviso visível na tela (toast acima dos modais). Sem o elemento, cai no aviso para leitores de tela.
       exibirAvisoPermissao: function (mensagem) {
         const $aviso = this.elementos.$avisoPermissao;
 

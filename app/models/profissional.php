@@ -34,7 +34,9 @@ class profissional extends usuario {
             0
             
         ];
-        $this->setFoto($foto);
+        if(!empty($foto)){
+                $this->setFoto($foto);
+            }
         return $this->Cadastrar($dados);
     }
     
