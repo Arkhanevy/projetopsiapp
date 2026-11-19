@@ -141,7 +141,8 @@
 
       $botao.prop("disabled", true).html("Cadastrando...");
 
-      const registroArquivo = el.$registro[0].files[0];
+      // [ARQUIVOS DESATIVADOS] Registro profissional (arquivo) não é mais obrigatório nem enviado.
+      // const registroArquivo = el.$registro[0].files[0];
 
       const campos = [
         { valor: el.$nome.val(), el: el.$nome },
@@ -149,7 +150,7 @@
         { valor: el.$user.val(), el: el.$user },
         { valor: el.$bio.val(), el: el.$bio },
         { valor: el.$data.val(), el: el.$data },
-        { valor: registroArquivo ? registroArquivo.name : "", el: el.$registro },
+        // { valor: registroArquivo ? registroArquivo.name : "", el: el.$registro }, // [ARQUIVOS DESATIVADOS]
         { valor: el.$senha.val(), el: el.$senha },
         { valor: el.$genero.val(), el: el.$genero },
         { valor: el.$email.val(), el: el.$email },
@@ -208,12 +209,13 @@
         return;
       }
 
-      const imgArquivo = el.$img[0].files[0];
-      if (!imgArquivo) {
-        $botao.prop("disabled", false).html("Cadastrar");
-        this.mostrarAlert("A imagem de perfil é obrigatória.", "danger");
-        return;
-      }
+      // [ARQUIVOS DESATIVADOS] Imagem de perfil não é mais obrigatória nem enviada ao backend.
+      // const imgArquivo = el.$img[0].files[0];
+      // if (!imgArquivo) {
+      //   $botao.prop("disabled", false).html("Cadastrar");
+      //   this.mostrarAlert("A imagem de perfil é obrigatória.", "danger");
+      //   return;
+      // }
 
       const camposEndereco = [el.$cep, el.$rua, el.$bairro, el.$uf, el.$ibge, el.$cidade];
       if (Utilitarios.apenasNumeros(el.$cep.val()).length !== 8) {
@@ -233,8 +235,13 @@
         CPF: cpfLimpo
       });
 
-      // $_FILES['registro'] leva o arquivo; $_POST['registro'] leva o nome do arquivo.
-      formData.append("registro", registroArquivo.name);
+      // [ARQUIVOS DESATIVADOS] $_FILES['registro'] levava o arquivo; $_POST['registro'] levava o nome do arquivo.
+      // formData.append("registro", registroArquivo.name);
+
+      // [ARQUIVOS DESATIVADOS] Garante que foto e registro não vão no POST, mesmo com os inputs preenchidos.
+      // Para reativar o envio, remova estas duas linhas e descomente os trechos acima.
+      formData.delete("cxproFoto");
+      formData.delete("registro");
 
       $.ajax({
           url: this.configuracao.urlProfissional,

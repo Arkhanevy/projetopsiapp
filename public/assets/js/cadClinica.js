@@ -166,11 +166,12 @@
         return;
       }
 
-      if (!el.$img[0].files || el.$img[0].files.length === 0) {
-        $botao.prop("disabled", false).html("Cadastrar");
-        this.mostrarAlert("Imagem obrigatória!", "danger");
-        return;
-      }
+      // [ARQUIVOS DESATIVADOS] Imagem da clínica não é mais obrigatória nem enviada ao backend.
+      // if (!el.$img[0].files || el.$img[0].files.length === 0) {
+      //   $botao.prop("disabled", false).html("Cadastrar");
+      //   this.mostrarAlert("Imagem obrigatória!", "danger");
+      //   return;
+      // }
 
       const email = el.$email.val().trim();
       if (!Utilitarios.emailValido(email)) {
@@ -196,6 +197,10 @@
         CEP: cepLimpo,
         CNPJ: cnpjLimpo
       });
+
+      // [ARQUIVOS DESATIVADOS] Garante que a imagem não vá no POST, mesmo com o input preenchido.
+      // Para reativar o envio, remova esta linha e descomente a validação acima.
+      formData.delete("cxclinFoto");
 
       $.ajax({
           url: this.configuracao.urlClinica,
