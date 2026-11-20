@@ -146,57 +146,27 @@ switch ($acao){
         echo json_encode($listar);
         exit;
         
-    //Ver se está dando certo (está vinculado com o model clinica):
-        case "vincular":
-        $clinId = $_SESSION['usuario']['idUsuario'] ?? null;
-        $proId  = $_POST['pro_id'] ?? null; // ID do profissional convidado
-
-        if (!$clinId || !$proId) {
-            echo json_encode(['sucesso' => false, 'mensagem' => 'Parâmetros ausentes.']);
+    // ---------- ASSOCIAÇÃO CLÍNICA <-> PROFISSIONAL ----------
+    // A clínica só ENVIA O CONVITE (notificação). O vínculo é criado quando o
+    // profissional aceita (profissionalcontroller -> aceitar_vinculo).
+    case "vincular":
+        if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'clinica') {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'Somente clínicas podem convidar profissionais.']);
             exit;
         }
-
-        // Configurar os campos da notificação baseado no seu padrão mapeado
-        $camposnot = [
-            'notif_id', 'notif_pd', 'notif_clin', 'notif_dest', 
-            'notif_tipo', 'notif_msg', 'notif_data', 'notif_stat', 'notif_pro'
-        ];
-
-        // Instancia o model de notificação (Passando o ID do remetente e o tipo de usuário)
-        $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $clinId, 'clinica');
-        
-        // Dispara o convite (Tipo 6 - ajuste conforme o ID do seu padrao_notif para convites)
-        // O destinatário final ($notif_dest) será o profissional ($proId)
-        $msg = "A clínica convidou você para fazer parte do corpo profissional. Clique em aceitar para vincular-se.";
-        
-        // Usando o método padrão de inserção ou 'enviar' do seu framework:
-        $sql = "INSERT INTO notificacao (notif_pd, notif_clin, notif_pro, notif_dest, notif_tipo, notif_msg, notif_data, notif_stat) 
-                VALUES (6, :clin_id, :pro_id, :dest_id, 'convite_vinculo', :msg, NOW(), 0)";
-        
-        $stmt = $clinicaModel->db->prepare($sql); // usando o PDO do framework
-        $enviou = $stmt->execute([
-            ':clin_id' => $clinId,
-            ':pro_id'  => $proId,
-            ':dest_id' => $proId,
-            ':msg'     => $msg
-        ]);
-
-        echo json_encode(['sucesso' => $enviou, 'mensagem' => $enviou ? 'Convite enviado ao profissional!' : 'Falha ao enviar convite.']);
+        $clinica = new clinica('clinica', $campos, $campos[0]);
+        $resultado = $clinica->convidarProfissional($_SESSION['usuario']['idUsuario'], $_POST['pro_id'] ?? 0);
+        echo json_encode($resultado);
         exit;
 
-
     case "desvincular":
-        $clinId = $_SESSION['usuario']['idUsuario'] ?? $_POST['clin_id'] ?? null;
-        $proId  = $_POST['pro_id'] ?? null;
-
-        if (!$clinId || !$proId) {
-            echo json_encode(['sucesso' => false, 'mensagem' => 'IDs da clínica e do profissional são obrigatórios.']);
+        if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'clinica') {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'Somente clínicas podem desvincular profissionais.']);
             exit;
         }
-
-        $clinicaModel = new clinica('clinica', $campos, $campos[0]);
-        $resultado = $clinicaModel->desvincularProfissional($clinId, $proId);
-
+        // o id da clínica vem SEMPRE da sessão (nunca do POST)
+        $clinica = new clinica('clinica', $campos, $campos[0]);
+        $resultado = $clinica->desvincularProfissional($_SESSION['usuario']['idUsuario'], $_POST['pro_id'] ?? 0);
         echo json_encode($resultado);
         exit;
     
