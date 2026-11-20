@@ -45,6 +45,7 @@ switch ($acao){
         exit;
         
     case "login":
+    case "efetuarLogin":
         $camposclin = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[10]];
         $clinica = new clinica('clinica', $camposclin, $camposclin[2]);
         $resultado = $clinica->Login($_POST['email'],$_POST['senha']);
@@ -115,21 +116,6 @@ switch ($acao){
         ]);
         exit;
     
-
-    case "efetuarLogin":
-        header('Content-Type: application/json; charset=utf-8');
-        
-        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-        $senha = $_POST['senha'] ?? '';
-
-        $usuario = new models\clinica(); 
-        
-        // Chama a função que já está pronta usuario.php
-        $resultado = $usuario->Login($email, $senha);
-        
-        // Retorna a resposta para o seu formulário
-        echo json_encode($resultado);
-        exit;
 
     // TESTE - MARIA
     case "verificarLogin":
