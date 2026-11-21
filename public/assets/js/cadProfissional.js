@@ -1,6 +1,6 @@
 (function ($, Utilitarios) {
   "use strict";
-
+//y
   const moduloCadProfissional = {
 
     configuracao: {
@@ -63,7 +63,6 @@
       this.elementos.$cidade = $("#cidade");
       this.elementos.$registro = $("#registroProfissional");
       this.elementos.$nomeRegistro = $("#nomeRegistro");
-      this.elementos.$locais = $("input[name='locaisAtendimento[]']");
       this.elementos.$formulario = $("#formProfissional");
 
       this.elementos.$formAtivacao = $("#formAtivacao");
@@ -95,10 +94,6 @@
 
       $(document).on("input change", ".form-control, .form-select, textarea", function () {
         $(this).removeClass("is-invalid");
-      });
-
-      this.elementos.$locais.on("change", function () {
-        self.elementos.$locais.removeClass("is-invalid");
       });
 
       this.elementos.$botaoCadastrar.on("click", function (evento) {
@@ -166,16 +161,6 @@
       if (Utilitarios.validarCampos(campos)) {
         $botao.prop("disabled", false).html("Cadastrar");
         this.mostrarAlert("Preencha todos os campos!", "danger");
-        return;
-      }
-
-      const locaisSelecionados = el.$locais.filter(":checked").map(function () {
-        return this.value;
-      }).get();
-
-      if (locaisSelecionados.length === 0) {
-        $botao.prop("disabled", false).html("Cadastrar");
-        Utilitarios.marcarCamposComErro(el.$alertContainer, [el.$locais], "Selecione ao menos um local de atendimento!");
         return;
       }
 

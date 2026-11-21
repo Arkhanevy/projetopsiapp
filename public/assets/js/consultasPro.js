@@ -35,6 +35,8 @@
         diaSelecionado: null,
         consultas: [],
         diasIndisponiveis: [],
+        diasFolga: [],
+        tokenDias: 0,
         idConsultaEmAcao: null,
         carregou: false,
         avisoCamposAusentesExibido: false
@@ -198,13 +200,17 @@
         const self = this;
         const contrato = this.configuracao.contratos.listarDiasIndisponiveis;
 
+        // Evita mostrar, no mês novo, os dias do mês anterior enquanto a resposta não chega.
+        const token = ++this.estado.tokenDias;
+        this.estado.diasIndisponiveis = [];
+        this.estado.diasFolga = [];
+
         if (!contrato.disponivel) {
-          this.estado.diasIndisponiveis = [];
           return;
         }
 
         $.ajax({
-          url: this.configuracao.urlControlador,
+          url: this.configuracao.urlDias,
           method: "POST",
           dataType: "json",
           data: {
@@ -214,11 +220,38 @@
           }
         })
           .done(function (resposta) {
-            if (resposta && resposta.sucesso && $.isArray(resposta.dias)) {
-              self.estado.diasIndisponiveis = resposta.dias;
-              self.renderizarCalendario();
+            // Resposta de um mês que já não é o exibido: descarta.
+            if (token !== self.estado.tokenDias) {
+              return;
             }
+            // O backend devolve { disponivel: [], folga: [], indisponivel: [] } com datas "AAAA-MM-DD".
+            if (!resposta || typeof resposta !== "object" || !$.isArray(resposta.indisponivel)) {
+              return;
+            }
+
+            self.estado.diasIndisponiveis = self.extrairDiasDoMes(resposta.indisponivel);
+            self.estado.diasFolga = self.extrairDiasDoMes(resposta.folga);
+            self.renderizarCalendario();
           });
+      },
+
+      // Converte "AAAA-MM-DD" em número do dia, só para o mês e o ano exibidos.
+      extrairDiasDoMes: function (datas) {
+        const self = this;
+        const dias = [];
+
+        $.each($.isArray(datas) ? datas : [], function (indice, data) {
+          const partes = String(data).substring(0, 10).split("-");
+          const ano = parseInt(partes[0], 10);
+          const mes = parseInt(partes[1], 10) - 1;
+          const dia = parseInt(partes[2], 10);
+
+          if (ano === self.estado.anoExibido && mes === self.estado.mesExibido && !isNaN(dia)) {
+            dias.push(dia);
+          }
+        });
+
+        return dias;
       },
 
       mapearConsulta: function (registro) {
@@ -248,6 +281,9 @@
           mes: parseInt(partesData[1], 10) - 1,
           dia: parseInt(partesData[2], 10),
           horaInicio: String(registro.agnd_hrIni || "").slice(0, 5),
+          horaTermino: String(registro.agnd_hrTerm || "").slice(0, 5),
+          dataBanco: registro.agnd_dt || "",
+          nomeSala: registro.sala_nome || "",
           preco: (registro.ser_val === undefined || registro.ser_val === null || isNaN(preco)) ? null : preco,
           estadoConsulta: estadoConsulta,
           solicitadoPor: idCliente ? "cliente" : "profissionalClinica"
@@ -282,6 +318,10 @@
 
         $.each(this.estado.diasIndisponiveis, function (indice, dia) {
           estadosPorDia[String(dia)] = "indisponivel";
+        });
+
+        $.each(this.estado.diasFolga, function (indice, dia) {
+          estadosPorDia[String(dia)] = "folga";
         });
 
         $.each(this.consultasDoMes(), function (indice, consulta) {
@@ -625,6 +665,29 @@
       },
 
       reagendarConsulta: function (idConsulta) {
+        const consulta = this.buscarConsultaPorId(idConsulta);
+
+        // A tela de reagendamento não tem ação de leitura no backend: ela recebe a consulta daqui.
+        if (consulta) {
+          try {
+            window.sessionStorage.setItem("reagendamentoConsulta", JSON.stringify({
+              agnd_id: consulta.idConsulta,
+              agnd_pro: consulta.idProfissional,
+              agnd_cli: consulta.idCliente,
+              agnd_clin: consulta.idClinica,
+              agnd_ser: consulta.idServico,
+              agnd_dt: consulta.dataBanco,
+              agnd_hrIni: consulta.horaInicio,
+              agnd_hrTerm: consulta.horaTermino,
+              sala_nome: consulta.nomeSala,
+              pro_nome: consulta.nomeProfissional,
+              ser_nome: consulta.nomeServico
+            }));
+          } catch (erro) {
+            // Sem sessionStorage a tela de reagendamento mostra o aviso de consulta não encontrada.
+          }
+        }
+
         window.location.href = this.configuracao.urlAgendamento + "&consulta=" + encodeURIComponent(idConsulta);
       },
 

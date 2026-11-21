@@ -16,10 +16,10 @@
     "quinta-feira", "sexta-feira", "sábado"
   ];
 
-  // Tela de reagendamento: mesma interface do agendamentoCli, mas parte de uma consulta existente.
-  // O backend (Servicocontroller) refaz o serviço da sessão a partir de $_POST["reagendar"] e confere o dono
-  // da consulta; por isso todas as chamadas de dias, horários e salas levam o id da consulta.
-  const moduloReagendamento = {
+  // Chave em que a tela de consultas deixa os dados da consulta antes de abrir o reagendamento.
+  const CHAVE_CONSULTA = "reagendamentoConsulta";
+
+const moduloReagendamento = {
 
     configuracao: {
       urlServico: "index.php?uri=servico",
@@ -31,7 +31,17 @@
       },
 
       contratos: {
-        mostrarSala: { acao: "mostrarSala", disponivel: true }
+        mostrarSala: { acao: "mostrarSala", disponivel: true },
+        // Devolve o serviço em dados[0] e grava $_SESSION['servico'] (ser_id, ser_pro, ser_clin, ser_dur, ser_inter, ser_loc).
+        detalhesServico: { url: "index.php?uri=busca", acao: "mostrardetalhes", tipo: "servico", disponivel: true },
+        // Paliativo: o backend grava o status "esperando" em todo reagendamento. Quando quem remarca é o
+        // profissional, a consulta é aceita logo em seguida. Remover quando o reagendar mantiver o status "aceita".
+        aceitarConsulta: {
+          url: "index.php?uri=profissional",
+          acao: "aceitar",
+          tipos: ["profissional"],
+          disponivel: true
+        }
       }
     },
 
@@ -51,7 +61,8 @@
       diasSemHorario: [],
       diaSelecionado: null,
       horarioSelecionado: null,
-      salaSelecionada: null
+      salaSelecionada: null,
+      finalizando: false
     },
 
     elementos: {},
@@ -232,35 +243,50 @@
         return;
       }
 
+      const consultaSalva = this.lerConsultaSalva();
+      if (!consultaSalva) {
+        this.tratarFalhaCarregamento("Abra o reagendamento pela lista de consultas.");
+        return;
+      }
+
+      const contrato = this.configuracao.contratos.detalhesServico;
+
       this.elementos.$form.removeClass("estadoErro").addClass("estadoCarregando");
       Utilitarios.alternarEsqueletoAcessivel(this.elementos.$camposDinamicos, true);
 
       $.ajax({
-        url: this.configuracao.urlServico,
+        url: contrato.url,
         method: "POST",
         dataType: "json",
         data: {
-          acao: "detalhesReagendamento",
-          agnd_id: this.estado.idConsulta
+          acao: contrato.acao,
+          tipo: contrato.tipo,
+          id: consultaSalva.agnd_ser
         }
       })
         .done(function (resposta) {
-          if (!resposta || !resposta.sucesso || !resposta.dados || !resposta.dados.consulta) {
-            self.tratarFalhaCarregamento(resposta && resposta.mensagem);
+          const servico = resposta && resposta.sucesso && $.isArray(resposta.dados) ? resposta.dados[0] : null;
+          if (!servico) {
+            // O backend só devolve serviços ativos; sem dados o serviço pode ter sido desativado.
+            self.tratarFalhaCarregamento("Não encontramos o serviço dessa consulta. Ele pode ter sido desativado.");
             return;
           }
 
-          self.estado.consulta = resposta.dados.consulta;
-          self.estado.servico = resposta.dados.servico;
+          self.estado.consulta = consultaSalva;
+          self.estado.servico = servico;
 
           Utilitarios.preencherCampos(
             self.elementos.$camposDinamicos,
-            self.mapearDados(resposta.dados)
+            self.mapearDados({
+              consulta: consultaSalva,
+              servico: servico,
+              nomes: { pro_nome: consultaSalva.pro_nome }
+            })
           );
-          self.elementos.$linhaSalaAtual.prop("hidden", !resposta.dados.consulta.sala_nome);
+          self.elementos.$linhaSalaAtual.prop("hidden", !consultaSalva.sala_nome);
 
           Utilitarios.alternarEsqueletoAcessivel(self.elementos.$camposDinamicos, false);
-          self.estado.dataExibida = self.mesInicial(resposta.dados.consulta.agnd_dt);
+          self.estado.dataExibida = self.mesInicial(consultaSalva.agnd_dt);
           self.buscarDiasIndisponiveis(self.estado.dataExibida);
         })
         .fail(function () {
@@ -268,7 +294,43 @@
         });
     },
 
-    // Abre o calendário no mês da consulta atual (ou no mês corrente, se ela já passou).
+    // Lê o que a tela de consultas guardou; só vale se for a mesma consulta da URL.
+    lerConsultaSalva: function () {
+      let texto = null;
+      try {
+        texto = window.sessionStorage.getItem(CHAVE_CONSULTA);
+      } catch (erro) {
+        return null;
+      }
+      if (!texto) {
+        return null;
+      }
+
+      let consulta;
+      try {
+        consulta = JSON.parse(texto);
+      } catch (erro) {
+        return null;
+      }
+
+      if (!consulta || String(consulta.agnd_id) !== String(this.estado.idConsulta) || !consulta.agnd_ser) {
+        return null;
+      }
+      return consulta;
+    },
+
+    // Campos que o backend lê de $_POST quando não há $_SESSION['servico'] (e que o reagendar sempre lê de $_POST).
+    dadosBaseAgenda: function () {
+      const consulta = this.estado.consulta || {};
+      const servico = this.estado.servico || {};
+      return {
+        agnd_pro: consulta.agnd_pro || "",
+        ser_id: servico.ser_id || consulta.agnd_ser || "",
+        ser_dur: servico.ser_dur,
+        ser_inter: servico.ser_inter
+      };
+    },
+
     mesInicial: function (dataConsulta) {
       const partes = String(dataConsulta || "").split("-");
       const mesAtual = this.obterPrimeiroDiaMesAtual();
@@ -449,12 +511,12 @@
         url: this.configuracao.urlServico,
         method: "POST",
         dataType: "json",
-        data: {
+        data: $.extend(this.dadosBaseAgenda(), {
           acao: "MostrarDias",
           reagendar: this.estado.idConsulta,
           mes: data.getMonth() + 1,
           ano: data.getFullYear()
-        }
+        })
       })
         .done(function (resposta) {
           if (token !== self.estado.tokenDias) {
@@ -562,11 +624,11 @@
           url: self.configuracao.urlServico,
           method: "POST",
           dataType: "json",
-          data: {
+          data: $.extend(self.dadosBaseAgenda(), {
             acao: "mostrarhorario",
             reagendar: self.estado.idConsulta,
             dia: dataChave
-          }
+          })
         }).done(function (resposta) {
           if (token !== self.estado.tokenDias) {
             return;
@@ -718,11 +780,11 @@
         url: this.configuracao.urlServico,
         method: "POST",
         dataType: "json",
-        data: {
+        data: $.extend(this.dadosBaseAgenda(), {
           acao: "mostrarhorario",
           reagendar: this.estado.idConsulta,
           dia: dataChave
-        }
+        })
       })
         .done(function (resposta) {
           if (token !== self.estado.tokenHorarios) {
@@ -945,14 +1007,17 @@
     enviarReagendamento: function (idSala) {
       const self = this;
       const partesHorario = this.obterPartesHorario();
-      const dados = {
+      const consulta = this.estado.consulta || {};
+      const dados = $.extend(this.dadosBaseAgenda(), {
         acao: "reagendar",
         agnd_id: this.estado.idConsulta,
+        agnd_cli: consulta.agnd_cli || "",
+        agnd_clin: consulta.agnd_clin || "",
         sala: idSala,
         dia: this.estado.diaSelecionado,
         inicio: partesHorario[0],
         termino: partesHorario[1]
-      };
+      });
       this.elementos.$botaoConfirmar.prop("disabled", true);
 
       $.ajax({
@@ -964,7 +1029,11 @@
         .done(function (respostaTexto) {
           const resultado = $.trim(respostaTexto).replace(/^"+|"+$/g, "");
           if (resultado === "sucesso") {
-            window.location.href = self.urlVoltar();
+            // O reagendamento já foi gravado: com ou sem o aceite, o usuário volta para a agenda.
+            self.estado.finalizando = true;
+            self.aceitarConsultaReagendada().always(function () {
+              window.location.href = self.urlVoltar();
+            });
             return;
           }
           self.tratarErroReagendamento($.trim(respostaTexto));
@@ -973,8 +1042,34 @@
           self.exibirAlertaValidacao("Não foi possível concluir o reagendamento. Tente novamente.");
         })
         .always(function () {
-          self.elementos.$botaoConfirmar.prop("disabled", false);
+          if (!self.estado.finalizando) {
+            self.elementos.$botaoConfirmar.prop("disabled", false);
+          }
         });
+    },
+
+    // Só para quem tem o aceite no contrato (profissional). A falha não bloqueia a volta: a consulta
+    // fica pendente e pode ser aceita na lista.
+    aceitarConsultaReagendada: function () {
+      const contrato = this.configuracao.contratos.aceitarConsulta;
+      const consulta = this.estado.consulta || {};
+
+      if (!contrato.disponivel || $.inArray(this.estado.tipoUsuario, contrato.tipos) === -1) {
+        return $.Deferred().resolve().promise();
+      }
+
+      return $.ajax({
+        url: contrato.url,
+        method: "POST",
+        dataType: "json",
+        data: {
+          acao: contrato.acao,
+          agnd_id: this.estado.idConsulta,
+          agnd_pro: consulta.agnd_pro || "",
+          agnd_cli: consulta.agnd_cli || "",
+          agnd_clin: consulta.agnd_clin || 0
+        }
+      });
     },
 
     extrairMensagem: function (texto) {
