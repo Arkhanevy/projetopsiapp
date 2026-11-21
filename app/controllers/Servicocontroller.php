@@ -31,7 +31,7 @@ switch ($acao){
             $mes = $hoje->format('m'); 
             $dia = $hoje->format('d');
         };
-        $mostrar = $servico->MostrarDatas($_SESSION['servico']['ser_id'] ?? $_POST['ser_id'],  $_SESSION['servico']['ser_pro'] ?? $_POST['agnd_pro'],$ano,$mes,$dia);
+        $mostrar = $servico->MostrarDatas($_SESSION['servico']['ser_id'] ?? '',  $_SESSION['servico']['ser_pro'] ?? $_POST['agnd_pro'],$ano,$mes,$dia);
         $_SESSION['datas'] = $mostrar;
         echo $mostrar;
         exit;

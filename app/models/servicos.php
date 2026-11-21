@@ -131,7 +131,7 @@ class servicos {
                $dsem = $dsem->format('w');
                $rotina = new DBQuery('hr_servico', 'hrser_hrini,hrser_hrterm','hrser_dia' );
                $where = new Where();
-               $where->addCondition('AND', 'hrser_dia', '=', $dsem);
+               $where->addLike('AND', 'hrser_dia', $dsem);
                $where->addCondition('AND', 'hrser_pro', '=', $pro);
                $where = $where->build();
                $resultado = $rotina->selectWhere($where);

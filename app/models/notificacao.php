@@ -133,7 +133,7 @@ class notificacao {
    }
    
    public function listar() {
-       $where = "where " . 'notif_dest' . '=' . $this->id . ' ORDER BY notif_data DESC';//não tem função para por order by mas acho que tá seguro pq $cod é gerado por mim e $id é int
+       $where = "where " . 'notif_dest =' . $this->id . ' ORDER BY notif_data DESC';//não tem função para por order by mas acho que tá seguro pq $cod é gerado por mim e $id é int
        $padao = new DBQuery('notificacao','*','');
        
        try {
