@@ -209,13 +209,13 @@
         return;
       }
 
-      // [ARQUIVOS DESATIVADOS] Imagem de perfil não é mais obrigatória nem enviada ao backend.
-      // const imgArquivo = el.$img[0].files[0];
-      // if (!imgArquivo) {
-      //   $botao.prop("disabled", false).html("Cadastrar");
-      //   this.mostrarAlert("A imagem de perfil é obrigatória.", "danger");
-      //   return;
-      // }
+      // Imagem de perfil obrigatória; vai no $_FILES['cxproFoto'].
+      const imgArquivo = el.$img[0].files[0];
+      if (!imgArquivo) {
+        $botao.prop("disabled", false).html("Cadastrar");
+        this.mostrarAlert("A imagem de perfil é obrigatória.", "danger");
+        return;
+      }
 
       const camposEndereco = [el.$cep, el.$rua, el.$bairro, el.$uf, el.$ibge, el.$cidade];
       if (Utilitarios.apenasNumeros(el.$cep.val()).length !== 8) {
@@ -238,9 +238,8 @@
       // [ARQUIVOS DESATIVADOS] $_FILES['registro'] levava o arquivo; $_POST['registro'] levava o nome do arquivo.
       // formData.append("registro", registroArquivo.name);
 
-      // [ARQUIVOS DESATIVADOS] Garante que foto e registro não vão no POST, mesmo com os inputs preenchidos.
-      // Para reativar o envio, remova estas duas linhas e descomente os trechos acima.
-      formData.delete("cxproFoto");
+      // A foto (cxproFoto) segue no formData. O arquivo de registro continua desativado:
+      // o backend ainda não salva esse arquivo, então ele não é enviado.
       formData.delete("registro");
 
       $.ajax({

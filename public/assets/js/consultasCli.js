@@ -260,6 +260,12 @@
 
       if (consulta.status !== "cancelada") {
         $rodape.append(
+          $('<a class="botaoReagendarConsulta botaoReagendar btn rounded-pill"></a>')
+            .attr("href", "index.php?uri=reagendamento&consulta=" + encodeURIComponent(consulta.id))
+            .attr("aria-label", "Reagendar consulta de " + consulta.nomeServico)
+            .append('<span class="material-symbols-outlined" aria-hidden="true">event_repeat</span> Reagendar')
+        );
+        $rodape.append(
           $(
             '<button type="button" class="botaoCancelarConsulta botaoCancelar btn rounded-pill"></button>'
           )

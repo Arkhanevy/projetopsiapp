@@ -1,5 +1,6 @@
 <?php
 use models\busca;
+use models\download;
 
 
 $acao = $_POST['acao'] ?? '';

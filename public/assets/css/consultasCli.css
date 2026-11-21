@@ -82,6 +82,27 @@
   opacity: 0.85;
 }
 
+.botaoReagendar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco1);
+  background-color: var(--corAcaoExtra);
+  color: var(--corBranco);
+  border: none;
+  border-radius: var(--raioTotal);
+  font-weight: var(--pesoNegrito);
+  font-size: var(--tamanhoBody);
+  padding: var(--espaco2) var(--espaco6);
+  opacity: 0.85;
+  text-decoration: none;
+}
+
+.botaoReagendar:hover {
+  opacity: 1;
+  color: var(--corBranco);
+}
+
 .botaoCancelar:hover {
   opacity: 1;
   color: var(--corBranco);

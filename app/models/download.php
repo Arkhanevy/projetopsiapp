@@ -7,7 +7,7 @@ use core\database\DBQuery;
 use core\database\Where;
 
 class download {
-    public function arquivoParaDataUri($caminho) {
+    public function arquivoParaDataUri($caminho, $larguraMax = 0) {
         $dir = realpath(__DIR__ . '/../uploads');
         if (!$caminho || !$dir) {
             return null;
@@ -28,6 +28,9 @@ class download {
         $mime = $finfo->buffer($conteudo);
         
         if (in_array($mime, $permitidos, true)) {
+            if ($larguraMax > 0) {
+                $conteudo = $this->reduzirImagem($conteudo, $mime, (int) $larguraMax);
+            }
             $b64 = base64_encode($conteudo);        // arquivo guardado é o binário original
         } else {
             $bin = base64_decode(trim($conteudo), true);   // fallback: texto base64
@@ -49,56 +52,96 @@ class download {
         ];
     }
     
+    private function reduzirImagem($conteudo, $mime, $larguraMax) {
+        if (!function_exists('imagecreatefromstring') || !function_exists('imagescale')
+            || !in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
+            return $conteudo;
+        }
+        if ($mime === 'image/webp' && !function_exists('imagewebp')) {
+            return $conteudo;
+        }
+        $img = @imagecreatefromstring($conteudo);
+        if (!$img) {
+            return $conteudo;
+        }
+        if (imagesx($img) <= $larguraMax) {
+            imagedestroy($img);
+            return $conteudo;
+        }
+        $novo = imagescale($img, $larguraMax);
+        imagedestroy($img);
+        if (!$novo) {
+            return $conteudo;
+        }
+        ob_start();
+        if ($mime === 'image/png') {
+            imagesavealpha($novo, true);
+            imagepng($novo);
+        } elseif ($mime === 'image/webp') {
+            imagewebp($novo, null, 80);
+        } else {
+            imagejpeg($novo, null, 82);
+        }
+        $saida = ob_get_clean();
+        imagedestroy($novo);
+        return ($saida !== false && $saida !== '') ? $saida : $conteudo;
+    }
+
+    private function montarListaDocumentos($linhas, $filtroEmail = '') {
+        $lista = [];
+        foreach ($linhas as $linha) {
+            if (($linha['tipo'] ?? '') === 'foto') {
+                continue;
+            }
+            if ($filtroEmail !== '' && !in_array($filtroEmail, $this->listaDeEmails($linha['shareMails'] ?? ''), true)) {
+                continue;
+            }
+            $arquivo = $this->arquivoParaDataUri($linha['filePath']);
+            if ($arquivo === null) {
+                continue;
+            }
+            $arquivo['id']     = $arquivo['nome'];
+            $arquivo['titulo'] = $linha['titulo'] ?? '';
+            $arquivo['tipo']   = $linha['tipo'] ?? '';
+            $lista[] = $arquivo;
+        }
+        return $lista;
+    }
+
     public function meusarquivos($id,$tipo) {
-        $arquivos = new DBQuery('ctrlFiles', 'filePath', '');
+        $arquivos = new DBQuery('ctrlFiles', 'filePath, shareMails, titulo, tipo', '');
 
         $where = new Where();
         $where->addCondition('AND', 'owner', '=', $id);
         $where->addCondition('AND', 'ownerTipo', '=', $tipo);
-        
+
         try {
-            $resultado = $arquivos->selectFiltered($where);
-            $linhas  = $resultado->fetchAll(\PDO::FETCH_ASSOC);
+            $linhas = $arquivos->selectFiltered($where)->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\Exception $e) {
             return ['sucesso' => false,'mensagem' => $e->getMessage()];
         }
-        $lista = [];
-        foreach ($linhas as $linha) {
-            $arquivo = $this->arquivoParaDataUri($linha['filePath']);
-            if ($arquivo === null) {
-                continue; 
-            }
-            $lista[] = $arquivo;
+
+        return ['sucesso' => true, 'dados' => $this->montarListaDocumentos($linhas)];
+    }
+
+    // Arquivos de $dono compartilhados com o e-mail $comp (shareMails pode ter vários e-mails separados por vírgula).
+    public function arquivoscompartilhado($dono,$comp) {
+        $emailAlvo = strtolower(trim((string) $comp));
+        if ($emailAlvo === '') {
+            return ['sucesso' => true, 'dados' => []];
         }
-        
-        return ['sucesso' => true, 'dados' => $lista];
-        
-   }
-   
-   public function arquivoscompartilhado($dono,$comp) {
-       $arquivos = new DBQuery('ctrlFiles', 'filePath', '');
-       $where = new Where();
-       $where->addCondition('AND', 'owner', '=', $dono);
-       $where->addCondition('AND', 'shareMails', '=', $comp);
-       $where = $where->build();
-       try {
-           $resultado = $arquivos->selectWhere($where);
-           $linhas  = $resultado->fetchAll(\PDO::FETCH_ASSOC);
-       } catch (\Exception $e) {
-           return ['sucesso' => false,'mensagem' => $e->getMessage()];
-       }
-       $lista = [];
-       foreach ($linhas as $linha) {
-           $arquivo = $this->arquivoParaDataUri($linha['filePath']);
-           if ($arquivo === null) {
-               continue;
-           }
-           $lista[] = $arquivo;
-       }
-       
-       return ['sucesso' => true, 'dados' => $lista];
-       
-   }
+        $arquivos = new DBQuery('ctrlFiles', 'filePath, shareMails, titulo, tipo', '');
+        $where = new Where();
+        $where->addCondition('AND', 'owner', '=', $dono);
+
+        try {
+            $linhas = $arquivos->selectFiltered($where)->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\Exception $e) {
+            return ['sucesso' => false,'mensagem' => $e->getMessage()];
+        }
+
+        return ['sucesso' => true, 'dados' => $this->montarListaDocumentos($linhas, $emailAlvo)];
+    }
 
     // =====================================================================
     // Documentos e imagens trocados entre contatos (tela de Contatos)
@@ -209,20 +252,21 @@ class download {
         return ['sucesso' => true, 'sessao' => $sessao, 'contato' => $contato];
     }
 
-    public function enviarDocumento($idContato, $tipoContato, $titulo, $arquivo) {
-        $base = $this->contatoDaRequisicao($idContato, $tipoContato);
-        if (!$base['sucesso']) {
-            return $base;
+    // Corta o texto em $max caracteres (UTF-8) sem depender da extensão mbstring, que pode não estar instalada.
+    private function cortarTexto($texto, $max) {
+        $texto = (string) $texto;
+        if (function_exists('mb_substr')) {
+            return mb_substr($texto, 0, $max);
         }
-        $sessao  = $base['sessao'];
-        $contato = $base['contato'];
-
-        $titulo = trim((string) $titulo);
-        if ($titulo === '') {
-            return ['sucesso' => false, 'mensagem' => 'Informe um título para o documento.'];
+        $caracteres = preg_split('//u', $texto, -1, PREG_SPLIT_NO_EMPTY);
+        if ($caracteres === false) {
+            return substr($texto, 0, $max);
         }
-        $titulo = mb_substr($titulo, 0, 100);
+        return implode('', array_slice($caracteres, 0, $max));
+    }
 
+    // Valida o upload (erro, tamanho, extensão e conteúdo real) e move para app/uploads com nome aleatório.
+    private function gravarArquivoEnviado($arquivo) {
         if (!is_array($arquivo) || !isset($arquivo['error'])) {
             return ['sucesso' => false, 'mensagem' => 'Escolha um arquivo para enviar.'];
         }
@@ -257,6 +301,30 @@ class download {
             return ['sucesso' => false, 'mensagem' => 'Não foi possível salvar o arquivo.'];
         }
 
+        return ['sucesso' => true, 'pasta' => $pasta, 'nome' => $nome];
+    }
+
+    public function enviarDocumento($idContato, $tipoContato, $titulo, $arquivo) {
+        $base = $this->contatoDaRequisicao($idContato, $tipoContato);
+        if (!$base['sucesso']) {
+            return $base;
+        }
+        $sessao  = $base['sessao'];
+        $contato = $base['contato'];
+
+        $titulo = trim((string) $titulo);
+        if ($titulo === '') {
+            return ['sucesso' => false, 'mensagem' => 'Informe um título para o documento.'];
+        }
+        $titulo = $this->cortarTexto($titulo, 100);
+
+        $gravado = $this->gravarArquivoEnviado($arquivo);
+        if (!$gravado['sucesso']) {
+            return $gravado;
+        }
+        $pasta = $gravado['pasta'];
+        $nome  = $gravado['nome'];
+
         try {
             $registro = new DBQuery('ctrlFiles', 'owner, filePath, accessCtrl, shareMails, ownerTipo, titulo, tipo', 'filePath');
             $registro->insert([
@@ -265,8 +333,51 @@ class download {
                 1,                      // 1 = privado
                 $contato['email'],      // quem pode ver além do dono
                 $sessao['tipoUsuario'],
-                $titulo,
+                addslashes($titulo),
                 'documento'
+            ]);
+        } catch (\Exception $e) {
+            @unlink($pasta . DIRECTORY_SEPARATOR . $nome);
+            return ['sucesso' => false, 'mensagem' => 'Não foi possível registrar o arquivo: ' . $e->getMessage()];
+        }
+
+        return ['sucesso' => true];
+    }
+
+    private $tiposDocumentoPerfil = ['diploma', 'certificadoEspecializacao', 'licencaAlvaraSanitario', 'alvaraFuncionamento'];
+
+    // Documento do próprio perfil (diploma, alvará...). Fica privado: só o dono vê em "meus arquivos".
+    public function salvarDocumentoProprio($titulo, $tipo, $arquivo) {
+        $sessao = $this->sessaoAtual();
+        if (!$sessao) {
+            return ['sucesso' => false, 'mensagem' => 'Sessão expirada. Entre novamente.'];
+        }
+        $titulo = $this->cortarTexto(trim((string) $titulo), 90);
+        if ($titulo === '') {
+            return ['sucesso' => false, 'mensagem' => 'Informe um título para o documento.'];
+        }
+        $tipo = trim((string) $tipo);
+        if (!in_array($tipo, $this->tiposDocumentoPerfil, true)) {
+            return ['sucesso' => false, 'mensagem' => 'Tipo de documento inválido.'];
+        }
+
+        $gravado = $this->gravarArquivoEnviado($arquivo);
+        if (!$gravado['sucesso']) {
+            return $gravado;
+        }
+        $pasta = $gravado['pasta'];
+        $nome  = $gravado['nome'];
+
+        try {
+            $registro = new DBQuery('ctrlFiles', 'owner, filePath, accessCtrl, shareMails, ownerTipo, titulo, tipo', 'filePath');
+            $registro->insert([
+                $sessao['idUsuario'],
+                $this->caminhoNoBanco($pasta, $nome),
+                1,
+                '',
+                $sessao['tipoUsuario'],
+                addslashes($titulo),
+                $tipo
             ]);
         } catch (\Exception $e) {
             @unlink($pasta . DIRECTORY_SEPARATOR . $nome);
@@ -371,7 +482,7 @@ class download {
     }
 
     // troca o caminho da foto (campo xxx_foto) por uma imagem pronta para o <img src>
-    public function anexarFotos($lista, $prefixo) {
+    public function anexarFotos($lista, $prefixo, $larguraMax = 400) {
         if (!is_array($lista)) {
             return $lista;
         }
@@ -379,7 +490,7 @@ class download {
         foreach ($lista as $indice => $item) {
             $foto = null;
             if (!empty($item[$campo])) {
-                $foto = $this->arquivoParaDataUri($item[$campo]);
+                $foto = $this->arquivoParaDataUri($item[$campo], $larguraMax);
             }
             if ($foto) {
                 $lista[$indice][$campo] = $foto['data'];

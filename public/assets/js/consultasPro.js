@@ -545,6 +545,8 @@
         if (falha && falha.indisponivel) {
           return;
         }
+        // A ação pode ter alterado o banco mesmo assim: recarrega a lista para a tela refletir o estado real.
+        this.buscarConsultas();
         if (falha && falha.permissaoNegada) {
           this.exibirAvisoPermissao(Utilitarios.mensagemPermissaoNegada(falha.nomeAcao));
           return;
@@ -623,7 +625,7 @@
       },
 
       reagendarConsulta: function (idConsulta) {
-        window.location.href = this.configuracao.urlAgendamento + "&reagendar=" + encodeURIComponent(idConsulta);
+        window.location.href = this.configuracao.urlAgendamento + "&consulta=" + encodeURIComponent(idConsulta);
       },
 
       removerConsulta: function (idConsulta) {

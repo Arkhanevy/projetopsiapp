@@ -71,7 +71,7 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case "PegarPerfil":
-        $camposPro = [$campos[0],$campos[1],$campos[5]/*,$campos[6]*/];
+        $camposPro = [$campos[0],$campos[1],$campos[5],$campos[6]];
         $camposSer = ['ser_id',
             'ser_pro',
             'ser_clin',
@@ -96,10 +96,10 @@ switch ($acao){
             ]);
             exit;
         }
-        /*if (!empty($properfil['dados'])) {
-            $arq = $download->arquivoParaDataUri($properfil['dados'][0]['pro_foto']);
-            $properfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
-        }*/
+        if (!empty($properfil['dados'])) {
+            $arq = $download->arquivoParaDataUri($properfil['dados'][0]['pro_foto'] ?? '');
+            $properfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : '';
+        }
         
         
         $proHrser = $profissional->pegarHrser();
@@ -128,8 +128,8 @@ switch ($acao){
         ]);
         exit;
     case 'contato':
-        $camposCli = ['cli_id','cli_nome','cli_tel','cli_email'];
-        $camposCLin = ['clin_id','clin_nome','clin_tel','clin_email'];
+        $camposCli = ['cli_id','cli_nome','cli_tel','cli_email','cli_foto'];
+        $camposCLin = ['clin_id','clin_nome','clin_tel','clin_email','clin_foto'];
         
         $condicao = ['agnd_cli','agnd_pro'];
         $id = $_SESSION['usuario']['idUsuario'];
@@ -146,6 +146,9 @@ switch ($acao){
         if ($contCLin['sucesso'] === false){
             echo json_encode($contCLin);
         };
+        $baixar = new download();
+        $contPro['dados']  = $baixar->anexarFotos($contPro['dados'] ?? null, 'cli');
+        $contCLin['dados'] = $baixar->anexarFotos($contCLin['dados'] ?? null, 'clin');
         echo json_encode([
             "sucesso" => true, 
             "dados1" => $contPro['dados'],
@@ -223,7 +226,7 @@ switch ($acao){
         exit;
         
     //ver se tá dando certo
-// ---------- ASSOCIAÇÃO CLÍNICA <-> PROFISSIONAL ----------
+    // ---------- ASSOCIAÇÃO CLÍNICA <-> PROFISSIONAL ----------
     case 'aceitar_vinculo':
         if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'profissional') {
             echo json_encode(['sucesso' => false, 'mensagem' => 'Somente profissionais podem aceitar convites.']);
@@ -284,6 +287,11 @@ switch ($acao){
     case 'enviarDocumento':
         $arquivos = new download();
         $resultado = $arquivos->enviarDocumento($_POST['idContato'] ?? '', $_POST['tipoContato'] ?? '', $_POST['tituloDocumento'] ?? '', $_FILES['arquivoDocumento'] ?? null);
+        echo json_encode($resultado);
+        exit;
+    case 'uploadDocumento':
+        $arquivos = new download();
+        $resultado = $arquivos->salvarDocumentoProprio($_POST['titulo'] ?? '', $_POST['tipo'] ?? '', $_FILES['file'] ?? null);
         echo json_encode($resultado);
         exit;
     case 'baixarDocumento':

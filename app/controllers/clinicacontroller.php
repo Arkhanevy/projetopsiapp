@@ -45,6 +45,11 @@ switch ($acao){
         exit;
         
     case "login":
+        $camposclin = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[10]];
+        $clinica = new clinica('clinica', $camposclin, $camposclin[2]);
+        $resultado = $clinica->Login($_POST['email'],$_POST['senha']);
+        echo json_encode($resultado);
+        exit;
     case "efetuarLogin":
         $camposclin = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[10]];
         $clinica = new clinica('clinica', $camposclin, $camposclin[2]);
@@ -70,7 +75,7 @@ switch ($acao){
         'ser_stat',
         'ser_dia',
         'ser_loc'];
-        $camposclin = [$campos[0],$campos[1],$campos[5]/*,$campos[6]*/,$campos[12]];
+        $camposclin = [$campos[0],$campos[1],$campos[5],$campos[6],$campos[12]];
         $clinica = new clinica('clinica', $camposclin, $camposclin[0]);
         $busca = new busca('servico', $camposSer, $camposSer[0]);
         $download  =new download();
@@ -84,10 +89,10 @@ switch ($acao){
             exit;
         }
         
-        /*if (!empty($clinperfil['dados'])) {
-            $arq = $download->arquivoParaDataUri($clinperfil['dados'][0]['clin_foto']);
-            $clinperfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
-        }*/
+        if (!empty($clinperfil['dados'])) {
+            $arq = $download->arquivoParaDataUri($clinperfil['dados'][0]['clin_foto'] ?? '');
+            $clinperfil['dados'][0]['clin_foto'] = $arq ? $arq['data'] : '';
+        }
         
         $servicos = $busca->MeusServicos($_SESSION['usuario']['tipoUsuario'],$_SESSION['usuario']['idUsuario']);
 
@@ -98,7 +103,7 @@ switch ($acao){
         ]);
         exit;
     case 'contato':
-        $camposPro = ['pro_id','pro_nome','pro_tel','pro_email'];
+        $camposPro = ['pro_id','pro_nome','pro_tel','pro_email','pro_foto'];
         
         $condicao = ['agnd_pro','agnd_clin'];
         $id = $_SESSION['usuario']['idUsuario'];
@@ -110,6 +115,7 @@ switch ($acao){
             echo json_encode($contPro);
         };
         
+        $contPro['dados'] = (new download())->anexarFotos($contPro['dados'] ?? null, 'pro');
         echo json_encode([
             "sucesso" => true,
             "dados1" => $contPro['dados']
@@ -188,6 +194,11 @@ switch ($acao){
     case 'enviarDocumento':
         $arquivos = new download();
         $resultado = $arquivos->enviarDocumento($_POST['idContato'] ?? '', $_POST['tipoContato'] ?? '', $_POST['tituloDocumento'] ?? '', $_FILES['arquivoDocumento'] ?? null);
+        echo json_encode($resultado);
+        exit;
+    case 'uploadDocumento':
+        $arquivos = new download();
+        $resultado = $arquivos->salvarDocumentoProprio($_POST['titulo'] ?? '', $_POST['tipo'] ?? '', $_FILES['file'] ?? null);
         echo json_encode($resultado);
         exit;
     case 'baixarDocumento':

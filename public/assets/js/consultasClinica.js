@@ -7,7 +7,7 @@
     tipoUsuario:      "clinica",
     urlControlador:   "index.php?uri=clinica",
     urlLogin:         "index.php?uri=loginClinica",
-    urlAgendamento:   "index.php?uri=agendamentoClinica",
+    urlAgendamento:   "index.php?uri=reagendamento",
 
     contratos: {
       listarConsultas: { disponivel: true, acao: "MostrarConsulta" },

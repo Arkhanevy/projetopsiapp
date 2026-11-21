@@ -171,13 +171,13 @@
         return;
       }
 
-      // [ARQUIVOS DESATIVADOS] Imagem de perfil não é mais obrigatória nem enviada ao backend.
-      // const imgArquivo = el.$img[0].files[0];
-      // if (!imgArquivo) {
-      //   $botao.prop("disabled", false).html("Cadastrar");
-      //   this.mostrarAlert("A imagem de perfil é obrigatória.", "danger");
-      //   return;
-      // }
+      // Imagem de perfil obrigatória; vai no $_FILES['cxclientefoto'].
+      const imgArquivo = el.$img[0].files[0];
+      if (!imgArquivo) {
+        $botao.prop("disabled", false).html("Cadastrar");
+        this.mostrarAlert("A imagem de perfil é obrigatória.", "danger");
+        return;
+      }
 
       // $_POST e $_FILES saem do próprio formulário (atributos name); só os valores com máscara são sobrescritos.
       const formData = Utilitarios.criarFormData(el.$formulario, {
@@ -185,10 +185,6 @@
         telefone: Utilitarios.apenasNumeros(el.$tel.val()),
         CPF: cpfLimpo
       });
-
-      // [ARQUIVOS DESATIVADOS] Garante que a foto não vá no POST, mesmo com o input preenchido.
-      // Para reativar o envio, remova esta linha e descomente a validação acima.
-      formData.delete("cxclientefoto");
 
       $.ajax({
           url: this.configuracao.urlCliente,

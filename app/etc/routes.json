@@ -182,5 +182,11 @@
     "sessionKey": [{"idUsuario": false}],
     "sanitize": {"requestVars": true, "code": true, "sql": true},
     "errorPath": "app/views/erro.php"
+  },
+  "reagendamento": {
+    "path": "app/views/reagendamento.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
   }
 }
