@@ -72,7 +72,7 @@ create table servico (
     ser_inter int,-- intervalo do serviço -- vou somar com a duração para saber por quanto tenho que separar os horarios de serviço
     ser_val decimal(10,2), -- valor do seviço
     ser_stat varchar(8),-- status do serviço -- se uma podologa deixar de fazer um serviço dar soft delete para manter o relatorio e atentimento sem dar problema
-    ser_dia int null,-- dias em que a podóloga realiza tal serviço 0 = domingo 1 = segunda
+    ser_dia varchar(7) null,-- dias em que a podóloga realiza tal serviço 0 = domingo 1 = segunda
     ser_loc int null, -- id da localização
     foreign key (ser_pro) references profissional(pro_id)
 );
@@ -220,6 +220,8 @@ insert into padrao_notif (pdNotif_pro, pdNotif_clin, pdNotif_tipo, pdNotif_msg) 
 (null, null, 'rejeitar',  'Infelizmente sua solicitação de consulta de {servico} para o dia {data} às {hora} não pôde ser aceita. Escolha outro horário na agenda.'),
 (null, null, 'cancelar',  'A consulta de {servico} marcada para o dia {data} às {hora} foi cancelada.');
 select * from profissional where pro_id = 2;
+
+select * from servico where ser_nome like '%Tratamento de unha encravada%';
 
 /*INSERT INTO servico (ser_id, ser_pro, ser_nome, ser_tipo, ser_desc, ser_dur, ser_inter, ser_val, ser_stat, ser_dia) VALUES (0, 1, 'mao de pão', 'mãos', 'sua mão vira pão', 30, 10, 50.20, 'ativado', 0);
 INSERT INTO hr_servico (hrser_id, hrser_pro, hrser_hora_inic, hrser_hora_term, hrser_dia) VALUES (0, 1, '08:00:00','18:00:00','1');

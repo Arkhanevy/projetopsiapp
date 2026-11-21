@@ -19,7 +19,7 @@ class servicos {
         'ser_dia',
         'ser_loc'
     ];//campos do servico
-    private $pimarykey =['ser_id'];
+    private $primarykey =['ser_id'];
     private $table = 'servico';
     
     public function cadastrar($id,$pro,$clin,$nome,$tipo,$desc,$dur,$inter,$val,$dia,$loc) {
@@ -39,7 +39,7 @@ class servicos {
             $loc
         ];
         try {
-            $cadastrar = new DBQuery($this->table, $camposServ,$this->pimarykey );
+            $cadastrar = new DBQuery($this->table, $camposServ,$this->primarykey );
             $resultado = $cadastrar->insert($dados);
             
             if ($resultado) {
@@ -131,7 +131,7 @@ class servicos {
                $dsem = $dsem->format('w');
                $rotina = new DBQuery('hr_servico', 'hrser_hrini,hrser_hrterm','hrser_dia' );
                $where = new Where();
-               $where->addLike('AND', 'hrser_dia', $dsem);
+               $where->addCondition('AND', 'hrser_dia', '=', $dsem);
                $where->addCondition('AND', 'hrser_pro', '=', $pro);
                $where = $where->build();
                $resultado = $rotina->selectWhere($where);
@@ -273,12 +273,34 @@ class servicos {
                 'sucesso' => true
             ];
         }
-
+    
+        
+        private function pegarSerDia($id){
+            $mostrar = new DBQuery($this->table, $this->camposServ[10],$this->primarykey);
+            $where = new Where();
+            $where->addCondition('AND', 'ser_id', '=', $id);
+            $where = $where->build();
+            try {
+                $resultado = $mostrar->selectWhere($where);
+                
+                if ($resultado) {
+                    return  $resultado->fetchColumn();
+                } else {
+                    return "erro ao resgatar a informação";
+                }
+            } catch (\InvalidArgumentException $e) {
+                return "Erro de validação: " . $e->getMessage();
+            } catch (\Exception $e) {
+                return "Erro no banco: " . $e->getMessage();
+            }
+        }
         
     public function MostrarDatas($id,$pro,$ano,$mes,$dia) {
             $hrser = $this->GetDiaTrabalho($pro);
             $exce = $this->GetExcecaotrabalho($pro);
             $dias = $this->dias($ano,$mes,$dia);
+            $serdia = !empty($id) ? $this->pegarSerDia($id) : false;
+
             $atual = new \DateTime("$ano-$mes-$dia");
             
             $disponivel = [];
@@ -309,7 +331,7 @@ class servicos {
                         continue;
                     }
                     
-                    if (in_array($dtsemana, $hrser)) {
+                    if (in_array($dtsemana, $hrser) &&( ($serdia != false &&  str_contains($serdia, (string)$dtsemana)) ||$serdia === false) ) {
                         $disponivel[] = $dt;
                         continue;
                     }
