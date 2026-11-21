@@ -307,6 +307,33 @@
                     <div class="form-text" id="ajudaTipoServico">O tipo de serviço ajuda os clientes a encontrar seu serviço.</div>
                   </div>
 
+                  <div class="campoTexto">
+                    <span class="form-label fw-bold" id="rotuloLocalServico">Onde você realiza esse serviço?</span>
+                    <div class="dropdown campoSelect" id="campoLocalizacaoServico" data-valorSelecionado="" data-placeholder="Selecione o local de atendimento">
+                      <button type="button" class="campoSelect_gatilho dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-labelledby="rotuloLocalServico">
+                        <span class="campoSelect_valor">Selecione o local de atendimento</span>
+                        <span class="campoSelect_iconeChevron material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
+                      </button>
+                      <ul class="dropdown-menu campoSelect_lista">
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="Casa">Atendimento na residência do profissional</a></li>
+                        <li><a class="dropdown-item campoSelect_opcao" href="#" data-valor="domi">Atendimento na residência do cliente</a></li>
+                        <!-- As clínicas vinculadas (data-valor="clin" + id) são inseridas aqui pelo perfil.js. -->
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="campoTexto">
+                    <span class="form-label fw-bold" id="rotuloSalaServico">Salas</span>
+                    <div class="dropdown campoSelect campoSelect--multiplo" id="campoSalaServico">
+                      <button type="button" class="campoSelect_gatilho dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-labelledby="rotuloSalaServico" aria-describedby="ajudaSalaServico" disabled>
+                        <span class="campoSelect_valor">Selecione o local de atendimento primeiro</span>
+                        <span class="campoSelect_iconeChevron material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
+                      </button>
+                      <ul class="dropdown-menu campoSelect_lista"></ul>
+                    </div>
+                    <div class="form-text" id="ajudaSalaServico">Disponível apenas para clínicas. Você pode escolher mais de uma sala.</div>
+                  </div>
+
                   <div class="form-floating campoTexto">
                     <textarea class="form-control campoDescricaoServico" id="campoDescricaoServico" name="descricaoServico" placeholder="Descrição do serviço" required></textarea>
                     <label for="campoDescricaoServico">Descrição do serviço</label>

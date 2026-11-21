@@ -128,6 +128,37 @@
       this.elementos.$botaoConfirmarCancelamento.on("click", function () {
         self.confirmarCancelamento();
       });
+
+      // O link segue normalmente; antes disso guardamos a consulta para a tela de reagendamento.
+      this.elementos.$grade.on("click", ".botaoReagendarConsulta", function () {
+        self.guardarConsultaParaReagendamento($(this).attr("data-idConsulta"));
+      });
+    },
+
+    // A tela de reagendamento não tem ação de leitura no backend: ela recebe a consulta daqui.
+    guardarConsultaParaReagendamento: function (idConsulta) {
+      const consulta = this.consultasPorId[String(idConsulta)];
+      if (!consulta) {
+        return;
+      }
+
+      try {
+        window.sessionStorage.setItem("reagendamentoConsulta", JSON.stringify({
+          agnd_id: consulta.id,
+          agnd_pro: consulta.idProfissional,
+          agnd_cli: consulta.idCliente,
+          agnd_clin: consulta.idClinica,
+          agnd_ser: consulta.idServico,
+          agnd_dt: consulta.dataBanco,
+          agnd_hrIni: consulta.horaInicioBanco,
+          agnd_hrTerm: consulta.horaTerminoBanco,
+          sala_nome: consulta.nomeSala,
+          pro_nome: consulta.nomeProfissional,
+          ser_nome: consulta.nomeServico
+        }));
+      } catch (erro) {
+        // Sem sessionStorage a tela de reagendamento mostra o aviso de consulta não encontrada.
+      }
     },
 
     exibirModalSessaoExpirada: function () {
@@ -172,6 +203,10 @@
               nomeProfissional: c.pro_nome || "—",
               nomeClinica: c.clin_nome || "—",
               dataHora: self.formatarDataHora(c.agnd_dt, c.agnd_hrIni),
+              dataBanco: c.agnd_dt || "",
+              horaInicioBanco: String(c.agnd_hrIni || "").slice(0, 5),
+              horaTerminoBanco: String(c.agnd_hrTerm || "").slice(0, 5),
+              nomeSala: c.sala_nome || "",
               preco: self.formatarPreco(c.ser_val)
             };
 
@@ -262,6 +297,7 @@
         $rodape.append(
           $('<a class="botaoReagendarConsulta botaoReagendar btn rounded-pill"></a>')
             .attr("href", "index.php?uri=reagendamento&consulta=" + encodeURIComponent(consulta.id))
+            .attr("data-idConsulta", consulta.id)
             .attr("aria-label", "Reagendar consulta de " + consulta.nomeServico)
             .append('<span class="material-symbols-outlined" aria-hidden="true">event_repeat</span> Reagendar')
         );

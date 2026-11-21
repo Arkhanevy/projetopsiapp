@@ -170,23 +170,6 @@
                                     <small id="nomeRegistro" class="d-block mt-1" aria-live="polite"></small>
                                 </div>
 
-                                <fieldset class="grupoFiltro mb-3" id="locaisAtendimento">
-                                    <legend class="grupoFiltro_titulo">Onde você atende?</legend>
-                                    <small class="d-block mb-2">Marque uma ou mais opções.</small>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="locaisAtendimento[]" id="localCasa" value="casa">
-                                        <label class="form-check-label" for="localCasa">Em casa</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="locaisAtendimento[]" id="localCasaCliente" value="casaCliente">
-                                        <label class="form-check-label" for="localCasaCliente">Na casa do cliente</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="locaisAtendimento[]" id="localClinica" value="clinica">
-                                        <label class="form-check-label" for="localClinica">Em uma clínica</label>
-                                    </div>
-                                </fieldset>
-
                                 <div class="form-floating campoTexto mb-3">
                                     <input name="CPF" id="CPF" data-mascara="cpf" inputmode="numeric" class="form-control" type="text" placeholder="CPF"
                                         required>

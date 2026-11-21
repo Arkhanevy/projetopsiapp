@@ -3,6 +3,16 @@
 
   const nomesDias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
+  // Dias da semana trocados com o backend: número em formato de string
+  // ("0" = domingo, "1" = segunda ... "6" = sábado).
+
+  // Local de atendimento do serviço, como o backend recebe (string).
+  // Clínica = prefixo + id da clínica (ex.: "clin12").
+  const localCasa = "Casa";
+  const localDomiciliar = "domi";
+  const prefixoLocalClinica = "clin";
+  const placeholderSala = "Selecione o local de atendimento primeiro";
+
   const urlServico = "index.php?uri=servico";
 
   // O backend às vezes imprime avisos do PHP antes do JSON. Descarta tudo que vem antes do JSON.
@@ -94,8 +104,8 @@
         editarLocalizacao: { acao: "editarloc",  disponivel: true },
         listarVinculos:    { acao: "listarVinculos",     disponivel: true },
         listarServicosClinica: { url: "index.php?uri=clinica", acao: "pegarinfo", disponivel: false },
-        // listarLocalizacoes: { url: "index.php?uri=localizacao", acao: "pegarloc", disponivel: true },
-        // listarSalas: { url: "index.php?uri=localizacao", acao: "pegarSalas", disponivel: true },
+        listarLocalizacoes: { url: "index.php?uri=localizacao", acao: "pegarloc", disponivel: true },
+        listarSalas: { url: "index.php?uri=localizacao", acao: "pegarSalas", disponivel: true },
         listarProfissionaisClinica: { url: "index.php?uri=busca", acao: "gerenciarPro", disponivel: true },
 
         vincular:          { acao: "vincular",           disponivel: true },
@@ -116,8 +126,8 @@
       cacheEnderecos: {},
       nomesProfissionais: {},
       pedidoNomes: 0,
-      // pedidoLocalizacoes: 0,
-      // pedidoSalas: 0,
+      vinculos: [],
+      pedidoSalas: 0,
       origemFoco: null
     },
 
@@ -153,8 +163,8 @@
       e.$campoBioNova = $("#campoBioNova");
       e.$campoTipoServico = $("#campoTipoServico");
       e.$campoValorServico = $("#campoValorServico");
-      // e.$campoLocalizacaoServico = $("#campoLocalizacaoServico");
-      // e.$campoSalaServico = $("#campoSalaServico");
+      e.$campoLocalizacaoServico = $("#campoLocalizacaoServico");
+      e.$campoSalaServico = $("#campoSalaServico");
       e.$listaLinhasHorario = $('[data-lista="linhasHorario"]');
       e.$botaoSalvarHorarios = $("#botaoSalvarHorarios");
       e.$botaoConfirmarVinculo = $('[data-campo="botaoConfirmarVinculo"]');
@@ -556,6 +566,10 @@
           } else {
             vinculos = [];
           }
+          if (!self.ehVisitante()) {
+            self.estado.vinculos = vinculos;
+            self.renderizarLocaisServico();
+          }
           self.renderizarVinculos(vinculos);
         })
         .fail(function () {
@@ -813,12 +827,12 @@
       const self = this;
       const $corpo = $('[data-lista="horarios"]').empty();
       const horarios = this.estado.horarios.slice().sort(function (a, b) {
-        return Number(a.hrser_dia) - Number(b.hrser_dia);
+        return self.diaDoBackend(a.hrser_dia) - self.diaDoBackend(b.hrser_dia);
       });
 
       $.each(horarios, function (_, horario) {
         const $linha = self.clonarModelo("modeloLinhaHorario");
-        $linha.find('[data-campo="diaSemana"]').text(nomesDias[Number(horario.hrser_dia)]);
+        $linha.find('[data-campo="diaSemana"]').text(nomesDias[self.diaDoBackend(horario.hrser_dia)]);
         $linha.find('[data-campo="horaAbertura"]').text(self.formatarHora(horario.hrser_hrini));
         $linha.find('[data-campo="horaFechamento"]').text(self.formatarHora(horario.hrser_hrterm));
         $corpo.append($linha);
@@ -969,23 +983,46 @@
       }
     },
 
-    combinarDias: function (indices) {
-      let soma = 0;
-      $.each(indices, function (_, indice) {
-        soma += Math.pow(2, Number(indice));
-      });
-      return soma;
+    // índice (0-6) -> string enviada ao backend, ex.: 1 -> "1"
+    diaParaBackend: function (indice) {
+      return String(Number(indice));
     },
 
+    // valor vindo do backend ("1" ou 1) -> índice numérico (0-6); -1 se inválido
+    diaDoBackend: function (valor) {
+      const texto = $.trim(String(valor));
+      if (/^[0-6]$/.test(texto)) {
+        return Number(texto);
+      }
+      return -1;
+    },
+
+    // vários dias -> string única, ex.: [1, 3, 5] -> "1,3,5"
+    combinarDias: function (indices) {
+      const self = this;
+      const ordenados = indices.slice().sort(function (a, b) {
+        return Number(a) - Number(b);
+      });
+      return $.map(ordenados, function (indice) {
+        return self.diaParaBackend(indice);
+      }).join(",");
+    },
+
+    // string do backend -> lista de índices, ex.: "1,3,5" -> [1, 3, 5]
     separarDias: function (valorCombinado) {
-      const numero = parseInt(valorCombinado, 10) || 0;
+      const self = this;
       const indices = [];
-      for (let indice = 0; indice < nomesDias.length; indice++) {
-        if (numero & Math.pow(2, indice)) {
+      const partes = $.isArray(valorCombinado) ? valorCombinado : String(valorCombinado === null || valorCombinado === undefined ? "" : valorCombinado).split(",");
+
+      $.each(partes, function (_, parte) {
+        const indice = self.diaDoBackend(parte);
+        if (indice >= 0 && indices.indexOf(indice) === -1) {
           indices.push(indice);
         }
-      }
-      return indices;
+      });
+      return indices.sort(function (a, b) {
+        return a - b;
+      });
     },
 
     exibirAviso: function (mensagem, tipo) {
@@ -1037,9 +1074,9 @@
       if (nomeVisao === "cadastroHorarios") {
         this.preencherFormularioHorarios();
       }
-      // if ($('.visaoPerfil[data-visao="' + nomeVisao + '"]').find("#formularioServico").length) {
-        // this.carregarLocalizacoesServico();
-      // }
+      if ($('.visaoPerfil[data-visao="' + nomeVisao + '"]').find("#formularioServico").length) {
+        this.renderizarLocaisServico();
+      }
 
       $.each(this.modulos, function (_, modulo) {
         if (modulo.aoPrepararVisao) {
@@ -1060,18 +1097,19 @@
       $formulario.get(0).reset();
       $formulario.find(".is-invalid").removeClass("is-invalid");
       $formulario.find(".campoSelect--erro").removeClass("campoSelect--erro");
-      $formulario.find(".campoSelect").each(function () {
+      $formulario.find(".campoSelect:not(.campoSelect--multiplo)").each(function () {
         $(this).attr("data-valorSelecionado", "");
-        $(this).find(".campoSelect_valor").text("Selecione um tipo de serviço");
+        $(this).find(".campoSelect_valor").text($(this).attr("data-placeholder") || "Selecione um tipo de serviço");
       });
       $("#avisosLocalizacao").empty();
 
       if ($formulario.is(this.elementos.$formularioHorarios)) {
         this.preencherFormularioHorarios();
       }
-      // if ($formulario.is(this.elementos.$formularioServico)) {
-        // this.carregarSalasServico("");
-      // }
+      if ($formulario.is(this.elementos.$formularioServico)) {
+        this.estado.pedidoSalas++;
+        this.renderizarSalasServico([], placeholderSala);
+      }
     },
 
     enviarBio: function () {
@@ -1207,150 +1245,190 @@
         });
     },
 
-    // // Localização e sala do cadastro de serviço (selects #campoLocalizacaoServico e #campoSalaServico).
-    // carregarLocalizacoesServico: function () {
-      // const self = this;
-      // const perfil = this.estado.perfil || {};
-      // const numeroPedido = ++this.estado.pedidoLocalizacoes;
-      // let dados = null;
+    // ---- Local de atendimento do cadastro de serviço ----
+    // #campoLocalizacaoServico: escolha ÚNICA. Fixos: "Casa" e "domi" (domiciliar).
+    // As demais opções são as clínicas vinculadas ao profissional (listarVinculos), valor "clin" + id.
+    // #campoSalaServico: múltipla escolha, ativo apenas quando o local é uma clínica.
+    ehLocalClinica: function (valor) {
+      return String(valor || "").indexOf(prefixoLocalClinica) === 0;
+    },
 
-      // if (!this.elementos.$campoLocalizacaoServico.length || this.ehVisitante()) {
-        // return;
-      // }
-      // if (this.ehClinica()) {
-        // dados = { clinica: perfil.clin_id };
-      // }
-      // if (!this.contratoDisponivel("listarLocalizacoes")) {
-        // this.preencherLocalizacoesServico([]);
-        // return;
-      // }
+    renderizarLocaisServico: function () {
+      const $campo = this.elementos.$campoLocalizacaoServico;
+      const $lista = $campo.find(".campoSelect_lista");
+      const clinicas = this.estado.vinculos || [];
 
-      // this.chamarContrato("listarLocalizacoes", dados)
-        // .done(function (resposta) {
-          // if (numeroPedido !== self.estado.pedidoLocalizacoes) {
-            // return;
-          // }
-          // if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
-            // self.preencherLocalizacoesServico(resposta.dados, true);
-          // } else {
-            // self.preencherLocalizacoesServico([]);
-            // self.exibirAviso("Não foi possível carregar as localizações.", "erro");
-          // }
-        // })
-        // .fail(function () {
-          // if (numeroPedido === self.estado.pedidoLocalizacoes) {
-            // self.preencherLocalizacoesServico([]);
-            // self.exibirAviso("Não foi possível carregar as localizações.", "erro");
-          // }
-        // });
-    // },
+      if (!$campo.length) {
+        return;
+      }
 
-    // preencherLocalizacoesServico: function (locais, respostaValida) {
-      // const $campo = this.elementos.$campoLocalizacaoServico;
-      // const anterior = $campo.val();
-      // const permitirDomicilio = respostaValida === true && !this.ehClinica();
+      $lista.find("[data-localClinica]").remove();
 
-      // $campo.empty();
+      if (clinicas.length) {
+        $lista.append($("<li>").attr("data-localClinica", "").append($("<hr>").addClass("dropdown-divider")));
+        $lista.append($("<li>").attr("data-localClinica", "").append($("<h6>").addClass("dropdown-header").text("Clínicas")));
 
-      // if (!locais.length) {
-        // if (permitirDomicilio) {
-          // $campo.append(
-            // $("<option>").val("domicilio").text("Atendimento domiciliar")
-          // );
-          // $campo.val("domicilio").prop("disabled", false);
-        // } else {
-          // const mensagem = respostaValida
-            // ? "Nenhuma localização cadastrada"
-            // : "Não foi possível carregar as localizações";
-          // $campo.append($("<option>").val("").text(mensagem));
-          // $campo.prop("disabled", true);
-        // }
-      // } else {
-        // $campo.append($("<option>").val("").text("Selecione a localização"));
-        // $.each(locais, function (_, local) {
-          // $campo.append(
-            // $("<option>")
-              // .val(local.loc_id)
-              // .text(local.loc_nome || "Localização " + local.loc_id)
-              // .attr("data-tipoLocalizacao", local.loc_tipo || "")
-          // );
-        // });
-        // $campo.prop("disabled", false);
+        $.each(clinicas, function (_, clinica) {
+          const nome = clinica.clin_nome || clinica.clin_user || "Clínica " + clinica.clin_id;
 
-        // if (anterior && $campo.find("option").filter(function () {
-          // return this.value === String(anterior);
-        // }).length) {
-          // $campo.val(anterior);
-        // }
-      // }
+          $lista.append(
+            $("<li>").attr("data-localClinica", "").append(
+              $("<a>")
+                .addClass("dropdown-item campoSelect_opcao")
+                .attr({ href: "#", "data-valor": prefixoLocalClinica + clinica.clin_id })
+                .text(nome)
+            )
+          );
+        });
+      }
+    },
 
-      // this.carregarSalasServico($campo.val());
-    // },
+    aoSelecionarLocalServico: function (valor) {
+      valor = String(valor || "");
 
-    // carregarSalasServico: function (idLocalizacao) {
-      // const self = this;
-      // const $sala = this.elementos.$campoSalaServico;
-      // const numeroPedido = ++this.estado.pedidoSalas;
+      if (this.ehLocalClinica(valor)) {
+        this.carregarSalasServico(valor.slice(prefixoLocalClinica.length));
+      } else {
+        this.estado.pedidoSalas++;
+        this.renderizarSalasServico([], "Não se aplica ao atendimento fora de clínica");
+      }
+    },
 
-      // if (!$sala.length) {
-        // return;
-      // }
+    carregarSalasServico: function (idClinica) {
+      const self = this;
+      const numeroPedido = ++this.estado.pedidoSalas;
 
-      // function preencher(salas, textoVazio) {
-        // $sala.empty();
+      function falhou() {
+        if (numeroPedido === self.estado.pedidoSalas) {
+          self.renderizarSalasServico([], "Não foi possível carregar as salas");
+        }
+      }
 
-        // if (!salas.length) {
-          // $sala.append($("<option>").val("").text(textoVazio)).prop("disabled", true);
-          // return;
-        // }
-        // $sala.append($("<option>").val("").text("Selecione a sala"));
-        // $.each(salas, function (_, sala) {
-          // $sala.append($("<option>").val(sala.sala_id).text(sala.sala_nome || "Sala " + sala.sala_id));
-        // });
-        // $sala.prop("disabled", false);
-      // }
+      if (!this.contratoDisponivel("listarLocalizacoes") || !this.contratoDisponivel("listarSalas")) {
+        this.renderizarSalasServico([], "Salas indisponíveis no momento");
+        return;
+      }
 
-      // if (idLocalizacao === "domicilio") {
-        // $sala.empty()
-          // .append($("<option>").val("").text("Não se aplica ao atendimento domiciliar"))
-          // .prop("disabled", true);
-        // return;
-      // }
+      this.renderizarSalasServico([], "Carregando salas...");
 
-      // if (!idLocalizacao) {
-        // preencher([], "Selecione uma localização primeiro");
-        // return;
-      // }
-      // if (!this.contratoDisponivel("listarSalas")) {
-        // preencher([], "Salas indisponíveis no momento");
-        // return;
-      // }
+      this.chamarContrato("listarLocalizacoes", { clinica: idClinica })
+        .done(function (resposta) {
+          if (numeroPedido !== self.estado.pedidoSalas) {
+            return;
+          }
+          if (!(resposta && resposta.sucesso && $.isArray(resposta.dados))) {
+            falhou();
+            return;
+          }
 
-      // preencher([], "Carregando salas...");
+          const locais = resposta.dados;
+          if (!locais.length) {
+            self.renderizarSalasServico([], "Nenhuma sala cadastrada nesta clínica");
+            return;
+          }
 
-      // this.chamarContrato("listarSalas", { loc: idLocalizacao })
-        // .done(function (resposta) {
-          // if (numeroPedido !== self.estado.pedidoSalas) {
-            // return;
-          // }
-          // if (resposta && resposta.sucesso && $.isArray(resposta.dados)) {
-            // preencher(resposta.dados, "Nenhuma sala cadastrada nesta localização");
-          // } else {
-            // preencher([], "Não foi possível carregar as salas");
-          // }
-        // })
-        // .fail(function () {
-          // if (numeroPedido === self.estado.pedidoSalas) {
-            // preencher([], "Não foi possível carregar as salas");
-          // }
-        // });
-    // },
+          // Uma clínica pode ter mais de uma localização; junta as salas de todas.
+          const pedidos = $.map(locais, function (local) {
+            const resultado = $.Deferred();
+
+            self.chamarContrato("listarSalas", { loc: local.loc_id })
+              .done(function (res) {
+                if (res && res.sucesso && $.isArray(res.dados)) {
+                  resultado.resolve(res.dados);
+                } else {
+                  resultado.resolve([]);
+                }
+              })
+              .fail(function () {
+                resultado.resolve([]);
+              });
+            return resultado.promise();
+          });
+
+          $.when.apply($, pedidos).done(function () {
+            if (numeroPedido !== self.estado.pedidoSalas) {
+              return;
+            }
+            const salas = [];
+            $.each(arguments, function (indice, grupo) {
+              $.each(grupo, function (_, sala) {
+                let nome = sala.sala_nome || "Sala " + sala.sala_id;
+                if (locais.length > 1 && locais[indice].loc_nome) {
+                  nome = locais[indice].loc_nome + " - " + nome;
+                }
+                salas.push({ id: sala.sala_id, nome: nome });
+              });
+            });
+            self.renderizarSalasServico(salas, "Nenhuma sala cadastrada nesta clínica");
+          });
+        })
+        .fail(falhou);
+    },
+
+    // Com salas: habilita o select. Sem salas: desabilita e mostra o texto.
+    renderizarSalasServico: function (salas, textoVazio) {
+      const $campo = this.elementos.$campoSalaServico;
+      const $lista = $campo.find(".campoSelect_lista").empty();
+      const $gatilho = $campo.find(".campoSelect_gatilho");
+
+      $campo.removeClass("campoSelect--erro");
+
+      if (!salas.length) {
+        $campo.attr("data-textoVazio", textoVazio);
+        $gatilho.prop("disabled", true);
+        $campo.find(".campoSelect_valor").text(textoVazio);
+        return;
+      }
+
+      $.each(salas, function (_, sala) {
+        const $marca = $("<input>")
+          .attr({ type: "checkbox", name: "salaServico", value: sala.id })
+          .addClass("form-check-input me-2");
+
+        $lista.append(
+          $("<li>").append(
+            $("<label>").addClass("dropdown-item campoSelect_opcaoMultipla").append($marca).append(document.createTextNode(sala.nome))
+          )
+        );
+      });
+
+      $campo.removeAttr("data-textoVazio");
+      $gatilho.prop("disabled", false);
+      this.atualizarTextoSalaServico();
+    },
+
+    salasSelecionadas: function () {
+      return this.elementos.$campoSalaServico
+        .find('input[name="salaServico"]:checked')
+        .map(function () {
+          return this.value;
+        })
+        .get();
+    },
+
+    atualizarTextoSalaServico: function () {
+      const $campo = this.elementos.$campoSalaServico;
+      const marcadas = $campo.find('input[name="salaServico"]:checked');
+      let texto;
+
+      if (!marcadas.length) {
+        texto = "Selecione uma ou mais salas";
+      } else if (marcadas.length === 1) {
+        texto = $.trim(marcadas.first().parent().text());
+      } else {
+        texto = marcadas.length + " salas selecionadas";
+      }
+      $campo.find(".campoSelect_valor").text(texto);
+    },
 
     enviarServico: function () {
       const $formulario = this.elementos.$formularioServico;
       const $tipo = this.elementos.$campoTipoServico;
-      // const $localizacao = this.elementos.$campoLocalizacaoServico;
-      // const $sala = this.elementos.$campoSalaServico;
+      const $local = this.elementos.$campoLocalizacaoServico;
+      const $sala = this.elementos.$campoSalaServico;
+      const local = $local.attr("data-valorSelecionado") || "";
+      const localEhClinica = this.ehLocalClinica(local);
+      const salas = localEhClinica ? this.salasSelecionadas() : [];
 
       const dados = {
         nome: $.trim($("#campoNomeServico").val()),
@@ -1359,21 +1437,14 @@
         desc: $.trim($("#campoDescricaoServico").val()),
         dur: $.trim($("#campoDuracaoServico").val()),
         inter: $.trim($("#campoIntervaloServico").val()),
-        // loc: $.trim($localizacao.val() || "")
-        loc: 1
+        // "Casa", "domi" ou "clin" + id da clínica (ex.: "clin3")
+        loc: local
       };
-      // const sala = $.trim($sala.val() || "");
-      // const atendimentoDomiciliar = dados.loc === "domicilio";
 
-      // // O banco representa atendimento domiciliar com ser_loc = NULL.
-      // if (atendimentoDomiciliar) {
-        // dados.loc = null;
-      // }
-
-      // if ($localizacao.prop("disabled")) {
-        // this.exibirAviso("Cadastre uma localização antes de cadastrar o serviço.", "erro");
-        // return;
-      // }
+      // Só clínica tem sala; podem ser várias, enviadas como string separada por vírgula (ex.: "2,5").
+      if (localEhClinica) {
+        dados.sala = salas.join(",");
+      }
 
       const camposVazios = [];
       if (!dados.nome) camposVazios.push($("#campoNomeServico"));
@@ -1381,10 +1452,11 @@
       if (!dados.desc) camposVazios.push($("#campoDescricaoServico"));
       if (!dados.dur) camposVazios.push($("#campoDuracaoServico"));
       if (dados.inter === "") camposVazios.push($("#campoIntervaloServico"));
-      // if (!dados.loc && !atendimentoDomiciliar) camposVazios.push($localizacao);
 
       $formulario.find(".is-invalid").removeClass("is-invalid");
       $tipo.removeClass("campoSelect--erro");
+      $local.removeClass("campoSelect--erro");
+      $sala.removeClass("campoSelect--erro");
       $.each(camposVazios, function (_, $campo) {
         $campo.addClass("is-invalid");
       });
@@ -1392,7 +1464,14 @@
         $tipo.addClass("campoSelect--erro");
       }
 
-      if (camposVazios.length || !dados.tipo) {
+      if (!dados.loc) {
+        $local.addClass("campoSelect--erro");
+      }
+      if (localEhClinica && !salas.length) {
+        $sala.addClass("campoSelect--erro");
+      }
+
+      if (camposVazios.length || !dados.tipo || !dados.loc || (localEhClinica && !salas.length)) {
         this.exibirAviso("Você precisa preencher todos os campos!", "erro");
         this.focarPrimeiroInvalido($formulario);
         return;
@@ -1466,7 +1545,7 @@
         $linha.find('input[type="time"]').val("").prop("disabled", true).removeClass("is-invalid");
       });
       $.each(this.estado.horarios, function (_, horario) {
-        const $linha = $linhas.filter('[data-dia="' + Number(horario.hrser_dia) + '"]');
+        const $linha = $linhas.filter('[data-dia="' + self.diaDoBackend(horario.hrser_dia) + '"]');
 
         haSalvos = true;
         $linha.attr("data-salvo", "1");
@@ -1519,7 +1598,7 @@
           return;
         }
         novos.push({
-          dia: Number($linha.attr("data-dia")),
+          dia: self.diaParaBackend($linha.attr("data-dia")),
           inicio: $abertura.val(),
           termino: $fechamento.val()
         });
@@ -1929,9 +2008,14 @@
       e.$campoTipoServico.on("opcaoSelecionada", function () {
         $(this).removeClass("campoSelect--erro");
       });
-      // e.$campoLocalizacaoServico.on("change", function () {
-        // self.carregarSalasServico($(this).val());
-      // });
+      e.$campoLocalizacaoServico.on("opcaoSelecionada", function (_, dados) {
+        $(this).removeClass("campoSelect--erro");
+        self.aoSelecionarLocalServico(dados.valor);
+      });
+      e.$campoSalaServico.on("change", 'input[name="salaServico"]', function () {
+        e.$campoSalaServico.removeClass("campoSelect--erro");
+        self.atualizarTextoSalaServico();
+      });
 
       e.$campoValorServico.on("input", function () {
         self.mascararValor($(this));

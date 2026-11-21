@@ -6,6 +6,7 @@
   const moduloConsultasProfissional = ConsultasPro.criar({
     tipoUsuario:      "profissional",
     urlControlador:   "index.php?uri=profissional",
+    urlDias:   "index.php?uri=servico",
     urlLogin:         "index.php?uri=loginProfissional",
     urlAgendamento:   "index.php?uri=reagendamento",
 
@@ -14,7 +15,7 @@
       listarConsultas: { disponivel: true, acao: "MostrarConsulta" },
 
     
-      listarDiasIndisponiveis: { disponivel: true, acao: "listarDiasIndisponiveis" },
+      listarDiasIndisponiveis: { disponivel: true, acao: "MostrarDias" },
 
       aceitarConsulta: {
         disponivel: true,
