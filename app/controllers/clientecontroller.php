@@ -56,8 +56,8 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case 'contato':
-        $campospro = ['pro_id','pro_nome','pro_tel','pro_email'];
-        $camposCLin = ['clin_id','clin_nome','clin_tel','clin_email'];
+        $campospro = ['pro_id','pro_nome','pro_tel','pro_email','pro_foto'];
+        $camposCLin = ['clin_id','clin_nome','clin_tel','clin_email','clin_foto'];
         
         $condicao = ['agnd_pro','agnd_cli'];
         $id = $_SESSION['usuario']['idUsuario'];
@@ -74,6 +74,9 @@ switch ($acao){
         if ($contCLin['sucesso'] === false){
             echo json_encode($contCLin);
         };
+        $baixar = new download();
+        $contCli['dados']  = $baixar->anexarFotos($contCli['dados'] ?? null, 'pro');
+        $contCLin['dados'] = $baixar->anexarFotos($contCLin['dados'] ?? null, 'clin');
         echo json_encode([
             "sucesso" => true,
             "dados1" => $contCli['dados'],
@@ -105,8 +108,10 @@ switch ($acao){
         }
         
         if (!empty($cliperfil['dados'])) {
-            $arq = $download->arquivoParaDataUri($cliperfil['dados'][0]['cli_foto']);
-            $cliperfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
+            $arq = $download->arquivoParaDataUri($cliperfil['dados'][0]['cli_foto'] ?? '');
+            $dataUri = $arq ? $arq['data'] : '';
+            $cliperfil['dados'][0]['cli_foto'] = $dataUri;
+            $cliperfil['dados'][0]['pro_foto'] = $dataUri; // perfil.js lê pro_foto para quem não é clínica
         }
         
         echo json_encode([
@@ -160,6 +165,11 @@ switch ($acao){
     case 'enviarDocumento':
         $arquivos = new download();
         $resultado = $arquivos->enviarDocumento($_POST['idContato'] ?? '', $_POST['tipoContato'] ?? '', $_POST['tituloDocumento'] ?? '', $_FILES['arquivoDocumento'] ?? null);
+        echo json_encode($resultado);
+        exit;
+    case 'uploadDocumento':
+        $arquivos = new download();
+        $resultado = $arquivos->salvarDocumentoProprio($_POST['titulo'] ?? '', $_POST['tipo'] ?? '', $_FILES['file'] ?? null);
         echo json_encode($resultado);
         exit;
     case 'baixarDocumento':

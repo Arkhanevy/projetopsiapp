@@ -26,7 +26,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $clinica = new clinica('clinica', $campos, $campos[0]);
-        $resultado = $clinica->Cadastrarclinica($_POST['nome'], $_POST['email'],$_FILES['cxclinFoto'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['CNPJ'],$_POST['CEP'],$_POST['telefone']);
+        $resultado = $clinica->Cadastrarclinica($_POST['nome'], $_POST['email'],$_FILES['cxclinFoto'] ?? '', $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['CNPJ'],$_POST['CEP'],$_POST['telefone']);
         echo json_encode($resultado);
         exit;
         
@@ -45,6 +45,12 @@ switch ($acao){
         exit;
         
     case "login":
+        $camposclin = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[10]];
+        $clinica = new clinica('clinica', $camposclin, $camposclin[2]);
+        $resultado = $clinica->Login($_POST['email'],$_POST['senha']);
+        echo json_encode($resultado);
+        exit;
+    case "efetuarLogin":
         $camposclin = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[10]];
         $clinica = new clinica('clinica', $camposclin, $camposclin[2]);
         $resultado = $clinica->Login($_POST['email'],$_POST['senha']);
@@ -69,7 +75,7 @@ switch ($acao){
         'ser_stat',
         'ser_dia',
         'ser_loc'];
-        $camposclin = [$campos[0],$campos[1],$campos[5]/*,$campos[6]*/,$campos[12]];
+        $camposclin = [$campos[0],$campos[1],$campos[5],$campos[6],$campos[12]];
         $clinica = new clinica('clinica', $camposclin, $camposclin[0]);
         $busca = new busca('servico', $camposSer, $camposSer[0]);
         $download  =new download();
@@ -83,10 +89,10 @@ switch ($acao){
             exit;
         }
         
-        /*if (!empty($clinperfil['dados'])) {
-            $arq = $download->arquivoParaDataUri($clinperfil['dados'][0]['clin_foto']);
-            $clinperfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
-        }*/
+        if (!empty($clinperfil['dados'])) {
+            $arq = $download->arquivoParaDataUri($clinperfil['dados'][0]['clin_foto'] ?? '');
+            $clinperfil['dados'][0]['clin_foto'] = $arq ? $arq['data'] : '';
+        }
         
         $servicos = $busca->MeusServicos($_SESSION['usuario']['tipoUsuario'],$_SESSION['usuario']['idUsuario']);
 
@@ -97,7 +103,7 @@ switch ($acao){
         ]);
         exit;
     case 'contato':
-        $camposPro = ['pro_id','pro_nome','pro_tel','pro_email'];
+        $camposPro = ['pro_id','pro_nome','pro_tel','pro_email','pro_foto'];
         
         $condicao = ['agnd_pro','agnd_clin'];
         $id = $_SESSION['usuario']['idUsuario'];
@@ -109,27 +115,13 @@ switch ($acao){
             echo json_encode($contPro);
         };
         
+        $contPro['dados'] = (new download())->anexarFotos($contPro['dados'] ?? null, 'pro');
         echo json_encode([
             "sucesso" => true,
             "dados1" => $contPro['dados']
         ]);
         exit;
     
-
-    case "efetuarLogin":
-        header('Content-Type: application/json; charset=utf-8');
-        
-        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-        $senha = $_POST['senha'] ?? '';
-
-        $usuario = new models\clinica(); 
-        
-        // Chama a função que já está pronta usuario.php
-        $resultado = $usuario->Login($email, $senha);
-        
-        // Retorna a resposta para o seu formulário
-        echo json_encode($resultado);
-        exit;
 
     // TESTE - MARIA
     case "verificarLogin":
@@ -146,57 +138,27 @@ switch ($acao){
         echo json_encode($listar);
         exit;
         
-    //Ver se está dando certo (está vinculado com o model clinica):
-        case "vincular":
-        $clinId = $_SESSION['usuario']['idUsuario'] ?? null;
-        $proId  = $_POST['pro_id'] ?? null; // ID do profissional convidado
-
-        if (!$clinId || !$proId) {
-            echo json_encode(['sucesso' => false, 'mensagem' => 'Parâmetros ausentes.']);
+    // ---------- ASSOCIAÇÃO CLÍNICA <-> PROFISSIONAL ----------
+    // A clínica só ENVIA O CONVITE (notificação). O vínculo é criado quando o
+    // profissional aceita (profissionalcontroller -> aceitar_vinculo).
+    case "vincular":
+        if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'clinica') {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'Somente clínicas podem convidar profissionais.']);
             exit;
         }
-
-        // Configurar os campos da notificação baseado no seu padrão mapeado
-        $camposnot = [
-            'notif_id', 'notif_pd', 'notif_clin', 'notif_dest', 
-            'notif_tipo', 'notif_msg', 'notif_data', 'notif_stat', 'notif_pro'
-        ];
-
-        // Instancia o model de notificação (Passando o ID do remetente e o tipo de usuário)
-        $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $clinId, 'clinica');
-        
-        // Dispara o convite (Tipo 6 - ajuste conforme o ID do seu padrao_notif para convites)
-        // O destinatário final ($notif_dest) será o profissional ($proId)
-        $msg = "A clínica convidou você para fazer parte do corpo profissional. Clique em aceitar para vincular-se.";
-        
-        // Usando o método padrão de inserção ou 'enviar' do seu framework:
-        $sql = "INSERT INTO notificacao (notif_pd, notif_clin, notif_pro, notif_dest, notif_tipo, notif_msg, notif_data, notif_stat) 
-                VALUES (6, :clin_id, :pro_id, :dest_id, 'convite_vinculo', :msg, NOW(), 0)";
-        
-        $stmt = $clinicaModel->db->prepare($sql); // usando o PDO do framework
-        $enviou = $stmt->execute([
-            ':clin_id' => $clinId,
-            ':pro_id'  => $proId,
-            ':dest_id' => $proId,
-            ':msg'     => $msg
-        ]);
-
-        echo json_encode(['sucesso' => $enviou, 'mensagem' => $enviou ? 'Convite enviado ao profissional!' : 'Falha ao enviar convite.']);
+        $clinica = new clinica('clinica', $campos, $campos[0]);
+        $resultado = $clinica->convidarProfissional($_SESSION['usuario']['idUsuario'], $_POST['pro_id'] ?? 0);
+        echo json_encode($resultado);
         exit;
 
-
     case "desvincular":
-        $clinId = $_SESSION['usuario']['idUsuario'] ?? $_POST['clin_id'] ?? null;
-        $proId  = $_POST['pro_id'] ?? null;
-
-        if (!$clinId || !$proId) {
-            echo json_encode(['sucesso' => false, 'mensagem' => 'IDs da clínica e do profissional são obrigatórios.']);
+        if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'clinica') {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'Somente clínicas podem desvincular profissionais.']);
             exit;
         }
-
-        $clinicaModel = new clinica('clinica', $campos, $campos[0]);
-        $resultado = $clinicaModel->desvincularProfissional($clinId, $proId);
-
+        // o id da clínica vem SEMPRE da sessão (nunca do POST)
+        $clinica = new clinica('clinica', $campos, $campos[0]);
+        $resultado = $clinica->desvincularProfissional($_SESSION['usuario']['idUsuario'], $_POST['pro_id'] ?? 0);
         echo json_encode($resultado);
         exit;
     
@@ -232,6 +194,11 @@ switch ($acao){
     case 'enviarDocumento':
         $arquivos = new download();
         $resultado = $arquivos->enviarDocumento($_POST['idContato'] ?? '', $_POST['tipoContato'] ?? '', $_POST['tituloDocumento'] ?? '', $_FILES['arquivoDocumento'] ?? null);
+        echo json_encode($resultado);
+        exit;
+    case 'uploadDocumento':
+        $arquivos = new download();
+        $resultado = $arquivos->salvarDocumentoProprio($_POST['titulo'] ?? '', $_POST['tipo'] ?? '', $_FILES['file'] ?? null);
         echo json_encode($resultado);
         exit;
     case 'baixarDocumento':

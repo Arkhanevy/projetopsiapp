@@ -46,36 +46,52 @@ class usuario {
         $usuario = $resultado->fetch(\PDO::FETCH_ASSOC);
         
         
-        $uploadPathDir = __DIR__."/../../"."app/uploads/";
         $uploader = new UploadedCtrl();
-        
-        
         $file = $this->foto;
         $accessCtrl = 0;
-        $shareMails = ""; 
-        
-        $tempPath = $file['tmp_name'];
-        $fileName = $file['name'];
-        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-        $fileBase64Name = "up" . date('YmdHisv') . ".{$fileExtension}.base64";
-        
-        /**
-         * Instancia a classe Base64Files.
-         * Converter o arquivo para base64.
-         * Salvar o arquivo base64 no diretório especificado.
-         */
-        $base64Files = new Base64Files();
-        $fileContent = $base64Files->fileToBase64($tempPath);
-        $base64Files->base64ToFile($fileContent, $uploadPathDir . $fileBase64Name);
-        
+        $shareMails = "";
+
+        if (!$usuario) {
+            return ['sucesso' => false, 'mensagem' => 'Usuário não encontrado para salvar a foto.'];
+        }
+
+        // só imagens; o conteúdo real é checado, não apenas a extensão
+        $permitidas = [
+            'jpg'  => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png'  => 'image/png',
+            'gif'  => 'image/gif',
+            'webp' => 'image/webp'
+        ];
+        $extensao = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!isset($permitidas[$extensao])
+            || (new \finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']) !== $permitidas[$extensao]) {
+            return ['sucesso' => false, 'mensagem' => 'Formato de imagem não permitido.'];
+        }
+
+        $pasta = realpath(__DIR__ . '/../uploads');
+        if (!$pasta) {
+            @mkdir(__DIR__ . '/../uploads', 0775, true);
+            $pasta = realpath(__DIR__ . '/../uploads');
+        }
+        // nome aleatório: evita colisão (a chave primária de ctrlFiles é o filePath)
+        $nomeArquivo = 'foto' . date('YmdHis') . bin2hex(random_bytes(4)) . '.' . $extensao;
+        if (!$pasta || !move_uploaded_file($file['tmp_name'], $pasta . DIRECTORY_SEPARATOR . $nomeArquivo)) {
+            return ['sucesso' => false, 'mensagem' => 'Não foi possível salvar a foto no servidor.'];
+        }
+
         // Registrar o arquivo
         $owner = $usuario[$cod];
         $titulo = 'fotodeperfil';
         $tipo = 'foto';
-        $filePath = $uploadPathDir . $fileBase64Name;
-        $filePath = str_replace('\\', '/', $filePath);
-        $uploader->registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails,$this->table,$titulo,$tipo);
-        
+        $filePath = str_replace('\\', '/', $pasta) . '/' . $nomeArquivo;
+        try {
+            $uploader->registerUploadedfile($owner, $filePath, $accessCtrl, $shareMails, $this->table, $titulo, $tipo);
+        } catch (\Exception $e) {
+            @unlink($pasta . DIRECTORY_SEPARATOR . $nomeArquivo);
+            return ['sucesso' => false, 'mensagem' => 'erro ao registrar foto: ' . $e->getMessage()];
+        }
+
         $campos = [
             'profissional' => 'pro_id,pro_foto',
             'clinica'      => 'clin_id,clin_foto',
@@ -93,9 +109,6 @@ class usuario {
                 'mensagem' => 'erro ao salvar foto: '.$e->getMessage()
             ];
         }
-        
-        // Retornar o nome do arquivo para o cliente
-        echo $fileBase64Name;
     }
     
     

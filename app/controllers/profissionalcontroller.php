@@ -29,7 +29,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $profissional = new profissional('profissional', $campos, $campos[0]);
-        $resultado = $profissional->Cadastrarprofissional($_POST['nome'], $_POST['email'],$_FILES['cxproFoto'], $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['CEP'],$_POST['telefone'],$_POST['genero'],$_POST['registro']);
+        $resultado = $profissional->Cadastrarprofissional($_POST['nome'], $_POST['email'],$_FILES['cxproFoto'] ?? '', $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['CEP'],$_POST['telefone'],$_POST['genero'],'');
         echo json_encode($resultado);
         exit;
         
@@ -71,7 +71,7 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
     case "PegarPerfil":
-        $camposPro = [$campos[0],$campos[1],$campos[5]/*,$campos[6]*/];
+        $camposPro = [$campos[0],$campos[1],$campos[5],$campos[6]];
         $camposSer = ['ser_id',
             'ser_pro',
             'ser_clin',
@@ -96,10 +96,10 @@ switch ($acao){
             ]);
             exit;
         }
-        /*if (!empty($properfil['dados'])) {
-            $arq = $download->arquivoParaDataUri($properfil['dados'][0]['pro_foto']);
-            $properfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : null;
-        }*/
+        if (!empty($properfil['dados'])) {
+            $arq = $download->arquivoParaDataUri($properfil['dados'][0]['pro_foto'] ?? '');
+            $properfil['dados'][0]['pro_foto'] = $arq ? $arq['data'] : '';
+        }
         
         
         $proHrser = $profissional->pegarHrser();
@@ -128,8 +128,8 @@ switch ($acao){
         ]);
         exit;
     case 'contato':
-        $camposCli = ['cli_id','cli_nome','cli_tel','cli_email'];
-        $camposCLin = ['clin_id','clin_nome','clin_tel','clin_email'];
+        $camposCli = ['cli_id','cli_nome','cli_tel','cli_email','cli_foto'];
+        $camposCLin = ['clin_id','clin_nome','clin_tel','clin_email','clin_foto'];
         
         $condicao = ['agnd_cli','agnd_pro'];
         $id = $_SESSION['usuario']['idUsuario'];
@@ -146,6 +146,9 @@ switch ($acao){
         if ($contCLin['sucesso'] === false){
             echo json_encode($contCLin);
         };
+        $baixar = new download();
+        $contPro['dados']  = $baixar->anexarFotos($contPro['dados'] ?? null, 'cli');
+        $contCLin['dados'] = $baixar->anexarFotos($contCLin['dados'] ?? null, 'clin');
         echo json_encode([
             "sucesso" => true, 
             "dados1" => $contPro['dados'],
@@ -195,7 +198,7 @@ switch ($acao){
         echo json_encode($listar);
         exit;
     case 'lernot':
-        $notificacâo = new notificacao('notificacao', 'not_id,not_stat', 'not_id', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        $notificacâo = new notificacao('notificacao', 'notif_id,notif_stat', 'notif_id', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
         $lido = $notificacâo->lido($_POST['not_id']);
         echo json_encode($lido);
         exit;
@@ -223,51 +226,26 @@ switch ($acao){
         exit;
         
     //ver se tá dando certo
+    // ---------- ASSOCIAÇÃO CLÍNICA <-> PROFISSIONAL ----------
     case 'aceitar_vinculo':
-        $proId  = $_SESSION['usuario']['idUsuario'];
-        $clinId = $_POST['clinica_id'];
-        $notifId = $_POST['notif_id'];
-        try {
-            $pdo = Conexao::getInstancia(); // ou $this->db dependendo de qual propriedade está na classe profissional
-            $pdo->beginTransaction(); // Inicia transação para garantir que tudo ocorra ou nada mude
-
-            // Inserir o profissional na tabela profissional_clinica
-            $sqlPc = "INSERT INTO profissional_clinica (pc_pro, pc_clin) VALUES (:pro_id, :clin_id)";
-            $stmtPc = $pdo->prepare($sqlPc);
-            $stmtPc->execute([':pro_id' => $proId, ':clin_id' => $clinId]);
-            
-            // Pega o ID gerado para esse novo vínculo (pc_id)
-            $novoPcId = $pdo->lastInsertId();
-
-            // Buscar as permissões do primeiro profissional da clínica
-            $sqlGetPerm = "SELECT perm_tipo, perm_bin FROM permissoes WHERE perm_pc = 1"; 
-            $stmtGetPerm = $pdo->prepare($sqlGetPerm);
-            $stmtGetPerm->execute();
-            $permissoesModelo = $stmtGetPerm->fetchAll(PDO::FETCH_ASSOC);
-
-            // Clona em lote as permissões para o novo profissional vinculado
-            $sqlInsertPerm = "INSERT INTO permissoes (perm_tipo, perm_bin, perm_pc) VALUES (:tipo, :bin, :pc)";
-            $stmtInsertPerm = $pdo->prepare($sqlInsertPerm);
-
-            foreach ($permissoesModelo as $perm) {
-                $stmtInsertPerm->execute([
-                    ':tipo' => $perm['perm_tipo'],
-                    ':bin'  => $perm['perm_bin'],
-                    ':pc'   => $novoPcId
-                ]);
-            }
-            // Atualiza o status da notificação do convite para lido/resolvido
-            $sqlUpdateNotif = "UPDATE notificacao SET notif_stat = 1 WHERE notif_id = :notif_id";
-            $stmtUpdateNotif = $pdo->prepare($sqlUpdateNotif);
-            $stmtUpdateNotif->execute([':notif_id' => $notifId]);
-
-            $pdo->commit();
-            echo json_encode(['sucesso' => true, 'mensagem' => 'Vínculo aceito e permissões herdadas com sucesso!']);
-
-        } catch (\Exception $e) {
-            $pdo->rollBack();
-            echo json_encode(['sucesso' => false, 'mensagem' => 'Erro ao processar o aceite: ' . $e->getMessage()]);
+        if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'profissional') {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'Somente profissionais podem aceitar convites.']);
+            exit;
         }
+        // a clínica NÃO vem mais do POST: é lida da própria notificação (e conferida)
+        $profissional = new profissional('profissional', $campos, $campos[0]);
+        $resultado = $profissional->aceitarVinculo($_SESSION['usuario']['idUsuario'], $_POST['notif_id'] ?? 0);
+        echo json_encode($resultado);
+        exit;
+
+    case 'recusar_vinculo':
+        if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'profissional') {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'Somente profissionais podem recusar convites.']);
+            exit;
+        }
+        $profissional = new profissional('profissional', $campos, $campos[0]);
+        $resultado = $profissional->recusarVinculo($_SESSION['usuario']['idUsuario'], $_POST['notif_id'] ?? 0);
+        echo json_encode($resultado);
         exit;
     
     case 'rejeitar':
@@ -309,6 +287,11 @@ switch ($acao){
     case 'enviarDocumento':
         $arquivos = new download();
         $resultado = $arquivos->enviarDocumento($_POST['idContato'] ?? '', $_POST['tipoContato'] ?? '', $_POST['tituloDocumento'] ?? '', $_FILES['arquivoDocumento'] ?? null);
+        echo json_encode($resultado);
+        exit;
+    case 'uploadDocumento':
+        $arquivos = new download();
+        $resultado = $arquivos->salvarDocumentoProprio($_POST['titulo'] ?? '', $_POST['tipo'] ?? '', $_FILES['file'] ?? null);
         echo json_encode($resultado);
         exit;
     case 'baixarDocumento':

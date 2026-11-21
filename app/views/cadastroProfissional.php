@@ -65,7 +65,10 @@
                             <input type="hidden" name="acao" value="cadastrar">
                             <div class="avatar-container">
                                 <img id="preview" src="public/assets/images/logo_user.png" alt="Foto de perfil">
+                                <!-- [ARQUIVOS DESATIVADOS] "required" removido. Original:
                                 <input name="cxproFoto" type="file" aria-label="Foto de perfil" id="img_perfil" accept="image/*" data-tiposPermitidos="" data-tamanhoMaximoMb="" required>
+                                -->
+                                <input name="cxproFoto" type="file" aria-label="Foto de perfil" id="img_perfil" accept="image/*" data-tiposPermitidos="" data-tamanhoMaximoMb="">
                             </div>
 
                             <p class="text-center mt-2 textoAjudaFoto">
@@ -160,7 +163,10 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="registroProfissional" class="form-label">Registro profissional (arquivo)</label>
+                                    <!-- [ARQUIVOS DESATIVADOS] "required" removido. Original:
                                     <input name="registro" id="registroProfissional" class="form-control" type="file" data-tiposPermitidos="" data-tamanhoMaximoMb="" aria-describedby="nomeRegistro" required>
+                                    -->
+                                    <input name="registro" id="registroProfissional" class="form-control" type="file" data-tiposPermitidos="" data-tamanhoMaximoMb="" aria-describedby="nomeRegistro">
                                     <small id="nomeRegistro" class="d-block mt-1" aria-live="polite"></small>
                                 </div>
 

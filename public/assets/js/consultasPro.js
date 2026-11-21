@@ -545,6 +545,8 @@
         if (falha && falha.indisponivel) {
           return;
         }
+        // A ação pode ter alterado o banco mesmo assim: recarrega a lista para a tela refletir o estado real.
+        this.buscarConsultas();
         if (falha && falha.permissaoNegada) {
           this.exibirAvisoPermissao(Utilitarios.mensagemPermissaoNegada(falha.nomeAcao));
           return;
@@ -555,7 +557,6 @@
         this.anunciar(mensagem);
       },
 
-      // Aviso visível na tela (toast acima dos modais). Sem o elemento, cai no aviso para leitores de tela.
       exibirAvisoPermissao: function (mensagem) {
         const $aviso = this.elementos.$avisoPermissao;
 
@@ -624,7 +625,7 @@
       },
 
       reagendarConsulta: function (idConsulta) {
-        window.location.href = this.configuracao.urlAgendamento + "&reagendar=" + encodeURIComponent(idConsulta);
+        window.location.href = this.configuracao.urlAgendamento + "&consulta=" + encodeURIComponent(idConsulta);
       },
 
       removerConsulta: function (idConsulta) {

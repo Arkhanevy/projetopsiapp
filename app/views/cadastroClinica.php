@@ -67,7 +67,10 @@
                             <input type="hidden" name="acao" value="cadastrar">
                             <div class="avatar-container">
                             <img id="previewClinica" src="public/assets/images/logo_user.png" alt="Foto de perfil">
+                            <!-- [ARQUIVOS DESATIVADOS] "required" removido. Original:
                             <input name="cxclinFoto" type="file" aria-label="Foto da clínica" id="img_perfil_Clinica" accept="image/*" data-tiposPermitidos="" data-tamanhoMaximoMb="" required>
+                            -->
+                            <input name="cxclinFoto" type="file" aria-label="Foto da clínica" id="img_perfil_Clinica" accept="image/*" data-tiposPermitidos="" data-tamanhoMaximoMb="">
                         </div>
 
                         <p class="text-center mt-2 textoAjudaFoto">

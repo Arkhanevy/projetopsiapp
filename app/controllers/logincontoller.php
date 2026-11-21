@@ -22,7 +22,7 @@ $camposclin = [
     'clin_nome',
     'clin_email',
     'clin_senha',
-    'clin_senha'
+    'clin_stat'
 ];
 switch ($acao){
     case "login":

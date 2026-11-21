@@ -1,0 +1,46 @@
+/* Reagendamento: reaproveita a grade do agendamentoCli.css e acrescenta o bloco "Consulta atual". */
+
+.gradeAgendamento {
+  grid-template-areas:
+    "titulo"
+    "alerta"
+    "atual"
+    "valor"
+    "profissional"
+    "calendario"
+    "horario"
+    "sala"
+    "botoes";
+}
+
+@media (min-width: 768px) {
+  .gradeAgendamento {
+    grid-template-areas:
+      "titulo       titulo"
+      "alerta       alerta"
+      "calendario   atual"
+      "calendario   valor"
+      "calendario   profissional"
+      "calendario   horario"
+      "calendario   sala"
+      "calendario   botoes";
+  }
+}
+
+.areaConsultaAtual { grid-area: atual; }
+
+.consultaAtualServico {
+  margin: 0 0 var(--espaco1);
+  font-weight: var(--pesoNegrito);
+}
+
+.consultaAtualLinha {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco2);
+  margin: 0 0 var(--espaco1);
+}
+
+.consultaAtualLinha .material-symbols-outlined {
+  font-size: 1.25rem;
+}

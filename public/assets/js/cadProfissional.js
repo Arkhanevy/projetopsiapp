@@ -141,7 +141,8 @@
 
       $botao.prop("disabled", true).html("Cadastrando...");
 
-      const registroArquivo = el.$registro[0].files[0];
+      // [ARQUIVOS DESATIVADOS] Registro profissional (arquivo) não é mais obrigatório nem enviado.
+      // const registroArquivo = el.$registro[0].files[0];
 
       const campos = [
         { valor: el.$nome.val(), el: el.$nome },
@@ -149,7 +150,7 @@
         { valor: el.$user.val(), el: el.$user },
         { valor: el.$bio.val(), el: el.$bio },
         { valor: el.$data.val(), el: el.$data },
-        { valor: registroArquivo ? registroArquivo.name : "", el: el.$registro },
+        // { valor: registroArquivo ? registroArquivo.name : "", el: el.$registro }, // [ARQUIVOS DESATIVADOS]
         { valor: el.$senha.val(), el: el.$senha },
         { valor: el.$genero.val(), el: el.$genero },
         { valor: el.$email.val(), el: el.$email },
@@ -208,6 +209,7 @@
         return;
       }
 
+      // Imagem de perfil obrigatória; vai no $_FILES['cxproFoto'].
       const imgArquivo = el.$img[0].files[0];
       if (!imgArquivo) {
         $botao.prop("disabled", false).html("Cadastrar");
@@ -233,8 +235,12 @@
         CPF: cpfLimpo
       });
 
-      // $_FILES['registro'] leva o arquivo; $_POST['registro'] leva o nome do arquivo.
-      formData.append("registro", registroArquivo.name);
+      // [ARQUIVOS DESATIVADOS] $_FILES['registro'] levava o arquivo; $_POST['registro'] levava o nome do arquivo.
+      // formData.append("registro", registroArquivo.name);
+
+      // A foto (cxproFoto) segue no formData. O arquivo de registro continua desativado:
+      // o backend ainda não salva esse arquivo, então ele não é enviado.
+      formData.delete("registro");
 
       $.ajax({
           url: this.configuracao.urlProfissional,

@@ -1,5 +1,12 @@
-----
+---
 deployment:
   tasks:
     - export DEPLOYPATH=/home3/administrador/public_html/info042026/projetopsiapp/
-    - /bin/cp -R * $DEPLOYPATH
+    - /bin/cp -R app $DEPLOYPATH
+    - /bin/cp -R public $DEPLOYPATH
+    - /bin/cp -R vendor $DEPLOYPATH
+    - /bin/cp .htaccess $DEPLOYPATH
+    - /bin/cp autoload.php $DEPLOYPATH
+    - /bin/cp index.php $DEPLOYPATH
+    - /bin/cp php.ini $DEPLOYPATH
+

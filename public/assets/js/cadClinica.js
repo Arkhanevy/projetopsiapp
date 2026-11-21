@@ -166,6 +166,7 @@
         return;
       }
 
+      // Imagem da clínica obrigatória; vai no $_FILES['cxclinFoto'].
       if (!el.$img[0].files || el.$img[0].files.length === 0) {
         $botao.prop("disabled", false).html("Cadastrar");
         this.mostrarAlert("Imagem obrigatória!", "danger");

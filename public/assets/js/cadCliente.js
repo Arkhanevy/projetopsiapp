@@ -171,6 +171,7 @@
         return;
       }
 
+      // Imagem de perfil obrigatória; vai no $_FILES['cxclientefoto'].
       const imgArquivo = el.$img[0].files[0];
       if (!imgArquivo) {
         $botao.prop("disabled", false).html("Cadastrar");

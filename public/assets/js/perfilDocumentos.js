@@ -19,9 +19,6 @@
     "application/pdf": "pdf"
   };
 
-  // Upload.php: 0 = público, 1 = privado; shareMails vazio = ninguém em especial.
-  const controleAcessoPadrao = "0";
-
   const moduloDocumentos = {
 
     contratos: {
@@ -31,9 +28,9 @@
       // Mesmos controllers: arquivos de outro dono compartilhados com o e-mail da sessão ($_POST["id"] = dono).
       listarDocumentosCompartilhados: { acao: "arquivosCompartilhados", disponivel: true },
 
-      // utils/Upload.php: lê $_FILES["file"] e $_POST["titulo"], ["tipo"], ["accessCtrl"], ["shareMails"].
-      // Ajuste a rota se no routes.json o Upload.php tiver outro nome.
-      enviarDocumento: { url: "index.php?uri=upload", acao: "upload", disponivel: true },
+      // Mesmos controllers (sem url): ação uploadDocumento lê $_FILES["file"], $_POST["titulo"] e $_POST["tipo"]
+      // e responde JSON { sucesso, mensagem }. O documento fica privado (só o dono vê).
+      enviarDocumento: { acao: "uploadDocumento", disponivel: true },
 
       // Ainda não existe ação de apagar no backend.
       apagarDocumento: { url: "index.php?uri=documento", acao: "apagarDocumento", disponivel: false }
@@ -108,8 +105,8 @@
       return { data: partes[3] + "/" + partes[2] + "/" + partes[1], extensao: partes[4].toLowerCase() };
     },
 
-    // meusArquivos só devolve { mime, nome, data }: título e tipo não vêm do backend,
-    // então o título é montado pelo tipo do arquivo e pela data do envio.
+    // meusArquivos devolve { id, titulo, tipo, mime, nome, data }. Se faltar o título
+    // (registros antigos), ele é montado pelo tipo do arquivo e pela data do envio.
     tituloDoArquivo: function (item) {
       const guardado = this.lerNomeGuardado(item.nome);
       let base;
@@ -351,24 +348,23 @@
         return;
       }
 
-      // Upload.php lê $_FILES["file"] e os campos em $_POST.
       const dados = new FormData();
       dados.append("file", arquivo, arquivo.name);
       dados.append("titulo", titulo);
       dados.append("tipo", tipo);
-      dados.append("accessCtrl", controleAcessoPadrao);
-      dados.append("shareMails", "");
 
       this.alternarEnvio(true);
 
-      // O Upload.php responde com texto (nome do arquivo salvo), não com JSON.
-      nucleo.chamarContrato("enviarDocumento", dados, "text")
+      nucleo.chamarContrato("enviarDocumento", dados)
         .done(function (resposta) {
           if (self.envioConfirmado(resposta)) {
             Utilitarios.esconderModal(e.$modalAdicionar);
             self.carregar();
           } else {
-            nucleo.exibirAviso("Não foi possível enviar o documento. Tente novamente.", "erro");
+            const mensagem = resposta && resposta.mensagem
+              ? resposta.mensagem
+              : "Não foi possível enviar o documento. Tente novamente.";
+            nucleo.exibirAviso(mensagem, "erro");
           }
         })
         .fail(function () {
@@ -379,9 +375,9 @@
         });
     },
 
-    // Sucesso = nome gerado pelo Upload.php ("up" + data/hora + extensão + ".base64").
+    // Sucesso = { sucesso: true } do uploadDocumento.
     envioConfirmado: function (resposta) {
-      return /up\d{14,}\.[^\s]*\.base64/.test(String(resposta || ""));
+      return !!(resposta && resposta.sucesso === true);
     },
 
     abrirApagar: function ($botao) {
