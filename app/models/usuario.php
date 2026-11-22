@@ -212,6 +212,7 @@ class usuario {
     }
     
     public function Login($email,$senha) {
+        
         try {
             //nessa função o $campo vai ser os campos para:id,nome,email,senha e status
             $camposStr = implode(',', $this->campos);

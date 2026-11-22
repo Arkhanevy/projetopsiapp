@@ -11,7 +11,6 @@ $campos =[
     'cli_email',
     'cli_user',
     'cli_senha',
-    'cli_bio',
     'cli_foto',
     'cli_codVali',
     'cli_dtNasc',
@@ -25,7 +24,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $cliente = new cliente('cliente', $campos, $campos[0]);
-        $resultado = $cliente->Cadastrarcliente($_POST['nome'] ?? '', $_POST['email'],$_FILES['cxclientefoto'] ?? '', $_POST['username'] ?? '', $_POST['senha'],$_POST['bio'] ?? '', $_POST['dtNas'] ?? null, $_POST['CPF'],$_POST['telefone'] ?? '',$_POST['genero'] ?? '');
+        $resultado = $cliente->Cadastrarcliente($_POST['nome'] ?? '', $_POST['email'],$_FILES['cxclientefoto'] ?? '', $_POST['username'] ?? '', $_POST['senha'], $_POST['dtNas'] ?? null, $_POST['CPF'],$_POST['telefone'] ?? '',$_POST['genero'] ?? '');
         echo json_encode($resultado);
         exit;
         
@@ -44,7 +43,7 @@ switch ($acao){
         exit;
         
     case "login":
-        $campos = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[11]];
+        $campos = [$campos[0],$campos[1],$campos[2],$campos[4], $campos[10]];
         $cliente = new cliente('cliente', $campos, $campos[2]);
         $resultado = $cliente->Login($_POST['email'],$_POST['senha']);
         echo json_encode($resultado);

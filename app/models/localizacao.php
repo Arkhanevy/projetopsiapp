@@ -6,7 +6,7 @@ use core\database\Where;
 
 class localizacao {
     private $campos =[];
-    private $pimarykey =[];
+    private $primarykey =[];
     private $table = '';
     
     public function __construct($table,$campos,$primary) {
@@ -23,19 +23,14 @@ class localizacao {
         ];
         return $prefixo.$mapa[$usuario];}
 
-    private function verifica($usuario,$id,$loc) {//$loc pode ser o id da localização ou da sala é so que não achei nome melhor
-        if ($this->table === 'localizacao') {
-            $cod = $this->contruircampos('loc_', $usuario);
-            $whId = 'loc_id';
-        }
-        if ($this->table === 'sala') {
-            $cod = $this->contruircampos('sala_', $usuario);
-            $whId = 'sala_id';
-        }
-        $camposStr = implode(',',$this->campos);
-        $verifica = new DBQuery($this->table, $camposStr, $this->primary);
+    private function verifica($usuario,$id,$loc) {
+        $cod = $this->contruircampos('loc_', $usuario);
+
+        $camposStr = $this->table === 'localizacao' ? implode(',', $this->campos) : 'loc_id';
+        
+        $verifica = new DBQuery('localizacao', $camposStr, 'loc_id');
         $where = new Where();
-        $where->addCondition('AND', $whId, '=',$loc);
+        $where->addCondition('AND', 'loc_id', '=',$loc);
         $where->addCondition('AND', $cod, '=',$id);
         $where = $where->build();
         try {
@@ -56,17 +51,20 @@ class localizacao {
         return ['sucesso' => true];
         
     }
-    public function inserirloc($pro,$clin,$nome,$tipo) {
+    public function inserirloc($pro,$clin,$nome,$tipo,$cep,$num,$comp) {
         $camposLoc = implode(',',$this->campos);
         $dados =[
             0,
             $pro,
             $clin,
             $nome,
-            $tipo
+            $tipo,
+            $cep,
+            $num,
+            $comp
         ];
         try {
-            $cadastrar = new DBQuery($this->table, $camposLoc,$this->pimarykey );
+            $cadastrar = new DBQuery($this->table, $camposLoc,$this->primarykey );
             $resultado = $cadastrar->insert($dados);
             
             if ($resultado) {
@@ -83,11 +81,9 @@ class localizacao {
     
     public function inserirsala($loc,$nome,$usuario,$id) {
         $dono = $this->verifica($usuario, $id, $loc);
-        
         if ($dono['sucesso'] === false){
             return $dono;
         }
-        
         $camposSala = implode(',',$this->campos);
         $dados =[
             0,
@@ -95,7 +91,7 @@ class localizacao {
             $nome
         ];
         try {
-            $cadastrar = new DBQuery($this->table, $camposSala,$this->pimarykey );
+            $cadastrar = new DBQuery($this->table, $camposSala,$this->primarykey );
             $resultado = $cadastrar->insert($dados);
             
             if ($resultado) {
@@ -113,7 +109,7 @@ class localizacao {
     public function pegarloc($dono,$id) {
         $camposLoc = implode(',',$this->campos);
         $cod = $this->contruircampos('loc_',$dono);
-        $mostrar = new DBQuery($this->table, $camposLoc,$this->pimarykey);
+        $mostrar = new DBQuery($this->table, $camposLoc,$this->primarykey);
         $where = new Where();
         $where->addCondition('AND', $cod,'=', $id);
         $where = $where->build();
@@ -138,7 +134,7 @@ class localizacao {
 
     public function pegarSalas($loc){
         $camposLoc = implode(',',$this->campos);
-        $mostrar = new DBQuery($this->table, $camposLoc,$this->pimarykey);
+        $mostrar = new DBQuery($this->table, $camposLoc,$this->primarykey);
         $where = new Where();
         $where->addCondition('AND', 'sala_loc','=', $loc);
         $where = $where->build();

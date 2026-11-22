@@ -33,7 +33,8 @@ class clinica extends usuario {
             }
             return $this->Cadastrar($dados);
         }
-    public function pegarHrser() {
+        
+        public function pegarHrser() {
             $camposHrser = "
             hrser_id,
             hrser_pro,
@@ -70,6 +71,23 @@ class clinica extends usuario {
                 ];
             }
         }
+        
+        public function hrServico($clin,$inicio,$termino,$dia) {
+            $camposStr = "hrser_id, hrser_clin, hrser_hrini, hrser_hrterm, hrser_dia";
+            $dados = [0,$clin,$inicio,$termino,$dia];
+            try {
+                $cadastrar = new DBQuery('hr_servico', $camposStr, 'hrser_id');
+                $cadastrar->insert($dados);
+                return ['sucesso' => true];
+            }
+            catch (\Exception $e) {
+                return [
+                    'sucesso' => false,
+                    'mensagem' => $e->getMessage()
+                ];
+            };
+        }
+        
         // Passo 1 da associação: a clínica CONVIDA o profissional (só cria a notificação).
         // O vínculo em profissional_clinica só nasce quando o profissional aceita
         // (profissional::aceitarVinculo).

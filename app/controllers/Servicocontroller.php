@@ -31,12 +31,12 @@ switch ($acao){
             $mes = $hoje->format('m'); 
             $dia = $hoje->format('d');
         };
-        $mostrar = $servico->MostrarDatas($_SESSION['servico']['ser_id'] ?? '',  $_SESSION['servico']['ser_pro'] ?? $_POST['agnd_pro'],$ano,$mes,$dia);
+        $mostrar = $servico->MostrarDatas($_SESSION['servico']['ser_id'] ?? '',  $_SESSION['servico']['ser_pro'] ?? $_POST['agnd_pro'] ?? '',$_SESSION['servico']['ser_clin'] ?? $_POST['agnd_clin'] ?? '',$ano,$mes,$dia);
         $_SESSION['datas'] = $mostrar;
         echo $mostrar;
         exit;
     case 'mostrarhorario':
-        $mostrar = $servico->PegarHoraVaga($_POST['dia'],$_SESSION['servico']['ser_dur'] ?? $_POST['ser_dur'],$_SESSION['servico']['ser_inter'] ?? $_POST['ser_inter'],$_SESSION['servico']['ser_pro'] ?? $_POST['agnd_pro']);
+        $mostrar = $servico->PegarHoraVaga($_POST['dia'],$_SESSION['servico']['ser_dur'] ?? $_POST['ser_dur'],$_SESSION['servico']['ser_inter'] ?? $_POST['ser_inter'],$_SESSION['servico']['ser_pro'] ?? $_POST['agnd_pro'],$_SESSION['servico']['ser_clin'] ?? $_POST['agnd_clin']);
         $_SESSION['horarios'] = $mostrar;
         $_SESSION['datas'] = $_POST['dia'];
         echo json_encode($mostrar);
@@ -59,12 +59,13 @@ switch ($acao){
         if ($_SESSION['usuario']['tipoUsuario'] === 'cliente') {
             $cliId = $_SESSION['usuario']['idUsuario'];
         }
-        $agendar = $servico->agendar($_SESSION['servico']['ser_pro'],$cliId,$_SESSION['servico']['ser_id'],$_POST['sala'], $_POST['dia'], $_POST['inicio'], $_POST['termino']);
+        $agendar = $servico->agendar($_SESSION['servico']['ser_pro'],$cliId,$_SESSION['servico']['ser_clin'],$_SESSION['servico']['ser_id'],$_POST['sala'], $_POST['dia'], $_POST['inicio'], $_POST['termino']);
         if($agendar=== 'sucesso'){
             $camposnot= ['notif_id',
                 'notif_pd',
                 'notif_clin',
                 'notif_dest',
+                'notif_dtipo',
                 'notif_tipo',
                 'notif_msg',
                 'notif_data',
@@ -79,7 +80,7 @@ switch ($acao){
                 $camposnot[] = 'notif_pro';
             }
             $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-            $notificacao->enviar(1,$_SESSION['servico']['ser_pro'],$_SESSION['servico']['ser_clin']);
+            $notificacao->enviar(1,$_SESSION['servico']['ser_pro'],'profissional',$_SESSION['servico']['ser_clin']);
             $_SESSION['servico'] = [];
             $_SESSION['datas'] = [];
             $_SESSION['horarios'] = [];
@@ -106,6 +107,7 @@ switch ($acao){
                 'notif_pd',
                 'notif_clin',
                 'notif_dest',
+                'notif_dtipo',
                 'notif_tipo',
                 'notif_msg',
                 'notif_data',
@@ -120,7 +122,7 @@ switch ($acao){
                 $camposnot[] = 'notif_pro';
             }
             $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-            $notificacao->enviar(2,$_SESSION['servico']['ser_pro'],$_SESSION['servico']['ser_clin']);
+            $notificacao->enviar(2,$_SESSION['servico']['ser_pro'],'profissional',$_SESSION['servico']['ser_clin']);
             $_SESSION['datas'] = [];
             $_SESSION['horarios'] = [];
         }
@@ -144,21 +146,24 @@ switch ($acao){
                 'notif_clin',
                 'notif_dest',
                 'notif_tipo',
+                'notif_dtipo',
                 'notif_msg',
                 'notif_data',
                 'notif_stat'];
             
             if ($_SESSION['usuario']['tipoUsuario'] === 'cliente') {
                 $dest = $_POST['agnd_pro'];
+                $dtipo = 'profissional';
                 $camposnot[] = 'notif_cli';
             }
             else {
                 $dest = $_POST['agnd_cli'];
+                $dtipo = 'cliente';
                 $camposnot[] = 'notif_pro';
             }
             
             $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-            $enviar = $notificacao->enviar(5, $dest,$_POST['agnd_clin'] ?? 0);
+            $enviar = $notificacao->enviar(5, $dest,$dtipo,$_POST['agnd_clin'] ?? 0);
             echo json_encode($enviar);
             exit;
         }

@@ -50,7 +50,6 @@ class profissional extends usuario {
             hrser_dia";
             $pegar = new DBQuery('hr_servico', $camposHrser,'hrser_pro' );
             $where = new Where();
-            //$where->addCondition('AND', 'hrser_pro', '=',$_SESSION['profissional']['id']);
             $where->addCondition('AND', 'hrser_pro', '=', $_SESSION['usuario']['idUsuario']);
             $where = $where->build();
         try {

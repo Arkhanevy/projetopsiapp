@@ -18,7 +18,10 @@ $camposLoc = [
     'loc_pro',
     'loc_clin',
     'loc_nome',
-    'loc_tipo'
+    'loc_tipo',
+    'loc_cep',
+    'loc_num',
+    'loc_compl'
 ];
 $camposSala = [
     'sala_id',
@@ -38,7 +41,7 @@ switch ($acao){
             $clin = $_SESSION['usuario']['idUsuario'];
         }
         $localizacao = new localizacao('localizacao',$camposLoc,$camposLoc[0]);
-        $inserir = $localizacao->inserirloc($pro, $clin, $_POST['nome'], $_POST['tipo']);
+        $inserir = $localizacao->inserirloc($pro, $clin, $_POST['nome'], $_POST['tipo'],$_POST['cep'],$_POST['numero'],$_POST['complemento'] ?? '');
         echo json_encode($inserir);
         exit;
     case 'inserirsala':
@@ -50,7 +53,10 @@ switch ($acao){
         if (isset($_POST['clinica'])) {
             $id = $_POST['clinica'];
             $dono = 'clinica';
-        } else  {$id = $_SESSION['usuario']['idUsuario']; $dono = 'profissional';}
+        }else if(isset($_POST['profissional'])) {
+            $id = $_POST['profissional'];
+            $dono = 'profissional';}
+        else  {$id = $_SESSION['usuario']['idUsuario']; $dono = 'profissional';}
         
         $localizacao = new localizacao('localizacao',$camposLoc,$camposLoc[0]);
         $mostrar = $localizacao->pegarloc($dono,$id);
@@ -65,6 +71,9 @@ switch ($acao){
         $dicpro = [
         'nome' => 'loc_nome',
         'tipo' => 'loc_tipo',
+        'CEP' => 'loc_cep',
+        'numero' => 'loc_num',
+        'compl' => 'loc_compl'
         ];
         $atualizacao = $_POST['atualizacao'];
         

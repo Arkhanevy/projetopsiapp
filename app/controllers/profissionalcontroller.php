@@ -21,7 +21,6 @@ $campos =[
     'pro_dtDell',
     'pro_stat',
     'pro_CPF',
-    'pro_CEP',
     'pro_tel',
     'pro_gen',
     'pro_regi',
@@ -29,7 +28,7 @@ $campos =[
 switch ($acao){
     case "cadastrar":
         $profissional = new profissional('profissional', $campos, $campos[0]);
-        $resultado = $profissional->Cadastrarprofissional($_POST['nome'], $_POST['email'],$_FILES['cxproFoto'] ?? '', $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['CEP'],$_POST['telefone'],$_POST['genero'],'');
+        $resultado = $profissional->Cadastrarprofissional($_POST['nome'], $_POST['email'],$_FILES['cxproFoto'] ?? '', $_POST['username'], $_POST['senha'],$_POST['bio'], $_POST['dtNas'], $_POST['CPF'],$_POST['telefone'],$_POST['genero'],'');
         echo json_encode($resultado);
         exit;
         
@@ -172,7 +171,6 @@ switch ($acao){
             'email' => 'pro_email',
             'biografia' => 'pro_bio',
             'foto' => 'pro_foto',
-            'CEP' => 'pro_CEP',
             'telefone' => 'pro_tel',
             ];
         $atualizacao = $_POST['atualizacao'];
@@ -210,6 +208,7 @@ switch ($acao){
                 'notif_pd',
                 'notif_clin',
                 'notif_dest',
+                'notif_dtipo',
                 'notif_tipo',
                 'notif_msg',
                 'notif_data',
@@ -218,10 +217,11 @@ switch ($acao){
             ];
             
             $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-            $notificacâo = $notificacâo->enviar(3, $_POST['agnd_cli'],$_POST['agnd_clin'] ?? $_POST['agnd_pro']);
+            $notificacâo = $notificacâo->enviar(3, $_POST['agnd_cli'],'cliente',null/*$_POST['agnd_clin']*/);
             echo json_encode($notificacâo);
             exit;
         }
+        echo 'ali';exit;
         echo json_encode($sucesso);
         exit;
         
@@ -256,6 +256,7 @@ switch ($acao){
                 'notif_pd',
                 'notif_clin',
                 'notif_dest',
+                'notif_dtipo',
                 'notif_tipo',
                 'notif_msg',
                 'notif_data',
@@ -263,7 +264,7 @@ switch ($acao){
                 'notif_pro'
             ];
             $notificacâo = new notificacao('notificacao', $camposnot, $camposnot[0], $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
-            $notificacâo = $notificacâo->enviar(4, $_POST['agnd_cli'],$_POST['agnd_clin'] ?? $_POST['agnd_pro']);
+            $notificacâo = $notificacâo->enviar(4, $_POST['agnd_cli'],'cliente',$_POST['agnd_clin'] ?? $_POST['agnd_pro']);
             echo json_encode($notificacâo);
             exit;
         }

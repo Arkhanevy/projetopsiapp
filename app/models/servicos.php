@@ -54,11 +54,13 @@ class servicos {
         };
     }
     
-    private function GetDiaTrabalho($pro){
+    private function GetDiaTrabalho($pro,$clin){
            try {
                $mostrar = new DBQuery('hr_servico', 'hrser_dia','hrser_pro' );// pega os dias que trabalha
                $where = new Where();
-               $where->addCondition('AND', 'hrser_pro', '=', $pro);
+               $id = !empty($clin) ? $clin : $pro;
+               $cod = !empty($clin) ? 'hrser_clin' : 'hrser_pro';
+               $where->addCondition('AND', $cod, '=', $id);
                $where = $where->build();
                $resultado = $mostrar->selectWhere($where);
                
@@ -109,7 +111,7 @@ class servicos {
            return $dias;
        }
     
-    private function PegarPeriodo($dia,$pro) {
+    private function PegarPeriodo($dia,$pro,$clin) {
            try {
                $excecao = new DBQuery('hr_excecao', 'hr_excecao_trab,hr_excecao_ini,hr_excecao_term', 'hr_excecao_dia');
                $where = new Where();
@@ -126,13 +128,15 @@ class servicos {
                    }
                }
                
+               $id = !empty($clin) ? $clin : $pro;
+               $cod = !empty($clin) ? 'hrser_clin' : 'hrser_pro';
                
                $dsem = new \DateTime($dia);
                $dsem = $dsem->format('w');
                $rotina = new DBQuery('hr_servico', 'hrser_hrini,hrser_hrterm','hrser_dia' );
                $where = new Where();
                $where->addCondition('AND', 'hrser_dia', '=', $dsem);
-               $where->addCondition('AND', 'hrser_pro', '=', $pro);
+               $where->addCondition('AND',$cod, '=',$id);
                $where = $where->build();
                $resultado = $rotina->selectWhere($where);
                    if ($resultado) {
@@ -295,8 +299,8 @@ class servicos {
             }
         }
         
-    public function MostrarDatas($id,$pro,$ano,$mes,$dia) {
-            $hrser = $this->GetDiaTrabalho($pro);
+    public function MostrarDatas($id,$pro,$clin,$ano,$mes,$dia) {
+            $hrser = $this->GetDiaTrabalho($pro,$clin);
             $exce = $this->GetExcecaotrabalho($pro);
             $dias = $this->dias($ano,$mes,$dia);
             $serdia = !empty($id) ? $this->pegarSerDia($id) : false;
@@ -360,8 +364,8 @@ class servicos {
             }
         }
         
-    public function PegarHoraVaga($dia,$dur,$inter,$pro){
-            $periodo = $this->PegarPeriodo($dia,$pro);
+    public function PegarHoraVaga($dia,$dur,$inter,$pro,$clin){
+            $periodo = $this->PegarPeriodo($dia,$pro,$clin);
             $agenda = $this->Agenda($dia,$pro);
             $agenda = array_map(fn($e) => [
                 'agnd_hrIni' => substr($e['agnd_hrIni'], 0, 5),
@@ -447,7 +451,7 @@ class servicos {
                 'dados' => $salasLivres];     
         }
     
-    public function agendar($pro, $cli, $ser, $sala, $dia, $inicio, $termino) {
+    public function agendar($pro, $cli, $clin, $ser, $sala, $dia, $inicio, $termino) {
             $agenda = $this->Agenda($dia,$pro);
             $agenda = array_map(fn($e) => [
                 'agnd_hrIni' => substr($e['agnd_hrIni'], 0, 5),
@@ -481,6 +485,7 @@ class servicos {
                 agnd_id,
                 agnd_pro,
                 agnd_cli,
+                agnd_clin,
                 agnd_ser,
                 agnd_sala,
                 agnd_dt,
@@ -492,6 +497,7 @@ class servicos {
                 0,
                 $pro,
                 $cli,
+                $clin ?? null,
                 $ser,
                 $sala,
                 $dia,
@@ -602,14 +608,14 @@ class servicos {
             $valores = [$agnd,$pro,'aceita'];
             $aceitar = new DBQuery('agenda', 'agnd_id,agnd_pro,agnd_stat', ['agnd_id','agnd_pro']);
             try {
-                $aceitar->update($valores);
+                $teste = $aceitar->update($valores);
                 return[
                     'sucesso' => true
                 ];
             } catch (\Exception $e) {
                 return[
                     'sucesso' => false,
-                    'mensagem' => $e->getMessage()
+                    'mensagem' => $teste
                 ];
             }
             

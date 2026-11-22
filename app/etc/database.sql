@@ -99,6 +99,9 @@ create table localizacao (-- criei essa tabela pra fazer um 1vn com as salas
     loc_clin int null,   -- id da clinica nessa tabela
     loc_nome varchar(90), -- nome da localização
     loc_tipo enum('clin','casa','domi'), -- tipo de localização: clinica, casa, à domicíolio
+    loc_cep varchar(8),
+    loc_num varchar(5),
+    loc_compl varchar(50),
     foreign key (loc_pro) references profissional(pro_id),
     foreign key (loc_clin) references clinica(clin_id) 
 );
@@ -192,6 +195,7 @@ create table notificacao (
     notif_clin int null,
     notif_cli int null,
     notif_dest int not null,
+    notif_dtipo varchar(12),
     notif_tipo varchar(60),
     notif_msg text,
     notif_data datetime,

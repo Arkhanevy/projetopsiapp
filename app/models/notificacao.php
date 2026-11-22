@@ -79,7 +79,7 @@ class notificacao {
         
     }
     
-   public function enviar($tipo,$dest,$clin) {
+   public function enviar($tipo,$dest,$dtipo,$clin) {
        $where = new Where();
        $where->addCondition('AND', 'pdNotif_id', '=', $tipo);
        $where = $where->build();
@@ -106,6 +106,7 @@ class notificacao {
            $resultado[0]['pdNotif_id'],
            $clin,
            $dest,
+           $dtipo,
            $tipo,
            $resultado[0]['pdNotif_msg'],
            $hoje,
@@ -121,7 +122,7 @@ class notificacao {
        $enviar = new DBQuery($this->table, $camposStr, $this->primary);
        try {
            $enviar->insert($dados);
-           return ['sucesso' => true, 'id' => $enviar->getConn()->lastInsertId()];
+           return ['sucesso' => true];
        }
        catch (\Exception $e) {
            return [
@@ -132,7 +133,11 @@ class notificacao {
    }
    
    public function listar() {
-       $where = "where " . 'notif_dest =' . $this->id . ' ORDER BY notif_data DESC';//não tem função para por order by mas acho que tá seguro pq $cod é gerado por mim e $id é int
+       if ($this->usuario != 'clinica') {
+           $where = "WHERE notif_dest = {$this->id} AND notif_dtipo = '{$this->usuario}' ORDER BY notif_data DESC";
+       } else {
+           $where = "WHERE notif_clin = {$this->id} ORDER BY notif_data DESC";
+       }
        $padao = new DBQuery('notificacao','*','');
        
        try {
