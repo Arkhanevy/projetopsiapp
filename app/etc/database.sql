@@ -16,7 +16,6 @@ create table clinica( -- tabela com os dados do perifil da clinica
 	clin_dtDell datetime null,-- data de delete da clinica-- usado para soft delete 
 	clin_stat varchar(8),-- status da clinica -- se o perfil está ativo ou desativado
 	clin_cnpj varchar(14) unique, -- cnpj da clinica
-	clin_cep varchar(8), -- cep da clinica
 	clin_tel varchar(11) -- telefone da clinica
 );
 
@@ -35,7 +34,6 @@ create table profissional ( -- tabela do perfil do profissional
     pro_dtDell datetime null,-- data de delete do profissional
     pro_stat varchar(8),-- status do profissional
     pro_CPF varchar(11) unique, -- cpf do profissional
-    pro_CEP varchar(8),-- cep do profissional
     pro_tel varchar(11),-- telefone do profissional
     pro_gen varchar(1), -- genero do profissional
     pro_regi varchar(20),-- registro do profissional -- ainda não vi mas deve ter algum documento pra podologa poder atuar dps tem que ver tbm como verifica -- seriamente eu tenho que ver isso dês de o começo do ano
@@ -97,11 +95,11 @@ create table localizacao (-- criei essa tabela pra fazer um 1vn com as salas
 	loc_id int auto_increment primary key, -- id dessa tabela
     loc_pro int null, -- id do profissional nessa tabela
     loc_clin int null,   -- id da clinica nessa tabela
-    loc_nome varchar(90), -- nome da localização
-    loc_tipo enum('clin','casa','domi'), -- tipo de localização: clinica, casa, à domicíolio
-    loc_cep varchar(8),
-    loc_num varchar(5),
-    loc_compl varchar(50),
+    loc_nome varchar(90) not null, -- nome da localização
+    loc_tipo enum('clin','casa','domi') not null, -- tipo de localização: clinica, casa, à domicíolio
+    loc_cep varchar(8) not null,
+    loc_num varchar(5) not null,
+    loc_compl varchar(50) null,
     foreign key (loc_pro) references profissional(pro_id),
     foreign key (loc_clin) references clinica(clin_id) 
 );
