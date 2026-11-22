@@ -997,7 +997,7 @@
       return -1;
     },
 
-    // vários dias -> string única, ex.: [1, 3, 5] -> "1,3,5"
+    // vários dias -> string única de dígitos, sem separador, ex.: [1, 3, 5] -> "135"
     combinarDias: function (indices) {
       const self = this;
       const ordenados = indices.slice().sort(function (a, b) {
@@ -1005,14 +1005,14 @@
       });
       return $.map(ordenados, function (indice) {
         return self.diaParaBackend(indice);
-      }).join(",");
+      }).join("");
     },
 
-    // string do backend -> lista de índices, ex.: "1,3,5" -> [1, 3, 5]
+    // string do backend -> lista de índices, ex.: "135" -> [1, 3, 5]
     separarDias: function (valorCombinado) {
       const self = this;
       const indices = [];
-      const partes = $.isArray(valorCombinado) ? valorCombinado : String(valorCombinado === null || valorCombinado === undefined ? "" : valorCombinado).split(",");
+      const partes = $.isArray(valorCombinado) ? valorCombinado : String(valorCombinado === null || valorCombinado === undefined ? "" : valorCombinado).split("");
 
       $.each(partes, function (_, parte) {
         const indice = self.diaDoBackend(parte);
