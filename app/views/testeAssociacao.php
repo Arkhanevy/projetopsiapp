@@ -424,7 +424,12 @@ async function rodarTudo() {
             sessaoAtual = ROTULO_SESSAO[t.sessao];
         }
         const req = typeof t.req === 'function' ? t.req(ctx) : t.req;
-        const res = await enviar(req, t.rota);
+        // se um id que devia ter sido guardado por um teste anterior não existe, não envia
+        // (senão o teste "passa" sem ter testado nada: ex. lernot/permissao com id "undefined")
+        const faltaId = Object.values(req).some(v => v === undefined || v === null || v === 'undefined');
+        const res = faltaId
+            ? { status: 0, texto: 'PULADO: depende de um id que um teste anterior não conseguiu guardar', json: null }
+            : await enviar(req, t.rota);
         let ok = false;
         try {
             if (t.guardar) t.guardar(res.json, ctx);
