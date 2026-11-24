@@ -156,8 +156,8 @@ class usuario {
             $codigo->update($dados);
             
             $mail = new Mail($dados[0], $assunto, $body);
-            $mail ->send();
-            if (!$mail->send()) {
+            $verifica = $mail ->send();
+            if (!$verifica) {
                 return [
                     'sucesso'  => false,
                     'mensagem' => $mail->getLastError()
