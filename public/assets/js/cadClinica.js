@@ -22,14 +22,6 @@
 
       const el = this.elementos;
       Utilitarios.configurarPreviewImagem(el.$alertContainer, el.$img, el.$preview);
-      Utilitarios.configurarCEP(el.$alertContainer, {
-        cep: el.$cep,
-        rua: el.$rua,
-        bairro: el.$bairro,
-        cidade: el.$cidade,
-        uf: el.$uf,
-        ibge: el.$ibge
-      });
 
       this.registrarEventos();
       this.mostrarTela(this.estado.telaInicial);
@@ -52,12 +44,6 @@
       this.elementos.$bio = $("#bioClinica");
       this.elementos.$cnpj = $("#cnpj");
       this.elementos.$senha = $("#senhaClinica");
-      this.elementos.$cep = $("#cepClinica");
-      this.elementos.$rua = $("#ruaClinica");
-      this.elementos.$bairro = $("#bairroClinica");
-      this.elementos.$uf = $("#ufClinica");
-      this.elementos.$ibge = $("#ibgeClinica");
-      this.elementos.$cidade = $("#cidadeClinica");
       this.elementos.$formulario = $("#formClinica");
 
       this.elementos.$formAtivacao = $("#formAtivacao");
@@ -136,12 +122,6 @@
         { valor: el.$bio.val(), el: el.$bio },
         { valor: el.$senha.val(), el: el.$senha },
         { valor: el.$email.val(), el: el.$email },
-        { valor: el.$cep.val(), el: el.$cep },
-        { valor: el.$rua.val(), el: el.$rua },
-        { valor: el.$bairro.val(), el: el.$bairro },
-        { valor: el.$uf.val(), el: el.$uf },
-        { valor: el.$ibge.val(), el: el.$ibge },
-        { valor: el.$cidade.val(), el: el.$cidade },
         { valor: el.$cnpj.val(), el: el.$cnpj }
       ];
 
@@ -181,20 +161,12 @@
         return;
       }
 
-      if (Utilitarios.apenasNumeros(el.$cep.val()).length !== 8) {
-        Utilitarios.marcarCamposComErro(el.$alertContainer, [el.$cep, el.$rua, el.$bairro, el.$uf, el.$ibge, el.$cidade], "CEP inválido!");
-        $botao.prop("disabled", false).html("Cadastrar");
-        return;
-      }
-
       const cnpjLimpo = Utilitarios.apenasNumeros(el.$cnpj.val());
-      const cepLimpo = Utilitarios.apenasNumeros(el.$cep.val());
 
       // $_POST e $_FILES saem do próprio formulário (atributos name); só os valores com máscara são sobrescritos.
       const formData = Utilitarios.criarFormData(el.$formulario, {
         email: email,
         telefone: Utilitarios.apenasNumeros(el.$tel.val()),
-        CEP: cepLimpo,
         CNPJ: cnpjLimpo
       });
 

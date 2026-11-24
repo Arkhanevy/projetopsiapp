@@ -101,53 +101,6 @@
                                     <br /><textarea name="bio" id="bioClinica"
                                         placeholder="Escreva sua biografia aqui." required></textarea>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-floating campoTexto mb-3">
-                                        <input name="CEP" class="form-control" type="text" id="cepClinica" data-mascara="cep" inputmode="numeric" value=""
-                                            placeholder="cep" required> <label for="cepClinica">Cep</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating campoTexto mb-3">
-                                        <input class="parteCEPClinica form-control" type="text" id="ruaClinica" placeholder="rua"
-                                            required>
-                                        <label for="ruaClinica">Rua</label>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-floating campoTexto mb-3">
-                                        <input class="parteCEPClinica form-control" type="text" id="bairroClinica"
-                                            placeholder="bairro" required> <label for="bairroClinica">Bairro</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating campoTexto mb-3">
-                                        <input class="parteCEPClinica form-control" type="text" id="cidadeClinica"
-                                            placeholder="cidade" required> <label for="cidadeClinica">Cidade</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-floating campoTexto mb-3">
-                                        <input class=" parteCEPClinica form-control" type="text" id="ufClinica" placeholder="uf"
-                                            required>
-                                        <label for="ufClinica">Estado</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating campoTexto mb-3">
-                                        <input class="parteCEPClinica form-control" type="text" id="ibgeClinica" placeholder="ibge"
-                                            required> <label for="ibgeClinica">IBGE</label>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="form-floating campoTexto mb-3">
                                 <input name="CNPJ" id="cnpj" data-mascara="cnpj" inputmode="numeric" class="form-control" type="text" placeholder="CNPJ"
                                     required>

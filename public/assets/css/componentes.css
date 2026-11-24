@@ -807,6 +807,12 @@ select:focus-visible,
     gap: var(--espaco5);
 }
 
+.navTopoDeslogado_acoes .nav-link {
+  --bs-nav-link-color: var(--corBranco);
+  --bs-nav-link-hover-color: var(--corBranco);
+  color: var(--corBranco);
+}
+
 .navTopoDeslogado_acoes .nav-link:hover,
 .navTopoDeslogado_acoes .nav-link:focus-visible {
   text-decoration: underline;

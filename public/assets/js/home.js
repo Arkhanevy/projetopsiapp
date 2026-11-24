@@ -1,24 +1,15 @@
 (function ($, Busca) {
   "use strict";
 
-  const moduloHome = {
+  // Pesquisa do hero (componente campoPesquisa dispara "pesquisaAcionada")
+  $(document).on("pesquisaAcionada", ".campoPesquisaHome", function (evento, dados) {
+    const termo = dados && dados.termo;
 
-    iniciar: function () {
-
-      $(document).on("pesquisaAcionada", ".campoPesquisaHome", function (evento, dados) {
-        const termo = dados && dados.termo;
-
-        if (!Busca.termoValido(termo)) {
-          $(this).find(".campoPesquisa_input").trigger("focus");
-          return;
-        }
-        Busca.irParaResultados(termo);
-      });
+    if (!Busca.termoValido(termo)) {
+      $(this).find(".campoPesquisa_input").trigger("focus");
+      return;
     }
-  };
-
-  $(function () {
-    moduloHome.iniciar();
+    Busca.irParaResultados(termo);
   });
 
 })(jQuery, window.ElmoBusca);

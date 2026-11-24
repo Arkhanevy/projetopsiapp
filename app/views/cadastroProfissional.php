@@ -114,53 +114,6 @@
                                     <br /><textarea name="bio" id="bioProfissional"
                                         placeholder="Escreva sua biografia aqui."></textarea>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-floating campoTexto mb-3">
-                                            <input name="CEP" class="form-control" type="text" id="cep" data-mascara="cep" inputmode="numeric" value=""
-                                                placeholder="cep" required> <label for="cep">CEP</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating campoTexto mb-3">
-                                            <input class="parteCEP form-control" type="text" id="rua" placeholder="rua"
-                                                required>
-                                            <label for="rua">Rua</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-floating campoTexto mb-3">
-                                            <input class="parteCEP form-control" type="text" id="bairro"
-                                                placeholder="bairro" required> <label for="bairro">Bairro</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating campoTexto mb-3">
-                                            <input class="parteCEP form-control" type="text" id="cidade"
-                                                placeholder="cidade" required> <label for="cidade">Cidade</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-floating campoTexto mb-3">
-                                            <input class=" parteCEP form-control" type="text" id="uf" placeholder="uf"
-                                                required>
-                                            <label for="uf">Estado</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating campoTexto mb-3">
-                                            <input class="parteCEP form-control" type="text" id="ibge" placeholder="ibge"
-                                                required> <label for="ibge">IBGE</label>
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="mb-3">
                                     <label for="registroProfissional" class="form-label">Registro profissional (arquivo)</label>
                                     <!-- [ARQUIVOS DESATIVADOS] "required" removido. Original:

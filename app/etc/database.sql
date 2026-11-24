@@ -1,7 +1,3 @@
-drop database dbelmo;
-
-create database dbelmo character set utf8mb4 collate utf8mb4_general_ci;
-use dbelmo;
 
 create table clinica( -- tabela com os dados do perifil da clinica
 	clin_id int auto_increment primary key, -- id da clinica

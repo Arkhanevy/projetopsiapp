@@ -5,6 +5,18 @@
     "sanitize": {"requestVars": true, "code": true, "sql": true},
     "errorPath": "app/views/erro.php"
   },
+  "homeProfissional": {
+    "path": "app/views/homeProfissional.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "homeClinica": {
+    "path": "app/views/homeClinica.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
   "cadastroCliente": {
     "path": "app/views/cadastroCliente.php",
     "sessionKey": [{"idUsuario": false}],
@@ -19,6 +31,18 @@
   },
   "cadastroProfissional": {
     "path": "app/views/cadastroProfissional.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "login": {
+    "path": "app/views/login.php",
+    "sessionKey": [{"idUsuario": false}],
+    "sanitize": {"requestVars": true, "code": true, "sql": true},
+    "errorPath": "app/views/erro.php"
+  },
+  "autenticar": {
+    "path": "app/controllers/logincontoller.php",
     "sessionKey": [{"idUsuario": false}],
     "sanitize": {"requestVars": true, "code": true, "sql": true},
     "errorPath": "app/views/erro.php"

@@ -164,8 +164,11 @@
       const guardado = (window.history.state && window.history.state.busca) || {};
 
       this.estado.termo = $.trim(Utilitarios.obterParametroUrl("termo") || "");
+      const abaDaUrl = Utilitarios.obterParametroUrl("aba");
       if (this.abas[guardado.aba]) {
         this.estado.abaAtiva = guardado.aba;
+      } else if (this.abas[abaDaUrl]) {
+        this.estado.abaAtiva = abaDaUrl;
       } else {
         this.estado.abaAtiva = "servicos";
       }

@@ -158,6 +158,24 @@
               </div>
             </section>
 
+            <section class="secaoPerfil" aria-labelledby="tituloAtendeCasa" data-perfilDe="profissional" data-somenteDono hidden>
+              <h2 class="secaoPerfil_titulo" id="tituloAtendeCasa">Atendimento na minha residência</h2>
+              <div class="secaoPerfil_caixa">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" id="alternarAtendeCasa" aria-describedby="ajudaAtendeCasa">
+                  <label class="form-check-label" for="alternarAtendeCasa">Atendo na minha residência</label>
+                </div>
+                <div class="form-text" id="ajudaAtendeCasa">Ao ativar, você informa o endereço e passa a poder escolher “residência do profissional” ao cadastrar serviços. O endereço fica visível somente para você.</div>
+                <div id="detalhesCasa" hidden>
+                  <p class="secaoPerfil_texto">Endereço: <span data-campo="enderecoCasa"></span></p>
+                  <p class="secaoPerfil_texto">CEP: <span data-campo="cepCasa"></span></p>
+                  <button type="button" class="btn secaoPerfil_acao" id="botaoEditarCasa" data-visaoDestino="edicaoLocalizacao" aria-label="Editar endereço da residência">
+                    <span class="material-symbols-outlined" aria-hidden="true">edit_square</span>
+                  </button>
+                </div>
+              </div>
+            </section>
+
             <section class="secaoPerfil" aria-labelledby="tituloServicosClinica" data-perfilDe="clinica" hidden>
               <h2 class="secaoPerfil_titulo" id="tituloServicosClinica">Serviços oferecidos</h2>
               <div class="secaoPerfil_caixa">
@@ -409,7 +427,7 @@
 
           <div class="visaoPerfil" data-visao="edicaoLocalizacao" hidden>
             <form id="formularioLocalizacao" class="formularioPerfil" novalidate>
-              <h2 class="formularioPerfil_titulo">Edição de localização</h2>
+              <h2 class="formularioPerfil_titulo">Localização</h2>
               <div class="avisosFormulario" id="avisosLocalizacao" aria-live="polite"></div>
 
               <div class="row g-3">
@@ -427,14 +445,14 @@
                 </div>
                 <div class="col-12 col-md-6">
                   <div class="form-floating campoTexto">
-                    <input type="text" class="form-control" id="campoNumeroLocalizacao" name="numeroLocalizacao" maxlength="10" placeholder="Número" aria-describedby="mensagemNumeroLocalizacao" required>
+                    <input type="text" class="form-control" id="campoNumeroLocalizacao" name="numeroLocalizacao" maxlength="5" placeholder="Número" aria-describedby="mensagemNumeroLocalizacao" required>
                     <label for="campoNumeroLocalizacao">Número</label>
                     <div class="invalid-feedback" id="mensagemNumeroLocalizacao" data-mensagemCampo="numeroLocalizacao">Informe o número.</div>
                   </div>
                 </div>
                 <div class="col-12 col-md-6">
                   <div class="form-floating campoTexto">
-                    <input type="text" class="form-control" id="campoComplementoLocalizacao" name="complementoLocalizacao" maxlength="60" placeholder="Complemento">
+                    <input type="text" class="form-control" id="campoComplementoLocalizacao" name="complementoLocalizacao" maxlength="50" placeholder="Complemento">
                     <label for="campoComplementoLocalizacao">Complemento</label>
                   </div>
                 </div>

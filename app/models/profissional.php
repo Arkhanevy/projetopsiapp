@@ -13,7 +13,8 @@ class profissional extends usuario {
     public function __construct($table,$campo,$primary) {
         parent::__construct($table,$campo,$primary);}
 
-    public function Cadastrarprofissional($nome,$email,$foto,$username,$senha,$bio,$dtNas,$CPF,$CEP,$telefone,$genero,$registro) {
+
+    public function Cadastrarprofissional($nome,$email,$foto,$username,$senha,$bio,$dtNas,$CPF,$telefone,$genero,$registro) {
         $dados =[
             0,
             $nome,
@@ -28,7 +29,6 @@ class profissional extends usuario {
             null,
             "desativo",
             $CPF,
-            $CEP,
             $telefone,
             $genero,
             $registro,
@@ -40,7 +40,6 @@ class profissional extends usuario {
             }
         return $this->Cadastrar($dados);
     }
-    
     public function pegarHrser() {
         $camposHrser = "
             hrser_id,

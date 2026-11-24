@@ -23,14 +23,6 @@
       const el = this.elementos;
       Utilitarios.configurarPreviewImagem(el.$alertContainer, el.$img, el.$preview);
       Utilitarios.configurarArquivo(el.$alertContainer, el.$registro, el.$nomeRegistro);
-      Utilitarios.configurarCEP(el.$alertContainer, {
-        cep: el.$cep,
-        rua: el.$rua,
-        bairro: el.$bairro,
-        cidade: el.$cidade,
-        uf: el.$uf,
-        ibge: el.$ibge
-      });
 
       this.registrarEventos();
       this.mostrarTela(this.estado.telaInicial);
@@ -55,12 +47,6 @@
       this.elementos.$data = $("#dtnPro");
       this.elementos.$cpf = $("#CPF");
       this.elementos.$senha = $("#senhaProfissional");
-      this.elementos.$cep = $("#cep");
-      this.elementos.$rua = $("#rua");
-      this.elementos.$bairro = $("#bairro");
-      this.elementos.$uf = $("#uf");
-      this.elementos.$ibge = $("#ibge");
-      this.elementos.$cidade = $("#cidade");
       this.elementos.$registro = $("#registroProfissional");
       this.elementos.$nomeRegistro = $("#nomeRegistro");
       this.elementos.$formulario = $("#formProfissional");
@@ -150,12 +136,6 @@
         { valor: el.$genero.val(), el: el.$genero },
         { valor: el.$email.val(), el: el.$email },
         { valor: el.$cpf.val(), el: el.$cpf },
-        { valor: el.$cep.val(), el: el.$cep },
-        { valor: el.$rua.val(), el: el.$rua },
-        { valor: el.$bairro.val(), el: el.$bairro },
-        { valor: el.$uf.val(), el: el.$uf },
-        { valor: el.$ibge.val(), el: el.$ibge },
-        { valor: el.$cidade.val(), el: el.$cidade }
       ];
 
       if (Utilitarios.validarCampos(campos)) {
@@ -202,21 +182,13 @@
         return;
       }
 
-      const camposEndereco = [el.$cep, el.$rua, el.$bairro, el.$uf, el.$ibge, el.$cidade];
-      if (Utilitarios.apenasNumeros(el.$cep.val()).length !== 8) {
-        Utilitarios.marcarCamposComErro(el.$alertContainer, camposEndereco, "CEP inválido!");
-        $botao.prop("disabled", false).html("Cadastrar");
-        return;
-      }
 
       const cpfLimpo = Utilitarios.apenasNumeros(el.$cpf.val());
-      const cepLimpo = Utilitarios.apenasNumeros(el.$cep.val());
 
       // $_POST e $_FILES saem do próprio formulário (atributos name); só os valores com máscara são sobrescritos.
       const formData = Utilitarios.criarFormData(el.$formulario, {
         email: email,
         telefone: Utilitarios.apenasNumeros(el.$tel.val()),
-        CEP: cepLimpo,
         CPF: cpfLimpo
       });
 
