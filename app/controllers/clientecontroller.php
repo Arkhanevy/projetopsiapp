@@ -93,7 +93,7 @@ switch ($acao){
         echo json_encode(['logado' => $logado]);
         exit;
     case "PegarPerfil":
-        $camposcli = [$campos[0],$campos[1],$campos[4],$campos[5]];
+        $camposcli = [$campos[0],$campos[1],$campos[2],$campos[5],$campos[6],$campos[12]];
         $cliente = new cliente('cliente', $camposcli, $camposcli[0]);
         $download  =new download();
             

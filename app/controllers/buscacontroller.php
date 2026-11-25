@@ -85,12 +85,28 @@ switch ($acao){
                     'ser_inter' => $busca['ser_inter'],
                     'ser_loc'   => $busca['ser_loc']
                 ];
+                
+                // O front precisa do tipo da localização (ex.: 'domi') para exigir usuário completo.
+                $tipoLocal = null;
+                if (!empty($busca['ser_loc'])) {
+                    $buscaLoc = new busca('localizacao', ['loc_id', 'loc_tipo'], 'loc_id');
+                    $tipoLocal = $buscaLoc->PegarTipoLocal($busca['ser_loc']);
+                }
+                $mostrar['dados'][0]['loc_tipo'] = $tipoLocal;
             }
             
-            echo json_encode([
+            $resposta = [
                 'sucesso' => true,
                 'dados' => $mostrar['dados']
-            ]);
+            ];
+            // Página de perfil (visitante): inclui serviços, horários e localizações.
+            if (($_POST['completo'] ?? '') === '1'
+                && in_array($tipo, ['profissional', 'clinica'], true)
+                && !empty($mostrar['dados'])) {
+                $buscaPerfil = new busca($tipo, $campos, $primary);
+                $resposta = array_merge($resposta, $buscaPerfil->DadosPublicos($tipo, $_POST['id']));
+            }
+            echo json_encode($resposta);
         } else {
             echo json_encode([
                 'sucesso' => false,

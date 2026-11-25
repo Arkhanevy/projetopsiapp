@@ -2,12 +2,12 @@
   "use strict";
 
   const INFORMACOES_STATUS = {
-    pendente: {
+    /*pendente: {
       classe: "badgeStatusPendente",
       titulo: "Pendente",
       icone: "autorenew",
       descricao: "Essa consulta está esperando o profissional aceite realizar o procedimento."
-    },
+    },*/
     agendada: {
       classe: "badgeStatusAgendada",
       titulo: "Agendada",
@@ -23,7 +23,7 @@
   };
 
   const STATUS_BANCO = {
-    esperando: "pendente",
+    // esperando: "pendente",
     aceita: "agendada"
   };
 
@@ -311,7 +311,10 @@
         );
       }
 
-      $rodape.append(this.construirBadgeStatus(infoStatus));
+      // Depois de aceita pelo profissional (agendada), o card não exibe mais o status.
+      if (consulta.status !== "agendada") {
+        $rodape.append(this.construirBadgeStatus(infoStatus));
+      }
       $card.append($rodape);
 
       return $card;
@@ -416,13 +419,19 @@
       $card.find(".botaoCancelarConsulta").remove();
 
       const $badgeAntigo = $card.find(".badgeStatus");
-      const instanciaAntiga = bootstrap.Popover.getInstance($badgeAntigo[0]);
-      if (instanciaAntiga) {
-        instanciaAntiga.dispose();
+      if ($badgeAntigo.length) {
+        const instanciaAntiga = bootstrap.Popover.getInstance($badgeAntigo[0]);
+        if (instanciaAntiga) {
+          instanciaAntiga.dispose();
+        }
       }
 
       const $badgeNovo = this.construirBadgeStatus(infoStatus);
-      $badgeAntigo.replaceWith($badgeNovo);
+      if ($badgeAntigo.length) {
+        $badgeAntigo.replaceWith($badgeNovo);
+      } else {
+        $card.find(".rodapeConsulta").append($badgeNovo);
+      }
       new bootstrap.Popover($badgeNovo[0]);
 
       return $badgeNovo;

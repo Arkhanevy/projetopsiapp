@@ -176,11 +176,11 @@
     </section>
   </main>
 
-  <footer class="rodapeHome">
-    <div class="container d-flex flex-wrap justify-content-between gap-2">
-      <a href="mailto:centralPodopsi@gmail.com">Fale conosco</a>
-      <a href="mailto:centralPodopsi@gmail.com">centralPodopsi@gmail.com</a>
-    </div>
+  <footer class="rodapeHome"><nav class="container d-flex flex-wrap justify-content-between gap-2" aria-label="Perfis da equipe no GitHub">
+      <a href="https://github.com/Arkhanevy" target="_blank" rel="noopener noreferrer">GitHub: Arkhanevy</a>
+      <a href="https://github.com/Marilu-bit" target="_blank" rel="noopener noreferrer">GitHub: Marilu-bit</a>
+      <a href="https://github.com/paodequeijo123" target="_blank" rel="noopener noreferrer">GitHub: paodequeijo123</a>
+    </nav>
   </footer>
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

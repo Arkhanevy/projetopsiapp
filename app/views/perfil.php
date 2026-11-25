@@ -176,6 +176,17 @@
               </div>
             </section>
 
+            <section class="secaoPerfil" id="secaoSalas" aria-labelledby="tituloSalas" data-somenteDono hidden>
+              <h2 class="secaoPerfil_titulo" id="tituloSalas">Salas</h2>
+              <div class="secaoPerfil_caixa">
+                <div class="estadoVazio" data-estadoVazio="salas">
+                  <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">meeting_room</span>
+                  <p class="estadoVazio_texto" data-campo="textoSalasVazio">Nenhuma sala cadastrada</p>
+                </div>
+                <ul class="list-unstyled mb-0" data-lista="salas" hidden></ul>
+              </div>
+            </section>
+
             <section class="secaoPerfil" aria-labelledby="tituloServicosClinica" data-perfilDe="clinica" hidden>
               <h2 class="secaoPerfil_titulo" id="tituloServicosClinica">Serviços oferecidos</h2>
               <div class="secaoPerfil_caixa">
@@ -492,6 +503,24 @@
                 </button>
               </div>
             </form>
+
+            <section class="secaoPerfil mt-4" id="editorSalas" aria-labelledby="tituloEditorSalas">
+              <h3 class="secaoPerfil_titulo" id="tituloEditorSalas">Salas</h3>
+              <div class="secaoPerfil_caixa">
+                <p class="form-text" data-campo="avisoSalasSemLocal" hidden>Salve a localização antes de adicionar salas.</p>
+                <p class="form-text" data-campo="avisoSalasVazio" hidden>Nenhuma sala cadastrada.</p>
+                <ul class="list-unstyled mb-0" data-lista="editorSalas"></ul>
+                <div class="input-group mt-3" data-campo="novaSalaGrupo">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="campoNovaSala" maxlength="50" placeholder="Nova sala" autocomplete="off">
+                    <label for="campoNovaSala">Nova sala</label>
+                  </div>
+                  <button type="button" class="btn botaoBase botaoBase--secundario" id="botaoAdicionarSala">
+                    <span class="material-symbols-outlined" aria-hidden="true">add</span>Adicionar
+                  </button>
+                </div>
+              </div>
+            </section>
           </div>
 
           <div class="visaoPerfil" data-visao="cadastroHorarios" hidden>

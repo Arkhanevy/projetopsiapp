@@ -31,6 +31,7 @@
       },
       clinica: {
         // Sem inicio/agenda: a clínica não exibe "Início" nem "Agenda" no menu.
+        agenda: "index.php?uri=agendaClinica",
         perfil: "index.php?uri=perfil"
       }
     },

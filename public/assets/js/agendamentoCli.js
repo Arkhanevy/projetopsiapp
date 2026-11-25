@@ -24,6 +24,7 @@
       urlVerificarLogin: "index.php?uri=cliente",
       urlInfoServico: "index.php?uri=infoServico",
       urlCadastroCliente: "index.php?uri=cliente",
+      urlPerfilCliente: "index.php?uri=cliente",
 
       contratos: {
         mostrarSala: { acao: "mostrarSala", disponivel: true }
@@ -46,7 +47,12 @@
       horarioSelecionado: null,
       salaSelecionada: null,
       emailPendente: null,
-      retomarAposLogin: false
+      retomarAposLogin: false,
+      bloqueioDomiciliar: false,
+      tokenDomiciliar: 0,
+      loginPorAvisoDomiciliar: false,
+      reverificarDomiciliar: false,
+      perfilAtualizado: false
     },
 
     elementos: {},
@@ -262,6 +268,7 @@
           );
 
           Utilitarios.alternarEsqueletoAcessivel(self.elementos.$camposDinamicos, false);
+          self.verificarRequisitosDomiciliar();
           self.carregarProfissional(resposta.dados[0].ser_pro);
           self.buscarDiasIndisponiveis(self.estado.dataExibida);
         })
@@ -337,12 +344,6 @@
       this.esconderAlertaValidacao();
       this.resetarSala();
 
-      if (this.ehAtendimentoDomiciliar()) {
-        this.elementos.$textoSala.text("Atendimento domiciliar — sala não necessária");
-        this.elementos.$botaoSala.prop("disabled", true);
-        return;
-      }
-
       $.ajax({
         url: this.configuracao.urlServico,
         method: "POST",
@@ -370,6 +371,14 @@
           }
 
           self.renderizarSalas(resposta.dados);
+
+          // Consulta domiciliar: o back exige uma sala, mas o cliente não escolhe.
+          // Usa a primeira sala livre devolvida pelo mostrarSala e mantém o seletor desabilitado.
+          if (self.ehAtendimentoDomiciliar()) {
+            self.selecionarSala(resposta.dados[0].sala_id, self.nomeDaSala(resposta.dados[0]), true);
+            return;
+          }
+
           self.elementos.$botaoSala.prop("disabled", false);
 
           if (resposta.dados.length === 1) {
@@ -386,7 +395,376 @@
 
     ehAtendimentoDomiciliar: function () {
       const servico = this.estado.servico || {};
+      if (String(servico.loc_tipo || "").trim().toLowerCase() === "domi") {
+        return true;
+      }
       return servico.ser_loc === null || typeof servico.ser_loc === "undefined" || String(servico.ser_loc).trim() === "";
+    },
+
+    // ---- Consulta domiciliar: exige usuário completo (logado e com telefone) ----
+
+    // Chamado assim que os dados do serviço são carregados (e após login pelo aviso).
+    // Se aoLiberar for informado, ele só roda quando o cliente estiver apto.
+    verificarRequisitosDomiciliar: function (aoLiberar) {
+      const self = this;
+      const token = ++this.estado.tokenDomiciliar;
+
+      this.removerAvisoDomiciliar();
+      this.removerAvisoEnderecoDomiciliar();
+      this.estado.bloqueioDomiciliar = false;
+
+      if (!this.ehAtendimentoDomiciliar()) {
+        if (aoLiberar) {
+          aoLiberar();
+        }
+        return;
+      }
+
+      this.exibirAvisoEnderecoDomiciliar();
+
+      $.ajax({
+        url: this.configuracao.urlVerificarLogin,
+        method: "POST",
+        dataType: "json",
+        data: { acao: "verificarLogin" }
+      })
+        .done(function (resposta) {
+          if (token !== self.estado.tokenDomiciliar) {
+            return;
+          }
+          if (!resposta || !resposta.logado) {
+            self.bloquearPorFaltaDeLogin();
+            return;
+          }
+          self.verificarTelefoneDoCliente(token, aoLiberar);
+        })
+        .fail(function () {
+          // Sem resposta confiável não bloqueamos; a checagem é refeita ao confirmar.
+        });
+    },
+
+    // Usa o PegarPerfil do cliente para saber se ele tem telefone cadastrado.
+    verificarTelefoneDoCliente: function (token, aoLiberar) {
+      const self = this;
+
+      $.ajax({
+        url: this.configuracao.urlPerfilCliente,
+        method: "POST",
+        dataType: "json",
+        data: { acao: "PegarPerfil" }
+      })
+        .done(function (resposta) {
+          if (token !== self.estado.tokenDomiciliar) {
+            return;
+          }
+          if (!resposta || !resposta.sucesso || !$.isArray(resposta.dados1) || !resposta.dados1.length) {
+            self.exibirAlertaValidacao("Não foi possível verificar seu perfil. Tente novamente.");
+            return;
+          }
+
+          const telefone = String(resposta.dados1[0].cli_tel || "").replace(/\D/g, "");
+          if (!telefone) {
+            self.bloquearPorPerfilSimples();
+            return;
+          }
+
+          self.removerAvisoDomiciliar();
+          self.estado.bloqueioDomiciliar = false;
+          if (aoLiberar) {
+            aoLiberar();
+          }
+        })
+        .fail(function () {
+          if (token !== self.estado.tokenDomiciliar) {
+            return;
+          }
+          self.exibirAlertaValidacao("Não foi possível verificar seu perfil. Tente novamente.");
+        });
+    },
+
+    bloquearPorFaltaDeLogin: function () {
+      const self = this;
+      this.estado.bloqueioDomiciliar = true;
+      this.exibirAvisoDomiciliar({
+        icone: "home",
+        titulo: "Consulta no seu endereço",
+        mensagem:
+          "Este tipo de consulta precisa ser agendado com um usuário completo. " +
+          "Faça login para continuar.",
+        rotuloBotao: "Fazer login",
+        aoClicar: function () {
+          self.estado.loginPorAvisoDomiciliar = true;
+          self.abrirPainel(self.elementos.$painelLogin);
+        }
+      });
+    },
+
+    bloquearPorPerfilSimples: function () {
+      const self = this;
+      this.estado.bloqueioDomiciliar = true;
+      this.exibirAvisoDomiciliar({
+        icone: "block",
+        titulo: "Agendamento não permitido",
+        mensagem:
+          "Você não tem permissão para realizar este agendamento por ser um cliente simples. " +
+          "Complete seu perfil com um telefone para agendar consultas domiciliares.",
+        rotuloBotao: "Editar perfil",
+        aoClicar: function () {
+          self.abrirEdicaoPerfil();
+        }
+      });
+    },
+
+    exibirAvisoDomiciliar: function (opcoes) {
+      this.removerAvisoDomiciliar();
+
+      const $texto = $('<div class="flex-grow-1"></div>')
+        .append($('<h2 class="h6 mb-1"></h2>').text(opcoes.titulo))
+        .append($('<p class="mb-0"></p>').text(opcoes.mensagem));
+      const $botao = $('<button type="button" class="btn btn-primary"></button>')
+        .text(opcoes.rotuloBotao)
+        .on("click", opcoes.aoClicar);
+      const $icone = $('<span class="material-symbols-outlined text-warning" aria-hidden="true"></span>')
+        .text(opcoes.icone);
+      const $corpo = $('<div class="card-body d-flex flex-column flex-sm-row align-items-sm-center gap-3"></div>')
+        .append($icone, $texto, $botao);
+
+      $('<div id="avisoDomiciliar" class="card border-warning mb-3" role="alert"></div>')
+        .append($corpo)
+        .insertBefore(this.elementos.$form);
+    },
+
+    removerAvisoDomiciliar: function () {
+      $("#avisoDomiciliar").remove();
+    },
+
+    // Mensagem em vermelho: o endereço não é informado no agendamento.
+    exibirAvisoEnderecoDomiciliar: function () {
+      this.removerAvisoEnderecoDomiciliar();
+
+      const $icone = $('<span class="material-symbols-outlined" aria-hidden="true"></span>').text("call");
+      const $texto = $('<span class="fw-semibold"></span>').text(
+        "Para consultas no seu endereço, use o telefone do profissional na seção Contatos " +
+          "para informar o endereço a ele."
+      );
+
+      $('<div id="avisoEnderecoDomiciliar" class="alert alert-danger d-flex align-items-center gap-2 mb-3" role="note"></div>')
+        .append($icone, $texto)
+        .insertBefore(this.elementos.$form);
+    },
+
+    removerAvisoEnderecoDomiciliar: function () {
+      $("#avisoEnderecoDomiciliar").remove();
+    },
+
+    destacarAvisoDomiciliar: function () {
+      const $aviso = $("#avisoDomiciliar");
+      if ($aviso.length) {
+        $aviso.get(0).scrollIntoView({ behavior: "smooth", block: "center" });
+        $aviso.find("button").trigger("focus");
+      }
+    },
+
+    // ---- Painel "Complete seu cadastro" (prefill via PegarPerfil, grava via atualizar) ----
+
+    garantirPainelPerfil: function () {
+      const self = this;
+      const el = this.elementos;
+
+      if (el.$painelPerfil && el.$painelPerfil.length) {
+        return;
+      }
+
+      const html =
+        '<div class="offcanvas offcanvas-end" tabindex="-1" id="painelCompletarPerfil" aria-labelledby="tituloCompletarPerfil">' +
+        '  <div class="offcanvas-header">' +
+        '    <h2 class="offcanvas-title h5" id="tituloCompletarPerfil">Complete seu cadastro</h2>' +
+        '    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>' +
+        '  </div>' +
+        '  <div class="offcanvas-body">' +
+        '    <p class="text-body-secondary">Para agendar consultas no seu endereço, informe seu telefone de contato.</p>' +
+        '    <div id="alertaCompletarPerfil"></div>' +
+        '    <form id="formularioCompletarPerfil" novalidate>' +
+        '      <div class="mb-3">' +
+        '        <label for="inputNomeCompletarPerfil" class="form-label">Nome</label>' +
+        '        <input type="text" class="form-control" id="inputNomeCompletarPerfil" autocomplete="name">' +
+        '      </div>' +
+        '      <div class="mb-3">' +
+        '        <label for="inputEmailCompletarPerfil" class="form-label">E-mail</label>' +
+        '        <input type="email" class="form-control" id="inputEmailCompletarPerfil" readonly>' +
+        '      </div>' +
+        '      <div class="mb-3">' +
+        '        <label for="inputTelefoneCompletarPerfil" class="form-label">Telefone</label>' +
+        '        <input type="tel" class="form-control" id="inputTelefoneCompletarPerfil" inputmode="tel" autocomplete="tel" placeholder="(11) 91234-5678">' +
+        '      </div>' +
+        '      <button type="submit" class="btn btn-primary w-100" id="botaoSalvarCompletarPerfil">Salvar</button>' +
+        '    </form>' +
+        '  </div>' +
+        '</div>';
+
+      el.$painelPerfil = $(html).appendTo(document.body);
+      el.$formPerfil = el.$painelPerfil.find("#formularioCompletarPerfil");
+      el.$alertaPerfil = el.$painelPerfil.find("#alertaCompletarPerfil");
+      el.$inputNomePerfil = el.$painelPerfil.find("#inputNomeCompletarPerfil");
+      el.$inputEmailPerfil = el.$painelPerfil.find("#inputEmailCompletarPerfil");
+      el.$inputTelefonePerfil = el.$painelPerfil.find("#inputTelefoneCompletarPerfil");
+      el.$botaoSalvarPerfil = el.$painelPerfil.find("#botaoSalvarCompletarPerfil");
+
+      el.$formPerfil.on("submit", function (evento) {
+        evento.preventDefault();
+        self.salvarPerfil();
+      });
+
+      el.$formPerfil.on("input change", ".form-control", function () {
+        $(this).removeClass("is-invalid").removeAttr("aria-invalid");
+      });
+
+      el.$inputTelefonePerfil.on("input", function () {
+        const digitos = $(this).val().replace(/\D/g, "").slice(0, 11);
+        $(this).val(self.formatarTelefone(digitos));
+      });
+
+      el.$painelPerfil.on("shown.bs.offcanvas", function () {
+        if (el.$inputNomePerfil.val()) {
+          el.$inputTelefonePerfil.trigger("focus");
+        } else {
+          el.$inputNomePerfil.trigger("focus");
+        }
+      });
+
+      el.$painelPerfil.on("hidden.bs.offcanvas", function () {
+        const atualizado = self.estado.perfilAtualizado;
+        self.estado.perfilAtualizado = false;
+        self.limparPerfil();
+        if (atualizado) {
+          self.verificarRequisitosDomiciliar();
+        }
+      });
+    },
+
+    formatarTelefone: function (valor) {
+      const d = String(valor || "").replace(/\D/g, "");
+      if (!d.length) {
+        return "";
+      }
+      if (d.length <= 2) {
+        return "(" + d;
+      }
+      if (d.length <= 6) {
+        return "(" + d.slice(0, 2) + ") " + d.slice(2);
+      }
+      if (d.length <= 10) {
+        return "(" + d.slice(0, 2) + ") " + d.slice(2, 6) + "-" + d.slice(6);
+      }
+      return "(" + d.slice(0, 2) + ") " + d.slice(2, 7) + "-" + d.slice(7);
+    },
+
+    // Busca o perfil atual (PegarPerfil), preenche o formulário e abre o painel.
+    abrirEdicaoPerfil: function () {
+      const self = this;
+
+      this.garantirPainelPerfil();
+      const el = this.elementos;
+      el.$alertaPerfil.empty();
+
+      const falhou = function () {
+        self.exibirAlertaValidacao("Não foi possível carregar seu perfil. Tente novamente.");
+      };
+
+      $.ajax({
+        url: this.configuracao.urlPerfilCliente,
+        method: "POST",
+        dataType: "json",
+        data: { acao: "PegarPerfil" }
+      })
+        .done(function (resposta) {
+          if (!resposta || !resposta.sucesso || !$.isArray(resposta.dados1) || !resposta.dados1.length) {
+            falhou();
+            return;
+          }
+
+          const perfil = resposta.dados1[0];
+          el.$inputNomePerfil.val(perfil.cli_nome || "");
+          el.$inputEmailPerfil.val(perfil.cli_email || "");
+          el.$inputTelefonePerfil.val(self.formatarTelefone(perfil.cli_tel));
+          self.abrirPainel(el.$painelPerfil);
+        })
+        .fail(falhou);
+    },
+
+    salvarPerfil: function () {
+      const self = this;
+      const el = this.elementos;
+
+      const nome = $.trim(el.$inputNomePerfil.val());
+      const telefone = el.$inputTelefonePerfil.val().replace(/\D/g, "");
+
+      const existeCampoVazio = Utilitarios.validarCampos([
+        { valor: nome, el: el.$inputNomePerfil },
+        { valor: telefone, el: el.$inputTelefonePerfil }
+      ]);
+
+      if (existeCampoVazio) {
+        this.mostrarAlertaPainel(el.$alertaPerfil, "Preencha todos os campos obrigatórios!", "danger");
+        el.$formPerfil.find(".is-invalid").attr("aria-invalid", "true").first().trigger("focus");
+        return;
+      }
+
+      if (telefone.length < 10 || telefone.length > 11) {
+        Utilitarios.marcarCamposComErro(el.$alertaPerfil, [el.$inputTelefonePerfil], "Telefone inválido!");
+        el.$inputTelefonePerfil.attr("aria-invalid", "true").trigger("focus");
+        return;
+      }
+
+      el.$botaoSalvarPerfil.prop("disabled", true).text("Salvando...");
+      el.$formPerfil.attr("aria-busy", "true");
+
+      // A ordem de "valores" precisa seguir a ordem de "atualizacao" (cli_nome, cli_tel).
+      $.ajax({
+        url: this.configuracao.urlPerfilCliente,
+        method: "POST",
+        dataType: "json",
+        data: {
+          acao: "atualizar",
+          atualizacao: ["nome", "telefone"],
+          valores: [nome, telefone]
+        }
+      })
+        .done(function (resposta) {
+          if (resposta && resposta.sucesso === true) {
+            self.estado.perfilAtualizado = true;
+            self.mostrarAlertaPainel(el.$alertaPerfil, "Perfil atualizado!", "success");
+            setTimeout(function () {
+              self.fecharPainel(el.$painelPerfil);
+            }, 800);
+            return;
+          }
+
+          self.restaurarBotaoPerfil();
+          self.mostrarAlertaPainel(
+            el.$alertaPerfil,
+            (resposta && resposta.mensagem) || "Não foi possível atualizar o perfil.",
+            "danger"
+          );
+        })
+        .fail(function () {
+          self.restaurarBotaoPerfil();
+          self.mostrarAlertaPainel(el.$alertaPerfil, "Erro na requisição!", "danger");
+        });
+    },
+
+    restaurarBotaoPerfil: function () {
+      this.elementos.$botaoSalvarPerfil.prop("disabled", false).text("Salvar");
+      this.elementos.$formPerfil.removeAttr("aria-busy");
+    },
+
+    limparPerfil: function () {
+      const el = this.elementos;
+
+      el.$formPerfil.get(0).reset();
+      el.$formPerfil.find(".form-control").removeClass("is-invalid").removeAttr("aria-invalid");
+      el.$alertaPerfil.empty();
+      this.restaurarBotaoPerfil();
     },
 
     nomeDaSala: function (sala) {
@@ -556,39 +934,37 @@
     },
     
 
-
-
     verificarHorariosDosDias: function () {
-      const self = this;
-      const token = this.estado.tokenDias;
-      const servico = this.estado.servico || {};
-
-      this.estado.diasLivres.forEach(function (dataChave) {
-        $.ajax({
-          url: self.configuracao.urlServico,
-          method: "POST",
-          dataType: "json",
-          data: {
-              acao: "mostrarhorario",
-              id: this.estado.idServico,
-              dia: dataChave,
-              agnd_pro: servico.ser_pro,
-              agnd_clin: servico.ser_clin,
-              ser_dur: servico.ser_dur,
-              ser_inter: servico.ser_inter
-          }
-        }).done(function (resposta) {
-          if (token !== self.estado.tokenDias) {
-            return;
-          }
-          if (self.diaTemHorario(dataChave, resposta) === false) {
-            self.marcarDiaSemHorario(dataChave);
-          }
+        const self = this;
+        const token = this.estado.tokenDias;
+        const servico = this.estado.servico || {};
+    
+        this.estado.diasLivres.forEach(function (dataChave) {
+            $.ajax({
+                url: self.configuracao.urlServico,
+                method: "POST",
+                dataType: "json",
+                data: {
+                    acao: "mostrarhorario",
+                    id: self.estado.idServico,
+                    dia: dataChave,
+                    agnd_pro: servico.ser_pro,
+                    agnd_clin: servico.ser_clin,
+                    ser_dur: servico.ser_dur,
+                    ser_inter: servico.ser_inter
+                }
+            }).done(function (resposta) {
+                if (token !== self.estado.tokenDias) {
+                    return;
+                }
+    
+                if (self.diaTemHorario(dataChave, resposta) === false) {
+                    self.marcarDiaSemHorario(dataChave);
+                }
+            });
         });
-        // Falha em um dia isolado: o dia continua disponível; o clique
-        // volta a validar os horários normalmente.
-      });
     },
+
 
     marcarDiaSemHorario: function (dataChave) {
       if (this.estado.diasSemHorario.indexOf(dataChave) === -1) {
@@ -920,6 +1296,11 @@
     },
 
     tentarConfirmarAgendamento: function () {
+      if (this.estado.bloqueioDomiciliar) {
+        this.destacarAvisoDomiciliar();
+        return;
+      }
+
       const self = this;
       let camposValidos = true;
       let $primeiroInvalido = null;
@@ -936,7 +1317,7 @@
         camposValidos = false;
       }
 
-      if (this.estado.horarioSelecionado && !this.ehAtendimentoDomiciliar() && !this.estado.salaSelecionada) {
+      if (this.estado.horarioSelecionado && !this.estado.salaSelecionada) {
         this.marcarCampoComErro(this.elementos.$botaoSala);
         $primeiroInvalido = $primeiroInvalido || this.elementos.$botaoSala;
         camposValidos = false;
@@ -965,7 +1346,14 @@
       })
         .done(function (resposta) {
           if (resposta && resposta.logado) {
-            self.enviarAgendamento(self.ehAtendimentoDomiciliar() ? null : self.estado.salaSelecionada);
+            const enviar = function () {
+              self.enviarAgendamento(self.estado.salaSelecionada);
+            };
+            if (self.ehAtendimentoDomiciliar()) {
+              self.verificarTelefoneDoCliente(++self.estado.tokenDomiciliar, enviar);
+            } else {
+              enviar();
+            }
           } else {
             self.exibirModalNaoLogado();
           }
@@ -1336,10 +1724,15 @@
 
       el.$painelLogin.on("hidden.bs.offcanvas", function () {
         const retomar = self.estado.retomarAposLogin;
+        const reverificar = self.estado.reverificarDomiciliar;
+        self.estado.loginPorAvisoDomiciliar = false;
+        self.estado.reverificarDomiciliar = false;
         self.limparLogin();
         if (retomar) {
           self.estado.retomarAposLogin = false;
           self.verificarLoginEEnviar();
+        } else if (reverificar) {
+          self.verificarRequisitosDomiciliar();
         }
       });
 
@@ -1521,7 +1914,11 @@
           if (resposta && resposta.sucesso === true) {
             // O agendamento é retomado quando o painel termina de fechar
             // (handler de hidden.bs.offcanvas em registrarEventosAtivacaoELogin).
-            self.estado.retomarAposLogin = true;
+            if (self.estado.loginPorAvisoDomiciliar) {
+              self.estado.reverificarDomiciliar = true;
+            } else {
+              self.estado.retomarAposLogin = true;
+            }
             self.fecharPainel(el.$painelLogin);
             return;
           }

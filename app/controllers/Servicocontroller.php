@@ -10,7 +10,7 @@ $servico = new servicos();
 switch ($acao){
     case "cadastrar":
         if ($_SESSION['usuario']['tipoUsuario'] === 'clinica') {
-            $pro = null;
+            $pro = $_POST['pro'];
             $clin = $_SESSION['usuario']['idUsuario'];
         }
         if ($_SESSION['usuario']['tipoUsuario'] === 'profissional') {
