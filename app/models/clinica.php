@@ -10,7 +10,7 @@ class clinica extends usuario {
     public function __construct($table,$campo,$primary) {
         parent::__construct($table,$campo,$primary);}
         
-    public function Cadastrarclinica($nome,$email,$foto,$username,$senha,$bio,$CNPJ,$CEP,$telefone) {
+    public function Cadastrarclinica($nome,$email,$foto,$username,$senha,$bio,$CNPJ,$telefone) {
             $dados =[
                 0,
                 $nome,
@@ -24,7 +24,6 @@ class clinica extends usuario {
                 null, #PAULO
                 "desativo",
                 $CNPJ,
-                $CEP,
                 $telefone
                
             ];
@@ -126,9 +125,9 @@ class clinica extends usuario {
             }
             
             // 8 campos: quando a clínica envia, ela já vai em notif_clin (não há 9º campo de remetente)
-            $camposnot = ['notif_id','notif_pd','notif_clin','notif_dest','notif_tipo','notif_msg','notif_data','notif_stat'];
+            $camposnot = ['notif_id','notif_pd','notif_clin','notif_dest','notif_dtipo','notif_tipo','notif_msg','notif_data','notif_stat'];
             $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $clinId, 'clinica');
-            return $notificacao->enviar(notificacao::CONVITE_VINCULO, $proId, $clinId);
+            return $notificacao->enviar(notificacao::CONVITE_VINCULO, $proId, 'profissional', $clinId);
         }
 
         // TESTE - MARIA

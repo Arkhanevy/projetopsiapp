@@ -29,14 +29,14 @@ switch ($acao){
         exit;
         
     case "ReGerarCodigo":
-        $camposcli = [$campos[2], $campos[7]];
+        $camposcli = [$campos[2], $campos[6]];
         $cliente = new cliente('cliente',$camposcli,$camposcli[0]);
         $resultado = $cliente->GerarCodigo($_POST['email']);
         echo json_encode($resultado);
         exit;
         
     case "ativar":
-        $camposcli = [$campos[2], $campos[7],$campos[11]];
+        $camposcli = [$campos[2], $campos[6],$campos[10]];
         $cliente = new cliente('cliente', $camposcli, $camposcli[0]);
         $resultado = $cliente->Ativar($_POST['email'], $_POST['cod']);
         echo json_encode($resultado);
@@ -93,7 +93,7 @@ switch ($acao){
         echo json_encode(['logado' => $logado]);
         exit;
     case "PegarPerfil":
-        $camposcli = [$campos[0],$campos[1],$campos[5],$campos[6]];
+        $camposcli = [$campos[0],$campos[1],$campos[4],$campos[5]];
         $cliente = new cliente('cliente', $camposcli, $camposcli[0]);
         $download  =new download();
             

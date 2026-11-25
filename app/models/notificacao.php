@@ -141,7 +141,7 @@ class notificacao {
        ];
        // 9º campo (notif_pro / notif_cli) = quem enviou. Quando a clínica envia,
        // ela já vai em notif_clin, então a lista de campos vem com só 8 itens.
-       if (is_array($this->campos) && count($this->campos) > 8) {
+       if (is_array($this->campos) && count($this->campos) > 9) {
            $dados[] = $this->id;
        }
        

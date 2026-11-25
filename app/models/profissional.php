@@ -7,6 +7,7 @@ use core\database\DBConnection;
 //use core\utils\Mail;
 use core\database\Where;
 use models\usuario;
+use Throwable;
 
 
 class profissional extends usuario {
@@ -182,7 +183,7 @@ class profissional extends usuario {
             
             $pdo->commit();
             return ['sucesso' => true, 'mensagem' => 'Vínculo aceito e permissões herdadas com sucesso!', 'pc_id' => $novoPc];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             if ($pdo && $pdo->inTransaction()) {
                 $pdo->rollBack();
             }
@@ -209,7 +210,34 @@ class profissional extends usuario {
                  ORDER BY c.clin_nome");
             $st->execute([':pro' => $proId]);
             return ['sucesso' => true, 'dados' => $st->fetchAll(\PDO::FETCH_ASSOC)];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
+            return ['sucesso' => false, 'mensagem' => $e->getMessage()];
+        }
+    }
+
+    // Profissional remove seu próprio vínculo com uma clínica.
+    public function desvincularClinica($proId, $clinId) {
+        $proId = (int) $proId;
+        $clinId = (int) $clinId;
+        $pdo = null;
+        try {
+            if ($proId <= 0 || $clinId <= 0) {
+                return ['sucesso' => false, 'mensagem' => 'Dados de vínculo inválidos.'];
+            }
+            $pdo = (new DBConnection())->getConn();
+            $st = $pdo->prepare("SELECT pc_id FROM profissional_clinica WHERE pc_pro = :pro AND pc_clin = :clin");
+            $st->execute([':pro' => $proId, ':clin' => $clinId]);
+            $pc = $st->fetchColumn();
+            if ($pc === false) {
+                return ['sucesso' => false, 'mensagem' => 'Vínculo não encontrado ou já removido.'];
+            }
+            $pdo->beginTransaction();
+            $pdo->prepare("DELETE FROM permissoes WHERE perm_pc = :pc")->execute([':pc' => $pc]);
+            $pdo->prepare("DELETE FROM profissional_clinica WHERE pc_id = :pc")->execute([':pc' => $pc]);
+            $pdo->commit();
+            return ['sucesso' => true, 'mensagem' => 'Vínculo com a clínica removido com sucesso!'];
+        } catch (Throwable $e) {
+            if ($pdo && $pdo->inTransaction()) $pdo->rollBack();
             return ['sucesso' => false, 'mensagem' => $e->getMessage()];
         }
     }
@@ -223,7 +251,7 @@ class profissional extends usuario {
             }
             $pdo->prepare("DELETE FROM notificacao WHERE notif_id = :n")->execute([':n' => (int) $convite['notif_id']]);
             return ['sucesso' => true, 'mensagem' => 'Convite recusado.'];
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return ['sucesso' => false, 'mensagem' => $e->getMessage()];
         }
     }

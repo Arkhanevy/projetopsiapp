@@ -253,6 +253,16 @@ switch ($acao){
         echo json_encode($resultado);
         exit;
 
+    case 'desvincular':
+        if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'profissional') {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'Somente profissionais podem remover seus próprios vínculos.']);
+            exit;
+        }
+        $profissional = new profissional('profissional', $campos, $campos[0]);
+        $resultado = $profissional->desvincularClinica($_SESSION['usuario']['idUsuario'], $_POST['clin_id'] ?? 0);
+        echo json_encode($resultado);
+        exit;
+
     case 'recusar_vinculo':
         if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'profissional') {
             echo json_encode(['sucesso' => false, 'mensagem' => 'Somente profissionais podem recusar convites.']);

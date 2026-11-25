@@ -172,7 +172,7 @@ switch ($acao){
         exit;
     case "atendimento":
         if($_SESSION['usuario']['tipoUsuario'] != 'profissional'){echo json_encode(['sucesso' => false, 'mensagem' => 'somente profissionais podem dizer se o clinte foi atendido ou não compareceu']);}
-        $atendimento = $servico->atentimento($_POST['agnd_pro'], $_POST['agnd_clin'] ?? 0, $_POST['agnd_id'], $_POST['agnd_cli'], $_POST['agnd_ser'],$_POST['tipo']);        
+        $atendimento = $servico->atentimento($_POST['agnd_pro'], $_POST['agnd_clin'] ?? null, $_POST['agnd_id'], $_POST['agnd_cli'], $_POST['agnd_ser'],$_POST['tipo']);        
         echo json_encode($atendimento);
         exit;
 }

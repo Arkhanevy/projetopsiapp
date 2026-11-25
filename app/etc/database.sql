@@ -1,3 +1,6 @@
+create  database dbelmo;
+use dbelmo;
+
 
 create table clinica( -- tabela com os dados do perifil da clinica
 	clin_id int auto_increment primary key, -- id da clinica
