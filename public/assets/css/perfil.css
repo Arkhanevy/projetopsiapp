@@ -625,3 +625,16 @@
     transition: none;
   }
 }
+
+/* Tabelas do perfil sem barra de rolagem: o texto quebra dentro das colunas */
+[data-tabela] table,
+.tabelaSemRolagem table {
+  width: 100%;
+}
+
+[data-tabela] th,
+[data-tabela] td,
+.tabelaSemRolagem th,
+.tabelaSemRolagem td {
+  overflow-wrap: anywhere;
+}

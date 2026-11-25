@@ -146,6 +146,15 @@ switch ($acao){
         $listar = $notificacâo->listar();
         echo json_encode($listar);
         exit;
+    //TESTE - MARIA
+    case 'lernot':
+        if (!isset($_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario'])) {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'Faça login para continuar.']);
+            exit;
+        }
+        $notificacâo = new notificacao('notificacao', 'notif_id,notif_stat', 'notif_id', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        echo json_encode($notificacâo->lido($_POST['not_id'] ?? 0));
+        exit;
     case 'meusArquivos':
         $arquivos = new download();
         $resultado = $arquivos->meusarquivos($_SESSION['usuario']['idUsuario'], 'cliente', 'cli_id');

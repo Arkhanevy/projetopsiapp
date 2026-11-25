@@ -173,7 +173,30 @@ switch ($acao) {
         echo json_encode($listar);
         exit();
 
-    // ---------- ASSOCIAÇÃO CLÍNICA <-> PROFISSIONAL ----------
+    //TESTE - MARIA
+    case 'lernot':
+        if (!isset($_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario'])) {
+            echo json_encode(['sucesso' => false, 'mensagem' => 'Faça login para continuar.']);
+            exit();
+        }
+        $notificacâo = new notificacao('notificacao', 'notif_id,notif_stat', 'notif_id', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
+        echo json_encode($notificacâo->lido($_POST['not_id'] ?? 0));
+        exit();
+
+    case 'listarVinculos':
+        $idPerfil = (int) ($_POST['idPerfil'] ?? 0);
+        if ($idPerfil <= 0) {
+            if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'clinica') {
+                echo json_encode(['sucesso' => false, 'mensagem' => 'Faça login como clínica para listar os vínculos.']);
+                exit();
+            }
+            $idPerfil = (int) $_SESSION['usuario']['idUsuario'];
+        }
+        $clinica = new clinica('clinica', $campos, $campos[0]);
+        echo json_encode($clinica->listarProfissionaisVinculados($idPerfil));
+        exit();
+
+        // ---------- ASSOCIAÇÃO CLÍNICA <-> PROFISSIONAL ----------
     // A clínica só ENVIA O CONVITE (notificação). O vínculo é criado quando o
     // profissional aceita (profissionalcontroller -> aceitar_vinculo).
     case "vincular":

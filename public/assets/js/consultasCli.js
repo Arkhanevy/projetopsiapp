@@ -39,7 +39,7 @@
     configuracao: {
       urlObterConsultas:   "index.php?uri=cliente",
       urlCancelarConsulta: "index.php?uri=servico",
-      urlLogin:            "index.php?uri=loginCliente"
+      urlLogin:            "index.php?uri=login"
     },
 
 

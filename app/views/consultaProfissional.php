@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="public/assets/css/variaveis.css" />
   <link rel="stylesheet" href="public/assets/css/componentes.css" />
   <link rel="stylesheet" href="public/assets/css/consultasPro.css" />
+  <link rel="stylesheet" href="public/assets/css/responsivo.css" />
 </head>
 <body>
 

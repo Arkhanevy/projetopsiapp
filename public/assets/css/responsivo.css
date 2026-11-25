@@ -1,0 +1,175 @@
+/*
+  responsivo.css
+  Breakpoints para telas MENORES e MAIORES do que as já usadas no projeto.
+
+  Já existiam (padrão Bootstrap, mobile-first):
+    576px | 768px | 992px | 1200px  e  max 575.98px / 400px
+
+  Novos neste arquivo:
+    Menores:  max 359.98px  (celulares pequenos, ex.: 320-359px)
+              max 319.98px  (telas mínimas, ex.: Galaxy Fold fechado, 280px)
+    Maiores:  min 1400px    (desktop largo, "xxl" do Bootstrap)
+              min 1920px    (Full HD / monitores grandes)
+              min 2560px    (QHD / 4K / ultrawide)
+
+  Carregue este arquivo por último no <head>, depois dos CSS de cada página,
+  para que os valores daqui vençam quando o breakpoint se aplicar.
+  Os tamanhos de texto e espaços usam as variáveis de variaveis.css, então
+  ajustar o :root aqui já reescala o site inteiro.
+*/
+
+
+/* ========== MENORES ========== */
+
+@media (max-width: 359.98px) {
+
+  :root {
+    --tamanhoH1: 28px;
+    --tamanhoH2: 22px;
+    --tamanhoH3: 18px;
+    --tamanhoBody: 15px;
+    --tamanhoSmall: 13px;
+
+    --espaco5: 20px;
+    --espaco6: 24px;
+    --espaco7: 32px;
+  }
+
+  .container,
+  .container-fluid {
+    --bs-gutter-x: 1rem;
+  }
+
+  h1, h2, h3 {
+    overflow-wrap: anywhere;
+  }
+
+  .botaoBase {
+    --bs-btn-padding-x: var(--espaco3);
+  }
+
+  .conteudoDetalheServico,
+  .conteudoConsultas {
+    padding-left: var(--espaco3);
+    padding-right: var(--espaco3);
+  }
+
+  .areaContatos {
+    padding-left: var(--espaco3);
+    padding-right: var(--espaco3);
+  }
+}
+
+@media (max-width: 319.98px) {
+
+  :root {
+    --tamanhoH1: 24px;
+    --tamanhoH2: 20px;
+    --tamanhoH3: 17px;
+
+    --espaco4: 12px;
+    --espaco5: 16px;
+    --espaco6: 20px;
+    --espaco7: 24px;
+  }
+
+  .container,
+  .container-fluid {
+    --bs-gutter-x: 0.75rem;
+  }
+
+  .botaoBase {
+    --bs-btn-padding-x: var(--espaco2);
+  }
+
+  .conteudoDetalheServico,
+  .conteudoConsultas,
+  .areaContatos {
+    padding-left: var(--espaco2);
+    padding-right: var(--espaco2);
+  }
+}
+
+
+/* ========== MAIORES ========== */
+
+@media (min-width: 1400px) {
+
+  :root {
+    --tamanhoH1: 52px;
+    --tamanhoH2: 40px;
+    --tamanhoH3: 30px;
+  }
+
+  .gradeAgendamento,
+  .conteudoConsultas,
+  .conteudoDetalheServico {
+    max-width: 1320px;
+  }
+
+  .areaContatos {
+    max-width: 1240px;
+  }
+}
+
+@media (min-width: 1920px) {
+
+  :root {
+    --tamanhoH1: 60px;
+    --tamanhoH2: 44px;
+    --tamanhoH3: 32px;
+    --tamanhoBody: 20px;
+    --tamanhoSmall: 18px;
+    --tamanhoCaption: 16px;
+
+    --espaco4: 20px;
+    --espaco5: 32px;
+    --espaco6: 40px;
+    --espaco7: 64px;
+  }
+
+  .container {
+    max-width: 1680px;
+  }
+
+  .gradeAgendamento,
+  .conteudoConsultas,
+  .conteudoDetalheServico {
+    max-width: 1560px;
+  }
+
+  .areaContatos {
+    max-width: 1400px;
+  }
+}
+
+@media (min-width: 2560px) {
+
+  :root {
+    --tamanhoH1: 72px;
+    --tamanhoH2: 52px;
+    --tamanhoH3: 38px;
+    --tamanhoBody: 24px;
+    --tamanhoSmall: 20px;
+    --tamanhoCaption: 18px;
+
+    --espaco4: 24px;
+    --espaco5: 40px;
+    --espaco6: 48px;
+    --espaco7: 80px;
+  }
+
+  .container {
+    max-width: 2000px;
+  }
+
+  .gradeAgendamento,
+  .conteudoConsultas,
+  .conteudoDetalheServico {
+    max-width: 1880px;
+  }
+
+  .areaContatos {
+    max-width: 1680px;
+  }
+}

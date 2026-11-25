@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="public/assets/css/variaveis.css" />
   <link rel="stylesheet" href="public/assets/css/componentes.css" />
   <link rel="stylesheet" href="public/assets/css/notificacoes.css" />
+  <link rel="stylesheet" href="public/assets/css/responsivo.css" />
 </head>
 <body data-exigeLogin>
 
@@ -27,12 +28,7 @@
           <li><a class="dropdown-item" href="index.php?uri=cadastroProfissional">Sou um profissional</a></li>
           <li><a class="dropdown-item" href="index.php?uri=cadastroClinica">Sou uma clínica</a></li>
         </ul>
-        <button type="button" class="nav-link dropdown-toggle navbar-brand navTopoDeslogado_acao" data-bs-toggle="dropdown">Entrar</button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="index.php?uri=loginCliente">Sou um cliente</a></li>
-          <li><a class="dropdown-item" href="index.php?uri=loginProfissional">Sou um profissional</a></li>
-          <li><a class="dropdown-item" href="index.php?uri=loginClinica">Sou uma clínica</a></li>
-        </ul>
+        <a class="nav-link navbar-brand navTopoDeslogado_acao" href="index.php?uri=login">Entrar</a>
       </div>
     </div>
   </nav>
@@ -158,7 +154,7 @@
   </div>
 
   <div class="modal fade modalBase modalNotificacao" id="modalNotificacao" tabindex="-1" aria-labelledby="tituloModalNotificacao" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content modalBase_conteudo">
 
         <div class="modal-header modalBase_cabecalho">
@@ -175,6 +171,14 @@
             Para acompanhar o status ou reagendar a consulta, acesse as
             <a href="index.php?uri=consultasCli" class="modalNotificacao_link" data-itemMinhasConsultas>Minhas Consultas</a>.
           </p>
+
+          <p class="text-danger mb-0 mt-3" data-campo="erroVinculo" role="alert" hidden></p>
+        </div>
+
+        <!-- Só aparece para notificação tipo 6 (convite de vínculo da clínica) -->
+        <div class="modal-footer modalBase_rodape flex-wrap justify-content-center gap-2" data-campo="acoesVinculo" hidden>
+          <button type="button" class="btn botaoBase botaoBase--secundario" data-acao="recusarVinculo">Recusar vínculo</button>
+          <button type="button" class="btn botaoBase botaoBase--primario" data-acao="aceitarVinculo">Aceitar vínculo</button>
         </div>
 
       </div>

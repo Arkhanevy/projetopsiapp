@@ -33,7 +33,7 @@
 
     profissional: {
       url: "index.php?uri=profissional",
-      urlLogin: "index.php?uri=loginProfissional",
+      urlLogin: "index.php?uri=login",
       hrefAgenda: "index.php?uri=agendaProfissional",
       hrefInicio: "index.php?uri=inicioProfissional",
       listaVinculos: "clinicas",
@@ -47,7 +47,7 @@
 
     clinica: {
       url: "index.php?uri=clinica",
-      urlLogin: "index.php?uri=loginClinica",
+      urlLogin: "index.php?uri=login",
       // Sem hrefInicio/hrefAgenda: a clínica não exibe "Início" nem "Agenda" no menu.
       listaVinculos: "profissionais",
       iconeVinculo: "person",
@@ -70,7 +70,7 @@
   // verificarLogin testa os três papéis e a navegação lê hrefInicio/hrefAgenda.
   papeis.cliente = {
     url: "index.php?uri=cliente",
-    urlLogin: "index.php?uri=loginCliente",
+    urlLogin: "index.php?uri=login",
     hrefAgenda: "index.php?uri=consultasCli",
     hrefInicio: "index.php",
     textos: {}

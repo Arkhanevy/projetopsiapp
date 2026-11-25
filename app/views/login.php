@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="public/assets/css/autenticacaoBase.css" />
     <link rel="stylesheet" href="public/assets/css/login.css" />
     <title>Entrar</title>
+  <link rel="stylesheet" href="public/assets/css/responsivo.css" />
 </head>
 
 <body>

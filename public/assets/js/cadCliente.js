@@ -5,7 +5,7 @@
 
     configuracao: {
       urlCliente: "index.php?uri=cliente",
-      urlLogin: "index.php?uri=loginCliente"
+      urlLogin: "index.php?uri=login"
     },
 
     estado: {

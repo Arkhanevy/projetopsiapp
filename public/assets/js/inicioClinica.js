@@ -4,7 +4,7 @@ $(function () {
   InicioPro.iniciar({
     tipoUsuario: "clinica",
     urlConsultas: "index.php?uri=clinica",
-    urlLogin: "index.php?uri=loginClinica"
+    urlLogin: "index.php?uri=login"
   });
 
 });

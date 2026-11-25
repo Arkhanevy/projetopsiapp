@@ -1119,9 +1119,8 @@ select:focus-visible,
   --bs-nav-link-padding-x: var(--espaco2);
   --bs-nav-link-padding-y: var(--espaco2);
   --bs-nav-link-font-size: var(--tamanhoSmall);
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: space-around;
-  overflow-x: auto;
   border-bottom: 0;
   background-color: var(--corDestaque);
 }

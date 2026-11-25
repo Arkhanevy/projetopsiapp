@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="public/assets/css/variaveis.css" />
   <link rel="stylesheet" href="public/assets/css/componentes.css" />
   <link rel="stylesheet" href="public/assets/css/resultadosBusca.css" />
+  <link rel="stylesheet" href="public/assets/css/responsivo.css" />
 </head>
 <body>
 
@@ -27,12 +28,7 @@
           <li><a class="dropdown-item" href="index.php?uri=cadastroProfissional">Sou um profissional</a></li>
           <li><a class="dropdown-item" href="index.php?uri=cadastroClinica">Sou uma clínica</a></li>
         </ul>
-        <button type="button" class="nav-link dropdown-toggle navbar-brand navTopoDeslogado_acao" data-bs-toggle="dropdown">Entrar</button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="index.php?uri=loginCliente">Sou um cliente</a></li>
-          <li><a class="dropdown-item" href="index.php?uri=loginProfissional">Sou um profissional</a></li>
-          <li><a class="dropdown-item" href="index.php?uri=loginClinica">Sou uma clínica</a></li>
-        </ul>
+        <a class="nav-link navbar-brand navTopoDeslogado_acao" href="index.php?uri=login">Entrar</a>
       </div>
     </div>
   </nav>

@@ -12,6 +12,7 @@
 namespace models;
 
 use core\database\DBQuery;
+use core\database\DBConnection;
 use core\database\Where;  
 
 class notificacao {
@@ -41,7 +42,7 @@ class notificacao {
         
     }
     
-    public function lido($id){
+   /* public function lido($id){
         $notificacao = new DBQuery($this->table, $this->campos, $this->primary);
         $valores = [$id,1];
         try {
@@ -49,6 +50,32 @@ class notificacao {
             return ['sucesso' => true];
         } catch (\Exception $e) {
             return ['sucesso' => false,'mensagem' => $e->getMessage()];
+        }
+    } */
+
+    // TESTE - MARIA
+    //  Marca como vista (notif_stat = 1) uma notificação que pertença a quem está logado.
+    public function lido($id){
+        $id = (int) $id;
+        if ($id <= 0) {
+            return ['sucesso' => false, 'mensagem' => 'Notificação inválida.'];
+        }
+        try {
+            $pdo = (new DBConnection())->getConn();
+            if ($this->usuario != 'clinica') {
+                $st = $pdo->prepare("SELECT notif_id FROM notificacao WHERE notif_id = :n AND notif_dest = :u AND notif_dtipo = :t");
+                $st->execute([':n' => $id, ':u' => $this->id, ':t' => $this->usuario]);
+            } else {
+                $st = $pdo->prepare("SELECT notif_id FROM notificacao WHERE notif_id = :n AND notif_clin = :u");
+                $st->execute([':n' => $id, ':u' => $this->id]);
+            }
+            if (!$st->fetch()) {
+                return ['sucesso' => false, 'mensagem' => 'Notificação não encontrada.'];
+            }
+            $pdo->prepare("UPDATE notificacao SET notif_stat = 1 WHERE notif_id = :n")->execute([':n' => $id]);
+            return ['sucesso' => true];
+        } catch (\Throwable $e) {
+            return ['sucesso' => false, 'mensagem' => $e->getMessage()];
         }
     }
     

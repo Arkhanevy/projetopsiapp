@@ -11,9 +11,7 @@
       urlSair: "index.php?uri=limpar",
       urlAposSair: "index.php",
       loginsPorTipo: [
-        { rotulo: "Sou um cliente", url: "index.php?uri=loginCliente" },
-        { rotulo: "Sou um profissional", url: "index.php?uri=loginProfissional" },
-        { rotulo: "Sou uma clínica", url: "index.php?uri=loginClinica" }
+        { rotulo: "Entrar", url: "index.php?uri=login" }
       ]
     },
 
@@ -187,7 +185,7 @@
                    "</div>" +
                    '<div class="modal-body text-center">' +
                      '<p class="visually-hidden">Esta janela não pode ser fechada. ' +
-                       "Escolha abaixo como deseja entrar para continuar.</p>" +
+                       "Use o botão abaixo para entrar e continuar.</p>" +
                      '<div class="modalFeedback_icone" aria-hidden="true">' +
                        '<span class="material-symbols-outlined" aria-hidden="true">no_accounts</span>' +
                      "</div>" +

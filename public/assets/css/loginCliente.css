@@ -17,8 +17,6 @@
     #loginCliente {
         width: 100%;
         max-width: 500px;
-        max-height: 90vh;
-        overflow-y: auto;
         padding: 30px;
         box-sizing: border-box;
     }

@@ -20,8 +20,11 @@
       contratos: {
         // O backend (cliente/profissional/clinica controller) trata a ação "notificação" (com acento).
         listarNotificacoes:    { acao: "notificação", disponivel: true },
-        // O backend ainda não tem ação para marcar como lida.
-        marcarNotificacaoLida: { acao: "marcarNotificacaoLida", disponivel: false }
+        // Marca como vista (notif_stat = 1). O id vai em "not_id".
+        marcarNotificacaoLida: { acao: "lernot", disponivel: true },
+        // Convite de vínculo clínica -> profissional (notificação tipo 6). O id vai em "notif_id".
+        aceitarVinculo:        { acao: "aceitar_vinculo", disponivel: true },
+        recusarVinculo:        { acao: "recusar_vinculo", disponivel: true }
       },
 
       // notif_tipo gravado pelo backend (ver comentário em models/notificacao.php).
@@ -30,7 +33,8 @@
         "2": { titulo: "Consulta reagendada",          exibirLinkConsultas: true },
         "3": { titulo: "Consulta aceita",              exibirLinkConsultas: true },
         "4": { titulo: "Consulta rejeitada",           exibirLinkConsultas: true },
-        "5": { titulo: "Consulta cancelada",           exibirLinkConsultas: true }
+        "5": { titulo: "Consulta cancelada",           exibirLinkConsultas: true },
+        "6": { titulo: "Convite de vínculo",           exibirLinkConsultas: false, acoesVinculo: true }
       },
       tituloPadrao: "Notificação",
       tamanhoResumo: 100,
@@ -38,7 +42,10 @@
       textos: {
         naoLogado: "Entre na sua conta para ver suas notificações.",
         erro: "Não foi possível carregar as notificações.",
-        vazio: "Nenhuma notificação encontrada."
+        vazio: "Nenhuma notificação encontrada.",
+        vinculoAceito: "Vínculo aceito! A clínica já aparece nas suas clínicas vinculadas.",
+        vinculoRecusado: "Convite de vínculo recusado.",
+        erroVinculo: "Não foi possível responder ao convite. Tente novamente."
       }
     },
 
@@ -46,7 +53,9 @@
       papel: null,
       requisicaoNotificacoes: 0,
       notificacoes: {},
-      $cardAtual: null
+      $cardAtual: null,
+      idNotificacaoAtual: null,
+      respondendoVinculo: false
     },
 
     elementos: {},
@@ -70,6 +79,10 @@
       e.$tituloModal = e.$modal.find("[data-campo='tituloNotificacao']");
       e.$mensagemModal = e.$modal.find("[data-campo='mensagemNotificacao']");
       e.$blocoLinkConsultas = e.$modal.find("[data-campo='blocoLinkConsultas']");
+      e.$acoesVinculo = e.$modal.find("[data-campo='acoesVinculo']");
+      e.$botaoAceitarVinculo = e.$modal.find("[data-acao='aceitarVinculo']");
+      e.$botaoRecusarVinculo = e.$modal.find("[data-acao='recusarVinculo']");
+      e.$erroVinculo = e.$modal.find("[data-campo='erroVinculo']");
     },
 
     registrarEventos: function () {
@@ -90,6 +103,14 @@
 
       e.$modal.on("hidden.bs.modal", function () {
         self.aoFecharModal();
+      });
+
+      e.$botaoAceitarVinculo.on("click", function () {
+        self.responderVinculo(true);
+      });
+
+      e.$botaoRecusarVinculo.on("click", function () {
+        self.responderVinculo(false);
       });
     },
 
@@ -203,7 +224,6 @@
     renderizarNotificacoes: function (itens) {
       const self = this;
       const e = this.elementos;
-      let novas = 0;
 
       e.$lista.empty();
       this.estado.notificacoes = {};
@@ -216,37 +236,37 @@
 
         self.estado.notificacoes[notificacao.id] = notificacao;
         e.$lista.append(self.criarCardNotificacao(notificacao));
-        if (!notificacao.lida) {
-          novas++;
-        }
       });
 
-      const total = e.$lista.children().length;
-      if (!total) {
+      if (!e.$lista.children().length) {
         this.exibirEstadoPagina("vazio");
         return;
       }
 
       this.exibirEstadoPagina("lista");
-      let textoTotal;
-      if (total === 1) {
-        textoTotal = " notificação encontrada";
-      } else {
-        textoTotal = " notificações encontradas";
-      }
-      let textoNovas;
-      if (novas) {
-        let sufixoNovas;
-        if (novas === 1) {
-          sufixoNovas = " nova.";
-        } else {
-          sufixoNovas = " novas.";
+      this.atualizarAviso();
+    },
+
+    // Texto lido por leitores de tela: total de notificações e quantas ainda não foram vistas
+    atualizarAviso: function () {
+      const itens = this.estado.notificacoes;
+      let total = 0;
+      let novas = 0;
+
+      $.each(itens, function (id, notificacao) {
+        total++;
+        if (!notificacao.lida) {
+          novas++;
         }
-        textoNovas = ", " + novas + sufixoNovas;
+      });
+
+      let texto = total + (total === 1 ? " notificação encontrada" : " notificações encontradas");
+      if (novas) {
+        texto += ", " + novas + (novas === 1 ? " nova." : " novas.");
       } else {
-        textoNovas = ".";
+        texto += ".";
       }
-      e.$avisoPagina.text(total + textoTotal + textoNovas);
+      this.elementos.$avisoPagina.text(texto);
     },
 
     normalizarNotificacao: function (item) {
@@ -261,7 +281,11 @@
 
       const tipo = String(item.notif_tipo || "");
       const infoTipo = configuracao.tiposNotificacao[tipo] || {};
-      const mensagem = String(item.notif_msg || "");
+      let mensagem = String(item.notif_msg || "");
+      const nomeClinica = String(item.clin_nome || item.clin_user || "");
+      if (tipo === "6" && nomeClinica) {
+        mensagem = "Clínica: " + nomeClinica + ". " + mensagem;
+      }
       let resumo = mensagem;
       if (resumo.length > configuracao.tamanhoResumo) {
         resumo = resumo.substring(0, configuracao.tamanhoResumo).replace(/\s+\S*$/, "") + "…";
@@ -275,7 +299,9 @@
         data: String(item.notif_data || ""),
         tipo: tipo,
         lida: this.valorVerdadeiro(item.notif_stat),
-        exibirLinkConsultas: !!infoTipo.exibirLinkConsultas
+        exibirLinkConsultas: !!infoTipo.exibirLinkConsultas,
+        // só o profissional responde ao convite (o backend também confere)
+        exibirAcoesVinculo: !!infoTipo.acoesVinculo && this.estado.papel === "profissional"
       };
     },
 
@@ -350,6 +376,15 @@
         e.$blocoLinkConsultas.attr("hidden", "hidden");
       }
 
+      this.estado.idNotificacaoAtual = notificacao.id;
+      e.$erroVinculo.attr("hidden", "hidden").text("");
+      this.definirBotoesVinculoOcupados(false);
+      if (notificacao.exibirAcoesVinculo) {
+        e.$acoesVinculo.removeAttr("hidden");
+      } else {
+        e.$acoesVinculo.attr("hidden", "hidden");
+      }
+
       Utilitarios.exibirModal(e.$modal);
       this.marcarComoLida(notificacao.id);
     },
@@ -371,11 +406,12 @@
         return;
       }
 
-      this.chamarContrato("marcarNotificacaoLida", { idNotificacao: id })
+      this.chamarContrato("marcarNotificacaoLida", { not_id: id })
         .done(function (resposta) {
           if (resposta && resposta.sucesso) {
             notificacao.lida = true;
             self.atualizarCardLido(id);
+            self.atualizarAviso();
           }
         });
     },
@@ -387,6 +423,72 @@
 
       $card.attr("data-lida", "true");
       $card.find("[data-campo='seloNova']").attr("hidden", "hidden");
+    },
+
+    definirBotoesVinculoOcupados: function (ocupado) {
+      const e = this.elementos;
+      this.estado.respondendoVinculo = ocupado;
+      e.$botaoAceitarVinculo.prop("disabled", ocupado);
+      e.$botaoRecusarVinculo.prop("disabled", ocupado);
+    },
+
+    // Aceitar ou recusar o convite de vínculo (notificação tipo 6)
+    responderVinculo: function (aceitar) {
+      const self = this;
+      const e = this.elementos;
+      const id = this.estado.idNotificacaoAtual;
+      const notificacao = this.estado.notificacoes[id];
+      const textos = this.configuracao.textos;
+      let contrato;
+
+      if (!notificacao || !notificacao.exibirAcoesVinculo || this.estado.respondendoVinculo) {
+        return;
+      }
+
+      if (aceitar) {
+        contrato = "aceitarVinculo";
+      } else {
+        contrato = "recusarVinculo";
+      }
+
+      e.$erroVinculo.attr("hidden", "hidden").text("");
+      this.definirBotoesVinculoOcupados(true);
+
+      this.chamarContrato(contrato, { notif_id: id })
+        .done(function (resposta) {
+          if (!resposta || !resposta.sucesso) {
+            self.definirBotoesVinculoOcupados(false);
+            e.$erroVinculo.text((resposta && resposta.mensagem) || textos.erroVinculo).removeAttr("hidden");
+            return;
+          }
+
+          // o backend apaga o convite quando ele é respondido: some da lista também
+          delete self.estado.notificacoes[id];
+          e.$lista.find(".cardNotificacao").filter(function () {
+            return $(this).attr("data-notificacaoId") === String(id);
+          }).closest(".listaNotificacoes_item").remove();
+
+          self.estado.$cardAtual = null;
+          Utilitarios.esconderModal(e.$modal);
+
+          if (!e.$lista.children().length) {
+            self.exibirEstadoPagina("vazio");
+          } else {
+            self.atualizarAviso();
+          }
+
+          let mensagemFinal;
+          if (aceitar) {
+            mensagemFinal = textos.vinculoAceito;
+          } else {
+            mensagemFinal = textos.vinculoRecusado;
+          }
+          e.$avisoPagina.text(mensagemFinal);
+        })
+        .fail(function () {
+          self.definirBotoesVinculoOcupados(false);
+          e.$erroVinculo.text(textos.erroVinculo).removeAttr("hidden");
+        });
     }
   };
 

@@ -6,7 +6,7 @@
   const moduloConsultasClinica = ConsultasPro.criar({
     tipoUsuario:      "clinica",
     urlControlador:   "index.php?uri=clinica",
-    urlLogin:         "index.php?uri=loginClinica",
+    urlLogin:         "index.php?uri=login",
     urlAgendamento:   "index.php?uri=reagendamento",
 
     contratos: {

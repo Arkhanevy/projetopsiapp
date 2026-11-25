@@ -217,6 +217,8 @@ insert into padrao_notif (pdNotif_pro, pdNotif_clin, pdNotif_tipo, pdNotif_msg) 
 (null, null, 'aceita',    'Sua consulta de {servico} com {profissional} foi aceita! Te esperamos no dia {data} às {hora}.'),
 (null, null, 'rejeitar',  'Infelizmente sua solicitação de consulta de {servico} para o dia {data} às {hora} não pôde ser aceita. Escolha outro horário na agenda.'),
 (null, null, 'cancelar',  'A consulta de {servico} marcada para o dia {data} às {hora} foi cancelada.');
+(null, null, 'convite_vinculo', 'Uma clínica convidou você para se vincular a ela. Aceite para passar a fazer parte da clínica ou recuse o convite.');
+
 select * from profissional where pro_id = 2;
 
 select * from servico where ser_nome like '%Tratamento de unha encravada%';

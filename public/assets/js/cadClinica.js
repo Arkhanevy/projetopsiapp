@@ -5,7 +5,7 @@
 
     configuracao: {
       urlClinica: "index.php?uri=clinica",
-      urlLogin: "index.php?uri=loginClinica"
+      urlLogin: "index.php?uri=login"
     },
 
     estado: {

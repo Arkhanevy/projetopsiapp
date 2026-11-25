@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="public/assets/css/variaveis.css" />
   <link rel="stylesheet" href="public/assets/css/componentes.css" />
   <link rel="stylesheet" href="public/assets/css/infoServico.css" />
+  <link rel="stylesheet" href="public/assets/css/responsivo.css" />
 </head>
 <body>
   <a href="#conteudoDetalheServico" class="linkPularConteudo">Pular para o conteúdo principal</a>
@@ -27,12 +28,7 @@
           <li><a class="dropdown-item" href="index.php?uri=cadastroProfissional">Sou um profissional</a></li>
           <li><a class="dropdown-item" href="index.php?uri=cadastroClinica">Sou uma clínica</a></li>
         </ul>
-        <button type="button" class="nav-link dropdown-toggle navbar-brand navTopoDeslogado_acao" data-bs-toggle="dropdown">Entrar</button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="index.php?uri=loginCliente">Sou um cliente</a></li>
-          <li><a class="dropdown-item" href="index.php?uri=loginProfissional">Sou um profissional</a></li>
-          <li><a class="dropdown-item" href="index.php?uri=loginClinica">Sou uma clínica</a></li>
-        </ul>
+        <a class="nav-link navbar-brand navTopoDeslogado_acao" href="index.php?uri=login">Entrar</a>
       </div>
     </div>
   </nav>
@@ -103,13 +99,7 @@
 
       <article class="cartaoServico row gy-4 estadoCarregando" id="cartaoServico">
 
-        <div class="col-12 col-md-6">
-          <figure class="figuraServico">
-            <img src="public/assets/images/imagemIndisponivel.png" alt="Profissional realizando procedimento de remoção de unha encravada no pé do paciente" class="imagemServico img-fluid rounded" data-campo="imagemServico" data-campo-alt="legendaImagemServico"/>
-          </figure>
-        </div>
-
-        <div class="col-12 col-md-6">
+        <div class="col-12">
           <div class="infoServico d-flex flex-column">
 
             <p class="nomeProfissional order-1 order-md-2">

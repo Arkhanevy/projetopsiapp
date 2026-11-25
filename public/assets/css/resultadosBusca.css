@@ -64,8 +64,6 @@
 .painelFiltro--flutuante {
   width: 100%;
   max-width: none;
-  max-height: 70vh;
-  overflow-y: auto;
   gap: var(--espaco5);
   padding: var(--espaco4) var(--espaco5);
   box-shadow: 0 8px 16px color-mix(in srgb, var(--corBordas) 30%, transparent);

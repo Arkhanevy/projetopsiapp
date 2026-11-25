@@ -32,18 +32,6 @@
   background-color: var(--corBotoes);
 }
 
-.figuraServico {
-  margin: 0;
-}
-
-.imagemServico {
-  width: 100%;
-  height: 320px;
-  object-fit: cover;
-  border: 1px solid var(--corBordas);
-  border-radius: 12px;
-}
-
 .infoServico {
   gap: var(--espaco2);
 }
@@ -85,18 +73,6 @@
   100% { background-position: -200% 0; }
 }
 
-.estadoCarregando .imagemServico {
-  background-color: transparent;
-  background-image: linear-gradient(
-    90deg,
-    var(--corFundoClaro) 25%,
-    var(--corFundo) 50%,
-    var(--corFundoClaro) 75%
-  );
-  background-size: 200% 100%;
-  animation: animacaoEsqueleto 1.5s ease-in-out infinite;
-}
-
 .estadoCarregando [data-campo]:not(img) {
   color: transparent;
   border-radius: 4px;
@@ -115,7 +91,6 @@
   cursor: not-allowed;
 }
 
-.estadoErro .imagemServico,
 .estadoErro [data-campo]:not(img) {
   color: transparent;
   background-color: var(--corFundoClaro);

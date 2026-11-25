@@ -130,6 +130,28 @@ class clinica extends usuario {
             $notificacao = new notificacao('notificacao', $camposnot, $camposnot[0], $clinId, 'clinica');
             return $notificacao->enviar(notificacao::CONVITE_VINCULO, $proId, $clinId);
         }
+
+        // TESTE - MARIA
+        // Profissionais vinculados a uma clínica (aba de vínculos do perfil)
+        public function listarProfissionaisVinculados($clinId) {
+            $clinId = (int) $clinId;
+            if ($clinId <= 0) {
+                return ['sucesso' => true, 'dados' => []];
+            }
+            try {
+                $pdo = (new DBConnection())->getConn();
+                $st = $pdo->prepare(
+                    "SELECT pc.pc_id, p.pro_id, p.pro_nome, p.pro_user
+                     FROM profissional_clinica pc
+                     INNER JOIN profissional p ON p.pro_id = pc.pc_pro
+                     WHERE pc.pc_clin = :clin AND p.pro_dtDell IS NULL
+                     ORDER BY p.pro_nome");
+                $st->execute([':clin' => $clinId]);
+                return ['sucesso' => true, 'dados' => $st->fetchAll(\PDO::FETCH_ASSOC)];
+            } catch (\Throwable $e) {
+                return ['sucesso' => false, 'mensagem' => $e->getMessage()];
+            }
+        }
         
         // Remove o vínculo (e as permissões dele) de um profissional com a clínica
         public function desvincularProfissional($clinId, $proId) {

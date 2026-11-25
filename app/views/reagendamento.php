@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="public/assets/css/componentes.css" />
   <link rel="stylesheet" href="public/assets/css/agendamentoCli.css" />
   <link rel="stylesheet" href="public/assets/css/reagendamento.css" />
+  <link rel="stylesheet" href="public/assets/css/responsivo.css" />
 </head>
 <body>
 
@@ -28,12 +29,7 @@
           <li><a class="dropdown-item" href="index.php?uri=cadastroProfissional">Sou um profissional</a></li>
           <li><a class="dropdown-item" href="index.php?uri=cadastroClinica">Sou uma clínica</a></li>
         </ul>
-        <button type="button" class="nav-link dropdown-toggle navbar-brand navTopoDeslogado_acao" data-bs-toggle="dropdown">Entrar</button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="index.php?uri=loginCliente">Sou um cliente</a></li>
-          <li><a class="dropdown-item" href="index.php?uri=loginProfissional">Sou um profissional</a></li>
-          <li><a class="dropdown-item" href="index.php?uri=loginClinica">Sou uma clínica</a></li>
-        </ul>
+        <a class="nav-link navbar-brand navTopoDeslogado_acao" href="index.php?uri=login">Entrar</a>
       </div>
     </div>
   </nav>
@@ -334,13 +330,11 @@
             <span class="material-symbols-outlined" aria-hidden="true">no_accounts</span>
           </div>
           <p id="textoModalNaoLogado" class="modalFeedback_mensagem">
-            Para reagendar uma consulta, você precisa estar logado(a). Escolha como deseja entrar.
+            Para reagendar uma consulta, você precisa estar logado(a). Entre na sua conta para continuar.
           </p>
         </div>
         <div class="modal-footer modalBase_rodape flex-wrap justify-content-center gap-2">
-          <a href="index.php?uri=loginCliente" class="btn botaoBase botaoBase--primario" data-loginRedirecionar>Sou um cliente</a>
-          <a href="index.php?uri=loginProfissional" class="btn botaoBase botaoBase--primario" data-loginRedirecionar>Sou um profissional</a>
-          <a href="index.php?uri=loginClinica" class="btn botaoBase botaoBase--primario" data-loginRedirecionar>Sou uma clínica</a>
+          <a href="index.php?uri=login" class="btn botaoBase botaoBase--primario" data-loginRedirecionar>Entrar</a>
         </div>
       </div>
     </div>

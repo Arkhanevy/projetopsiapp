@@ -155,7 +155,7 @@ switch ($acao){
             ]);
         exit;
 
-    // TESTE - MARIA
+    
     case "verificarLogin":
         // Usado por perfil.js: informa se a sessão atual é de um profissional.
         // Lê a mesma estrutura que usuario::Login grava em $_SESSION['usuario'].
@@ -195,6 +195,7 @@ switch ($acao){
         $listar = $notificacâo->listar();
         echo json_encode($listar);
         exit;
+    // TESTE - MARIA
     case 'lernot':
         $notificacâo = new notificacao('notificacao', 'notif_id,notif_stat', 'notif_id', $_SESSION['usuario']['idUsuario'], $_SESSION['usuario']['tipoUsuario']);
         $lido = $notificacâo->lido($_POST['not_id']);
@@ -225,6 +226,20 @@ switch ($acao){
         echo json_encode($sucesso);
         exit;
         
+        case 'listarVinculos':
+        $idPerfil = (int) ($_POST['idPerfil'] ?? 0);
+        if ($idPerfil <= 0) {
+            if (($_SESSION['usuario']['tipoUsuario'] ?? '') !== 'profissional') {
+                echo json_encode(['sucesso' => false, 'mensagem' => 'Faça login como profissional para listar os vínculos.']);
+                exit;
+            }
+            $idPerfil = (int) $_SESSION['usuario']['idUsuario'];
+        }
+        $profissional = new profissional('profissional', $campos, $campos[0]);
+        echo json_encode($profissional->listarClinicasVinculadas($idPerfil));
+        exit;
+
+    
     //ver se tá dando certo
     // ---------- ASSOCIAÇÃO CLÍNICA <-> PROFISSIONAL ----------
     case 'aceitar_vinculo':

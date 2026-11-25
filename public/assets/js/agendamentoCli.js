@@ -554,10 +554,14 @@
       }
       return this.filtrarHorariosFuturos(dataChave, resposta).length > 0;
     },
+    
+
+
 
     verificarHorariosDosDias: function () {
       const self = this;
       const token = this.estado.tokenDias;
+      const servico = this.estado.servico || {};
 
       this.estado.diasLivres.forEach(function (dataChave) {
         $.ajax({
@@ -565,9 +569,13 @@
           method: "POST",
           dataType: "json",
           data: {
-            acao: "mostrarhorario",
-            id: self.estado.idServico,
-            dia: dataChave
+              acao: "mostrarhorario",
+              id: this.estado.idServico,
+              dia: dataChave,
+              agnd_pro: servico.ser_pro,
+              agnd_clin: servico.ser_clin,
+              ser_dur: servico.ser_dur,
+              ser_inter: servico.ser_inter
           }
         }).done(function (resposta) {
           if (token !== self.estado.tokenDias) {
@@ -715,15 +723,20 @@
     buscarHorariosDisponiveis: function (dataChave) {
       const self = this;
       const token = ++this.estado.tokenHorarios;
+      const servico = this.estado.servico || {};
 
       $.ajax({
         url: this.configuracao.urlServico,
         method: "POST",
         dataType: "json",
         data: {
-          acao: "mostrarhorario",
-          id: this.estado.idServico,
-          dia: dataChave
+            acao: "mostrarhorario",
+            id: this.estado.idServico,
+            dia: dataChave,
+            agnd_pro: servico.ser_pro,
+            agnd_clin: servico.ser_clin,
+            ser_dur: servico.ser_dur,
+            ser_inter: servico.ser_inter
         }
       })
         .done(function (resposta) {

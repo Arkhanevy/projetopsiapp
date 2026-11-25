@@ -7,7 +7,7 @@
     tipoUsuario:      "profissional",
     urlControlador:   "index.php?uri=profissional",
     urlDias:   "index.php?uri=servico",
-    urlLogin:         "index.php?uri=loginProfissional",
+    urlLogin:         "index.php?uri=login",
     urlAgendamento:   "index.php?uri=reagendamento",
 
     contratos: {

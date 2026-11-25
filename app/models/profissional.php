@@ -190,6 +190,30 @@ class profissional extends usuario {
         }
     }
     
+    // TESTE - MARIA
+    // Clínicas vinculadas a um profissional (aba de vínculos do perfil).
+    // O CEP vem do primeiro local cadastrado da clínica (tabela localizacao).
+    public function listarClinicasVinculadas($proId) {
+        $proId = (int) $proId;
+        if ($proId <= 0) {
+            return ['sucesso' => true, 'dados' => []];
+        }
+        try {
+            $pdo = (new DBConnection())->getConn();
+            $st = $pdo->prepare(
+                "SELECT pc.pc_id, c.clin_id, c.clin_nome, c.clin_user,
+                        (SELECT l.loc_cep FROM localizacao l WHERE l.loc_clin = c.clin_id ORDER BY l.loc_id LIMIT 1) AS clin_cep
+                 FROM profissional_clinica pc
+                 INNER JOIN clinica c ON c.clin_id = pc.pc_clin
+                 WHERE pc.pc_pro = :pro AND c.clin_dtDell IS NULL
+                 ORDER BY c.clin_nome");
+            $st->execute([':pro' => $proId]);
+            return ['sucesso' => true, 'dados' => $st->fetchAll(\PDO::FETCH_ASSOC)];
+        } catch (\Throwable $e) {
+            return ['sucesso' => false, 'mensagem' => $e->getMessage()];
+        }
+    }
+
     public function recusarVinculo($proId, $notifId) {
         try {
             $pdo = (new DBConnection())->getConn();
