@@ -95,3 +95,50 @@ textarea {
     box-sizing: border-box;
   }
 }
+
+
+/* ========== Rolagem das telas de cadastro ==========
+   A tela ocupa a altura da janela (menos o menu do topo) e a coluna do
+   formulário rola sozinha; a imagem lateral fica parada. */
+body:has(#conteudoCadastro) {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body:has(#conteudoCadastro) > .navTopoDeslogado {
+  flex: 0 0 auto;
+}
+
+#conteudoCadastro {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#conteudoCadastro > .row {
+  height: 100%;
+  min-height: 0 !important; /* anula o .min-vh-100 do Bootstrap */
+}
+
+#conteudoCadastro #colForm {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 12px 24px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  #conteudoCadastro #imgBox {
+    height: 100%;
+  }
+
+  #conteudoCadastro #colForm {
+    min-height: 0;
+    padding: 20px;
+  }
+}

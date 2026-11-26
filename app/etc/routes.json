@@ -119,7 +119,7 @@
   },
   "agendaClinica": {
     "path": "app/views/consultaClinica.php",
-    "sessionKey": [{"idUsuario": true, "tipoUsuario": ["clinica"]}],
+    "sessionKey": [{"idUsuario": false}],
     "sanitize": {"requestVars": true, "code": true, "sql": true},
     "errorPath": "app/views/erro.php"
   },

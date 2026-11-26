@@ -190,6 +190,9 @@
             <section class="secaoPerfil" aria-labelledby="tituloServicosClinica" data-perfilDe="clinica" hidden>
               <h2 class="secaoPerfil_titulo" id="tituloServicosClinica">Serviços oferecidos</h2>
               <div class="secaoPerfil_caixa">
+                <button type="button" class="btn secaoPerfil_acao" id="botaoAdicionarServicoClinica" data-somenteDono data-visaoDestino="cadastroServico" aria-label="Cadastrar serviço">
+                  <span class="material-symbols-outlined" aria-hidden="true">add</span>
+                </button>
                 <div class="estadoVazio" data-estadoVazio="servicosClinica">
                   <span class="material-symbols-outlined estadoVazio_icone" aria-hidden="true">construction</span>
                   <p class="estadoVazio_texto" data-campo="textoServicosClinicaVazio">Sem serviço registrado</p>
@@ -336,8 +339,20 @@
                     <div class="form-text" id="ajudaTipoServico">O tipo de serviço ajuda os clientes a encontrar seu serviço.</div>
                   </div>
 
+                  <div class="campoTexto" data-perfilDe="clinica" hidden>
+                    <span class="form-label fw-bold" id="rotuloProfissionaisServico">Profissionais</span>
+                    <div class="dropdown campoSelect campoSelect--multiplo" id="campoProfissionaisServico">
+                      <button type="button" class="campoSelect_gatilho dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-labelledby="rotuloProfissionaisServico" aria-describedby="ajudaProfissionaisServico" disabled>
+                        <span class="campoSelect_valor">Nenhum profissional vinculado</span>
+                        <span class="campoSelect_iconeChevron material-symbols-outlined" aria-hidden="true">keyboard_arrow_down</span>
+                      </button>
+                      <ul class="dropdown-menu campoSelect_lista"></ul>
+                    </div>
+                    <div class="form-text" id="ajudaProfissionaisServico">Escolha quais profissionais vinculados à clínica realizam esse serviço. Será cadastrado um serviço para cada profissional.</div>
+                  </div>
+
                   <div class="campoTexto">
-                    <span class="form-label fw-bold" id="rotuloLocalServico">Onde você realiza esse serviço?</span>
+                    <span class="form-label fw-bold" id="rotuloLocalServico">Onde esse serviço é realizado?</span>
                     <div class="dropdown campoSelect" id="campoLocalizacaoServico" data-valorSelecionado="" data-placeholder="Selecione o local de atendimento">
                       <button type="button" class="campoSelect_gatilho dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" aria-labelledby="rotuloLocalServico">
                         <span class="campoSelect_valor">Selecione o local de atendimento</span>
@@ -391,7 +406,7 @@
                   <div class="form-text" id="ajudaIntervaloServico">Defina o tempo necessário entre consultas para se organizar ou fazer uma pausa.</div>
 
                   <fieldset class="seletorDias" id="seletorDiasServico">
-                    <legend class="seletorDias_legenda">Selecione os dias em que você realiza esse serviço:</legend>
+                    <legend class="seletorDias_legenda">Selecione os dias em que esse serviço é realizado:</legend>
                     <div class="form-check seletorDias_item">
                       <input class="form-check-input" type="checkbox" id="checkServicoDomingo" name="diasServico" value="0">
                       <label class="form-check-label" for="checkServicoDomingo">Domingo</label>
@@ -507,7 +522,7 @@
             <section class="secaoPerfil mt-4" id="editorSalas" aria-labelledby="tituloEditorSalas">
               <h3 class="secaoPerfil_titulo" id="tituloEditorSalas">Salas</h3>
               <div class="secaoPerfil_caixa">
-                <p class="form-text" data-campo="avisoSalasSemLocal" hidden>Salve a localização antes de adicionar salas.</p>
+                <p class="form-text" data-campo="avisoSalasSemLocal" hidden>As salas adicionadas aqui serão salvas junto com a localização.</p>
                 <p class="form-text" data-campo="avisoSalasVazio" hidden>Nenhuma sala cadastrada.</p>
                 <ul class="list-unstyled mb-0" data-lista="editorSalas"></ul>
                 <div class="input-group mt-3" data-campo="novaSalaGrupo">
@@ -1208,6 +1223,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="public/assets/js/componentes.js"></script>
+  <script src="public/assets/js/sessaoNavegacao.js"></script>
   <script src="public/assets/js/utilitarios.js"></script>
   <script src="public/assets/js/perfil.js" defer></script>
   <script src="public/assets/js/perfilDocumentos.js" defer></script>

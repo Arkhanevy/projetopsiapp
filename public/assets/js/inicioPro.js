@@ -6,8 +6,15 @@
     configuracao: {
       tipoUsuario: null,
       urlConsultas: null,
+      urlServico: "index.php?uri=servico",
       urlLogin: null,
       statusPermitidos: { aceita: "confirmada" },
+      // Valores gravados em atendimento.atd_stat (iguais aos usados pelo relatório do backend).
+      statusAtendimento: { atendido: "atendido", naoCompareceu: "não compareceu" },
+      // Momento em que "Atendido" / "Não compareceu" substituem Cancelar / Reagendar:
+      // "inicio" (hora marcada) ou "termino" (fim da consulta).
+      momentoLiberacaoAtendimento: "inicio",
+      intervaloVerificacaoHorario: 60000,
       nomesMes: [
         "janeiro", "fevereiro", "março", "abril", "maio", "junho",
         "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
@@ -16,12 +23,19 @@
         semConsultas: "Nenhuma consulta foi encontrada",
         erroCarregar: "Não foi possível carregar as consultas.",
         iconeSemConsultas: "event_busy",
-        iconeErro: "error"
+        iconeErro: "error",
+        rotuloAtendido: "Atendido",
+        rotuloNaoCompareceu: "Não compareceu",
+        iconeAtendido: "check_circle",
+        iconeNaoCompareceu: "person_off",
+        erroAtendimento: "Não foi possível registrar o atendimento. Tente novamente."
       }
     },
 
     elementos: {},
     modeloCard: null,
+    consultasPorId: {},
+    temporizadorHorario: null,
 
     iniciar: function (opcoes) {
       $.extend(this.configuracao, opcoes || {});
@@ -68,6 +82,14 @@
           .attr("data-idConsulta");
 
         $(document).trigger("consultaCancelamentoConfirmado", { idConsulta: idConsulta });
+      });
+
+      $(document).on("click", "[data-acao='marcarAtendido']", function () {
+        self.registrarAtendimento($(this), self.configuracao.statusAtendimento.atendido);
+      });
+
+      $(document).on("click", "[data-acao='marcarNaoCompareceu']", function () {
+        self.registrarAtendimento($(this), self.configuracao.statusAtendimento.naoCompareceu);
       });
 
       $(document).on("click", "[data-acao='visualizarMaisConsultas']", function () {
@@ -151,6 +173,7 @@
 
       $card.attr("data-idConsulta", consulta.agnd_id);
       $card.attr("data-estadoConsulta", estado);
+      this.consultasPorId[String(consulta.agnd_id)] = consulta;
 
       const dataHora = this.formatarDataHora(consulta.agnd_dt, consulta.agnd_hrIni);
 
@@ -163,7 +186,203 @@
       $card.find("[data-acao='cancelarConsulta']").attr("aria-label", "Cancelar consulta" + complemento);
       $card.find("[data-acao='reagendarConsulta']").attr("aria-label", "Reagendar consulta" + complemento);
 
+      if (this.podeRegistrarAtendimento(consulta)) {
+        this.trocarBotoesPorAtendimento($card, complemento);
+      }
+
       return $card;
+    },
+
+    // ---- Atendimento: Atendido / Não compareceu ----
+    obterMomentoLiberacao: function (consulta) {
+      const hora = this.configuracao.momentoLiberacaoAtendimento === "termino" ? consulta.agnd_hrTerm : consulta.agnd_hrIni;
+      let horario = String(hora || "").substring(0, 8);
+      let momento;
+
+      if (horario.length === 5) {
+        horario += ":00";
+      }
+      momento = new Date(String(consulta.agnd_dt).substring(0, 10) + "T" + horario);
+
+      return isNaN(momento.getTime()) ? null : momento;
+    },
+
+    // Só o profissional registra, só em consulta aceita e só depois do horário marcado.
+    podeRegistrarAtendimento: function (consulta) {
+      const momento = this.obterMomentoLiberacao(consulta);
+
+      if (this.configuracao.tipoUsuario !== "profissional") {
+        return false;
+      }
+      if (this.configuracao.statusPermitidos[consulta.agnd_stat] !== "confirmada") {
+        return false;
+      }
+      return momento !== null && new Date() >= momento;
+    },
+
+    // Mantém as classes do botão original (tamanho, etc.) e só troca a variação de cor.
+    criarBotaoAtendimento: function ($modelo, acao, variacao, icone, rotulo, complemento) {
+      const classes = ($modelo.attr("class") || "btn botaoBase botaoBase--compacto")
+        .replace(/botaoBase--(primario|secundario|opositora|extra)/g, "")
+        .replace(/\s+/g, " ");
+      const $botao = $("<button>")
+        .attr({ type: "button", "data-acao": acao, "aria-label": rotulo + complemento })
+        .addClass($.trim(classes) + " botaoBase--" + variacao);
+
+      if ($modelo.find(".material-symbols-outlined").length) {
+        $botao.append($("<span>").addClass("material-symbols-outlined").attr("aria-hidden", "true").text(icone));
+      }
+      $botao.append(document.createTextNode(rotulo));
+
+      return $botao;
+    },
+
+    trocarBotoesPorAtendimento: function ($card, complemento) {
+      const textos = this.configuracao.textos;
+      const $cancelar = $card.find("[data-acao='cancelarConsulta']");
+      const $reagendar = $card.find("[data-acao='reagendarConsulta']");
+      let $atendido;
+      let $naoCompareceu;
+
+      if ($card.attr("data-acoesAtendimento") === "1" || (!$cancelar.length && !$reagendar.length)) {
+        return;
+      }
+
+      $atendido = this.criarBotaoAtendimento(
+        $cancelar.length ? $cancelar : $reagendar, "marcarAtendido", "primario", textos.iconeAtendido, textos.rotuloAtendido, complemento
+      );
+      $naoCompareceu = this.criarBotaoAtendimento(
+        $reagendar.length ? $reagendar : $cancelar, "marcarNaoCompareceu", "opositora", textos.iconeNaoCompareceu, textos.rotuloNaoCompareceu, complemento
+      );
+
+      if ($cancelar.length && $reagendar.length) {
+        $cancelar.replaceWith($atendido);
+        $reagendar.replaceWith($naoCompareceu);
+      } else {
+        $cancelar.add($reagendar).first().replaceWith($atendido);
+        $atendido.after($naoCompareceu);
+      }
+
+      $card.attr("data-acoesAtendimento", "1");
+    },
+
+    extrairJson: function (texto) {
+      const conteudo = String(texto || "");
+      const inicio = conteudo.indexOf("{");
+
+      return inicio > 0 ? conteudo.slice(inicio) : conteudo;
+    },
+
+    registrarAtendimento: function ($botao, tipo) {
+      const self = this;
+      const $card = $botao.closest("[data-idConsulta]");
+      const consulta = this.consultasPorId[String($card.attr("data-idConsulta"))];
+      const $acoes = $card.find("[data-acao='marcarAtendido'], [data-acao='marcarNaoCompareceu']");
+      let dados;
+
+      if (!consulta || $card.attr("data-registrando") === "1") {
+        return;
+      }
+
+      dados = {
+        acao: "atendimento",
+        agnd_id: consulta.agnd_id,
+        agnd_pro: consulta.agnd_pro,
+        agnd_cli: consulta.agnd_cli || "",
+        agnd_ser: consulta.agnd_ser,
+        tipo: tipo
+      };
+      // Sem clínica o campo não vai: o backend assume 0, como já faz no cancelamento.
+      if (consulta.agnd_clin) {
+        dados.agnd_clin = consulta.agnd_clin;
+      }
+
+      $card.attr({ "data-registrando": "1", "aria-busy": "true" });
+      $acoes.prop("disabled", true);
+      $card.find("[data-campo='erroAtendimento']").remove();
+
+      $.ajax({
+        url: this.configuracao.urlServico,
+        method: "POST",
+        dataType: "text",
+        data: dados
+      })
+        .done(function (texto) {
+          let resposta = null;
+
+          // O backend pode imprimir avisos do PHP antes do JSON.
+          try {
+            resposta = JSON.parse(self.extrairJson(texto));
+          } catch (erro) {
+            resposta = null;
+          }
+
+          if (resposta && resposta.sucesso === true) {
+            self.aoRegistrarAtendimento($card, consulta, tipo);
+          } else {
+            self.aoFalharAtendimento($card, $acoes);
+          }
+        })
+        .fail(function () {
+          self.aoFalharAtendimento($card, $acoes);
+        })
+        .always(function () {
+          $card.removeAttr("data-registrando").attr("aria-busy", "false");
+        });
+    },
+
+    aoRegistrarAtendimento: function ($card, consulta, tipo) {
+      const textos = this.configuracao.textos;
+      const rotulo = tipo === this.configuracao.statusAtendimento.atendido ? textos.rotuloAtendido : textos.rotuloNaoCompareceu;
+      const $acoes = $card.find("[data-acao='marcarAtendido'], [data-acao='marcarNaoCompareceu']");
+      const $resultado = $("<p>")
+        .addClass("mb-0 fw-bold")
+        .attr({ "data-campo": "resultadoAtendimento", role: "status" })
+        .text(rotulo);
+
+      consulta.atendimentoRegistrado = tipo;
+      $card.attr("data-atendimento", tipo);
+      $acoes.first().before($resultado);
+      $acoes.remove();
+      this.elementos.$statusPagina.text(rotulo + " registrado.");
+
+      $(document).trigger("atendimentoRegistrado", { idConsulta: consulta.agnd_id, tipo: tipo });
+    },
+
+    aoFalharAtendimento: function ($card, $acoes) {
+      const mensagem = this.configuracao.textos.erroAtendimento;
+
+      $acoes.prop("disabled", false);
+      $acoes.last().after(
+        $("<p>").addClass("text-danger small mb-0").attr({ "data-campo": "erroAtendimento", role: "alert" }).text(mensagem)
+      );
+      this.elementos.$statusPagina.text(mensagem);
+    },
+
+    // Consultas que passam do horário com a página aberta também trocam os botões.
+    atualizarCardsPorHorario: function () {
+      const self = this;
+
+      this.elementos.$lista.children("[data-idConsulta]").each(function () {
+        const $card = $(this);
+        const consulta = self.consultasPorId[String($card.attr("data-idConsulta"))];
+
+        if (consulta && !$card.attr("data-atendimento") && self.podeRegistrarAtendimento(consulta)) {
+          self.trocarBotoesPorAtendimento(
+            $card,
+            " — " + consulta.ser_nome + ", " + self.formatarDataHora(consulta.agnd_dt, consulta.agnd_hrIni)
+          );
+        }
+      });
+    },
+
+    iniciarVerificacaoHorario: function () {
+      const self = this;
+
+      window.clearInterval(this.temporizadorHorario);
+      this.temporizadorHorario = window.setInterval(function () {
+        self.atualizarCardsPorHorario();
+      }, this.configuracao.intervaloVerificacaoHorario);
     },
 
     atualizarContador: function (quantidade) {
@@ -183,6 +402,7 @@
         this.elementos.$statusPagina.text(this.configuracao.textos.semConsultas + ".");
       } else {
         this.elementos.$lista.empty();
+        this.consultasPorId = {};
 
         $.each(consultas, function (indice, consulta) {
           self.elementos.$lista.append(self.montarCard(consulta));
@@ -194,6 +414,7 @@
         this.elementos.$statusPagina.text(
           quantidade + (quantidade === 1 ? " consulta hoje." : " consultas hoje.")
         );
+        this.iniciarVerificacaoHorario();
       }
 
       $(document).trigger("consultasInicioCarregadas", { consultasHoje: quantidade });

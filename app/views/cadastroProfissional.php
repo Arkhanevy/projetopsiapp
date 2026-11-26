@@ -25,7 +25,6 @@
                 <button type="button" class="nav-link dropdown-toggle navbar-brand navTopoDeslogado_acao" data-bs-toggle="dropdown">Cadastre-se</button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="index.php?uri=cadastroCliente">Sou um cliente</a></li>
-                    <li><a class="dropdown-item" href="index.php?uri=cadastroProfissional">Sou um profissional</a></li>
                     <li><a class="dropdown-item" href="index.php?uri=cadastroClinica">Sou uma clínica</a></li>
                 </ul>
                 <button type="button" class="nav-link dropdown-toggle navbar-brand navTopoDeslogado_acao" data-bs-toggle="dropdown">Entrar</button>
@@ -114,25 +113,21 @@
                                     <br /><textarea name="bio" id="bioProfissional"
                                         placeholder="Escreva sua biografia aqui."></textarea>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="registroProfissional" class="form-label">Registro profissional (arquivo)</label>
-                                    <!-- [ARQUIVOS DESATIVADOS] "required" removido. Original:
-                                    <input name="registro" id="registroProfissional" class="form-control" type="file" data-tiposPermitidos="" data-tamanhoMaximoMb="" aria-describedby="nomeRegistro" required>
-                                    -->
-                                    <input name="registro" id="registroProfissional" class="form-control" type="file" data-tiposPermitidos="" data-tamanhoMaximoMb="" aria-describedby="nomeRegistro">
-                                    <small id="nomeRegistro" class="d-block mt-1" aria-live="polite"></small>
-                                </div>
-
                                 <div class="form-floating campoTexto mb-3">
                                     <input name="CPF" id="CPF" data-mascara="cpf" inputmode="numeric" class="form-control" type="text" placeholder="CPF"
                                         required>
                                     <label for="CPF">CPF</label>
                                 </div>
 
-                                <div class="form-floating campoTexto mb-3">
-                                    <input name="senha" id="senhaProfissional" class="form-control" type="password"
-                                        placeholder="Senha" required>
-                                    <label for="senhaProfissional">Senha</label>
+                                <div class="campoTexto campoSenha mb-3">
+                                    <div class="form-floating">
+                                        <input name="senha" id="senhaProfissional" class="form-control" type="password" placeholder="Senha" autocomplete="new-password" required>
+                                        <label for="senhaProfissional">Senha</label>
+                                    </div>
+                                    <button type="button" id="botaoVisibilidadeSenha" class="campoSenha_botaoVisibilidade"
+                                        aria-label="Mostrar senha" aria-controls="senhaProfissional" aria-pressed="false">
+                                        <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                                    </button>
                                 </div>
                                 <div class="d-grid mb-3">
                                     <button type="button" id="btnCadastrar" class="btn botaoBase botaoBase--primario">Cadastrar</button>

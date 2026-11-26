@@ -9,7 +9,7 @@ use models\usuario;
 class clinica extends usuario {
     public function __construct($table,$campo,$primary) {
         parent::__construct($table,$campo,$primary);}
-    
+        
     public function Cadastrarclinica($nome,$email,$foto,$username,$senha,$bio,$CNPJ,$telefone) {
             $dados =[
                 0,

@@ -30,7 +30,7 @@
         perfil: "index.php?uri=perfil"
       },
       clinica: {
-        // Sem inicio/agenda: a clínica não exibe "Início" nem "Agenda" no menu.
+        // Sem inicio: a clínica não exibe "Início" no menu, mas exibe "Agenda".
         agenda: "index.php?uri=agendaClinica",
         perfil: "index.php?uri=perfil"
       }

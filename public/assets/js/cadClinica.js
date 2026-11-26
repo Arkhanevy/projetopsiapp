@@ -25,6 +25,11 @@
 
       this.registrarEventos();
       this.mostrarTela(this.estado.telaInicial);
+
+      const emailPendente = Utilitarios.consumirEmailAtivacao();
+      if (emailPendente) {
+        this.iniciarAtivacao(emailPendente);
+      }
     },
 
     urlElementos: function () {
@@ -44,6 +49,7 @@
       this.elementos.$bio = $("#bioClinica");
       this.elementos.$cnpj = $("#cnpj");
       this.elementos.$senha = $("#senhaClinica");
+      this.elementos.$botaoVisibilidadeSenha = $("#botaoVisibilidadeSenha");
       this.elementos.$formulario = $("#formClinica");
 
       this.elementos.$formAtivacao = $("#formAtivacao");
@@ -66,6 +72,8 @@
       this.validarCamposAoSair();
 
       const self = this;
+
+      Utilitarios.configurarVisibilidadeSenha(this.elementos.$senha, this.elementos.$botaoVisibilidadeSenha);
 
       // O envio é feito somente pelos botões (AJAX); o submit nativo fica bloqueado.
       this.elementos.$formulario.add(this.elementos.$formAtivacao).on("submit", function (evento) {
@@ -182,7 +190,7 @@
           $botao.prop("disabled", false).html("Cadastrar");
           if (resposta.sucesso === true) {
               self.mostrarAlert("Cadastro realizado!", "success");
-              self.mostrarTela("ativacao");
+              self.iniciarAtivacao(email);
           } else {
               self.mostrarAlert(
                   resposta.mensagem || "Não foi possível realizar o cadastro.",
@@ -196,6 +204,13 @@
 
           self.mostrarAlert("Erro na requisição!", "danger");
       });
+    },
+
+    // Mostra a tela de ativação e já envia o código, sem precisar clicar em "Gerar código".
+    iniciarAtivacao: function (email) {
+      this.elementos.$email.val(email);
+      this.mostrarTela("ativacao");
+      this.gerarCodigo(this.elementos.$botaoCodigo);
     },
 
     gerarCodigo: function ($botao) {
@@ -239,6 +254,8 @@
 
               self.estado.codigoGerado = true;
           } else {
+              clearInterval(intervalo);
+              $botao.prop("disabled", false).text("Gerar código");
               self.mostrarAlert(
                   resposta.mensagem || "Não foi possível gerar o código.",
                   "danger"
@@ -246,6 +263,8 @@
           }
       })
       .fail(function (xhr, status, erro) {
+          clearInterval(intervalo);
+          $botao.prop("disabled", false).text("Gerar código");
           self.mostrarAlert("Erro na requisição ao gerar código!", "danger");
       });
     },
@@ -293,6 +312,7 @@
               self.estado.codigoGerado = false;
 
               setTimeout(function () {
+                  Utilitarios.guardarEmailLogin(email);
                   window.location.href = self.configuracao.urlLogin;
               }, 1500);
           } else {

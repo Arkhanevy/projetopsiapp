@@ -1,8 +1,6 @@
-drop database dbelmo;
-
-create database dbelmo character set utf8mb4 collate utf8mb4_general_ci;
-
+create  database dbelmo;
 use dbelmo;
+
 
 create table clinica( -- tabela com os dados do perifil da clinica
 	clin_id int auto_increment primary key, -- id da clinica
@@ -98,14 +96,13 @@ create table localizacao (-- criei essa tabela pra fazer um 1vn com as salas
     loc_clin int null,   -- id da clinica nessa tabela
     loc_nome varchar(90) not null, -- nome da localização
     loc_tipo enum('clin','casa','domi') not null, -- tipo de localização: clinica, casa, à domicíolio
-    loc_cep varchar(8) null,
+    loc_cep varchar(8) not null,
     loc_num varchar(5) not null,
     loc_compl varchar(50) null,
     foreign key (loc_pro) references profissional(pro_id),
     foreign key (loc_clin) references clinica(clin_id) 
 );
-Preciso resolver adicionar métodos para fazer duas ações em relação ao tipo de local.
-Quando o tipo de local for domi, não é permitido que o usuario seja um cliente simples e deve mostrar um aviso avisando que o cliente deve utilizar o telefone em contatos para enviar a localização para o profissional.
+
 create table sala (-- crie essa tabela para controlar o agendamento de forma que não aja um agendamento na mesma sala no mesmo horario
 	sala_id int auto_increment primary key,-- id dessa tabela
     sala_loc int not null, -- id da localização nessa tabela
@@ -218,7 +215,7 @@ CREATE TABLE ctrlFiles (
 );
 
 insert into padrao_notif (pdNotif_pro, pdNotif_clin, pdNotif_tipo, pdNotif_msg) values
-(null, null, 'agendar',   'Nova solicitação de consulta de {cliente} para {servico} no dia {data} às {hora}. Acesse a agenda para aceitar ou recusar.'),
+(null, null, 'agendar',   'Nova solicitação de consulta de {cliente} para {servico} no dia {data} às {hora}. Acesse a agenda para aceitar ou recusar.');
 (null, null, 'reagendar', '{cliente} solicitou o reagendamento da consulta de {servico} para o dia {data} às {hora}. Acesse a agenda para aceitar ou recusar.'),
 (null, null, 'aceita',    'Sua consulta de {servico} com {profissional} foi aceita! Te esperamos no dia {data} às {hora}.'),
 (null, null, 'rejeitar',  'Infelizmente sua solicitação de consulta de {servico} para o dia {data} às {hora} não pôde ser aceita. Escolha outro horário na agenda.'),

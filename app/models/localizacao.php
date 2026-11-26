@@ -2,6 +2,7 @@
 namespace models;
 
 use core\database\DBQuery;
+use core\database\DBConnection;
 use core\database\Where;
 
 class localizacao {
@@ -79,6 +80,61 @@ class localizacao {
         };
     }
     
+    // Cria a localização e as salas de uma vez, numa única transação:
+    // se qualquer sala falhar, nada é gravado.
+    public function inserirlocComSalas($pro,$clin,$nome,$tipo,$cep,$num,$comp,$salas) {
+        $nomes = [];
+        foreach ((array) $salas as $sala) {
+            $sala = trim((string) $sala);
+            if ($sala === '') {
+                continue;
+            }
+            if (mb_strlen($sala) > 50) {
+                return ['sucesso' => false, 'mensagem' => 'O nome da sala deve ter até 50 caracteres.'];
+            }
+            $nomes[] = $sala;
+        }
+        if (!$nomes) {
+            return $this->inserirloc($pro,$clin,$nome,$tipo,$cep,$num,$comp);
+        }
+        if (count($nomes) > 50) {
+            return ['sucesso' => false, 'mensagem' => 'Informe no máximo 50 salas.'];
+        }
+
+        $pdo = null;
+        try {
+            $pdo = (new DBConnection())->getConn();
+            $pdo->beginTransaction();
+
+            $st = $pdo->prepare(
+                "INSERT INTO localizacao (loc_pro, loc_clin, loc_nome, loc_tipo, loc_cep, loc_num, loc_compl)
+                 VALUES (:pro, :clin, :nome, :tipo, :cep, :num, :comp)");
+            $st->execute([
+                ':pro'  => $pro,
+                ':clin' => $clin,
+                ':nome' => $nome,
+                ':tipo' => $tipo,
+                ':cep'  => $cep,
+                ':num'  => $num,
+                ':comp' => $comp
+            ]);
+            $locId = (int) $pdo->lastInsertId();
+
+            $st = $pdo->prepare("INSERT INTO sala (sala_loc, sala_nome) VALUES (:loc, :nome)");
+            foreach ($nomes as $nomeSala) {
+                $st->execute([':loc' => $locId, ':nome' => $nomeSala]);
+            }
+
+            $pdo->commit();
+            return ['sucesso' => true, 'loc_id' => $locId, 'salas' => count($nomes)];
+        } catch (\Throwable $e) {
+            if ($pdo && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            return ['sucesso' => false, 'mensagem' => 'Erro no banco: ' . $e->getMessage()];
+        }
+    }
+
     public function inserirsala($loc,$nome,$usuario,$id) {
         $dono = $this->verifica($usuario, $id, $loc);
         if ($dono['sucesso'] === false){

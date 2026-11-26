@@ -17,6 +17,7 @@ switch ($acao){
             $clin = null;
             $pro = $_SESSION['usuario']['idUsuario'];
         }
+        
         $cadastro = $servico->cadastrar(0, $pro ,$clin, $_POST['nome'], $_POST['tipo'], $_POST['desc'], $_POST['dur'], $_POST['inter'], $_POST['val'], $_POST['dia'], $_POST['loc']);
         echo $cadastro;
         exit;

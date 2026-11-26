@@ -154,15 +154,15 @@ class usuario {
             $camposStr = implode(',', $this->campos);
             $codigo = new DBQuery($this->table, $camposStr, $this->primary);
             $codigo->update($dados);
-            
+           /* 
             $mail = new Mail($dados[0], $assunto, $body);
-            $verifica = $mail ->send();
-            if (!$verifica) {
+            $verifica = $mail ->send();*/
+            /*if (!$verifica) {
                 return [
                     'sucesso'  => false,
                     'mensagem' => $mail->getLastError()
                 ];
-            }
+            }*/
             return ['sucesso' => true];
         }catch (\Exception $e) {
             return [

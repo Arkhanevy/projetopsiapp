@@ -22,10 +22,14 @@
 
       const el = this.elementos;
       Utilitarios.configurarPreviewImagem(el.$alertContainer, el.$img, el.$preview);
-      Utilitarios.configurarArquivo(el.$alertContainer, el.$registro, el.$nomeRegistro);
 
       this.registrarEventos();
       this.mostrarTela(this.estado.telaInicial);
+
+      const emailPendente = Utilitarios.consumirEmailAtivacao();
+      if (emailPendente) {
+        this.iniciarAtivacao(emailPendente);
+      }
     },
 
     urlElementos: function () {
@@ -47,8 +51,7 @@
       this.elementos.$data = $("#dtnPro");
       this.elementos.$cpf = $("#CPF");
       this.elementos.$senha = $("#senhaProfissional");
-      this.elementos.$registro = $("#registroProfissional");
-      this.elementos.$nomeRegistro = $("#nomeRegistro");
+      this.elementos.$botaoVisibilidadeSenha = $("#botaoVisibilidadeSenha");
       this.elementos.$formulario = $("#formProfissional");
 
       this.elementos.$formAtivacao = $("#formAtivacao");
@@ -72,6 +75,8 @@
       this.validarCamposAoSair();
 
       const self = this;
+
+      Utilitarios.configurarVisibilidadeSenha(this.elementos.$senha, this.elementos.$botaoVisibilidadeSenha);
 
       // O envio é feito somente pelos botões (AJAX); o submit nativo fica bloqueado.
       this.elementos.$formulario.add(this.elementos.$formAtivacao).on("submit", function (evento) {
@@ -122,16 +127,12 @@
 
       $botao.prop("disabled", true).html("Cadastrando...");
 
-      // [ARQUIVOS DESATIVADOS] Registro profissional (arquivo) não é mais obrigatório nem enviado.
-      // const registroArquivo = el.$registro[0].files[0];
-
       const campos = [
         { valor: el.$nome.val(), el: el.$nome },
         { valor: el.$tel.val(), el: el.$tel },
         { valor: el.$user.val(), el: el.$user },
         { valor: el.$bio.val(), el: el.$bio },
         { valor: el.$data.val(), el: el.$data },
-        // { valor: registroArquivo ? registroArquivo.name : "", el: el.$registro }, // [ARQUIVOS DESATIVADOS]
         { valor: el.$senha.val(), el: el.$senha },
         { valor: el.$genero.val(), el: el.$genero },
         { valor: el.$email.val(), el: el.$email },
@@ -192,12 +193,7 @@
         CPF: cpfLimpo
       });
 
-      // [ARQUIVOS DESATIVADOS] $_FILES['registro'] levava o arquivo; $_POST['registro'] levava o nome do arquivo.
-      // formData.append("registro", registroArquivo.name);
-
-      // A foto (cxproFoto) segue no formData. O arquivo de registro continua desativado:
-      // o backend ainda não salva esse arquivo, então ele não é enviado.
-      formData.delete("registro");
+      // A foto (cxproFoto) segue no formData. O cadastro não pede mais arquivo de registro.
 
       $.ajax({
           url: this.configuracao.urlProfissional,
@@ -211,7 +207,7 @@
           $botao.prop("disabled", false).html("Cadastrar");
           if (resposta.sucesso === true) {
               self.mostrarAlert("Cadastro realizado!", "success");
-              self.mostrarTela("ativacao");
+              self.iniciarAtivacao(email);
           } else {
               self.mostrarAlert(
                   resposta.mensagem || "Não foi possível realizar o cadastro.",
@@ -223,6 +219,13 @@
           $botao.prop("disabled", false).html("Cadastrar");
           self.mostrarAlert("Erro na requisição!", "danger");
       });
+    },
+
+    // Mostra a tela de ativação e já envia o código, sem precisar clicar em "Gerar código".
+    iniciarAtivacao: function (email) {
+      this.elementos.$email.val(email);
+      this.mostrarTela("ativacao");
+      this.gerarCodigo(this.elementos.$botaoCodigo);
     },
 
     gerarCodigo: function ($botao) {
@@ -266,6 +269,8 @@
 
               self.estado.codigoGerado = true;
           } else {
+              clearInterval(intervalo);
+              $botao.prop("disabled", false).text("Gerar código");
               self.mostrarAlert(
                   resposta.mensagem || "Não foi possível gerar o código.",
                   "danger"
@@ -273,6 +278,8 @@
           }
       })
       .fail(function (xhr, status, erro) {
+          clearInterval(intervalo);
+          $botao.prop("disabled", false).text("Gerar código");
           self.mostrarAlert("Erro na requisição ao gerar código!", "danger");
       });
     },
@@ -320,6 +327,7 @@
               self.estado.codigoGerado = false;
 
               setTimeout(function () {
+                  Utilitarios.guardarEmailLogin(email);
                   window.location.href = self.configuracao.urlLogin;
               }, 1500);
           } else {

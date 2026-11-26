@@ -11,7 +11,12 @@
         profissional: "index.php?uri=perfil",
         clinica: "index.php?uri=perfil"
       },
-      destinoPadrao: "index.php?uri=buscar"
+      destinoPadrao: "index.php?uri=buscar",
+      // conta criada mas não ativada: volta para a tela de ativação do cadastro
+      ativacaoPorTipo: {
+        cliente: "index.php?uri=cadastroCliente",
+        clinica: "index.php?uri=cadastroClinica"
+      }
     },
 
     elementos: {},
@@ -19,6 +24,7 @@
     iniciar: function () {
       this.urlElementos();
       this.registrarEventos();
+      this.preencherEmailAtivado();
     },
 
     urlElementos: function () {
@@ -27,10 +33,13 @@
       this.elementos.$loginEmail = $("#emailLogin");
       this.elementos.$loginSenha = $("#senhaLogin");
       this.elementos.$botaoLogar = $("#btnLogar");
+      this.elementos.$botaoVisibilidadeSenha = $("#botaoVisibilidadeSenha");
     },
 
     registrarEventos: function () {
       const self = this;
+
+      Utilitarios.configurarVisibilidadeSenha(this.elementos.$loginSenha, this.elementos.$botaoVisibilidadeSenha);
 
       Utilitarios.validarAoSair(this.elementos.$alertContainer, [
         {
@@ -49,6 +58,19 @@
         evento.preventDefault();
         self.enviarLogin();
       });
+    },
+
+    // Depois da ativação o e-mail já vem preenchido e o cursor vai direto para a senha.
+    preencherEmailAtivado: function () {
+      const email = Utilitarios.consumirEmailLogin();
+
+      if (!email) {
+        this.elementos.$loginEmail.trigger("focus");
+        return;
+      }
+
+      this.elementos.$loginEmail.val(email);
+      this.elementos.$loginSenha.trigger("focus");
     },
 
     mostrarAlert: function (mensagem, tipo) {
@@ -105,6 +127,14 @@
           return; // mantém o botão travado durante o redirecionamento
         }
         self.liberarBotao();
+
+        const destinoAtivacao = resposta && self.configuracao.ativacaoPorTipo[resposta.tipoPendente];
+        if (destinoAtivacao) {
+          Utilitarios.guardarEmailAtivacao(email);
+          window.location.href = destinoAtivacao;
+          return;
+        }
+
         self.mostrarAlert(
           (resposta && resposta.mensagem) || "Não foi possível realizar o login.", "danger"
         );
