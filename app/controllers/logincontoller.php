@@ -47,6 +47,7 @@ $tipos = [
 
 $mensagensComuns = ['E-mail não encontrado', 'Senha inválida'];
 $contaNaoAtivada = false;
+$tipoPendente = null; // tipo da conta que existe mas ainda não foi ativada
 
 try {
     foreach ($tipos as $tabela => $tipo) {
@@ -66,6 +67,7 @@ try {
         $mensagem = $resultado['mensagem'] ?? '';
         if ($mensagem === 'Conta não ativada') {
             $contaNaoAtivada = true;
+            $tipoPendente = $tipoPendente ?? $tabela;
         } elseif (!in_array($mensagem, $mensagensComuns, true)) {
             // erro inesperado (ex.: banco): só no log, nunca para o usuário
             error_log("Login ($tabela): $mensagem");
@@ -82,5 +84,7 @@ echo json_encode([
     'mensagem' => $contaNaoAtivada
         ? 'Conta não ativada. Confirme o código enviado ao seu e-mail.'
         : 'E-mail ou senha inválidos.',
+    // o front usa para abrir a ativação da conta certa
+    'tipoPendente' => $contaNaoAtivada ? $tipoPendente : null,
 ]);
 exit;

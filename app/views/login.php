@@ -26,7 +26,6 @@
                 <button type="button" class="nav-link dropdown-toggle navbar-brand navTopoDeslogado_acao" data-bs-toggle="dropdown">Cadastre-se</button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="index.php?uri=cadastroCliente">Sou um cliente</a></li>
-                    <li><a class="dropdown-item" href="index.php?uri=cadastroProfissional">Sou um profissional</a></li>
                     <li><a class="dropdown-item" href="index.php?uri=cadastroClinica">Sou uma clínica</a></li>
                 </ul>
                 <a href="index.php?uri=login" class="nav-link navbar-brand navTopoDeslogado_acao" aria-current="page">Entrar</a>
@@ -62,10 +61,15 @@
                                     placeholder="E-mail" autocomplete="username" required>
                                 <label for="emailLogin">E-mail</label>
                             </div>
-                            <div class="form-floating mb-3">
-                                <input name="senha" id="senhaLogin" class="form-control" type="password"
-                                    placeholder="Senha" autocomplete="current-password" required>
-                                <label for="senhaLogin">Senha</label>
+                            <div class="campoTexto campoSenha mb-3">
+                                <div class="form-floating">
+                                    <input name="senha" id="senhaLogin" class="form-control" type="password" placeholder="Senha" autocomplete="current-password" required>
+                                    <label for="senhaLogin">Senha</label>
+                                </div>
+                                <button type="button" id="botaoVisibilidadeSenha" class="campoSenha_botaoVisibilidade"
+                                    aria-label="Mostrar senha" aria-controls="senhaLogin" aria-pressed="false">
+                                    <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                                </button>
                             </div>
                             <div class="d-grid mb-3">
                                 <button type="submit" id="btnLogar" class="btn botaoBase botaoBase--primario">Logar</button>
@@ -73,8 +77,7 @@
                         </form>
 
                         <p class="text-center">Não tem conta? Cadastre-se como
-                            <a href="index.php?uri=cadastroCliente">cliente</a>,
-                            <a href="index.php?uri=cadastroProfissional">profissional</a> ou
+                            <a href="index.php?uri=cadastroCliente">cliente</a> ou
                             <a href="index.php?uri=cadastroClinica">clínica</a>.
                         </p>
                     </div>

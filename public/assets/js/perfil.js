@@ -3,11 +3,6 @@
 
   const nomesDias = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
-  // Dias da semana trocados com o backend: número em formato de string
-  // ("0" = domingo, "1" = segunda ... "6" = sábado).
-
-  // Local de atendimento do serviço, como o backend recebe (string).
-  // Clínica = prefixo + id da clínica (ex.: "clin12").
   const localCasa = "Casa";
   const localDomiciliar = "domi";
   const prefixoLocalClinica = "clin";
@@ -15,7 +10,6 @@
 
   const urlServico = "index.php?uri=servico";
 
-  // O backend às vezes imprime avisos do PHP antes do JSON. Descarta tudo que vem antes do JSON.
   function extrairJson(texto) {
     const conteudo = String(texto || "");
     let inicio = conteudo.search(/\{\s*"(sucesso|logado)"/);
@@ -48,7 +42,6 @@
     clinica: {
       url: "index.php?uri=clinica",
       urlLogin: "index.php?uri=login",
-      // Sem hrefInicio/hrefAgenda: a clínica não exibe "Início" nem "Agenda" no menu.
       listaVinculos: "profissionais",
       iconeVinculo: "person",
       textos: {
@@ -66,8 +59,6 @@
     }
   };
 
-  // O cliente não tem perfil próprio nesta página, mas precisa existir em "papeis":
-  // verificarLogin testa os três papéis e a navegação lê hrefInicio/hrefAgenda.
   papeis.cliente = {
     url: "index.php?uri=cliente",
     urlLogin: "index.php?uri=login",
@@ -96,7 +87,7 @@
 
         carregarPerfilPublico: { url: "index.php?uri=busca", acao: "mostrardetalhes", disponivel: true },
 
-        cadastrarHorarios: { acao: { profissional: "atribuirHrServico" }, disponivel: true },
+        cadastrarHorarios: { acao: { profissional: "atribuirHrServico", clinica: "atribuirHrServico" }, disponivel: true },
 
         buscarVinculo: { url: "index.php?uri=busca", acao: "busca", disponivel: true },
 
@@ -108,6 +99,9 @@
         listarServicosClinica: { url: "index.php?uri=clinica", acao: "pegarinfo", disponivel: false },
         listarLocalizacoes: { url: "index.php?uri=localizacao", acao: "pegarloc", disponivel: true },
         listarSalas: { url: "index.php?uri=localizacao", acao: "pegarSalas", disponivel: true },
+        cadastrarSala: { url: "index.php?uri=localizacao", acao: "inserirsala", disponivel: true },
+        editarSala: { url: "index.php?uri=localizacao", acao: "editarsala", disponivel: true },
+        removerSala: { url: "index.php?uri=localizacao", acao: "removersala", disponivel: true },
         listarProfissionaisClinica: { url: "index.php?uri=busca", acao: "gerenciarPro", disponivel: true },
 
         vincular:          { acao: "vincular",           disponivel: true },
@@ -133,6 +127,7 @@
       pedidoNomes: 0,
       vinculos: [],
       pedidoSalas: 0,
+      salasPendentes: [],
       origemFoco: null
     },
 
@@ -170,6 +165,7 @@
       e.$campoValorServico = $("#campoValorServico");
       e.$campoLocalizacaoServico = $("#campoLocalizacaoServico");
       e.$campoSalaServico = $("#campoSalaServico");
+      e.$campoProfissionaisServico = $("#campoProfissionaisServico");
       e.$listaLinhasHorario = $('[data-lista="linhasHorario"]');
       e.$botaoSalvarHorarios = $("#botaoSalvarHorarios");
       e.$botaoConfirmarVinculo = $('[data-campo="botaoConfirmarVinculo"]');
@@ -499,7 +495,7 @@
 
       let dadosPerfil;
       if (visitante) {
-        dadosPerfil = { tipo: this.estado.alvo.tipo, id: this.estado.alvo.id };
+        dadosPerfil = { tipo: this.estado.alvo.tipo, id: this.estado.alvo.id, completo: 1 };
       } else {
         dadosPerfil = null;
       }
@@ -521,7 +517,7 @@
               return;
             }
             self.estado.perfil = resposta.dados[0];
-            self.estado.horarios = [];
+            self.estado.horarios = $.isArray(resposta.horarios) ? resposta.horarios : [];
             self.estado.localizacoesPublicas = $.isArray(resposta.localizacoes) ? resposta.localizacoes : [];
             const servicosPublicos = $.isArray(resposta.servicos) ? resposta.servicos : [];
             if (self.ehClinica()) {
@@ -535,8 +531,7 @@
 
             self.estado.perfil = (resposta.dados1 && resposta.dados1[0]) || {};
             if (self.ehClinica()) {
-              // "pegarinfo" devolve os serviços da clínica em dados2 e não envia horários.
-              self.estado.horarios = [];
+              self.estado.horarios = resposta.dados3 || [];
               self.estado.servicos = [];
               self.estado.servicosClinica = resposta.dados2 || [];
             } else {
@@ -638,7 +633,7 @@
       this.renderizarHorarios();
       this.preencherFormularioHorarios();
 
-      if (this.ehVisitante() || this.ehClinica()) {
+      if (this.ehVisitante()) {
         $('[data-estadoVazio="horarios"] .estadoVazio_texto').text("Informação ainda não disponível");
       }
       if (this.ehClinica()) {
@@ -660,7 +655,6 @@
       const $foto = $('[data-campo="foto"]');
       const $iconePadrao = $(".cabecalhoPerfil_iconePadrao");
 
-      // O backend envia a imagem como data URI; qualquer outro valor (caminho do servidor, PDF, vazio) mantém o ícone padrão.
       if (typeof foto === "string" && foto.indexOf("data:image/") === 0) {
         $foto.attr("src", foto).removeAttr("hidden");
         $iconePadrao.attr("hidden", "hidden");
@@ -731,8 +725,6 @@
         });
     },
 
-    // O backend só envia ser_pro (id). O nome vem de "gerenciarPro" (profissionais da clínica)
-    // e, para quem não estiver mais vinculado, de "mostrardetalhes". Falha aqui nunca trava a lista.
     resolverNomesProfissionais: function (servicos) {
       const self = this;
       const nomes = this.estado.nomesProfissionais;
@@ -780,7 +772,6 @@
         });
       }
 
-      // "gerenciarPro" usa a sessão: só vale para a própria clínica, nunca para visitante.
       if (!this.ehVisitante() && this.contratoDisponivel("listarProfissionaisClinica")) {
         this.chamarContrato("listarProfissionaisClinica", { tipo: "profissional" })
           .done(function (resposta) {
@@ -916,17 +907,18 @@
       return "casa";
     },
 
-    // Busca no localizacaocontroller a localização do dono do perfil (clínica: "clin"; profissional: "casa").
-    // Visitante só enxerga a da clínica; o endereço da residência do profissional é privado.
     carregarLocalizacao: function () {
       const self = this;
       const tipoLocal = this.tipoLocalDoPerfil();
       const dados = {};
 
+      if (this.ehClinica() && !this.ehVisitante() && this.estado.perfil && this.estado.perfil.clin_id) {
+        dados.clinica = this.estado.perfil.clin_id;
+      }
+
       this.estado.localizacao = null;
 
       if (this.ehVisitante()) {
-        // a localização pública da clínica vem junto do perfil (busca/mostrardetalhes)
         $.each(this.estado.localizacoesPublicas || [], function (_, local) {
           if (local.loc_tipo === tipoLocal) {
             self.estado.localizacao = local;
@@ -952,9 +944,187 @@
             }
           });
           self.renderizarLocalizacao();
+          self.carregarSalas();
         })
         .fail(function () {
           self.renderizarLocalizacao();
+        });
+    },
+
+    carregarSalas: function () {
+      const self = this;
+      const local = this.estado.localizacao;
+      if (this.ehVisitante()) {
+        return;
+      }
+      if (!local || !this.contratoDisponivel("listarSalas")) {
+        this.renderizarSalas([]);
+        return;
+      }
+      this.chamarContrato("listarSalas", { loc: local.loc_id })
+        .done(function (resposta) {
+          self.renderizarSalas((resposta && resposta.sucesso && resposta.dados) || []);
+        })
+        .fail(function () {
+          self.renderizarSalas([]);
+        });
+    },
+
+    renderizarSalas: function (salas) {
+      const $lista = $('[data-lista="salas"]');
+      const $vazio = $('[data-estadoVazio="salas"]');
+      this.estado.salas = salas;
+      $("#secaoSalas").prop("hidden", !this.estado.localizacao);
+      $lista.empty();
+      $.each(salas, function (_, sala) {
+        $("<li>").addClass("secaoPerfil_texto").text(sala.sala_nome || "Sala " + sala.sala_id).appendTo($lista);
+      });
+      $lista.prop("hidden", !salas.length);
+      $vazio.prop("hidden", !!salas.length);
+      this.renderizarEditorSalas();
+    },
+
+    renderizarEditorSalas: function () {
+      const $editor = $("#editorSalas");
+      const $lista = $editor.find('[data-lista="editorSalas"]');
+      const salas = this.estado.salas || [];
+      const pendentes = this.estado.salasPendentes || [];
+      const temLocal = !!this.estado.localizacao;
+
+      $lista.empty();
+      $editor.find('[data-campo="avisoSalasSemLocal"]').prop("hidden", temLocal);
+      $editor.find('[data-campo="avisoSalasVazio"]').prop("hidden", temLocal ? !!salas.length : !!pendentes.length);
+      $editor.find('[data-campo="novaSalaGrupo"]').prop("hidden", false);
+
+      if (!temLocal) {
+        $.each(pendentes, function (indice, nome) {
+          const $linha = $("<li>").addClass("d-flex align-items-center gap-2 mb-2").attr("data-sala-pendente", indice);
+          const $campo = $("<input>").attr({ type: "text", readonly: true, "aria-label": "Nome da sala" }).addClass("form-control").val(nome);
+          const $remover = $("<button>").attr({ type: "button", "data-acao": "removerSalaPendente", "aria-label": "Remover sala " + nome }).addClass("btn secaoPerfil_acao")
+            .append($("<span>").addClass("material-symbols-outlined").attr("aria-hidden", "true").text("delete"));
+          $linha.append($campo, $remover).appendTo($lista);
+        });
+        return;
+      }
+
+      $.each(salas, function (_, sala) {
+        const nome = sala.sala_nome || "";
+        const $linha = $("<li>").addClass("d-flex align-items-center gap-2 mb-2").attr("data-sala-id", sala.sala_id).attr("data-nome-original", nome);
+        const $campo = $("<input>").attr({ type: "text", maxlength: 50, "aria-label": "Nome da sala" }).addClass("form-control").val(nome);
+        const $salvar = $("<button>").attr({ type: "button", "data-acao": "salvarSala", "aria-label": "Salvar nome da sala" }).addClass("btn secaoPerfil_acao")
+          .append($("<span>").addClass("material-symbols-outlined").attr("aria-hidden", "true").text("check_circle"));
+        const $excluir = $("<button>").attr({ type: "button", "data-acao": "excluirSala", "aria-label": "Excluir sala" }).addClass("btn secaoPerfil_acao")
+          .append($("<span>").addClass("material-symbols-outlined").attr("aria-hidden", "true").text("delete"));
+        $linha.append($campo, $salvar, $excluir).appendTo($lista);
+      });
+    },
+
+    adicionarSala: function () {
+      const self = this;
+      const $campo = $("#campoNovaSala");
+      const nome = $.trim($campo.val());
+      const local = this.estado.localizacao;
+
+      $campo.removeClass("is-invalid");
+      if (!nome) {
+        $campo.addClass("is-invalid").trigger("focus");
+        this.exibirAviso("Informe o nome da sala.", "erro");
+        return;
+      }
+      if (!local) {
+        const jaAdicionada = $.grep(this.estado.salasPendentes, function (existente) {
+          return existente.toLowerCase() === nome.toLowerCase();
+        }).length;
+
+        if (jaAdicionada) {
+          $campo.addClass("is-invalid").trigger("focus");
+          this.exibirAviso("Essa sala já foi adicionada.", "atencao");
+          return;
+        }
+        this.estado.salasPendentes.push(nome);
+        $campo.val("").trigger("focus");
+        this.renderizarEditorSalas();
+        return;
+      }
+      if (!this.contratoDisponivel("cadastrarSala")) {
+        this.avisarIndisponivel();
+        return;
+      }
+
+      this.chamarContrato("cadastrarSala", { loc: local.loc_id, nome: nome })
+        .done(function (resposta) {
+          if (resposta && resposta.sucesso) {
+            $campo.val("");
+            self.carregarSalas();
+          } else {
+            self.exibirAviso((resposta && resposta.mensagem) || "Não foi possível salvar a sala. Tente novamente.", "erro");
+          }
+        })
+        .fail(function () {
+          self.exibirAviso("Não foi possível salvar a sala. Tente novamente.", "erro");
+        });
+    },
+
+    removerSalaPendente: function ($linha) {
+      this.estado.salasPendentes.splice(Number($linha.attr("data-sala-pendente")), 1);
+      this.renderizarEditorSalas();
+    },
+
+    editarSala: function ($linha) {
+      const self = this;
+      const $campo = $linha.find("input");
+      const nome = $.trim($campo.val());
+
+      $campo.removeClass("is-invalid");
+      if (!nome) {
+        $campo.addClass("is-invalid").trigger("focus");
+        this.exibirAviso("Informe o nome da sala.", "erro");
+        return;
+      }
+      if (nome === $linha.attr("data-nome-original")) {
+        this.exibirAviso("Nenhuma alteração foi feita!", "atencao");
+        return;
+      }
+      if (!this.contratoDisponivel("editarSala")) {
+        this.avisarIndisponivel();
+        return;
+      }
+
+      this.chamarContrato("editarSala", { sala: $linha.attr("data-sala-id"), nome: nome })
+        .done(function (resposta) {
+          if (resposta && resposta.sucesso) {
+            self.carregarSalas();
+          } else {
+            self.exibirAviso((resposta && resposta.mensagem) || "Não foi possível editar a sala. Tente novamente.", "erro");
+          }
+        })
+        .fail(function () {
+          self.exibirAviso("Não foi possível editar a sala. Tente novamente.", "erro");
+        });
+    },
+
+    excluirSala: function ($linha) {
+      const self = this;
+      const nome = $linha.attr("data-nome-original") || "esta sala";
+
+      if (!window.confirm("Excluir a sala \u201c" + nome + "\u201d?")) {
+        return;
+      }
+      if (!this.contratoDisponivel("removerSala")) {
+        this.avisarIndisponivel();
+        return;
+      }
+
+      this.chamarContrato("removerSala", { sala: $linha.attr("data-sala-id") })
+        .done(function (resposta) {
+          if (resposta && resposta.sucesso) {
+            self.carregarSalas();
+          } else {
+            self.exibirAviso((resposta && resposta.mensagem) || "Não foi possível excluir a sala. Tente novamente.", "erro");
+          }
+        })
+        .fail(function () {
+          self.exibirAviso("Não foi possível excluir a sala. Tente novamente.", "erro");
         });
     },
 
@@ -999,7 +1169,6 @@
         });
     },
 
-    // Ativador "Atendo na minha residência": ligar abre o cadastro do endereço; desligar remove a localização.
     alternarAtendeCasa: function (ligado) {
       const self = this;
       const local = this.estado.localizacao;
@@ -1090,12 +1259,10 @@
       }
     },
 
-    // índice (0-6) -> string enviada ao backend, ex.: 1 -> "1"
     diaParaBackend: function (indice) {
       return String(Number(indice));
     },
 
-    // valor vindo do backend ("1" ou 1) -> índice numérico (0-6); -1 se inválido
     diaDoBackend: function (valor) {
       const texto = $.trim(String(valor));
       if (/^[0-6]$/.test(texto)) {
@@ -1104,7 +1271,6 @@
       return -1;
     },
 
-    // vários dias -> string única de dígitos, sem separador, ex.: [1, 3, 5] -> "135"
     combinarDias: function (indices) {
       const self = this;
       const ordenados = indices.slice().sort(function (a, b) {
@@ -1115,7 +1281,6 @@
       }).join("");
     },
 
-    // string do backend -> lista de índices, ex.: "135" -> [1, 3, 5]
     separarDias: function (valorCombinado) {
       const self = this;
       const indices = [];
@@ -1177,6 +1342,7 @@
       }
       if (nomeVisao === "edicaoLocalizacao") {
         this.preencherFormularioLocalizacao();
+        this.renderizarEditorSalas();
       }
       if (nomeVisao === "cadastroHorarios") {
         this.preencherFormularioHorarios();
@@ -1210,12 +1376,19 @@
       });
       $("#avisosLocalizacao").empty();
 
+      if ($formulario.is(this.elementos.$formularioLocalizacao)) {
+        this.estado.salasPendentes = [];
+        $("#campoNovaSala").val("");
+        this.renderizarEditorSalas();
+      }
+
       if ($formulario.is(this.elementos.$formularioHorarios)) {
         this.preencherFormularioHorarios();
       }
       if ($formulario.is(this.elementos.$formularioServico)) {
         this.estado.pedidoSalas++;
         this.renderizarSalasServico([], placeholderSala);
+        this.atualizarTextoProfissionaisServico();
       }
     },
 
@@ -1283,7 +1456,6 @@
       });
     },
 
-    // Mesmo formulário cadastra (ainda não existe localização) ou edita (já existe), via localizacaocontroller.
     enviarLocalizacao: function () {
       const self = this;
       const c = this.elementos.$camposLocalizacao;
@@ -1339,6 +1511,19 @@
           numero: numero,
           complemento: complemento
         };
+
+        const salasNovas = this.estado.salasPendentes.slice();
+        const digitada = $.trim($("#campoNovaSala").val());
+        const jaNaLista = $.grep(salasNovas, function (existente) {
+          return existente.toLowerCase() === digitada.toLowerCase();
+        }).length;
+
+        if (digitada && !jaNaLista) {
+          salasNovas.push(digitada);
+        }
+        if (salasNovas.length) {
+          dados.salas = salasNovas;
+        }
       }
       if (!this.contratoDisponivel(contrato)) {
         this.avisarIndisponivel();
@@ -1360,15 +1545,12 @@
         });
     },
 
-    // ---- Local de atendimento do cadastro de serviço ----
-    // #campoLocalizacaoServico: escolha ÚNICA. Fixos: "Casa" e "domi" (domiciliar).
-    // As demais opções são as clínicas vinculadas ao profissional (listarVinculos), valor "clin" + id.
-    // #campoSalaServico: múltipla escolha, ativo apenas quando o local é uma clínica.
     ehLocalClinica: function (valor) {
       return String(valor || "").indexOf(prefixoLocalClinica) === 0;
     },
 
     renderizarLocaisServico: function () {
+      const self = this;
       const $campo = this.elementos.$campoLocalizacaoServico;
       const $lista = $campo.find(".campoSelect_lista");
       const clinicas = this.estado.vinculos || [];
@@ -1379,9 +1561,14 @@
 
       $lista.find("[data-localClinica]").remove();
 
-      if (!this.ehClinica()) {
-        $lista.find('[data-valor="' + localCasa + '"]').closest("li").prop("hidden", !this.estado.localizacao);
+      if (this.ehClinica()) {
+        $lista.find('[data-valor="' + localCasa + '"], [data-valor="' + localDomiciliar + '"]').closest("li").prop("hidden", true);
+        this.renderizarProfissionaisServico();
+        this.renderizarSedeServico();
+        return;
       }
+
+      $lista.find('[data-valor="' + localCasa + '"]').closest("li").prop("hidden", !this.estado.localizacao);
 
       if (clinicas.length) {
         $lista.append($("<li>").attr("data-localClinica", "").append($("<hr>").addClass("dropdown-divider")));
@@ -1400,6 +1587,114 @@
           );
         });
       }
+    },
+
+    renderizarSedeServico: function () {
+      const $campo = this.elementos.$campoLocalizacaoServico;
+      const $lista = $campo.find(".campoSelect_lista");
+      const perfil = this.estado.perfil || {};
+      const idClinica = perfil.clin_id;
+      const nomeSede = perfil.clin_nome || perfil.clin_user || "Sede da clínica";
+      let valorSede;
+
+      if (!idClinica) {
+        return;
+      }
+      valorSede = prefixoLocalClinica + idClinica;
+
+      if (!$lista.find('[data-valor="' + valorSede + '"]').length) {
+        $lista.append(
+          $("<li>").attr("data-localClinica", "").append(
+            $("<a>")
+              .addClass("dropdown-item campoSelect_opcao")
+              .attr({ href: "#", "data-valor": valorSede })
+              .text(nomeSede)
+          )
+        );
+      }
+
+      if ($campo.attr("data-valorSelecionado") !== valorSede) {
+        $campo.attr("data-valorSelecionado", valorSede);
+        $campo.find(".campoSelect_valor").text(nomeSede);
+        $campo.removeClass("campoSelect--erro");
+        this.aoSelecionarLocalServico(valorSede);
+      }
+    },
+
+    renderizarProfissionaisServico: function () {
+      const $campo = this.elementos.$campoProfissionaisServico;
+      const $lista = $campo.find(".campoSelect_lista");
+      const $gatilho = $campo.find(".campoSelect_gatilho");
+      const profissionais = this.estado.vinculos || [];
+      const marcados = this.profissionaisSelecionados();
+
+      if (!$campo.length) {
+        return;
+      }
+      $lista.empty();
+
+      if (!profissionais.length) {
+        $gatilho.prop("disabled", true);
+        $campo.find(".campoSelect_valor").text("Nenhum profissional vinculado");
+        return;
+      }
+
+      $.each(profissionais, function (_, profissional) {
+        const id = String(profissional.pro_id);
+        const nome = profissional.pro_nome || profissional.pro_user || "Profissional " + id;
+        const $marca = $("<input>")
+          .attr({ type: "checkbox", name: "profissionalServico", value: id })
+          .addClass("form-check-input me-2")
+          .prop("checked", $.inArray(id, marcados) !== -1);
+
+        $lista.append(
+          $("<li>").append(
+            $("<label>").addClass("dropdown-item campoSelect_opcaoMultipla").append($marca).append(document.createTextNode(nome))
+          )
+        );
+      });
+
+      $gatilho.prop("disabled", false);
+      this.atualizarTextoProfissionaisServico();
+    },
+
+    profissionaisSelecionados: function () {
+      return this.elementos.$campoProfissionaisServico
+        .find('input[name="profissionalServico"]:checked')
+        .map(function () {
+          return String(this.value);
+        })
+        .get();
+    },
+
+    atualizarTextoProfissionaisServico: function () {
+      const $campo = this.elementos.$campoProfissionaisServico;
+      const marcados = $campo.find('input[name="profissionalServico"]:checked');
+      let texto;
+
+      if (!$campo.length || $campo.find(".campoSelect_gatilho").prop("disabled")) {
+        return;
+      }
+      if (!marcados.length) {
+        texto = "Selecione um ou mais profissionais";
+      } else if (marcados.length === 1) {
+        texto = $.trim(marcados.first().parent().text());
+      } else {
+        texto = marcados.length + " profissionais selecionados";
+      }
+      $campo.find(".campoSelect_valor").text(texto);
+    },
+
+    nomeDoProfissional: function (id) {
+      let nome = "Profissional " + id;
+
+      $.each(this.estado.vinculos || [], function (_, profissional) {
+        if (String(profissional.pro_id) === String(id)) {
+          nome = profissional.pro_nome || profissional.pro_user || nome;
+          return false;
+        }
+      });
+      return nome;
     },
 
     aoSelecionarLocalServico: function (valor) {
@@ -1446,7 +1741,6 @@
             return;
           }
 
-          // Uma clínica pode ter mais de uma localização; junta as salas de todas.
           const pedidos = $.map(locais, function (local) {
             const resultado = $.Deferred();
 
@@ -1483,8 +1777,6 @@
         })
         .fail(falhou);
     },
-
-    // Com salas: habilita o select. Sem salas: desabilita e mostra o texto.
     renderizarSalasServico: function (salas, textoVazio) {
       const $campo = this.elementos.$campoSalaServico;
       this.estado.salasServico = salas;
@@ -1542,6 +1834,7 @@
     },
 
     enviarServico: function () {
+      let criarLocalDomiciliar = false;
       const $formulario = this.elementos.$formularioServico;
       const $tipo = this.elementos.$campoTipoServico;
       const $local = this.elementos.$campoLocalizacaoServico;
@@ -1549,6 +1842,8 @@
       const local = $local.attr("data-valorSelecionado") || "";
       const localEhClinica = this.ehLocalClinica(local);
       const salas = localEhClinica ? this.salasSelecionadas() : [];
+      const $profissionais = this.elementos.$campoProfissionaisServico;
+      const profissionais = this.ehClinica() ? this.profissionaisSelecionados() : [];
 
       const dados = {
         nome: $.trim($("#campoNomeServico").val()),
@@ -1557,11 +1852,9 @@
         desc: $.trim($("#campoDescricaoServico").val()),
         dur: $.trim($("#campoDuracaoServico").val()),
         inter: $.trim($("#campoIntervaloServico").val()),
-        // id da localização (ser_loc); vazio = atendimento na casa do cliente
         loc: ""
       };
 
-      // Só clínica tem sala; podem ser várias, enviadas como string separada por vírgula (ex.: "2,5").
       if (localEhClinica) {
         dados.sala = salas.join(",");
       }
@@ -1577,6 +1870,7 @@
       $tipo.removeClass("campoSelect--erro");
       $local.removeClass("campoSelect--erro");
       $sala.removeClass("campoSelect--erro");
+      $profissionais.removeClass("campoSelect--erro");
       $.each(camposVazios, function (_, $campo) {
         $campo.addClass("is-invalid");
       });
@@ -1590,8 +1884,11 @@
       if (localEhClinica && !salas.length) {
         $sala.addClass("campoSelect--erro");
       }
+      if (this.ehClinica() && !profissionais.length) {
+        $profissionais.addClass("campoSelect--erro");
+      }
 
-      if (camposVazios.length || !dados.tipo || !local || (localEhClinica && !salas.length)) {
+      if (camposVazios.length || !dados.tipo || !local || (localEhClinica && !salas.length) || (this.ehClinica() && !profissionais.length)) {
         this.exibirAviso("Você precisa preencher todos os campos!", "erro");
         this.focarPrimeiroInvalido($formulario);
         return;
@@ -1609,8 +1906,6 @@
 
       dados.dia = this.combinarDias(indicesDias);
 
-      // O backend guarda o id da localização em servico.ser_loc: residência do profissional, localização
-      // da clínica (a das salas escolhidas) ou vazio para atendimento na casa do cliente.
       if (local === localCasa) {
         if (!this.estado.localizacao) {
           this.exibirAviso("Ative o atendimento na sua residência no perfil antes de usar esse local.", "erro");
@@ -1637,32 +1932,162 @@
         }
         dados.loc = locaisDasSalas[0];
       } else {
-        dados.loc = "";
+        criarLocalDomiciliar = true;
       }
 
-      // A sala não pertence ao cadastro do serviço; ela é escolhida no agendamento.
 
       const self = this;
       const $botao = $formulario.find('button[type="submit"]').prop("disabled", true);
+      const fila = this.ehClinica() ? profissionais.slice() : [null];
+      const total = fila.length;
+      const resultados = [];
 
-      this.chamarContrato("cadastrarServico", dados, "text")
-        .done(function (resposta) {
-          if ($.trim(resposta) === "sucesso") {
-            self.limparFormulario($formulario);
-            self.mostrarVisao("resumo");
-            self.carregarPerfil();
-          } else {
-            const texto = $.trim(resposta);
-            const legivel = texto.length > 0 && texto.length < 120 && !/^erro/i.test(texto);
-            self.exibirAviso(legivel ? texto : "Não foi possível cadastrar o serviço. Tente novamente.", "erro");
-          }
+      function garantirLocalDomiciliar() {
+        const pronto = $.Deferred();
+
+        if (!criarLocalDomiciliar) {
+          return pronto.resolve().promise();
+        }
+        if (self.estado.localDomiciliarCriado) {
+          dados.loc = self.estado.localDomiciliarCriado;
+          return pronto.resolve().promise();
+        }
+        const dadosBusca = {};
+        if (self.ehClinica() && self.estado.perfil && self.estado.perfil.clin_id) {
+          dadosBusca.clinica = self.estado.perfil.clin_id;
+        }
+
+        function buscarIdCriado() {
+          self.chamarContrato("listarLocalizacoes", dadosBusca)
+            .done(function (resposta) {
+              let maiorId = 0;
+
+              $.each((resposta && resposta.sucesso && resposta.dados) || [], function (_, local) {
+                if (local.loc_tipo === localDomiciliar && Number(local.loc_id) > maiorId) {
+                  maiorId = Number(local.loc_id);
+                }
+              });
+
+              if (!maiorId) {
+                pronto.reject();
+                return;
+              }
+              self.estado.localDomiciliarCriado = maiorId;
+              dados.loc = maiorId;
+              pronto.resolve();
+            })
+            .fail(function () {
+              pronto.reject();
+            });
+        }
+
+        self.chamarContrato("cadastrarLocalizacao", {
+          nome: "Atendimento domiciliar",
+          tipo: localDomiciliar,
+          cep: "",
+          numero: "",
+          complemento: ""
         })
-        .fail(function () {
-          self.exibirAviso("Não foi possível cadastrar o serviço. Tente novamente.", "erro");
-        })
-        .always(function () {
-          $botao.prop("disabled", false);
+          .done(function (resposta) {
+            if (resposta && resposta.sucesso) {
+              buscarIdCriado();
+              return;
+            }
+            pronto.reject();
+          })
+          .fail(function () {
+            pronto.reject();
+          });
+
+        return pronto.promise();
+      }
+
+      function mensagemDoServidor(resposta) {
+        const texto = $.trim(resposta);
+        const legivel = texto.length > 0 && texto.length < 120 && !/^erro/i.test(texto);
+        return legivel ? texto : "";
+      }
+
+      function enviarProximo() {
+        let idProfissional;
+        let envio;
+
+        if (!fila.length) {
+          return $.Deferred().resolve().promise();
+        }
+        idProfissional = fila.shift();
+        envio = $.extend({}, dados);
+        if (idProfissional) {
+          envio.pro = idProfissional;
+        }
+
+        return self.chamarContrato("cadastrarServico", envio, "text")
+          .then(
+            function (resposta) {
+              resultados.push({
+                id: idProfissional,
+                ok: $.trim(resposta) === "sucesso",
+                mensagem: mensagemDoServidor(resposta)
+              });
+            },
+            function () {
+              resultados.push({ id: idProfissional, ok: false, mensagem: "" });
+            }
+          )
+          .then(enviarProximo);
+      }
+
+      garantirLocalDomiciliar().then(enviarProximo, function () {
+        $.each(fila, function (_, id) {
+          resultados.push({
+            id: id,
+            ok: false,
+            mensagem: "Não foi possível criar a localização do atendimento domiciliar."
+          });
         });
+        fila.length = 0;
+      }).always(function () {
+        const falhas = $.grep(resultados, function (resultado) {
+          return !resultado.ok;
+        });
+
+        $botao.prop("disabled", false);
+
+        if (!falhas.length) {
+          self.estado.localDomiciliarCriado = null;
+          self.limparFormulario($formulario);
+          self.mostrarVisao("resumo");
+          self.carregarPerfil();
+          return;
+        }
+
+        if (total === 1) {
+          self.exibirAviso(falhas[0].mensagem || "Não foi possível cadastrar o serviço. Tente novamente.", "erro");
+          return;
+        }
+
+        $.each(resultados, function (_, resultado) {
+          if (resultado.ok) {
+            $profissionais.find('input[name="profissionalServico"][value="' + resultado.id + '"]').prop("checked", false);
+          }
+        });
+        self.atualizarTextoProfissionaisServico();
+
+        if (falhas.length < total) {
+          const nomes = $.map(falhas, function (falha) {
+            return self.nomeDoProfissional(falha.id);
+          });
+          self.exibirAviso(
+            "Serviço cadastrado para " + (total - falhas.length) + " de " + total + " profissionais. " +
+              "Não foi possível cadastrar para: " + nomes.join(", ") + ". Tente novamente para os que ficaram selecionados.",
+            "atencao"
+          );
+          self.carregarPerfil();
+        } else {
+          self.exibirAviso(falhas[0].mensagem || "Não foi possível cadastrar o serviço. Tente novamente.", "erro");
+        }
+      });
+      
     },
 
     montarLinhasHorarioFormulario: function () {
@@ -2145,6 +2570,24 @@
         evento.preventDefault();
         self.enviarLocalizacao();
       });
+      $(document).on("click", "#botaoAdicionarSala", function () {
+        self.adicionarSala();
+      });
+      $(document).on("keydown", "#campoNovaSala", function (evento) {
+        if (evento.key === "Enter") {
+          evento.preventDefault();
+          self.adicionarSala();
+        }
+      });
+      $(document).on("click", '#editorSalas [data-acao="salvarSala"]', function () {
+        self.editarSala($(this).closest("li"));
+      });
+      $(document).on("click", '#editorSalas [data-acao="removerSalaPendente"]', function () {
+        self.removerSalaPendente($(this).closest("li"));
+      });
+      $(document).on("click", '#editorSalas [data-acao="excluirSala"]', function () {
+        self.excluirSala($(this).closest("li"));
+      });
       $("#alternarAtendeCasa").on("change", function () {
         self.alternarAtendeCasa($(this).is(":checked"));
       });
@@ -2167,6 +2610,10 @@
       e.$campoLocalizacaoServico.on("opcaoSelecionada", function (_, dados) {
         $(this).removeClass("campoSelect--erro");
         self.aoSelecionarLocalServico(dados.valor);
+      });
+      e.$campoProfissionaisServico.on("change", 'input[name="profissionalServico"]', function () {
+        e.$campoProfissionaisServico.removeClass("campoSelect--erro");
+        self.atualizarTextoProfissionaisServico();
       });
       e.$campoSalaServico.on("change", 'input[name="salaServico"]', function () {
         e.$campoSalaServico.removeClass("campoSelect--erro");

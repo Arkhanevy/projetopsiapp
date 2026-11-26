@@ -23,6 +23,8 @@
 
   const TEMPO_AVISO_PERMISSAO_MS = 8000;
 
+  const SELETOR_INDICADOR_STATUS = ".indicadorStatus";
+
   function criarModulo(configuracao) {
 
     const moduloConsultasPro = {
@@ -496,6 +498,11 @@
 
         $card.attr("data-idConsulta", consulta.idConsulta);
         $card.attr("data-estadoConsulta", consulta.estadoConsulta);
+
+        // Depois de aceita pelo profissional, o card não exibe mais o status (Pendente/Aceita).
+        if (consulta.estadoConsulta === "confirmada") {
+          $card.find(SELETOR_INDICADOR_STATUS).remove();
+        }
 
         Utilitarios.preencherCampos($card.find("[data-campo]"), {
           nomeServico: consulta.nomeServico,

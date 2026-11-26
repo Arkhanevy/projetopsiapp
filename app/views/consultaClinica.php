@@ -79,6 +79,7 @@
 
   <div>
 
+    <!-- Agenda da clínica em modo de visualização: sem ações de gerenciamento. -->
     <main id="conteudoConsultasClinica" class="conteudoConsultasPro conteudoConsultasClinica container-fluid">
 
       <h1 class="tituloConsultasPro"><span class="d-none d-md-inline">Minhas </span>Consultas</h1>
@@ -176,16 +177,6 @@
                   <h3 class="cardConsultaProfissional_servico" data-campo="nomeServico">Tratamento de unha encravada</h3>
                   <p class="cardConsultaProfissional_dataHora" data-campo="dataHoraConsulta">15 de julho, 08:00</p>
                 </div>
-                <div class="cardConsultaProfissional_acoes">
-                  <button type="button" class="btn botaoBase botaoBase--primario botaoBase--compacto" data-acao="aceitarConsulta">
-                    <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
-                    Aceitar
-                  </button>
-                  <button type="button" class="btn botaoBase botaoBase--secundario botaoBase--compacto" data-acao="verDetalhesConsulta" data-bs-toggle="modal" data-bs-target="#modalDetalhesConsulta">
-                    <span class="material-symbols-outlined" aria-hidden="true">assignment_turned_in</span>
-                    Ver detalhes
-                  </button>
-                </div>
               </div>
             </article>
 
@@ -195,16 +186,6 @@
                   <h3 class="cardConsultaProfissional_servico" data-campo="nomeServico">Tratamento de unha encravada</h3>
                   <p class="cardConsultaProfissional_dataHora" data-campo="dataHoraConsulta">15 de julho, 08:00</p>
                 </div>
-                <div class="cardConsultaProfissional_acoes">
-                  <button type="button" class="btn botaoBase botaoBase--opositora botaoBase--compacto" data-acao="cancelarConsulta" data-bs-toggle="modal" data-bs-target="#modalConfirmarCancelamento">
-                    <span class="material-symbols-outlined" aria-hidden="true">cancel</span>
-                    Cancelar
-                  </button>
-                  <button type="button" class="btn botaoBase botaoBase--extra botaoBase--compacto" data-acao="reagendarConsulta">
-                    <span class="material-symbols-outlined" aria-hidden="true">event_repeat</span>
-                    Reagendar
-                  </button>
-                </div>
               </div>
             </article>
 
@@ -213,16 +194,6 @@
                 <div class="cardConsultaProfissional_cabecalho">
                   <h3 class="cardConsultaProfissional_servico" data-campo="nomeServico">Remoção de calos e calosidades</h3>
                   <p class="cardConsultaProfissional_dataHora" data-campo="dataHoraConsulta">21 de julho, 10:00</p>
-                </div>
-                <div class="cardConsultaProfissional_acoes">
-                  <button type="button" class="btn botaoBase botaoBase--opositora botaoBase--compacto" data-acao="cancelarConsulta" data-bs-toggle="modal" data-bs-target="#modalConfirmarCancelamento">
-                    <span class="material-symbols-outlined" aria-hidden="true">cancel</span>
-                    Cancelar
-                  </button>
-                  <span class="indicadorStatus indicadorStatus--pendente indicadorStatus--compacto" data-estadoConsulta="pendente">
-                    <span class="material-symbols-outlined" aria-hidden="true">hourglass_top</span>
-                    Pendente
-                  </span>
                 </div>
               </div>
             </article>
@@ -323,16 +294,6 @@
           <p class="detalhesConsulta_linha"><strong>Cliente:</strong> <span data-campo="nomeCliente">Anna Rita</span></p>
           <p class="detalhesConsulta_linha"><strong>Profissional:</strong> <span data-campo="nomeProfissional">Samanta Santos</span></p>
         </div>
-        <div class="modal-footer modalBase_rodape acoesModalConfirmacao">
-          <button type="button" id="botaoRecusarConsulta" class="btn botaoBase botaoBase--opositora" data-acao="recusarConsulta">
-            <span class="material-symbols-outlined" aria-hidden="true">cancel</span>
-            Recusar
-          </button>
-          <button type="button" id="botaoAceitarConsultaModal" class="btn botaoBase botaoBase--primario" data-acao="aceitarConsulta">
-            <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
-            Aceitar
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -361,16 +322,6 @@
             Se continuar com isso, a consulta sairá da sua agenda e da agenda do cliente.
             Essa ação não pode ser desfeita. Deseja continuar com essa ação?
           </p>
-        </div>
-        <div class="modal-footer modalBase_rodape acoesModalConfirmacao">
-          <button type="button" id="botaoVoltarParaAgenda" class="btn botaoBase botaoBase--secundario" data-bs-dismiss="modal">
-            <span class="material-symbols-outlined" aria-hidden="true">assignment_turned_in</span>
-            Voltar para a agenda
-          </button>
-          <button type="button" id="botaoConfirmarCancelamento" class="btn botaoBase botaoBase--opositora" data-acao="confirmarCancelamentoConsulta">
-            <span class="material-symbols-outlined" aria-hidden="true">cancel</span>
-            Cancelar consulta
-          </button>
         </div>
       </div>
     </div>

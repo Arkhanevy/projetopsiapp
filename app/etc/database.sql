@@ -215,7 +215,7 @@ CREATE TABLE ctrlFiles (
 );
 
 insert into padrao_notif (pdNotif_pro, pdNotif_clin, pdNotif_tipo, pdNotif_msg) values
-(null, null, 'agendar',   'Nova solicitação de consulta de {cliente} para {servico} no dia {data} às {hora}. Acesse a agenda para aceitar ou recusar.'),
+(null, null, 'agendar',   'Nova solicitação de consulta de {cliente} para {servico} no dia {data} às {hora}. Acesse a agenda para aceitar ou recusar.');
 (null, null, 'reagendar', '{cliente} solicitou o reagendamento da consulta de {servico} para o dia {data} às {hora}. Acesse a agenda para aceitar ou recusar.'),
 (null, null, 'aceita',    'Sua consulta de {servico} com {profissional} foi aceita! Te esperamos no dia {data} às {hora}.'),
 (null, null, 'rejeitar',  'Infelizmente sua solicitação de consulta de {servico} para o dia {data} às {hora} não pôde ser aceita. Escolha outro horário na agenda.'),

@@ -405,6 +405,58 @@
       return "";
     },
 
+    // Alterna entre senha oculta/visível (mesmo comportamento dos painéis do agendamentoCli).
+    alternarVisibilidadeSenha: function ($input, $botao) {
+      const mostrar = $input.attr("type") === "password";
+
+      $input.attr("type", mostrar ? "text" : "password");
+      $botao
+        .attr("aria-pressed", mostrar ? "true" : "false")
+        .find(".material-symbols-outlined")
+        .text(mostrar ? "visibility_off" : "visibility");
+    },
+
+    configurarVisibilidadeSenha: function ($input, $botao) {
+      const self = this;
+      $botao.on("click", function () {
+        self.alternarVisibilidadeSenha($input, $botao);
+      });
+    },
+
+    // E-mail levado entre telas (cadastro/ativação → login, login → ativação).
+    // Fica só na aba (sessionStorage) e é lido uma única vez, para não vazar na URL.
+    guardarEmailEntreTelas: function (chave, email) {
+      try {
+        if (email) { window.sessionStorage.setItem(chave, email); }
+      } catch (erro) { /* storage indisponível: o usuário só digita o e-mail */ }
+    },
+
+    consumirEmailEntreTelas: function (chave) {
+      try {
+        const email = window.sessionStorage.getItem(chave) || "";
+        window.sessionStorage.removeItem(chave);
+        return email;
+      } catch (erro) {
+        return "";
+      }
+    },
+
+    guardarEmailLogin: function (email) {
+      this.guardarEmailEntreTelas("podopsi:emailLogin", email);
+    },
+
+    consumirEmailLogin: function () {
+      return this.consumirEmailEntreTelas("podopsi:emailLogin");
+    },
+
+    guardarEmailAtivacao: function (email) {
+      this.guardarEmailEntreTelas("podopsi:emailAtivacao", email);
+    },
+
+    consumirEmailAtivacao: function () {
+      return this.consumirEmailEntreTelas("podopsi:emailAtivacao");
+    },
+
     configurarPreviewImagem: function ($container, $input, $preview) {
       const self = this;
       const srcOriginal = $preview.attr("src");

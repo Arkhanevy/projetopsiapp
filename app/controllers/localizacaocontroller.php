@@ -41,7 +41,13 @@ switch ($acao){
             $clin = $_SESSION['usuario']['idUsuario'];
         }
         $localizacao = new localizacao('localizacao',$camposLoc,$camposLoc[0]);
-        $inserir = $localizacao->inserirloc($pro, $clin, $_POST['nome'], $_POST['tipo'],$_POST['cep'],$_POST['numero'],$_POST['complemento'] ?? '');
+        // "salas" (opcional): nomes das salas criadas junto com a localização.
+        $salas = $_POST['salas'] ?? [];
+        if (is_array($salas) && count($salas)) {
+            $inserir = $localizacao->inserirlocComSalas($pro, $clin, $_POST['nome'], $_POST['tipo'],$_POST['cep'],$_POST['numero'],$_POST['complemento'] ?? '', $salas);
+        } else {
+            $inserir = $localizacao->inserirloc($pro, $clin, $_POST['nome'], $_POST['tipo'],$_POST['cep'],$_POST['numero'],$_POST['complemento'] ?? '');
+        }
         echo json_encode($inserir);
         exit;
     case 'inserirsala':
